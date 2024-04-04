@@ -1,0 +1,46 @@
+/* 
+* Override default map-popover styles
+*/
+.map-popover {
+  box-sizing: border-box;
+  border: 1px solid #39273b;
+  background-color: #fdfdfd !important;
+  box-shadow: 0 3px 5px 0 rgba(56, 22, 63, 0.23);
+  overflow-x: hidden;
+}
+
+.map-popover .map-popover__layer-name,
+.map-popover .popover-arrow-left,
+.map-popover .popover-pin {
+  display: none !important;
+}
+
+.map-popover .row__value {
+  color: #000000 !important;
+  font-size: 13px;
+  text-align: left !important;
+  word-break: break-all;
+}
+
+.map-popover .row__name {
+  font-weight: 600 !important;
+  font-size: 13px;
+  color: #000000 !important;
+  word-break: break-all;
+}
+
+.map-popover .row__name:after {
+  content: ":";
+}
+
+.map-control {
+  display: none;
+}
+
+.attrition-logo a.mapboxgl-ctrl-logo {
+  width: 88px !important;
+}
+
+.mapbox-attribution-container {
+  bottom: 70px !important;
+}

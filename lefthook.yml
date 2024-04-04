@@ -1,0 +1,21 @@
+# EXAMPLE USAGE
+# Refer for explanation to following link:
+# https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md
+#
+pre-commit:
+  parallel: true
+  commands:
+    prettier:
+      glob: "*.{js,ts,tsx,json,md}"
+      run: yarn prettier --ignore-unknown --write {staged_files}
+    # We can also run these if we decide we need to
+    # lint_maps:
+    #   run: yarn workspace @probable-futures/maps lint
+    # typecheck_maps:
+    #   run: yarn workspace @probable-futures/maps typecheck
+    # typecheck_worker:
+    #   run: yarn workspace @probable-futures/worker typecheck
+    # typecheck_api:
+    #   run: yarn workspace @probable-futures/api typecheck
+    # typecheck_infra:
+    #   run: yarn workspace @probable-futures/infra typecheck

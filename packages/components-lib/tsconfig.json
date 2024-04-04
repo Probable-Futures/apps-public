@@ -1,0 +1,9 @@
+{
+  "extends": "@probable-futures/tsconfig/browser.json",
+  "outDir": "build",
+  "compilerOptions": {
+    "baseUrl": "src",
+    "types": ["@types/node"]
+  },
+  "include": ["src"]
+}

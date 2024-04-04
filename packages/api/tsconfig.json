@@ -1,0 +1,8 @@
+{
+  "extends": "@probable-futures/tsconfig/node.json",
+  "compilerOptions": {
+    "baseUrl": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/*"]
+}

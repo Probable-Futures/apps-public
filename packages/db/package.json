@@ -1,0 +1,17 @@
+{
+  "name": "@probable-futures/db",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "migrate": "node ./scripts/migrate.js",
+    "watch": "graphile-migrate watch",
+    "commit": "graphile-migrate commit",
+    "compile": "graphile-migrate compile",
+    "uncommit": "graphile-migrate uncommit"
+  },
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "graphile-migrate": "^1.4.1",
+    "graphile-worker": "0.16.2"
+  }
+}

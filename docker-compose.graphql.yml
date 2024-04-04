@@ -1,0 +1,84 @@
+version: "3.7"
+
+x-common: &common
+  restart: on-failure
+  init: true
+  depends_on:
+    - db
+
+services:
+  # Adds to base nginx config to enable graphql site
+  nginx:
+    depends_on:
+      - api
+    volumes:
+      - ./docker/nginx/sites/graphql.conf:/etc/nginx/sites-enabled/graphql.conf
+
+  api:
+    <<: *common
+    env_file: ./packages/api/.env
+    container_name: api
+    command: wait-for-it --strict --timeout=0 db:5432 -- yarn dev
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+      target: development
+    ports:
+      - 5433:5433
+      - 9229:9229 # debugging port
+    working_dir: /home/node/probable-futures/packages/api
+    volumes:
+      - .:/home/node/probable-futures
+
+  worker:
+    <<: *common
+    container_name: worker
+    env_file: ./packages/worker/.env
+    working_dir: /home/node/probable-futures/packages/worker
+    command: wait-for-it --strict --timeout=0 db:5432 -- yarn dev
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+      target: development
+    ports:
+      - 9230:9229 # debugging port
+    volumes:
+      - .:/home/node/probable-futures
+
+  db:
+    container_name: db
+    image: postgis/postgis:13-3.0-alpine
+    env_file: ./packages/db/.env
+    restart: unless-stopped
+    user: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./docker/postgres/data:/var/lib/postgresql/data
+
+  migrate:
+    env_file: ./packages/db/.env
+    container_name: migrate
+    working_dir: /home/node/probable-futures/packages/db
+    command: wait-for-it --strict --timeout=0 db:5432 -- yarn migrate
+    build:
+      context: .
+      dockerfile: docker/migrate.Dockerfile
+      target: development
+    volumes:
+      - .:/home/node/probable-futures
+    init: true
+    depends_on:
+      - db
+
+  redis:
+    container_name: redis
+    image: "redis:alpine"
+    restart: unless-stopped
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./docker/redis/data:/data

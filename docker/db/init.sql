@@ -1,0 +1,1 @@
+CREATE ROLE pf_root WITH LOGIN PASSWORD 'pf_root_pw' SUPERUSER;

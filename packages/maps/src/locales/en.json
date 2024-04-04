@@ -1,0 +1,222 @@
+{
+  "menu": {
+    "data": {
+      "title": "Data",
+      "dataSet": "Data Set",
+      "mapStatus": "Map Status",
+      "volume": "Volume",
+      "showInspector": "Show inspector location",
+      "filterOptions": {
+        "all": "Show all maps",
+        "draft": "Show only drafts",
+        "published": "Show only published",
+        "archive": "Show only archives"
+      },
+      "volumeOptions": {
+        "all": "Show all maps",
+        "heat": "Heat",
+        "land": "Land",
+        "water": "Water",
+        "other": "Other"
+      },
+      "midValueOptions": {
+        "mean": "Mean",
+        "median": "Median"
+      },
+      "midValueShown": "Mid value shown"
+    },
+    "mapStyle": {
+      "title": "Map Style",
+      "landColor": "Land color",
+      "oceanColor": "Ocean color",
+      "boundaries": "Geopolitical boundaries",
+      "placeLabels": "Place labels",
+      "on": "On",
+      "off": "Off",
+      "projection": "Projection"
+    },
+    "legend": {
+      "title": "Legend",
+      "colors": {
+        "editColors": "Edit Colors",
+        "firstColor": "First Color",
+        "lastColor": "Last Color",
+        "colorHint": "The colors between first and last are determined algorithmically."
+      },
+      "bins": {
+        "editBins": "Edit bins",
+        "doubling": "Doubling",
+        "incremental": "Incremental"
+      }
+    }
+  },
+  "slider": {
+    "title": "Warming Scenario"
+  },
+  "title": "Map Builder",
+  "key": {
+    "title": "KEY",
+    "degrees": "Degrees Warming",
+    "inspector": "Inspector Location",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "binLabels": {
+      "muchDrier": "much drier",
+      "drier": "drier",
+      "unchanged": "unchanged",
+      "wetter": "wetter",
+      "muchWetter": "much wetter"
+    },
+    "datasetUnit": {
+      "degrees": "°C",
+      "days": "days",
+      "cm": "cm",
+      "mm": "mm",
+      "xAsFrequent": "x as frequent",
+      "zScore": "z-score",
+      "percentage": "%",
+      "class": "class",
+      "nights": "nights"
+    },
+    "datasetUnitLong": {
+      "temperatureC": "Temperature (°C)",
+      "numberOfDaysPerYear": "Number of days per year",
+      "changeInAnnualPrecipitationCm": "Change in annual precipitation (cm)",
+      "changeInPrecipitationMm": "Change in precipitation (mm)",
+      "timesMoreLessFrequent": "Times more/less frequent",
+      "changeInWaterBalance": "Change in water balance",
+      "annualLikelihood": "Annual likelihood (%)",
+      "climateZone": "Climate zone",
+      "numberOfNightsPerYear": "Number of nights per year"
+    }
+  },
+  "mapPopover": {
+    "errorValueDescription": "Values are not shown here due to anomalies found in the model data.",
+    "barrenLandDescription": "In these maps, places that are already consistently dry do not display data for dryness measures.",
+    "readMore": "read more",
+    "learnWhy": "learn why",
+    "aboutTheBaseline": "about the baseline",
+    "noData": "No data here",
+    "expectedRangeOfOutcomes": "Expected range of outcomes",
+    "expectedOutcome": "Expected outcome",
+    "showBaselineDetails": "Show baseline details",
+    "hideBaselineDetails": "Hide baseline details",
+    "year": {
+      "10ThPercentile": "10th percentile",
+      "5ThPercentile": "5th percentile",
+      "50ThPercentile": "50th percentile",
+      "90ThPercentile": "90th percentile",
+      "95ThPercentile": "95th percentile",
+      "average": "average",
+      "dryYear": "dry year",
+      "averageYear": "average year",
+      "wetYear": "wet year",
+      "coolerYear": "cooler year",
+      "warmerYear": "warmer year",
+      "drierYear": "drier year",
+      "wetterYear": "wetter year",
+      "snowierYear": "snowier year",
+      "lessSnowyYear": "less snowy year",
+      "drierWetSeason": "drier wet season",
+      "wetterWetSeason": "wetter wet season",
+      "medianWetSeason": "median wet season",
+      "medianYear": "median year"
+    },
+    "lessFrequent": "Less frequent"
+  },
+  "geocoder": {
+    "clear": "clear",
+    "noResult": "No results found",
+    "serverError": "There was an error reaching the server",
+    "placeholder": "Search for a location",
+    "recentlySearched": "recently searched"
+  },
+  "header": {
+    "warmingScenariosTitle": "Warming scenarios",
+    "yearLabel0": "Past",
+    "yearLabel1": "Recent",
+    "yearLabel2": "Impending",
+    "yearLabel3": "Potential",
+    "yearLabel4": "Potential",
+    "yearLabel5": "Potential",
+    "datasets": {
+      "10HottestDays": "10 hottest days",
+      "10HottestWetBulbDays": "10 hottest wet-bulb days",
+      "averageDaytimeTemperature": "Average daytime temperature",
+      "averageNighttimeTemperature": "Average nighttime temperature",
+      "averageTemperature": "Average temperature",
+      "changeInDryHotDays": "Change in dry hot days",
+      "changeInFrequencyOf1In100YearStorm": "Change in frequency of historical “1-in-100-year” storm",
+      "changeInPrecipitation1In100YearStorm": "Change in precipitation of “1-in-100-year” storm",
+      "changeInSnowyDays": "Change in snowy days",
+      "changeInTotalAnnualPrecipitation": "Change in total annual precipitation",
+      "changeInWaterBalance": "Change in water balance",
+      "changeInWettest90Days": "Change in wettest 90 days",
+      "changeInWildfireDangerDays": "Change in wildfire danger days",
+      "climateZones": "Climate zones",
+      "daysAbove26CWetBulb": "Days above 26°C (78°F) wet-bulb",
+      "daysAbove28CWetBulb": "Days above 28°C (82°F) wet-bulb",
+      "daysAbove30CWetBulb": "Days above 30°C (86°F) wet-bulb",
+      "daysAbove32C": "Days above 32°C (90°F)",
+      "daysAbove32CWetBulb": "Days above 32°C (90°F) wet-bulb",
+      "daysAbove35C": "Days above 35°C (95°F)",
+      "daysAbove38C": "Days above 38°C (100°F)",
+      "freezingDays": "Freezing days",
+      "frostNights": "Frost nights",
+      "likelihoodOfYearPlusDrought": "Likelihood of year-plus drought",
+      "likelihoodOfYearPlusExtremeDrought": "Likelihood of year-plus extreme drought",
+      "nightsAbove20C": "Nights above 20°C (68°F)",
+      "nightsAbove25C": "Nights above 25°C (77°F)",
+      "parentCategories": {
+        "mapsOfTemperature": "Maps of temperature",
+        "mapsOfPrecipitation": "Maps of precipitation",
+        "mapsOfDryness": "Maps of dryness",
+        "otherMaps": "Other maps"
+      },
+      "subCategories": {
+        "increasingHeat": "Increasing Heat",
+        "decreasingCold": "decreasing cold",
+        "heatAndHumidity": "heat and humidity"
+      }
+    }
+  },
+  "mapControl": {
+    "searchTitle": "Find a location",
+    "hideMarkerTitle": "Hide vignette markers",
+    "showMarkerTitle": "Show vignette markers",
+    "downloadTitle": "Download QR code or embeddable map",
+    "behindMapsTitle": "Learn more about the maps",
+    "takeQuickTour": "Take a quick tour",
+    "closeTheTour": "Close the tour",
+    "maxZoomMessage": "This is the closest zoom level",
+    "downloadScreenshot": "Download screenshot",
+    "showGlobe": "Show globe view",
+    "showMap": "Show map view"
+  },
+  "vignette": {
+    "climateZone": "Climate zone",
+    "population": "Population",
+    "vignette": "Vignette",
+    "of": "of",
+    "contributionFrom": "Contribution from"
+  },
+  "binning": {
+    "reset": "Reset"
+  },
+  "actionSheet": {
+    "search": "Search",
+    "marker": "Locations on/off",
+    "behindTheMaps": "Behind the maps"
+  },
+  "downloadMap": {
+    "title": "Download current map view",
+    "qrCodeOptionLabel": "Download QR code",
+    "simpleMapOptionLabel": "Download embeddable map",
+    "compareMapOptionLabel": "Download embeddable comparison map",
+    "compareSectionHeader": "Select two warming scenarios to include in the embeddable comparison map",
+    "step": "Step",
+    "of": "of",
+    "selectScenarios": "Select scenarios",
+    "download": "Download"
+  }
+}

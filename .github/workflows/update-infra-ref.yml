@@ -1,0 +1,44 @@
+name: Update ref
+
+on:
+  repository_dispatch:
+    types: [update-submodule-ref]
+
+jobs:
+  update-submodule-ref:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v2
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          token: ${{ secrets.FINE_GRAINED_PAT }}
+
+      - name: Initialize and update submodules
+        run: git submodule update --init --recursive
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Set Git user identity
+        run: |
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config user.name "${GITHUB_ACTOR}"
+
+      - name: Update submodules
+        run: |
+          git fetch
+          git submodule update --remote
+
+      - name: Display git diff
+        run: git diff
+
+      - name: Commit and push changes
+        run: |
+          git add .
+          git commit -m "bot(feat): update submodules"
+          git push

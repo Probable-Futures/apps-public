@@ -1,0 +1,30 @@
+export const colors = {
+  cream: "#ecf0e0",
+  lightCream: "#f8f9f3",
+  darkPurple: "#2a172d",
+  white: "#fdfdfd",
+  purple: "#851fff",
+  grey: "#979797",
+  lightGrey: "#d4d4d4",
+  whiteSmoke: "#f5f5f5",
+  blue: "#0091ff",
+  silver: "#c0c0c0",
+  red: "#da1720",
+  black: "#000000",
+  secondaryBlack: "#1c101e",
+  darkGrey: "#737373",
+  midGrey: "#a2a2a2",
+  secondaryBlue: "#006ec2",
+  primaryWhite: "#ffffff",
+  skyBlue: "#0076d1",
+  darkPurpleBackground: "#302530",
+};
+
+export const size = {
+  mobile: "375px",
+  mobileMax: "767px",
+  tablet: "768px",
+  tabletMax: "1199px",
+  laptop: "1200px",
+  desktop: "1440px",
+};

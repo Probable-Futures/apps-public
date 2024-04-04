@@ -1,0 +1,220 @@
+{
+  "menu": {
+    "data": {
+      "title": "Données",
+      "dataSet": "Jeu de données",
+      "mapStatus": "Statut de la carte",
+      "volume": "Volume",
+      "showInspector": "Afficher l'emplacement de l'inspecteur",
+      "filterOptions": {
+        "all": "Afficher toutes les cartes",
+        "draft": "Afficher uniquement les brouillons",
+        "published": "Afficher uniquement les publiés",
+        "archive": "Afficher uniquement les archives"
+      },
+      "volumeOptions": {
+        "all": "Afficher toutes les cartes",
+        "heat": "Chaleur",
+        "land": "Terre",
+        "water": "Eau",
+        "other": "Autre"
+      },
+      "midValueOptions": {
+        "mean": "Mean",
+        "median": "Median"
+      },
+      "midValueShown": "Mid value shown"
+    },
+    "mapStyle": {
+      "title": "Style de la carte",
+      "landColor": "Couleur de la terre",
+      "oceanColor": "Couleur de l'océan",
+      "boundaries": "Frontières géopolitiques",
+      "placeLabels": "Étiquettes de lieu",
+      "on": "Activé",
+      "off": "Désactivé",
+      "projection": "Projection"
+    },
+    "legend": {
+      "title": "Légende",
+      "colors": {
+        "editColors": "Modifier les couleurs",
+        "firstColor": "Première couleur",
+        "lastColor": "Dernière couleur",
+        "colorHint": "Les couleurs entre la première et la dernière sont déterminées de manière algorithmique."
+      },
+      "bins": {
+        "editBins": "Modifier les bacs",
+        "doubling": "Doublant",
+        "incremental": "Incrémentiel"
+      }
+    }
+  },
+  "slider": {
+    "title": "Scénario de réchauffement"
+  },
+  "title": "Constructeur de carte",
+  "key": {
+    "title": "CLÉ",
+    "degrees": "Degrés de réchauffement",
+    "inspector": "Emplacement de l'inspecteur",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "binLabels": {
+      "muchDrier": "beaucoup plus sec",
+      "drier": "plus sec",
+      "unchanged": "inchangé",
+      "wetter": "plus humide",
+      "muchWetter": "beaucoup plus humide"
+    },
+    "datasetUnit": {
+      "degrees": "°C",
+      "days": "jours",
+      "cm": "cm",
+      "mm": "mm",
+      "xAsFrequent": "x en tant que fréquent",
+      "zScore": "score Z",
+      "percentage": "%",
+      "class": "classe",
+      "nights": "nuits"
+    },
+    "datasetUnitLong": {
+      "temperatureC": "Température (°C)",
+      "numberOfDaysPerYear": "Nombre de jours par an",
+      "changeInAnnualPrecipitationCm": "Changement dans la précipitation annuelle (cm)",
+      "changeInPrecipitationMm": "Changement dans la précipitation (mm)",
+      "timesMoreLessFrequent": "Multiplication/division de la fréquence",
+      "changeInWaterBalance": "Changement dans le bilan hydrique",
+      "annualLikelihood": "Probabilité annuelle (%)",
+      "climateZone": "Zone climatique",
+      "numberOfNightsPerYear": "Nombre de nuits par an"
+    }
+  },
+  "mapPopover": {
+    "errorValueDescription": "Les valeurs ne sont pas affichées ici en raison d'anomalies trouvées dans les données du modèle.",
+    "barrenLandDescription": "Sur ces cartes, les endroits déjà constamment secs n'affichent pas de données pour les mesures de sécheresse.",
+    "readMore": "en savoir plus",
+    "learnWhy": "comprendre pourquoi",
+    "aboutTheBaseline": "à propos de la ligne de base",
+    "noData": "Pas de données ici",
+    "expectedRangeOfOutcomes": "Plage attendue de résultats",
+    "expectedOutcome": "Résultat attendu",
+    "showBaselineDetails": "Afficher les détails de la ligne de base",
+    "hideBaselineDetails": "Masquer les détails de la ligne de base",
+    "year": {
+      "10ThPercentile": "10ème percentile",
+      "5ThPercentile": "5ème percentile",
+      "50ThPercentile": "50ème percentile",
+      "90ThPercentile": "90ème percentile",
+      "95ThPercentile": "95ème percentile",
+      "average": "moyenne",
+      "dryYear": "Année sèche",
+      "averageYear": "Année moyenne",
+      "wetYear": "Année humide",
+      "coolerYear": "Année plus fraîche",
+      "warmerYear": "Année plus chaude",
+      "drierYear": "Année plus sèche",
+      "wetterYear": "Année plus humide",
+      "snowierYear": "Année plus neigeuse",
+      "lessSnowyYear": "Année moins neigeuse",
+      "drierWetSeason": "Saison des pluies plus sèche",
+      "wetterWetSeason": "Saison des pluies plus humide",
+      "medianWetSeason": "Saison des pluies médiane",
+      "medianYear": "Année médiane"
+    },
+    "lessFrequent": "Moins fréquent"
+  },
+  "geocoder": {
+    "clear": "effacer",
+    "noResult": "Aucun résultat trouvé",
+    "serverError": "Une erreur s'est produite lors de la communication avec le serveur",
+    "placeholder": "Rechercher un lieu",
+    "recentlySearched": "recherches récentes"
+  },
+  "header": {
+    "warmingScenariosTitle": "Scénarios de réchauffement",
+    "yearLabel0": "Passé",
+    "yearLabel1": "Récent",
+    "yearLabel2": "Imminent",
+    "yearLabel3": "Potentiel",
+    "yearLabel4": "Potentiel",
+    "yearLabel5": "Potentiel",
+    "datasets": {
+      "10HottestDays": "10 jours les plus chauds",
+      "10HottestWetBulbDays": "10 jours les plus chauds à bulbe humide",
+      "averageDaytimeTemperature": "Température moyenne en journée",
+      "averageNighttimeTemperature": "Température moyenne la nuit",
+      "averageTemperature": "Température moyenne",
+      "changeInDryHotDays": "Changement des jours chauds secs",
+      "changeInFrequencyOf1In100YearStorm": "Changement de la fréquence de la tempête historique \"1 sur 100 ans\"",
+      "changeInPrecipitation1In100YearStorm": "Changement de la précipitation de la tempête \"1 sur 100 ans\"",
+      "changeInSnowyDays": "Changement des jours de neige",
+      "changeInTotalAnnualPrecipitation": "Changement de la précipitation annuelle totale",
+      "changeInWaterBalance": "Changement de l'équilibre hydrique",
+      "changeInWettest90Days": "Changement des 90 jours les plus humides",
+      "changeInWildfireDangerDays": "Changement des jours de danger d'incendie de forêt",
+      "climateZones": "Zones climatiques",
+      "daysAbove26CWetBulb": "Jours au-dessus de 26°C (78°F) de température à bulbe humide",
+      "daysAbove28CWetBulb": "Jours au-dessus de 28°C (82°F) de température à bulbe humide",
+      "daysAbove30CWetBulb": "Jours au-dessus de 30°C (86°F) de température à bulbe humide",
+      "daysAbove32C": "Jours au-dessus de 32°C (90°F)",
+      "daysAbove32CWetBulb": "Jours au-dessus de 32°C (90°F) de température à bulbe humide",
+      "daysAbove35C": "Jours au-dessus de 35°C (95°F)",
+      "daysAbove38C": "Jours au-dessus de 38°C (100°F)",
+      "freezingDays": "Jours de gel",
+      "frostNights": "Nuits de gel",
+      "likelihoodOfYearPlusDrought": "Probabilité d'une sécheresse d'un an ou plus",
+      "likelihoodOfYearPlusExtremeDrought": "Probabilité d'une sécheresse extrême d'un an ou plus",
+      "nightsAbove20C": "Nuits au-dessus de 20°C (68°F)",
+      "nightsAbove25C": "Nuits au-dessus de 25°C (77°F)",
+      "parentCategories": {
+        "mapsOfTemperature": "Cartes de température",
+        "mapsOfPrecipitation": "Cartes de précipitations",
+        "mapsOfDryness": "Cartes de sécheresse",
+        "otherMaps": "Autres cartes"
+      },
+      "subCategories": {
+        "increasingHeat": "Augmentation de la chaleur",
+        "decreasingCold": "Diminution du froid",
+        "heatAndHumidity": "Chaleur et humidité"
+      }
+    }
+  },
+  "mapControl": {
+    "searchTitle": "Trouver un lieu",
+    "hideMarkerTitle": "Masquer les marqueurs de vignette",
+    "showMarkerTitle": "Afficher les marqueurs de vignette",
+    "downloadTitle": "Télécharger en tant qu'intégration ou code QR",
+    "behindMapsTitle": "En savoir plus sur les cartes",
+    "takeQuickTour": "Faire une visite rapide",
+    "closeTheTour": "Fermer la visite",
+    "maxZoomMessage": "Ceci est le niveau de zoom le plus proche",
+    "downloadScreenshot": "Télécharger la capture d'écran"
+  },
+  "vignette": {
+    "climateZone": "Zone climatique",
+    "population": "Population",
+    "vignette": "Vignette",
+    "of": "de",
+    "contributionFrom": "Contribution de"
+  },
+  "binning": {
+    "reset": "Réinitialiser"
+  },
+  "actionSheet": {
+    "search": "Recherche",
+    "marker": "Afficher/Masquer les emplacements",
+    "behindTheMaps": "Derrière les cartes"
+  },
+  "downloadMap": {
+    "title": "Télécharger la vue de la carte actuelle",
+    "qrCodeOptionLabel": "Télécharger le code QR",
+    "simpleMapOptionLabel": "Télécharger la carte intégrable de la vue actuelle",
+    "compareMapOptionLabel": "Télécharger la carte de comparaison intégrable",
+    "compareSectionHeader": "Sélectionnez deux scénarios de réchauffement à inclure dans la carte de comparaison intégrable",
+    "step": "Étape",
+    "of": "de",
+    "selectScenarios": "Sélectionner les scénarios",
+    "download": "Télécharger"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "@probable-futures/worker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "build:production": "tsc -p tsconfig.production.json",
+    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --files --inspect=0.0.0.0 -- src/main.ts",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@graphile/logger": "^0.2.0",
+    "@mapbox/mapbox-sdk": "^0.15.0",
+    "@probable-futures/tsconfig": "^1.0.0",
+    "@sentry/integrations": "^6.9.0",
+    "@sentry/node": "^6.9.0",
+    "@sentry/tracing": "^6.9.0",
+    "@types/node": "14.14.7",
+    "@types/node-fetch": "^2.5.11",
+    "@types/pg-format": "^1.0.2",
+    "@types/pino": "^6.3.9",
+    "@types/uuid": "^8.3.1",
+    "aws-sdk": "^2.947.0",
+    "bottleneck": "^2.19.5",
+    "csv-writer": "^1.6.0",
+    "debug": "^4.3.2",
+    "dotenv": "^10.0.0",
+    "env-var": "^7.0.1",
+    "fast-csv": "^4.3.6",
+    "graphile-worker": "0.16.2",
+    "node-fetch": "^2.6.1",
+    "pg": "^8.6.0",
+    "pg-format": "^1.0.4",
+    "pg-query-stream": "^4.2.1",
+    "pino": "^6.13.0",
+    "pino-http": "^5.5.0",
+    "pino-pretty": "^5.1.2",
+    "redis": "^4.0.2",
+    "typescript": "^4.5.5",
+    "uuid": "^8.3.2",
+    "@types/pino-std-serializers": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.12",
+    "@types/mapbox__mapbox-sdk": "^0.13.4",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^3.10.1"
+  }
+}

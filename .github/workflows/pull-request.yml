@@ -1,0 +1,140 @@
+name: pulumi
+on:
+  - pull_request
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+          submodules: recursive
+          token: ${{ secrets.FINE_GRAINED_PAT }}
+
+      - name: free disk space
+        run: |
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker rmi $(docker image ls -aq)
+          df -h
+
+      - name: Get changed files
+        id: changedFiles
+        uses: tj-actions/changed-files@v41
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: restore lerna
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+
+      - run: |
+          yarn install --frozen-lockfile
+
+      - name: Set pulumi stack name based on branch
+        uses: cobraz/setup-variables@v1
+        id: pulumiStack
+        with:
+          key: ${{ github.base_ref }}
+          map: |
+            production: production
+            staging: staging
+            main: development
+            '.*': development
+
+      - name: Make aws profile
+        run: |
+          mkdir ~/.aws
+          echo "[probablefutures]
+          region=us-west-2
+          aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          " > ~/.aws/credentials
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Preview foundation
+        if: contains(steps.changedFiles.outputs.all_modified_files, 'infra/foundation/')
+        uses: pulumi/actions@v3
+        with:
+          command: preview
+          stack-name: "Probable-Futures/foundation/${{ steps.pulumiStack.outputs.result }}"
+          work-dir: ./infra/foundation
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Preview services
+        if: |
+          contains(steps.changedFiles.outputs.all_modified_files, 'infra/services/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'node.base.Dockerfile')
+        uses: pulumi/actions@v3
+        with:
+          command: preview
+          stack-name: "Probable-Futures/services/${{ steps.pulumiStack.outputs.result }}"
+          work-dir: ./infra/services
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Preview API
+        if: |
+          contains(steps.changedFiles.outputs.all_modified_files, 'infra/apps/api/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/api/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/worker/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/db/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'api.Dockerfile') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'worker.Dockerfile') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'migrate.Dockerfile')
+        uses: pulumi/actions@v3
+        with:
+          command: preview
+          stack-name: "Probable-Futures/api/${{ steps.pulumiStack.outputs.result }}"
+          work-dir: ./infra/apps/api
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Preview sites
+        if: |
+          contains(steps.changedFiles.outputs.all_modified_files, 'infra/apps/sites/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/maps/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/pro/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/lib/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/components-lib/')
+        uses: pulumi/actions@v3
+        with:
+          command: preview
+          stack-name: "Probable-Futures/sites/${{ steps.pulumiStack.outputs.result }}"
+          work-dir: ./infra/apps/sites
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

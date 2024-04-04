@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  font-family: LinearSans, Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  color: #2a172d !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#storybook-docs * {
+  font-family: LinearSans, Arial, Helvetica, sans-serif !important;
+  color: #2a172d !important;
+  font-weight: 400 !important;
+  line-height: 29px !important;
+}

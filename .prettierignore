@@ -1,0 +1,13 @@
+.build/
+.serverless/
+.webpack/
+coverage/
+node_modules/
+dist/
+build/
+data/
+packages/pro/types
+packages/probable-futures-maps/templates/*
+storybook-static/
+
+*.hbs.yaml

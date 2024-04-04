@@ -1,0 +1,20 @@
+name: Sync apps-public repo
+
+on:
+  push:
+    branches:
+      - main # Trigger the workflow on pushes to main branch of repoA
+
+jobs:
+  sync_repo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout RepoA
+        uses: actions/checkout@v2
+
+      - name: Push to apps-public
+        run: |
+          git remote add apps-public git@github.com:Probable-Futures/apps-public.git
+          git push apps-public main
+        env:
+          FINE_GRAINED_PAT: ${{ secrets.FINE_GRAINED_PAT }}

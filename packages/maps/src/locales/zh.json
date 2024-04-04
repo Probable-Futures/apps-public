@@ -1,0 +1,220 @@
+{
+  "menu": {
+    "data": {
+      "title": "数据",
+      "dataSet": "数据集",
+      "mapStatus": "地图状态",
+      "volume": "音量",
+      "showInspector": "显示检查员位置",
+      "filterOptions": {
+        "all": "显示所有地图",
+        "draft": "仅显示草稿",
+        "published": "仅显示已发布",
+        "archive": "仅显示归档"
+      },
+      "volumeOptions": {
+        "all": "显示所有地图",
+        "heat": "热度",
+        "land": "陆地",
+        "water": "水",
+        "other": "其他"
+      },
+      "midValueOptions": {
+        "mean": "Mean",
+        "median": "Median"
+      },
+      "midValueShown": "Mid value shown"
+    },
+    "mapStyle": {
+      "title": "地图样式",
+      "landColor": "陆地颜色",
+      "oceanColor": "海洋颜色",
+      "boundaries": "地缘政治边界",
+      "placeLabels": "地名标签",
+      "on": "打开",
+      "off": "关闭",
+      "projection": "投影"
+    },
+    "legend": {
+      "title": "图例",
+      "colors": {
+        "editColors": "编辑颜色",
+        "firstColor": "第一种颜色",
+        "lastColor": "最后一种颜色",
+        "colorHint": "第一种和最后一种颜色之间的颜色由算法确定。"
+      },
+      "bins": {
+        "editBins": "编辑分组",
+        "doubling": "倍增",
+        "incremental": "递增"
+      }
+    }
+  },
+  "slider": {
+    "title": "升温方案"
+  },
+  "title": "地图构建器",
+  "key": {
+    "title": "关键字",
+    "degrees": "温度升高",
+    "inspector": "检查员位置",
+    "latitude": "纬度",
+    "longitude": "经度",
+    "binLabels": {
+      "muchDrier": "极干燥",
+      "drier": "干燥",
+      "unchanged": "不变",
+      "wetter": "潮湿",
+      "muchWetter": "极潮湿"
+    },
+    "datasetUnit": {
+      "degrees": "°C",
+      "days": "天",
+      "cm": "厘米",
+      "mm": "毫米",
+      "xAsFrequent": "x作为频繁",
+      "zScore": "Z-分数",
+      "percentage": "%",
+      "class": "类",
+      "nights": "晚"
+    },
+    "datasetUnitLong": {
+      "temperatureC": "温度（°C）",
+      "numberOfDaysPerYear": "每年的天数",
+      "changeInAnnualPrecipitationCm": "年降水量变化（厘米）",
+      "changeInPrecipitationMm": "降水量变化（毫米）",
+      "timesMoreLessFrequent": "出现频率的倍数",
+      "changeInWaterBalance": "水平衡变化",
+      "annualLikelihood": "年概率（%）",
+      "climateZone": "气候区域",
+      "numberOfNightsPerYear": "每年晚数"
+    }
+  },
+  "mapPopover": {
+    "errorValueDescription": "由于模型数据中发现异常，这里不显示数值。",
+    "barrenLandDescription": "在这些地图中，已经持续干燥的地区不显示干燥度的数据。",
+    "readMore": "了解更多",
+    "learnWhy": "了解原因",
+    "aboutTheBaseline": "关于基准",
+    "noData": "这里没有数据",
+    "expectedRangeOfOutcomes": "预期结果范围",
+    "expectedOutcome": "预期结果",
+    "showBaselineDetails": "显示基线细节",
+    "hideBaselineDetails": "隐藏基线细节",
+    "year": {
+      "10ThPercentile": "第10百分位数",
+      "5ThPercentile": "第5百分位数",
+      "50ThPercentile": "第50百分位数",
+      "90ThPercentile": "第90百分位数",
+      "95ThPercentile": "第95百分位数",
+      "average": "平均值",
+      "dryYear": "干年",
+      "averageYear": "平均年",
+      "wetYear": "湿年",
+      "coolerYear": "较凉年份",
+      "warmerYear": "较暖年份",
+      "drierYear": "较干年份",
+      "wetterYear": "较湿年份",
+      "snowierYear": "较多雪年份",
+      "lessSnowyYear": "较少雪年份",
+      "drierWetSeason": "较干的雨季",
+      "wetterWetSeason": "较湿的雨季",
+      "medianWetSeason": "中位湿季",
+      "medianYear": "中位年份"
+    },
+    "lessFrequent": "较不频繁"
+  },
+  "geocoder": {
+    "clear": "清除",
+    "noResult": "未找到结果",
+    "serverError": "无法连接到服务器",
+    "placeholder": "搜索位置",
+    "recentlySearched": "最近搜索过的"
+  },
+  "header": {
+    "warmingScenariosTitle": "全球变暖场景",
+    "yearLabel0": "过去",
+    "yearLabel1": "最近",
+    "yearLabel2": "即将来临",
+    "yearLabel3": "潜在",
+    "yearLabel4": "潜在",
+    "yearLabel5": "潜在",
+    "datasets": {
+      "10HottestDays": "10个最热的日子",
+      "10HottestWetBulbDays": "10个最热的湿球温度日子",
+      "averageDaytimeTemperature": "白天平均温度",
+      "averageNighttimeTemperature": "夜间平均温度",
+      "averageTemperature": "平均温度",
+      "changeInDryHotDays": "干热天数变化",
+      "changeInFrequencyOf1In100YearStorm": "历史上“百年一遇”暴风雨频率的变化",
+      "changeInPrecipitation1In100YearStorm": "“百年一遇”暴风雨降水量的变化",
+      "changeInSnowyDays": "下雪天数变化",
+      "changeInTotalAnnualPrecipitation": "年总降水量的变化",
+      "changeInWaterBalance": "水分平衡的变化",
+      "changeInWettest90Days": "最潮湿的90天的变化",
+      "changeInWildfireDangerDays": "火灾危险天数的变化",
+      "climateZones": "气候区域",
+      "daysAbove26CWetBulb": "湿球温度在26°C（78°F）以上的天数",
+      "daysAbove28CWetBulb": "湿球温度在28°C（82°F）以上的天数",
+      "daysAbove30CWetBulb": "湿球温度在30°C（86°F）以上的天数",
+      "daysAbove32C": "32°C（90°F）以上的天数",
+      "daysAbove32CWetBulb": "湿球温度在32°C（90°F）以上的天数",
+      "daysAbove35C": "35°C（95°F）以上的天数",
+      "daysAbove38C": "38°C（100°F）以上的天数",
+      "freezingDays": "冰冻天数",
+      "frostNights": "霜冻夜晚",
+      "likelihoodOfYearPlusDrought": "年度干旱的可能性",
+      "likelihoodOfYearPlusExtremeDrought": "年度极端干旱的可能性",
+      "nightsAbove20C": "夜间温度在20°C（68°F）以上的天数",
+      "nightsAbove25C": "夜间温度在25°C（77°F）以上的天数",
+      "parentCategories": {
+        "mapsOfTemperature": "温度地图",
+        "mapsOfPrecipitation": "降水地图",
+        "mapsOfDryness": "干旱地图",
+        "otherMaps": "其他地图"
+      },
+      "subCategories": {
+        "increasingHeat": "升温",
+        "decreasingCold": "降温",
+        "heatAndHumidity": "热和湿度"
+      }
+    }
+  },
+  "mapControl": {
+    "searchTitle": "查找位置",
+    "hideMarkerTitle": "隐藏图钉标记",
+    "showMarkerTitle": "显示图钉标记",
+    "downloadTitle": "下载嵌入或二维码",
+    "behindMapsTitle": "了解更多关于地图",
+    "takeQuickTour": "快速浏览",
+    "closeTheTour": "关闭浏览",
+    "maxZoomMessage": "这是最接近的缩放级别",
+    "downloadScreenshot": "下载截图"
+  },
+  "vignette": {
+    "climateZone": "气候带",
+    "population": "人口",
+    "vignette": "小插图",
+    "of": "的",
+    "contributionFrom": "贡献来自"
+  },
+  "binning": {
+    "reset": "重置"
+  },
+  "actionSheet": {
+    "search": "搜索",
+    "marker": "显示/隐藏位置",
+    "behindTheMaps": "地图背后"
+  },
+  "downloadMap": {
+    "title": "下载当前地图视图",
+    "qrCodeOptionLabel": "下载二维码",
+    "simpleMapOptionLabel": "下载当前视图的可嵌入地图",
+    "compareMapOptionLabel": "下载可嵌入比较地图",
+    "compareSectionHeader": "选择两个温暖情景，包含在可嵌入比较地图中",
+    "step": "步骤",
+    "of": "的",
+    "selectScenarios": "选择情景",
+    "download": "下载"
+  }
+}

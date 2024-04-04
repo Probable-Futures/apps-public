@@ -1,0 +1,5044 @@
+"""All input for the `addPartnerExampleDataset` mutation."""
+input AddPartnerExampleDatasetInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  description: String!
+  geodataType: String!
+  name: String!
+  originalFile: String!
+}
+
+"""The output of our `addPartnerExampleDataset` mutation."""
+type AddPartnerExampleDatasetPayload {
+  boolean: Boolean
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""All input for the `associatePartnerProjectAndDataset` mutation."""
+input AssociatePartnerProjectAndDatasetInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  datasetId: UUID
+  projectId: UUID
+}
+
+"""The output of our `associatePartnerProjectAndDataset` mutation."""
+type AssociatePartnerProjectAndDatasetPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  pfPartnerProjectDataset: PfPartnerProjectDataset
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""All input for the `authenticatePfUser` mutation."""
+input AuthenticatePfUserInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  email: String
+  name: String
+}
+
+"""The output of our `authenticatePfUser` mutation."""
+type AuthenticatePfUserPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  pfUser: PfUser
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""
+A floating point number that requires more precision than IEEE 754 binary 64
+"""
+scalar BigFloat
+
+"""
+A filter to be used against BigFloat fields. All fields are combined with a logical ‘and.’
+"""
+input BigFloatFilter {
+  """Equal to the specified value."""
+  equalTo: BigFloat
+}
+
+"""
+A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’
+"""
+input BooleanFilter {
+  """Equal to the specified value."""
+  equalTo: Boolean
+}
+
+"""A connection to a list of `Country` values."""
+type CountriesConnection {
+  """
+  A list of edges which contains the `Country` and cursor to aid in pagination.
+  """
+  edges: [CountriesEdge!]!
+
+  """A list of `Country` objects."""
+  nodes: [Country!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Country` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Country` edge in the connection."""
+type CountriesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Country` at the end of the edge."""
+  node: Country!
+}
+
+"""Methods to use when ordering `Country`."""
+enum CountriesOrderBy {
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  ID_ASC
+  ID_DESC
+  ISO_A2_ASC
+  ISO_A2_DESC
+  ISO_A3_ASC
+  ISO_A3_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+  WKB_GEOMETRY_ASC
+  WKB_GEOMETRY_DESC
+}
+
+type Country implements Node {
+  createdAt: Datetime!
+  id: UUID!
+  isoA2: String
+  isoA3: String
+  name: String!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  updatedAt: Datetime!
+  wkbGeometry: GeometryMultiPolygon!
+}
+
+"""
+A condition to be used against `Country` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input CountryCondition {
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `isoA2` field."""
+  isoA2: String
+
+  """Checks for equality with the object’s `isoA3` field."""
+  isoA3: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+
+  """Checks for equality with the object’s `wkbGeometry` field."""
+  wkbGeometry: GeoJSON
+}
+
+"""
+A filter to be used against `Country` object types. All fields are combined with a logical ‘and.’
+"""
+input CountryFilter {
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `isoA2` field."""
+  isoA2: StringFilter
+
+  """Filter by the object’s `isoA3` field."""
+  isoA3: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+}
+
+"""All input for the `createAudit` mutation."""
+input CreateAuditInput {
+  actionType: String
+
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  message: String
+  payload: JSON
+  rateLimitThreshold: Int
+  userIp: String
+}
+
+"""The output of our `createAudit` mutation."""
+type CreateAuditPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""All input for the `createPartnerDatasetEnrichment` mutation."""
+input CreatePartnerDatasetEnrichmentInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  partnerDatasetId: UUID
+  pfDatasetId: Int
+  projectId: UUID
+  uploadId: UUID
+}
+
+"""The output of our `createPartnerDatasetEnrichment` mutation."""
+type CreatePartnerDatasetEnrichmentPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  pfPartnerDatasetEnrichment: PfPartnerDatasetEnrichment
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""All input for the `createPartnerDataset` mutation."""
+input CreatePartnerDatasetInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  description: String
+  name: String
+}
+
+"""The output of our `createPartnerDataset` mutation."""
+type CreatePartnerDatasetPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  pfPartnerDataset: PfPartnerDataset
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""All input for the `createPartnerDatasetUpload` mutation."""
+input CreatePartnerDatasetUploadInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  datasetId: UUID
+  enrich: Boolean
+  fileUrl: String
+  geodataType: String
+}
+
+"""The output of our `createPartnerDatasetUpload` mutation."""
+type CreatePartnerDatasetUploadPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  pfPartnerDatasetUpload: PfPartnerDatasetUpload
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""All input for the `createPartnerProject` mutation."""
+input CreatePartnerProjectInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  description: String
+  name: String
+  pfDatasetId: Int
+}
+
+"""The output of our `createPartnerProject` mutation."""
+type CreatePartnerProjectPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  pfPartnerProject: PfPartnerProject
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""All input for the `createPartnerProjectShare` mutation."""
+input CreatePartnerProjectShareInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  projectId: UUID
+}
+
+"""The output of our `createPartnerProjectShare` mutation."""
+type CreatePartnerProjectSharePayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  pfPartnerProjectShare: PfPartnerProjectShare
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""All input for the `createPfCountryStatistics` mutation."""
+input CreatePfCountryStatisticsInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  countryId: UUID
+  datasetId: Int
+}
+
+"""The output of our `createPfCountryStatistics` mutation."""
+type CreatePfCountryStatisticsPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  pfCountryStatistics: [PfCountryStatistic!]
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""A location in a connection that can be used for resuming pagination."""
+scalar Cursor
+
+type DatasetStatisticsResponse {
+  datasetId: Int
+  highValue: BigFloat
+  info: JSON
+  latitude: Float
+  longitude: Float
+  lowValue: BigFloat
+  mapCategory: String
+  midValue: BigFloat
+  name: String
+  unit: String
+  warmingScenario: String
+}
+
+"""
+A point in time as described by the [ISO
+8601](https://en.wikipedia.org/wiki/ISO_8601) standard. May or may not include a timezone.
+"""
+scalar Datetime
+
+"""
+A filter to be used against Datetime fields. All fields are combined with a logical ‘and.’
+"""
+input DatetimeFilter {
+  """Equal to the specified value."""
+  equalTo: Datetime
+}
+
+"""All input for the `deletePartnerDataset` mutation."""
+input DeletePartnerDatasetInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  datasetId: UUID!
+}
+
+"""The output of our `deletePartnerDataset` mutation."""
+type DeletePartnerDatasetPayload {
+  boolean: Boolean
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""All input for the `deletePartnerProjectDataset` mutation."""
+input DeletePartnerProjectDatasetInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  datasetId: UUID!
+  projectId: UUID!
+}
+
+"""The output of our `deletePartnerProjectDataset` mutation."""
+type DeletePartnerProjectDatasetPayload {
+  boolean: Boolean
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""All input for the `deletePartnerProject` mutation."""
+input DeletePartnerProjectInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  projectId: UUID!
+}
+
+"""The output of our `deletePartnerProject` mutation."""
+type DeletePartnerProjectPayload {
+  boolean: Boolean
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+type File {
+  name: String
+  url: String
+}
+
+input FileInput {
+  fileUrls: [String]!
+  type: String
+}
+
+"""
+A filter to be used against Float fields. All fields are combined with a logical ‘and.’
+"""
+input FloatFilter {
+  """Equal to the specified value."""
+  equalTo: Float
+}
+
+"""
+A filter to be used against Float List fields. All fields are combined with a logical ‘and.’
+"""
+input FloatListFilter {
+  """Equal to the specified value."""
+  equalTo: [Float]
+}
+
+"""
+The `GeoJSON` scalar type represents GeoJSON values as specified by[RFC 7946](https://tools.ietf.org/html/rfc7946).
+"""
+scalar GeoJSON
+
+"""All geography XY types implement this interface"""
+interface GeographyGeometry {
+  """Converts the object to GeoJSON"""
+  geojson: GeoJSON
+
+  """Spatial reference identifier (SRID)"""
+  srid: Int!
+}
+
+"""All geography types implement this interface"""
+interface GeographyInterface {
+  """Converts the object to GeoJSON"""
+  geojson: GeoJSON
+
+  """Spatial reference identifier (SRID)"""
+  srid: Int!
+}
+
+type GeographyLineString implements GeographyGeometry & GeographyInterface {
+  geojson: GeoJSON
+  points: [GeographyPoint]
+  srid: Int!
+}
+
+type GeographyPoint implements GeographyGeometry & GeographyInterface {
+  geojson: GeoJSON
+  latitude: Float!
+  longitude: Float!
+  srid: Int!
+}
+
+type GeographyPolygon implements GeographyGeometry & GeographyInterface {
+  exterior: GeographyLineString
+  geojson: GeoJSON
+  interiors: [GeographyLineString]
+  srid: Int!
+}
+
+"""All geometry XY types implement this interface"""
+interface GeometryGeometry {
+  """Converts the object to GeoJSON"""
+  geojson: GeoJSON
+
+  """Spatial reference identifier (SRID)"""
+  srid: Int!
+}
+
+"""All geometry types implement this interface"""
+interface GeometryInterface {
+  """Converts the object to GeoJSON"""
+  geojson: GeoJSON
+
+  """Spatial reference identifier (SRID)"""
+  srid: Int!
+}
+
+type GeometryLineString implements GeometryGeometry & GeometryInterface {
+  geojson: GeoJSON
+  points: [GeometryPoint]
+  srid: Int!
+}
+
+type GeometryMultiPolygon implements GeometryGeometry & GeometryInterface {
+  geojson: GeoJSON
+  polygons: [GeometryPolygon]
+  srid: Int!
+}
+
+type GeometryPoint implements GeometryGeometry & GeometryInterface {
+  geojson: GeoJSON
+  srid: Int!
+  x: Float!
+  y: Float!
+}
+
+type GeometryPolygon implements GeometryGeometry & GeometryInterface {
+  exterior: GeometryLineString
+  geojson: GeoJSON
+  interiors: [GeometryLineString]
+  srid: Int!
+}
+
+"""All input for the `getDatasetStatistics` mutation."""
+input GetDatasetStatisticsInput {
+  address: String
+  city: String
+
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  country: String
+  datasetId: Int
+  latitude: Float
+  longitude: Float
+  warmingScenario: [BigFloat]
+}
+
+"""The output of our `getDatasetStatistics` mutation."""
+type GetDatasetStatisticsPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  datasetStatisticsResponses: [DatasetStatisticsResponse!]
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""
+Hex colors must be a case insensitive string of 3 or 6 alpha-numeric characters prefixed with a `#`
+"""
+scalar HexColor
+
+"""
+A filter to be used against HexColor List fields. All fields are combined with a logical ‘and.’
+"""
+input HexColorListFilter {
+  """Equal to the specified value."""
+  equalTo: [HexColor]
+}
+
+"""All input for the `insertNewVersionOfAnExistingMap` mutation."""
+input InsertNewVersionOfAnExistingMapInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  datasetId: Int
+  mapStyleId: String
+  mapVersion: Int
+}
+
+"""The output of our `insertNewVersionOfAnExistingMap` mutation."""
+type InsertNewVersionOfAnExistingMapPayload {
+  boolean: Boolean
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""
+A filter to be used against Int fields. All fields are combined with a logical ‘and.’
+"""
+input IntFilter {
+  """Equal to the specified value."""
+  equalTo: Int
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+"""
+A filter to be used against JSON fields. All fields are combined with a logical ‘and.’
+"""
+input JSONFilter {
+  """Equal to the specified value."""
+  equalTo: JSON
+}
+
+"""
+The root mutation type which contains root level fields which mutate data.
+"""
+type Mutation {
+  addPartnerExampleDataset(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: AddPartnerExampleDatasetInput!
+  ): AddPartnerExampleDatasetPayload
+  associatePartnerProjectAndDataset(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: AssociatePartnerProjectAndDatasetInput!
+  ): AssociatePartnerProjectAndDatasetPayload
+  authenticatePfUser(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: AuthenticatePfUserInput!
+  ): AuthenticatePfUserPayload
+  createAudit(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateAuditInput!
+  ): CreateAuditPayload
+  createPartnerDataset(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreatePartnerDatasetInput!
+  ): CreatePartnerDatasetPayload
+  createPartnerDatasetEnrichment(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreatePartnerDatasetEnrichmentInput!
+  ): CreatePartnerDatasetEnrichmentPayload
+  createPartnerDatasetUpload(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreatePartnerDatasetUploadInput!
+  ): CreatePartnerDatasetUploadPayload
+  createPartnerProject(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreatePartnerProjectInput!
+  ): CreatePartnerProjectPayload
+  createPartnerProjectShare(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreatePartnerProjectShareInput!
+  ): CreatePartnerProjectSharePayload
+  createPfCountryStatistics(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreatePfCountryStatisticsInput!
+  ): CreatePfCountryStatisticsPayload
+  datasetSignedUrls(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: FileInput!
+  ): [String]!
+  deletePartnerDataset(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeletePartnerDatasetInput!
+  ): DeletePartnerDatasetPayload
+  deletePartnerProject(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeletePartnerProjectInput!
+  ): DeletePartnerProjectPayload
+  deletePartnerProjectDataset(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeletePartnerProjectDatasetInput!
+  ): DeletePartnerProjectDatasetPayload
+  getDatasetStatistics(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: GetDatasetStatisticsInput!
+  ): GetDatasetStatisticsPayload
+
+  """
+  Insert a new map to the pf_public.pf_maps table. `dataset_id` and `map_style_id` are required by this function. The new record will be created 
+  with the same attributes of the old one. However, the new record will be the latest and its version will be set to the previous version plus one unless it is specified in the params.
+  """
+  insertNewVersionOfAnExistingMap(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: InsertNewVersionOfAnExistingMapInput!
+  ): InsertNewVersionOfAnExistingMapPayload
+  projectShare(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: ProjectShareInput!
+  ): ProjectSharePayload
+  updatePartnerDataset(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdatePartnerDatasetInput!
+  ): UpdatePartnerDatasetPayload
+  updatePartnerProject(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdatePartnerProjectInput!
+  ): UpdatePartnerProjectPayload
+}
+
+"""An object with a globally unique `ID`."""
+interface Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, the cursor to continue."""
+  endCursor: Cursor
+
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: Cursor
+}
+
+type PfCountryStatistic {
+  countryId: UUID!
+  createdAt: Datetime!
+  datasetId: Int!
+  fileUrl: String
+  id: UUID!
+  status: String
+  updatedAt: Datetime!
+}
+
+"""Metadata for Probable Futures datasets"""
+type PfDataset implements Node {
+  createdAt: Datetime!
+  dataVariables: [String]
+  description: String
+  id: Int!
+  maxValue: Float
+  minValue: Float
+  model: String
+  name: String!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  parentCategory: String
+
+  """
+  Reads a single `PfDatasetModelSource` that is related to this `PfDataset`.
+  """
+  pfDatasetModelSourceByModel: PfDatasetModelSource
+
+  """
+  Reads a single `PfDatasetParentCategory` that is related to this `PfDataset`.
+  """
+  pfDatasetParentCategoryByParentCategory: PfDatasetParentCategory
+
+  """Reads and enables pagination through a set of `PfDatasetStatistic`."""
+  pfDatasetStatisticsByDatasetId(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetStatisticCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetStatisticFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDatasetStatistic`."""
+    orderBy: [PfDatasetStatisticsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetStatisticsConnection!
+
+  """
+  Reads a single `PfDatasetSubCategory` that is related to this `PfDataset`.
+  """
+  pfDatasetSubCategoryBySubCategory: PfDatasetSubCategory
+
+  """Reads a single `PfDatasetUnit` that is related to this `PfDataset`."""
+  pfDatasetUnitByUnit: PfDatasetUnit
+
+  """Reads and enables pagination through a set of `PfMap`."""
+  pfMapsByDatasetId(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfMapCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfMapFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfMap`."""
+    orderBy: [PfMapsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfMapsConnection!
+
+  """
+  Reads and enables pagination through a set of `PfStatisticalVariableName`.
+  """
+  pfStatisticalVariableNamesByDatasetId(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfStatisticalVariableNameCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfStatisticalVariableNameFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfStatisticalVariableName`."""
+    orderBy: [PfStatisticalVariableNamesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfStatisticalVariableNamesConnection!
+  slug: String!
+  subCategory: String
+  unit: String
+  updatedAt: Datetime!
+}
+
+"""
+A condition to be used against `PfDataset` object types. All fields are tested
+for equality and combined with a logical ‘and.’
+"""
+input PfDatasetCondition {
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `dataVariables` field."""
+  dataVariables: [String]
+
+  """Checks for equality with the object’s `description` field."""
+  description: String
+
+  """Checks for equality with the object’s `id` field."""
+  id: Int
+
+  """Checks for equality with the object’s `maxValue` field."""
+  maxValue: Float
+
+  """Checks for equality with the object’s `minValue` field."""
+  minValue: Float
+
+  """Checks for equality with the object’s `model` field."""
+  model: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `parentCategory` field."""
+  parentCategory: String
+
+  """Checks for equality with the object’s `slug` field."""
+  slug: String
+
+  """Checks for equality with the object’s `subCategory` field."""
+  subCategory: String
+
+  """Checks for equality with the object’s `unit` field."""
+  unit: String
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+}
+
+"""
+A filter to be used against `PfDataset` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetFilter {
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `dataVariables` field."""
+  dataVariables: StringListFilter
+
+  """Filter by the object’s `description` field."""
+  description: StringFilter
+
+  """Filter by the object’s `id` field."""
+  id: IntFilter
+
+  """Filter by the object’s `maxValue` field."""
+  maxValue: FloatFilter
+
+  """Filter by the object’s `minValue` field."""
+  minValue: FloatFilter
+
+  """Filter by the object’s `model` field."""
+  model: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Filter by the object’s `parentCategory` field."""
+  parentCategory: StringFilter
+
+  """Filter by the object’s `pfDatasetModelSourceByModel` relation."""
+  pfDatasetModelSourceByModel: PfDatasetModelSourceFilter
+
+  """A related `pfDatasetModelSourceByModel` exists."""
+  pfDatasetModelSourceByModelExists: Boolean
+
+  """
+  Filter by the object’s `pfDatasetParentCategoryByParentCategory` relation.
+  """
+  pfDatasetParentCategoryByParentCategory: PfDatasetParentCategoryFilter
+
+  """A related `pfDatasetParentCategoryByParentCategory` exists."""
+  pfDatasetParentCategoryByParentCategoryExists: Boolean
+
+  """Filter by the object’s `pfDatasetStatisticsByDatasetId` relation."""
+  pfDatasetStatisticsByDatasetId: PfDatasetToManyPfDatasetStatisticFilter
+
+  """Some related `pfDatasetStatisticsByDatasetId` exist."""
+  pfDatasetStatisticsByDatasetIdExist: Boolean
+
+  """Filter by the object’s `pfDatasetSubCategoryBySubCategory` relation."""
+  pfDatasetSubCategoryBySubCategory: PfDatasetSubCategoryFilter
+
+  """A related `pfDatasetSubCategoryBySubCategory` exists."""
+  pfDatasetSubCategoryBySubCategoryExists: Boolean
+
+  """Filter by the object’s `pfDatasetUnitByUnit` relation."""
+  pfDatasetUnitByUnit: PfDatasetUnitFilter
+
+  """A related `pfDatasetUnitByUnit` exists."""
+  pfDatasetUnitByUnitExists: Boolean
+
+  """Filter by the object’s `pfMapsByDatasetId` relation."""
+  pfMapsByDatasetId: PfDatasetToManyPfMapFilter
+
+  """Some related `pfMapsByDatasetId` exist."""
+  pfMapsByDatasetIdExist: Boolean
+
+  """
+  Filter by the object’s `pfStatisticalVariableNamesByDatasetId` relation.
+  """
+  pfStatisticalVariableNamesByDatasetId: PfDatasetToManyPfStatisticalVariableNameFilter
+
+  """Some related `pfStatisticalVariableNamesByDatasetId` exist."""
+  pfStatisticalVariableNamesByDatasetIdExist: Boolean
+
+  """Filter by the object’s `slug` field."""
+  slug: StringFilter
+
+  """Filter by the object’s `subCategory` field."""
+  subCategory: StringFilter
+
+  """Filter by the object’s `unit` field."""
+  unit: StringFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+}
+
+"""
+Model grids are used for referencing common grids shared by multiple dataset models
+"""
+type PfDatasetModelGrid implements Node {
+  grid: String!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+
+  """Reads and enables pagination through a set of `PfDatasetModelSource`."""
+  pfDatasetModelSourcesByGrid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetModelSourceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetModelSourceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDatasetModelSource`."""
+    orderBy: [PfDatasetModelSourcesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetModelSourcesConnection!
+
+  """Reads and enables pagination through a set of `PfGridCoordinate`."""
+  pfGridCoordinatesByGrid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfGridCoordinateCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfGridCoordinateFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfGridCoordinate`."""
+    orderBy: [PfGridCoordinatesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfGridCoordinatesConnection!
+
+  """
+  Model grid resolution describes the number of grid cells and the area covered by an individual cell.
+      The two numbers before the "&" describes the number of unique X & Y coordinates.
+      The numbers after the "&" describes the size in kilometers of a grid cell.
+      e.g. "1800,901&22,22" is a grid with 1800 x points 901 y points and grid cells of 22 x 22 km.
+  """
+  resolution: String
+}
+
+"""
+A condition to be used against `PfDatasetModelGrid` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input PfDatasetModelGridCondition {
+  """Checks for equality with the object’s `grid` field."""
+  grid: String
+
+  """Checks for equality with the object’s `resolution` field."""
+  resolution: String
+}
+
+"""
+A filter to be used against `PfDatasetModelGrid` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetModelGridFilter {
+  """Filter by the object’s `grid` field."""
+  grid: StringFilter
+
+  """Filter by the object’s `pfDatasetModelSourcesByGrid` relation."""
+  pfDatasetModelSourcesByGrid: PfDatasetModelGridToManyPfDatasetModelSourceFilter
+
+  """Some related `pfDatasetModelSourcesByGrid` exist."""
+  pfDatasetModelSourcesByGridExist: Boolean
+
+  """Filter by the object’s `pfGridCoordinatesByGrid` relation."""
+  pfGridCoordinatesByGrid: PfDatasetModelGridToManyPfGridCoordinateFilter
+
+  """Some related `pfGridCoordinatesByGrid` exist."""
+  pfGridCoordinatesByGridExist: Boolean
+
+  """Filter by the object’s `resolution` field."""
+  resolution: StringFilter
+}
+
+"""
+A filter to be used against many `PfDatasetModelSource` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetModelGridToManyPfDatasetModelSourceFilter {
+  """
+  Every related `PfDatasetModelSource` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfDatasetModelSourceFilter
+
+  """
+  No related `PfDatasetModelSource` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfDatasetModelSourceFilter
+
+  """
+  Some related `PfDatasetModelSource` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfDatasetModelSourceFilter
+}
+
+"""
+A filter to be used against many `PfGridCoordinate` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetModelGridToManyPfGridCoordinateFilter {
+  """
+  Every related `PfGridCoordinate` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfGridCoordinateFilter
+
+  """
+  No related `PfGridCoordinate` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfGridCoordinateFilter
+
+  """
+  Some related `PfGridCoordinate` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfGridCoordinateFilter
+}
+
+"""A connection to a list of `PfDatasetModelGrid` values."""
+type PfDatasetModelGridsConnection {
+  """
+  A list of edges which contains the `PfDatasetModelGrid` and cursor to aid in pagination.
+  """
+  edges: [PfDatasetModelGridsEdge!]!
+
+  """A list of `PfDatasetModelGrid` objects."""
+  nodes: [PfDatasetModelGrid!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PfDatasetModelGrid` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `PfDatasetModelGrid` edge in the connection."""
+type PfDatasetModelGridsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PfDatasetModelGrid` at the end of the edge."""
+  node: PfDatasetModelGrid!
+}
+
+"""Methods to use when ordering `PfDatasetModelGrid`."""
+enum PfDatasetModelGridsOrderBy {
+  GRID_ASC
+  GRID_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  RESOLUTION_ASC
+  RESOLUTION_DESC
+}
+
+"""
+Model sources reference the original climate models which were used to produce the Probable Futures datasets.
+"""
+type PfDatasetModelSource implements Node {
+  grid: String!
+  model: String!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+
+  """
+  Reads a single `PfDatasetModelGrid` that is related to this `PfDatasetModelSource`.
+  """
+  pfDatasetModelGridByGrid: PfDatasetModelGrid
+
+  """Reads and enables pagination through a set of `PfDataset`."""
+  pfDatasetsByModel(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDataset`."""
+    orderBy: [PfDatasetsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetsConnection!
+}
+
+"""
+A condition to be used against `PfDatasetModelSource` object types. All fields
+are tested for equality and combined with a logical ‘and.’
+"""
+input PfDatasetModelSourceCondition {
+  """Checks for equality with the object’s `grid` field."""
+  grid: String
+
+  """Checks for equality with the object’s `model` field."""
+  model: String
+}
+
+"""
+A filter to be used against `PfDatasetModelSource` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetModelSourceFilter {
+  """Filter by the object’s `grid` field."""
+  grid: StringFilter
+
+  """Filter by the object’s `model` field."""
+  model: StringFilter
+
+  """Filter by the object’s `pfDatasetModelGridByGrid` relation."""
+  pfDatasetModelGridByGrid: PfDatasetModelGridFilter
+
+  """Filter by the object’s `pfDatasetsByModel` relation."""
+  pfDatasetsByModel: PfDatasetModelSourceToManyPfDatasetFilter
+
+  """Some related `pfDatasetsByModel` exist."""
+  pfDatasetsByModelExist: Boolean
+}
+
+"""
+A filter to be used against many `PfDataset` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetModelSourceToManyPfDatasetFilter {
+  """
+  Every related `PfDataset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfDatasetFilter
+
+  """
+  No related `PfDataset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfDatasetFilter
+
+  """
+  Some related `PfDataset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfDatasetFilter
+}
+
+"""A connection to a list of `PfDatasetModelSource` values."""
+type PfDatasetModelSourcesConnection {
+  """
+  A list of edges which contains the `PfDatasetModelSource` and cursor to aid in pagination.
+  """
+  edges: [PfDatasetModelSourcesEdge!]!
+
+  """A list of `PfDatasetModelSource` objects."""
+  nodes: [PfDatasetModelSource!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PfDatasetModelSource` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `PfDatasetModelSource` edge in the connection."""
+type PfDatasetModelSourcesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PfDatasetModelSource` at the end of the edge."""
+  node: PfDatasetModelSource!
+}
+
+"""Methods to use when ordering `PfDatasetModelSource`."""
+enum PfDatasetModelSourcesOrderBy {
+  GRID_ASC
+  GRID_DESC
+  MODEL_ASC
+  MODEL_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+}
+
+"""A connection to a list of `PfDatasetParentCategory` values."""
+type PfDatasetParentCategoriesConnection {
+  """
+  A list of edges which contains the `PfDatasetParentCategory` and cursor to aid in pagination.
+  """
+  edges: [PfDatasetParentCategoriesEdge!]!
+
+  """A list of `PfDatasetParentCategory` objects."""
+  nodes: [PfDatasetParentCategory!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PfDatasetParentCategory` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `PfDatasetParentCategory` edge in the connection."""
+type PfDatasetParentCategoriesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PfDatasetParentCategory` at the end of the edge."""
+  node: PfDatasetParentCategory!
+}
+
+"""Methods to use when ordering `PfDatasetParentCategory`."""
+enum PfDatasetParentCategoriesOrderBy {
+  LABEL_ASC
+  LABEL_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+}
+
+type PfDatasetParentCategory implements Node {
+  label: String
+  name: String!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+
+  """Reads and enables pagination through a set of `PfDatasetSubCategory`."""
+  pfDatasetSubCategoriesByParentCategory(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetSubCategoryCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetSubCategoryFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDatasetSubCategory`."""
+    orderBy: [PfDatasetSubCategoriesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetSubCategoriesConnection!
+
+  """Reads and enables pagination through a set of `PfDataset`."""
+  pfDatasetsByParentCategory(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDataset`."""
+    orderBy: [PfDatasetsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetsConnection!
+}
+
+"""
+A condition to be used against `PfDatasetParentCategory` object types. All
+fields are tested for equality and combined with a logical ‘and.’
+"""
+input PfDatasetParentCategoryCondition {
+  """Checks for equality with the object’s `label` field."""
+  label: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+}
+
+"""
+A filter to be used against `PfDatasetParentCategory` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetParentCategoryFilter {
+  """Filter by the object’s `label` field."""
+  label: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """
+  Filter by the object’s `pfDatasetSubCategoriesByParentCategory` relation.
+  """
+  pfDatasetSubCategoriesByParentCategory: PfDatasetParentCategoryToManyPfDatasetSubCategoryFilter
+
+  """Some related `pfDatasetSubCategoriesByParentCategory` exist."""
+  pfDatasetSubCategoriesByParentCategoryExist: Boolean
+
+  """Filter by the object’s `pfDatasetsByParentCategory` relation."""
+  pfDatasetsByParentCategory: PfDatasetParentCategoryToManyPfDatasetFilter
+
+  """Some related `pfDatasetsByParentCategory` exist."""
+  pfDatasetsByParentCategoryExist: Boolean
+}
+
+"""
+A filter to be used against many `PfDataset` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetParentCategoryToManyPfDatasetFilter {
+  """
+  Every related `PfDataset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfDatasetFilter
+
+  """
+  No related `PfDataset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfDatasetFilter
+
+  """
+  Some related `PfDataset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfDatasetFilter
+}
+
+"""
+A filter to be used against many `PfDatasetSubCategory` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetParentCategoryToManyPfDatasetSubCategoryFilter {
+  """
+  Every related `PfDatasetSubCategory` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfDatasetSubCategoryFilter
+
+  """
+  No related `PfDatasetSubCategory` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfDatasetSubCategoryFilter
+
+  """
+  Some related `PfDatasetSubCategory` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfDatasetSubCategoryFilter
+}
+
+"""Normalized climate statistics for Probable Futures climate data"""
+type PfDatasetStatistic implements Node {
+  """
+  Md5 hash of the dataset grid + EWTK of the coordinate point. Used for inserting statistics without looking up a coordinate id
+  """
+  coordinateHash: String!
+  createdAt: Datetime!
+
+  """
+  Reads a single `PfDataset` that is related to this `PfDatasetStatistic`.
+  """
+  dataset: PfDataset
+  datasetId: Int!
+  highValue: BigFloat
+  id: UUID!
+  lowValue: BigFloat
+  midValue: BigFloat
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+
+  """
+  Reads a single `PfGridCoordinate` that is related to this `PfDatasetStatistic`.
+  """
+  pfGridCoordinateByCoordinateHash: PfGridCoordinate
+
+  """
+  Reads a single `PfWarmingScenario` that is related to this `PfDatasetStatistic`.
+  """
+  pfWarmingScenarioByWarmingScenario: PfWarmingScenario
+  updatedAt: Datetime!
+  warmingScenario: String!
+}
+
+"""
+A condition to be used against `PfDatasetStatistic` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input PfDatasetStatisticCondition {
+  """Checks for equality with the object’s `coordinateHash` field."""
+  coordinateHash: String
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `datasetId` field."""
+  datasetId: Int
+
+  """Checks for equality with the object’s `highValue` field."""
+  highValue: BigFloat
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `lowValue` field."""
+  lowValue: BigFloat
+
+  """Checks for equality with the object’s `midValue` field."""
+  midValue: BigFloat
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+
+  """Checks for equality with the object’s `warmingScenario` field."""
+  warmingScenario: String
+}
+
+"""
+A filter to be used against `PfDatasetStatistic` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetStatisticFilter {
+  """Filter by the object’s `coordinateHash` field."""
+  coordinateHash: StringFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `dataset` relation."""
+  dataset: PfDatasetFilter
+
+  """Filter by the object’s `datasetId` field."""
+  datasetId: IntFilter
+
+  """Filter by the object’s `highValue` field."""
+  highValue: BigFloatFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `lowValue` field."""
+  lowValue: BigFloatFilter
+
+  """Filter by the object’s `midValue` field."""
+  midValue: BigFloatFilter
+
+  """Filter by the object’s `pfGridCoordinateByCoordinateHash` relation."""
+  pfGridCoordinateByCoordinateHash: PfGridCoordinateFilter
+
+  """Filter by the object’s `pfWarmingScenarioByWarmingScenario` relation."""
+  pfWarmingScenarioByWarmingScenario: PfWarmingScenarioFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `warmingScenario` field."""
+  warmingScenario: StringFilter
+}
+
+"""A connection to a list of `PfDatasetStatistic` values."""
+type PfDatasetStatisticsConnection {
+  """
+  A list of edges which contains the `PfDatasetStatistic` and cursor to aid in pagination.
+  """
+  edges: [PfDatasetStatisticsEdge!]!
+
+  """A list of `PfDatasetStatistic` objects."""
+  nodes: [PfDatasetStatistic!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PfDatasetStatistic` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `PfDatasetStatistic` edge in the connection."""
+type PfDatasetStatisticsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PfDatasetStatistic` at the end of the edge."""
+  node: PfDatasetStatistic!
+}
+
+"""Methods to use when ordering `PfDatasetStatistic`."""
+enum PfDatasetStatisticsOrderBy {
+  COORDINATE_HASH_ASC
+  COORDINATE_HASH_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  DATASET_ID_ASC
+  DATASET_ID_DESC
+  HIGH_VALUE_ASC
+  HIGH_VALUE_DESC
+  ID_ASC
+  ID_DESC
+  LOW_VALUE_ASC
+  LOW_VALUE_DESC
+  MID_VALUE_ASC
+  MID_VALUE_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+  WARMING_SCENARIO_ASC
+  WARMING_SCENARIO_DESC
+}
+
+"""A connection to a list of `PfDatasetSubCategory` values."""
+type PfDatasetSubCategoriesConnection {
+  """
+  A list of edges which contains the `PfDatasetSubCategory` and cursor to aid in pagination.
+  """
+  edges: [PfDatasetSubCategoriesEdge!]!
+
+  """A list of `PfDatasetSubCategory` objects."""
+  nodes: [PfDatasetSubCategory!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PfDatasetSubCategory` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `PfDatasetSubCategory` edge in the connection."""
+type PfDatasetSubCategoriesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PfDatasetSubCategory` at the end of the edge."""
+  node: PfDatasetSubCategory!
+}
+
+"""Methods to use when ordering `PfDatasetSubCategory`."""
+enum PfDatasetSubCategoriesOrderBy {
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PARENT_CATEGORY_ASC
+  PARENT_CATEGORY_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+}
+
+type PfDatasetSubCategory implements Node {
+  name: String!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  parentCategory: String!
+
+  """
+  Reads a single `PfDatasetParentCategory` that is related to this `PfDatasetSubCategory`.
+  """
+  pfDatasetParentCategoryByParentCategory: PfDatasetParentCategory
+
+  """Reads and enables pagination through a set of `PfDataset`."""
+  pfDatasetsBySubCategory(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDataset`."""
+    orderBy: [PfDatasetsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetsConnection!
+}
+
+"""
+A condition to be used against `PfDatasetSubCategory` object types. All fields
+are tested for equality and combined with a logical ‘and.’
+"""
+input PfDatasetSubCategoryCondition {
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `parentCategory` field."""
+  parentCategory: String
+}
+
+"""
+A filter to be used against `PfDatasetSubCategory` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetSubCategoryFilter {
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Filter by the object’s `parentCategory` field."""
+  parentCategory: StringFilter
+
+  """
+  Filter by the object’s `pfDatasetParentCategoryByParentCategory` relation.
+  """
+  pfDatasetParentCategoryByParentCategory: PfDatasetParentCategoryFilter
+
+  """Filter by the object’s `pfDatasetsBySubCategory` relation."""
+  pfDatasetsBySubCategory: PfDatasetSubCategoryToManyPfDatasetFilter
+
+  """Some related `pfDatasetsBySubCategory` exist."""
+  pfDatasetsBySubCategoryExist: Boolean
+}
+
+"""
+A filter to be used against many `PfDataset` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetSubCategoryToManyPfDatasetFilter {
+  """
+  Every related `PfDataset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfDatasetFilter
+
+  """
+  No related `PfDataset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfDatasetFilter
+
+  """
+  Some related `PfDataset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfDatasetFilter
+}
+
+"""
+A filter to be used against many `PfDatasetStatistic` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetToManyPfDatasetStatisticFilter {
+  """
+  Every related `PfDatasetStatistic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfDatasetStatisticFilter
+
+  """
+  No related `PfDatasetStatistic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfDatasetStatisticFilter
+
+  """
+  Some related `PfDatasetStatistic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfDatasetStatisticFilter
+}
+
+"""
+A filter to be used against many `PfMap` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetToManyPfMapFilter {
+  """
+  Every related `PfMap` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfMapFilter
+
+  """
+  No related `PfMap` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfMapFilter
+
+  """
+  Some related `PfMap` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfMapFilter
+}
+
+"""
+A filter to be used against many `PfStatisticalVariableName` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetToManyPfStatisticalVariableNameFilter {
+  """
+  Every related `PfStatisticalVariableName` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfStatisticalVariableNameFilter
+
+  """
+  No related `PfStatisticalVariableName` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfStatisticalVariableNameFilter
+
+  """
+  Some related `PfStatisticalVariableName` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfStatisticalVariableNameFilter
+}
+
+"""Valid unit names for Probable Futures datasets"""
+type PfDatasetUnit implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+
+  """Reads and enables pagination through a set of `PfDataset`."""
+  pfDatasetsByUnit(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDataset`."""
+    orderBy: [PfDatasetsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetsConnection!
+  unit: String!
+  unitLong: String
+}
+
+"""
+A condition to be used against `PfDatasetUnit` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input PfDatasetUnitCondition {
+  """Checks for equality with the object’s `unit` field."""
+  unit: String
+
+  """Checks for equality with the object’s `unitLong` field."""
+  unitLong: String
+}
+
+"""
+A filter to be used against `PfDatasetUnit` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetUnitFilter {
+  """Filter by the object’s `pfDatasetsByUnit` relation."""
+  pfDatasetsByUnit: PfDatasetUnitToManyPfDatasetFilter
+
+  """Some related `pfDatasetsByUnit` exist."""
+  pfDatasetsByUnitExist: Boolean
+
+  """Filter by the object’s `unit` field."""
+  unit: StringFilter
+
+  """Filter by the object’s `unitLong` field."""
+  unitLong: StringFilter
+}
+
+"""
+A filter to be used against many `PfDataset` object types. All fields are combined with a logical ‘and.’
+"""
+input PfDatasetUnitToManyPfDatasetFilter {
+  """
+  Every related `PfDataset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfDatasetFilter
+
+  """
+  No related `PfDataset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfDatasetFilter
+
+  """
+  Some related `PfDataset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfDatasetFilter
+}
+
+"""A connection to a list of `PfDatasetUnit` values."""
+type PfDatasetUnitsConnection {
+  """
+  A list of edges which contains the `PfDatasetUnit` and cursor to aid in pagination.
+  """
+  edges: [PfDatasetUnitsEdge!]!
+
+  """A list of `PfDatasetUnit` objects."""
+  nodes: [PfDatasetUnit!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `PfDatasetUnit` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `PfDatasetUnit` edge in the connection."""
+type PfDatasetUnitsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PfDatasetUnit` at the end of the edge."""
+  node: PfDatasetUnit!
+}
+
+"""Methods to use when ordering `PfDatasetUnit`."""
+enum PfDatasetUnitsOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  UNIT_ASC
+  UNIT_DESC
+  UNIT_LONG_ASC
+  UNIT_LONG_DESC
+}
+
+"""A connection to a list of `PfDataset` values."""
+type PfDatasetsConnection {
+  """
+  A list of edges which contains the `PfDataset` and cursor to aid in pagination.
+  """
+  edges: [PfDatasetsEdge!]!
+
+  """A list of `PfDataset` objects."""
+  nodes: [PfDataset!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `PfDataset` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `PfDataset` edge in the connection."""
+type PfDatasetsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PfDataset` at the end of the edge."""
+  node: PfDataset!
+}
+
+"""Methods to use when ordering `PfDataset`."""
+enum PfDatasetsOrderBy {
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  DATA_VARIABLES_ASC
+  DATA_VARIABLES_DESC
+  DESCRIPTION_ASC
+  DESCRIPTION_DESC
+  ID_ASC
+  ID_DESC
+  MAX_VALUE_ASC
+  MAX_VALUE_DESC
+  MIN_VALUE_ASC
+  MIN_VALUE_DESC
+  MODEL_ASC
+  MODEL_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PARENT_CATEGORY_ASC
+  PARENT_CATEGORY_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  SLUG_ASC
+  SLUG_DESC
+  SUB_CATEGORY_ASC
+  SUB_CATEGORY_DESC
+  UNIT_ASC
+  UNIT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""
+Dataset coordinates contains the geographic data for coordinates in particular model grids.
+    Datasets with different model sources but the same model grid will share the same coordintes
+"""
+type PfGridCoordinate implements Node {
+  cell: GeographyPolygon
+  createdAt: Datetime!
+  grid: String!
+  id: UUID!
+
+  """
+  MD5 Hash of the EWKT of the coordinate point, used as a FK for raw and statistical data
+  """
+  md5Hash: String
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+
+  """
+  Reads a single `PfDatasetModelGrid` that is related to this `PfGridCoordinate`.
+  """
+  pfDatasetModelGridByGrid: PfDatasetModelGrid
+
+  """Reads and enables pagination through a set of `PfDatasetStatistic`."""
+  pfDatasetStatisticsByCoordinateHash(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetStatisticCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetStatisticFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDatasetStatistic`."""
+    orderBy: [PfDatasetStatisticsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetStatisticsConnection!
+  point: GeographyPoint!
+  updatedAt: Datetime!
+}
+
+"""
+A condition to be used against `PfGridCoordinate` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input PfGridCoordinateCondition {
+  """Checks for equality with the object’s `cell` field."""
+  cell: GeoJSON
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `grid` field."""
+  grid: String
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `md5Hash` field."""
+  md5Hash: String
+
+  """Checks for equality with the object’s `point` field."""
+  point: GeoJSON
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+}
+
+"""
+A filter to be used against `PfGridCoordinate` object types. All fields are combined with a logical ‘and.’
+"""
+input PfGridCoordinateFilter {
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `grid` field."""
+  grid: StringFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `md5Hash` field."""
+  md5Hash: StringFilter
+
+  """Filter by the object’s `pfDatasetModelGridByGrid` relation."""
+  pfDatasetModelGridByGrid: PfDatasetModelGridFilter
+
+  """Filter by the object’s `pfDatasetStatisticsByCoordinateHash` relation."""
+  pfDatasetStatisticsByCoordinateHash: PfGridCoordinateToManyPfDatasetStatisticFilter
+
+  """Some related `pfDatasetStatisticsByCoordinateHash` exist."""
+  pfDatasetStatisticsByCoordinateHashExist: Boolean
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+}
+
+"""
+A filter to be used against many `PfDatasetStatistic` object types. All fields are combined with a logical ‘and.’
+"""
+input PfGridCoordinateToManyPfDatasetStatisticFilter {
+  """
+  Every related `PfDatasetStatistic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfDatasetStatisticFilter
+
+  """
+  No related `PfDatasetStatistic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfDatasetStatisticFilter
+
+  """
+  Some related `PfDatasetStatistic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfDatasetStatisticFilter
+}
+
+"""A connection to a list of `PfGridCoordinate` values."""
+type PfGridCoordinatesConnection {
+  """
+  A list of edges which contains the `PfGridCoordinate` and cursor to aid in pagination.
+  """
+  edges: [PfGridCoordinatesEdge!]!
+
+  """A list of `PfGridCoordinate` objects."""
+  nodes: [PfGridCoordinate!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PfGridCoordinate` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `PfGridCoordinate` edge in the connection."""
+type PfGridCoordinatesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PfGridCoordinate` at the end of the edge."""
+  node: PfGridCoordinate!
+}
+
+"""Methods to use when ordering `PfGridCoordinate`."""
+enum PfGridCoordinatesOrderBy {
+  CELL_ASC
+  CELL_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  GRID_ASC
+  GRID_DESC
+  ID_ASC
+  ID_DESC
+  MD5_HASH_ASC
+  MD5_HASH_DESC
+  NATURAL
+  POINT_ASC
+  POINT_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""Relates a dataset to a map style stored in Mapbox"""
+type PfMap implements Node {
+  binHexColors: [HexColor]
+  binLabels: [String]
+  binningType: String!
+  createdAt: Datetime!
+  dataLabels: [String]
+
+  """Reads a single `PfDataset` that is related to this `PfMap`."""
+  dataset: PfDataset
+  datasetId: Int!
+  description: String
+  id: UUID!
+  isDiff: Boolean
+  isLatest: Boolean
+  mapStyleId: String
+  mapVersion: Int
+  methodUsedForMid: String
+  name: String!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  order: Int
+
+  """Reads a single `PfMapStatus` that is related to this `PfMap`."""
+  pfMapStatusByStatus: PfMapStatus
+  slug: String
+  status: String!
+  step: Float
+  stops: [Float]
+  updatedAt: Datetime!
+}
+
+"""
+A condition to be used against `PfMap` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input PfMapCondition {
+  """Checks for equality with the object’s `binHexColors` field."""
+  binHexColors: [HexColor]
+
+  """Checks for equality with the object’s `binLabels` field."""
+  binLabels: [String]
+
+  """Checks for equality with the object’s `binningType` field."""
+  binningType: String
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `dataLabels` field."""
+  dataLabels: [String]
+
+  """Checks for equality with the object’s `datasetId` field."""
+  datasetId: Int
+
+  """Checks for equality with the object’s `description` field."""
+  description: String
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `isDiff` field."""
+  isDiff: Boolean
+
+  """Checks for equality with the object’s `isLatest` field."""
+  isLatest: Boolean
+
+  """Checks for equality with the object’s `mapStyleId` field."""
+  mapStyleId: String
+
+  """Checks for equality with the object’s `mapVersion` field."""
+  mapVersion: Int
+
+  """Checks for equality with the object’s `methodUsedForMid` field."""
+  methodUsedForMid: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `order` field."""
+  order: Int
+
+  """Checks for equality with the object’s `slug` field."""
+  slug: String
+
+  """Checks for equality with the object’s `status` field."""
+  status: String
+
+  """Checks for equality with the object’s `step` field."""
+  step: Float
+
+  """Checks for equality with the object’s `stops` field."""
+  stops: [Float]
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+}
+
+"""
+A filter to be used against `PfMap` object types. All fields are combined with a logical ‘and.’
+"""
+input PfMapFilter {
+  """Filter by the object’s `binHexColors` field."""
+  binHexColors: HexColorListFilter
+
+  """Filter by the object’s `binLabels` field."""
+  binLabels: StringListFilter
+
+  """Filter by the object’s `binningType` field."""
+  binningType: StringFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `dataLabels` field."""
+  dataLabels: StringListFilter
+
+  """Filter by the object’s `dataset` relation."""
+  dataset: PfDatasetFilter
+
+  """Filter by the object’s `datasetId` field."""
+  datasetId: IntFilter
+
+  """Filter by the object’s `description` field."""
+  description: StringFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `isDiff` field."""
+  isDiff: BooleanFilter
+
+  """Filter by the object’s `isLatest` field."""
+  isLatest: BooleanFilter
+
+  """Filter by the object’s `mapStyleId` field."""
+  mapStyleId: StringFilter
+
+  """Filter by the object’s `mapVersion` field."""
+  mapVersion: IntFilter
+
+  """Filter by the object’s `methodUsedForMid` field."""
+  methodUsedForMid: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Filter by the object’s `order` field."""
+  order: IntFilter
+
+  """Filter by the object’s `pfMapStatusByStatus` relation."""
+  pfMapStatusByStatus: PfMapStatusFilter
+
+  """Filter by the object’s `slug` field."""
+  slug: StringFilter
+
+  """Filter by the object’s `status` field."""
+  status: StringFilter
+
+  """Filter by the object’s `step` field."""
+  step: FloatFilter
+
+  """Filter by the object’s `stops` field."""
+  stops: FloatListFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+}
+
+"""Valid state of map publishing statuses"""
+type PfMapStatus implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+
+  """Reads and enables pagination through a set of `PfMap`."""
+  pfMapsByStatus(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfMapCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfMapFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfMap`."""
+    orderBy: [PfMapsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfMapsConnection!
+  status: String!
+}
+
+"""
+A condition to be used against `PfMapStatus` object types. All fields are tested
+for equality and combined with a logical ‘and.’
+"""
+input PfMapStatusCondition {
+  """Checks for equality with the object’s `status` field."""
+  status: String
+}
+
+"""
+A filter to be used against `PfMapStatus` object types. All fields are combined with a logical ‘and.’
+"""
+input PfMapStatusFilter {
+  """Filter by the object’s `pfMapsByStatus` relation."""
+  pfMapsByStatus: PfMapStatusToManyPfMapFilter
+
+  """Some related `pfMapsByStatus` exist."""
+  pfMapsByStatusExist: Boolean
+
+  """Filter by the object’s `status` field."""
+  status: StringFilter
+}
+
+"""
+A filter to be used against many `PfMap` object types. All fields are combined with a logical ‘and.’
+"""
+input PfMapStatusToManyPfMapFilter {
+  """
+  Every related `PfMap` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfMapFilter
+
+  """
+  No related `PfMap` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfMapFilter
+
+  """
+  Some related `PfMap` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfMapFilter
+}
+
+"""A connection to a list of `PfMapStatus` values."""
+type PfMapStatusesConnection {
+  """
+  A list of edges which contains the `PfMapStatus` and cursor to aid in pagination.
+  """
+  edges: [PfMapStatusesEdge!]!
+
+  """A list of `PfMapStatus` objects."""
+  nodes: [PfMapStatus!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `PfMapStatus` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `PfMapStatus` edge in the connection."""
+type PfMapStatusesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PfMapStatus` at the end of the edge."""
+  node: PfMapStatus!
+}
+
+"""Methods to use when ordering `PfMapStatus`."""
+enum PfMapStatusesOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  STATUS_ASC
+  STATUS_DESC
+}
+
+"""A connection to a list of `PfMap` values."""
+type PfMapsConnection {
+  """
+  A list of edges which contains the `PfMap` and cursor to aid in pagination.
+  """
+  edges: [PfMapsEdge!]!
+
+  """A list of `PfMap` objects."""
+  nodes: [PfMap!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `PfMap` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `PfMap` edge in the connection."""
+type PfMapsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PfMap` at the end of the edge."""
+  node: PfMap!
+}
+
+"""Methods to use when ordering `PfMap`."""
+enum PfMapsOrderBy {
+  BINNING_TYPE_ASC
+  BINNING_TYPE_DESC
+  BIN_HEX_COLORS_ASC
+  BIN_HEX_COLORS_DESC
+  BIN_LABELS_ASC
+  BIN_LABELS_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  DATASET_ID_ASC
+  DATASET_ID_DESC
+  DATA_LABELS_ASC
+  DATA_LABELS_DESC
+  DESCRIPTION_ASC
+  DESCRIPTION_DESC
+  ID_ASC
+  ID_DESC
+  IS_DIFF_ASC
+  IS_DIFF_DESC
+  IS_LATEST_ASC
+  IS_LATEST_DESC
+  MAP_STYLE_ID_ASC
+  MAP_STYLE_ID_DESC
+  MAP_VERSION_ASC
+  MAP_VERSION_DESC
+  METHOD_USED_FOR_MID_ASC
+  METHOD_USED_FOR_MID_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  ORDER_ASC
+  ORDER_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  SLUG_ASC
+  SLUG_DESC
+  STATUS_ASC
+  STATUS_DESC
+  STEP_ASC
+  STEP_DESC
+  STOPS_ASC
+  STOPS_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""The metadata for a partner supplied dataset"""
+type PfPartnerDataset {
+  createdAt: Datetime!
+  description: String
+  id: UUID!
+  isExample: Boolean
+  name: String!
+  partnerId: UUID!
+  updatedAt: Datetime!
+}
+
+"""
+Table for initiating partner dataset enrichments and referencing enriched datasets
+"""
+type PfPartnerDatasetEnrichment {
+  createdAt: Datetime!
+
+  """
+  File combining original partner dataset data with PF climate of nearby points
+  """
+  enrichedDatasetFile: String
+  enrichedRowCount: Int
+  enrichmentErrors: JSON
+  enrichmentTimeMs: Int
+  id: UUID!
+  partnerDatasetId: UUID!
+  partnerId: UUID!
+  pfDatasetId: Int!
+  projectId: UUID
+  status: String
+  updatedAt: Datetime!
+  uploadId: UUID
+}
+
+"""
+Dataset files uploaded by partners for enrichment with Probable Futures climate data
+"""
+type PfPartnerDatasetUpload {
+  createdAt: Datetime!
+  csvHeaders: [String]
+  enrich: Boolean
+  geodataType: String
+  id: UUID!
+
+  """S3 url for unaltered dataset uploaded by a partner"""
+  originalFile: String
+  partnerDatasetId: UUID!
+  partnerId: UUID!
+
+  """S3 url for partner dataset with uuids assigned to each row"""
+  processedFile: String
+  processedRowCount: Int
+  processedWithCoordinatesFile: String
+  processedWithCoordinatesRowCount: Int
+  processingErrors: JSON
+  processingTimeMs: Int
+  processingWithCoordinatesErrors: JSON
+  processingWithCoordinatesTimeMs: Int
+  status: String
+  updatedAt: Datetime!
+}
+
+"""
+Partner projects are collections of partner datasets and a Probable Futures dataset
+"""
+type PfPartnerProject {
+  createdAt: Datetime!
+  description: String
+  id: UUID!
+  imageUrl: String
+  mapConfig: JSON
+  name: String!
+  partnerId: UUID!
+  pfDatasetId: Int
+  updatedAt: Datetime!
+}
+
+"""Relationship between a partner project and a partner dataset"""
+type PfPartnerProjectDataset {
+  createdAt: Datetime
+  datasetId: UUID!
+  projectId: UUID!
+  updatedAt: Datetime
+}
+
+type PfPartnerProjectShare {
+  createdAt: Datetime!
+  expiresAt: Datetime!
+  id: UUID!
+  projectId: UUID!
+  updatedAt: Datetime!
+}
+
+"""Table storing variable names across datasets"""
+type PfStatisticalVariableName implements Node {
+  """
+  Reads a single `PfDataset` that is related to this `PfStatisticalVariableName`.
+  """
+  dataset: PfDataset
+  datasetId: Int
+  description: String
+  name: String
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  slug: String!
+}
+
+"""
+A condition to be used against `PfStatisticalVariableName` object types. All
+fields are tested for equality and combined with a logical ‘and.’
+"""
+input PfStatisticalVariableNameCondition {
+  """Checks for equality with the object’s `datasetId` field."""
+  datasetId: Int
+
+  """Checks for equality with the object’s `description` field."""
+  description: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `slug` field."""
+  slug: String
+}
+
+"""
+A filter to be used against `PfStatisticalVariableName` object types. All fields are combined with a logical ‘and.’
+"""
+input PfStatisticalVariableNameFilter {
+  """Filter by the object’s `dataset` relation."""
+  dataset: PfDatasetFilter
+
+  """A related `dataset` exists."""
+  datasetExists: Boolean
+
+  """Filter by the object’s `datasetId` field."""
+  datasetId: IntFilter
+
+  """Filter by the object’s `description` field."""
+  description: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Filter by the object’s `slug` field."""
+  slug: StringFilter
+}
+
+"""A connection to a list of `PfStatisticalVariableName` values."""
+type PfStatisticalVariableNamesConnection {
+  """
+  A list of edges which contains the `PfStatisticalVariableName` and cursor to aid in pagination.
+  """
+  edges: [PfStatisticalVariableNamesEdge!]!
+
+  """A list of `PfStatisticalVariableName` objects."""
+  nodes: [PfStatisticalVariableName!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PfStatisticalVariableName` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `PfStatisticalVariableName` edge in the connection."""
+type PfStatisticalVariableNamesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PfStatisticalVariableName` at the end of the edge."""
+  node: PfStatisticalVariableName!
+}
+
+"""Methods to use when ordering `PfStatisticalVariableName`."""
+enum PfStatisticalVariableNamesOrderBy {
+  DATASET_ID_ASC
+  DATASET_ID_DESC
+  DESCRIPTION_ASC
+  DESCRIPTION_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  SLUG_ASC
+  SLUG_DESC
+}
+
+"""A user who can log in to the application."""
+type PfUser {
+  createdAt: Datetime!
+  email: String!
+  id: UUID!
+  lastSeenAt: Datetime!
+  name: String
+
+  """Unique OAuth Subject identifier for the user."""
+  sub: String!
+  updatedAt: Datetime!
+}
+
+"""Warming scenarios forecasted in Probable Futures dataset statistics"""
+type PfWarmingScenario implements Node {
+  description: String
+  name: String
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+
+  """Reads and enables pagination through a set of `PfDatasetStatistic`."""
+  pfDatasetStatisticsByWarmingScenario(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetStatisticCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetStatisticFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDatasetStatistic`."""
+    orderBy: [PfDatasetStatisticsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetStatisticsConnection!
+  slug: String!
+}
+
+"""
+A condition to be used against `PfWarmingScenario` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input PfWarmingScenarioCondition {
+  """Checks for equality with the object’s `description` field."""
+  description: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `slug` field."""
+  slug: String
+}
+
+"""
+A filter to be used against `PfWarmingScenario` object types. All fields are combined with a logical ‘and.’
+"""
+input PfWarmingScenarioFilter {
+  """Filter by the object’s `description` field."""
+  description: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """
+  Filter by the object’s `pfDatasetStatisticsByWarmingScenario` relation.
+  """
+  pfDatasetStatisticsByWarmingScenario: PfWarmingScenarioToManyPfDatasetStatisticFilter
+
+  """Some related `pfDatasetStatisticsByWarmingScenario` exist."""
+  pfDatasetStatisticsByWarmingScenarioExist: Boolean
+
+  """Filter by the object’s `slug` field."""
+  slug: StringFilter
+}
+
+"""
+A filter to be used against many `PfDatasetStatistic` object types. All fields are combined with a logical ‘and.’
+"""
+input PfWarmingScenarioToManyPfDatasetStatisticFilter {
+  """
+  Every related `PfDatasetStatistic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PfDatasetStatisticFilter
+
+  """
+  No related `PfDatasetStatistic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PfDatasetStatisticFilter
+
+  """
+  Some related `PfDatasetStatistic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PfDatasetStatisticFilter
+}
+
+"""A connection to a list of `PfWarmingScenario` values."""
+type PfWarmingScenariosConnection {
+  """
+  A list of edges which contains the `PfWarmingScenario` and cursor to aid in pagination.
+  """
+  edges: [PfWarmingScenariosEdge!]!
+
+  """A list of `PfWarmingScenario` objects."""
+  nodes: [PfWarmingScenario!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PfWarmingScenario` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `PfWarmingScenario` edge in the connection."""
+type PfWarmingScenariosEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PfWarmingScenario` at the end of the edge."""
+  node: PfWarmingScenario!
+}
+
+"""Methods to use when ordering `PfWarmingScenario`."""
+enum PfWarmingScenariosOrderBy {
+  DESCRIPTION_ASC
+  DESCRIPTION_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  SLUG_ASC
+  SLUG_DESC
+}
+
+"""All input for the `projectShare` mutation."""
+input ProjectShareInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  slugId: UUID!
+}
+
+"""The output of our `projectShare` mutation."""
+type ProjectSharePayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  projectShareResponse: ProjectShareResponse
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+type ProjectShareResponse {
+  mapConfig: JSON
+  pfDatasetId: Int
+  projectDatasets: JSON
+}
+
+"""The root query type which gives access points into the data universe."""
+type Query implements Node {
+  """Reads and enables pagination through a set of `Country`."""
+  countries(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CountryCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CountryFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Country`."""
+    orderBy: [CountriesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CountriesConnection
+  country(id: UUID!): Country
+  countryByName(name: String!): Country
+
+  """Reads a single `Country` using its globally unique `ID`."""
+  countryByNodeId(
+    """The globally unique `ID` to be used in selecting a single `Country`."""
+    nodeId: ID!
+  ): Country
+  currentUser: PfUser
+  currentUserId: UUID
+
+  """Handy method to get the current user sub id."""
+  currentUserSub: String
+
+  """Fetches an object given its globally unique `ID`."""
+  node(
+    """The globally unique `ID`."""
+    nodeId: ID!
+  ): Node
+
+  """
+  The root query type must be a `Node` to work well with Relay 1 mutations. This just resolves to `query`.
+  """
+  nodeId: ID!
+  pfDataset(id: Int!): PfDataset
+
+  """Reads a single `PfDataset` using its globally unique `ID`."""
+  pfDatasetByNodeId(
+    """The globally unique `ID` to be used in selecting a single `PfDataset`."""
+    nodeId: ID!
+  ): PfDataset
+  pfDatasetBySlug(slug: String!): PfDataset
+  pfDatasetModelGrid(grid: String!): PfDatasetModelGrid
+
+  """Reads a single `PfDatasetModelGrid` using its globally unique `ID`."""
+  pfDatasetModelGridByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `PfDatasetModelGrid`.
+    """
+    nodeId: ID!
+  ): PfDatasetModelGrid
+  pfDatasetModelGridByResolution(resolution: String!): PfDatasetModelGrid
+
+  """Reads and enables pagination through a set of `PfDatasetModelGrid`."""
+  pfDatasetModelGrids(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetModelGridCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetModelGridFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDatasetModelGrid`."""
+    orderBy: [PfDatasetModelGridsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetModelGridsConnection
+  pfDatasetModelSource(model: String!): PfDatasetModelSource
+
+  """Reads a single `PfDatasetModelSource` using its globally unique `ID`."""
+  pfDatasetModelSourceByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `PfDatasetModelSource`.
+    """
+    nodeId: ID!
+  ): PfDatasetModelSource
+
+  """Reads and enables pagination through a set of `PfDatasetModelSource`."""
+  pfDatasetModelSources(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetModelSourceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetModelSourceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDatasetModelSource`."""
+    orderBy: [PfDatasetModelSourcesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetModelSourcesConnection
+
+  """
+  Reads and enables pagination through a set of `PfDatasetParentCategory`.
+  """
+  pfDatasetParentCategories(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetParentCategoryCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetParentCategoryFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDatasetParentCategory`."""
+    orderBy: [PfDatasetParentCategoriesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetParentCategoriesConnection
+  pfDatasetParentCategory(name: String!): PfDatasetParentCategory
+
+  """
+  Reads a single `PfDatasetParentCategory` using its globally unique `ID`.
+  """
+  pfDatasetParentCategoryByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `PfDatasetParentCategory`.
+    """
+    nodeId: ID!
+  ): PfDatasetParentCategory
+  pfDatasetStatistic(id: UUID!): PfDatasetStatistic
+
+  """Reads a single `PfDatasetStatistic` using its globally unique `ID`."""
+  pfDatasetStatisticByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `PfDatasetStatistic`.
+    """
+    nodeId: ID!
+  ): PfDatasetStatistic
+
+  """Reads and enables pagination through a set of `PfDatasetStatistic`."""
+  pfDatasetStatistics(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetStatisticCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetStatisticFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDatasetStatistic`."""
+    orderBy: [PfDatasetStatisticsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetStatisticsConnection
+
+  """Reads and enables pagination through a set of `PfDatasetSubCategory`."""
+  pfDatasetSubCategories(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetSubCategoryCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetSubCategoryFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDatasetSubCategory`."""
+    orderBy: [PfDatasetSubCategoriesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetSubCategoriesConnection
+  pfDatasetSubCategory(name: String!): PfDatasetSubCategory
+  pfDatasetSubCategoryByNameAndParentCategory(name: String!, parentCategory: String!): PfDatasetSubCategory
+
+  """Reads a single `PfDatasetSubCategory` using its globally unique `ID`."""
+  pfDatasetSubCategoryByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `PfDatasetSubCategory`.
+    """
+    nodeId: ID!
+  ): PfDatasetSubCategory
+  pfDatasetUnit(unit: String!): PfDatasetUnit
+
+  """Reads a single `PfDatasetUnit` using its globally unique `ID`."""
+  pfDatasetUnitByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `PfDatasetUnit`.
+    """
+    nodeId: ID!
+  ): PfDatasetUnit
+
+  """Reads and enables pagination through a set of `PfDatasetUnit`."""
+  pfDatasetUnits(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetUnitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetUnitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDatasetUnit`."""
+    orderBy: [PfDatasetUnitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetUnitsConnection
+
+  """Reads and enables pagination through a set of `PfDataset`."""
+  pfDatasets(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfDatasetCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfDatasetFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfDataset`."""
+    orderBy: [PfDatasetsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfDatasetsConnection
+  pfGridCoordinate(id: UUID!): PfGridCoordinate
+  pfGridCoordinateByMd5Hash(md5Hash: String!): PfGridCoordinate
+
+  """Reads a single `PfGridCoordinate` using its globally unique `ID`."""
+  pfGridCoordinateByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `PfGridCoordinate`.
+    """
+    nodeId: ID!
+  ): PfGridCoordinate
+
+  """Reads and enables pagination through a set of `PfGridCoordinate`."""
+  pfGridCoordinates(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfGridCoordinateCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfGridCoordinateFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfGridCoordinate`."""
+    orderBy: [PfGridCoordinatesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfGridCoordinatesConnection
+  pfMap(id: UUID!): PfMap
+  pfMapByMapStyleId(mapStyleId: String!): PfMap
+
+  """Reads a single `PfMap` using its globally unique `ID`."""
+  pfMapByNodeId(
+    """The globally unique `ID` to be used in selecting a single `PfMap`."""
+    nodeId: ID!
+  ): PfMap
+  pfMapStatus(status: String!): PfMapStatus
+
+  """Reads a single `PfMapStatus` using its globally unique `ID`."""
+  pfMapStatusByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `PfMapStatus`.
+    """
+    nodeId: ID!
+  ): PfMapStatus
+
+  """Reads and enables pagination through a set of `PfMapStatus`."""
+  pfMapStatuses(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfMapStatusCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfMapStatusFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfMapStatus`."""
+    orderBy: [PfMapStatusesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfMapStatusesConnection
+
+  """Reads and enables pagination through a set of `PfMap`."""
+  pfMaps(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfMapCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfMapFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfMap`."""
+    orderBy: [PfMapsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfMapsConnection
+  pfStatisticalVariableName(slug: String!): PfStatisticalVariableName
+
+  """
+  Reads a single `PfStatisticalVariableName` using its globally unique `ID`.
+  """
+  pfStatisticalVariableNameByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `PfStatisticalVariableName`.
+    """
+    nodeId: ID!
+  ): PfStatisticalVariableName
+
+  """
+  Reads and enables pagination through a set of `PfStatisticalVariableName`.
+  """
+  pfStatisticalVariableNames(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfStatisticalVariableNameCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfStatisticalVariableNameFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfStatisticalVariableName`."""
+    orderBy: [PfStatisticalVariableNamesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfStatisticalVariableNamesConnection
+  pfWarmingScenario(slug: String!): PfWarmingScenario
+
+  """Reads a single `PfWarmingScenario` using its globally unique `ID`."""
+  pfWarmingScenarioByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `PfWarmingScenario`.
+    """
+    nodeId: ID!
+  ): PfWarmingScenario
+
+  """Reads and enables pagination through a set of `PfWarmingScenario`."""
+  pfWarmingScenarios(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PfWarmingScenarioCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PfWarmingScenarioFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PfWarmingScenario`."""
+    orderBy: [PfWarmingScenariosOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PfWarmingScenariosConnection
+  projectSharedData(slugId: UUID!): ShareData!
+
+  """
+  Exposes the root query type nested one level down. This is helpful for Relay 1
+  which can only query top level fields if they are in a particular form.
+  """
+  query: Query!
+  viewPartnerDataset(id: UUID!): ViewPartnerDataset
+
+  """Reads a single `ViewPartnerDataset` using its globally unique `ID`."""
+  viewPartnerDatasetByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `ViewPartnerDataset`.
+    """
+    nodeId: ID!
+  ): ViewPartnerDataset
+  viewPartnerDatasetEnrichment(id: UUID!): ViewPartnerDatasetEnrichment
+
+  """
+  Reads a single `ViewPartnerDatasetEnrichment` using its globally unique `ID`.
+  """
+  viewPartnerDatasetEnrichmentByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `ViewPartnerDatasetEnrichment`.
+    """
+    nodeId: ID!
+  ): ViewPartnerDatasetEnrichment
+
+  """
+  Reads and enables pagination through a set of `ViewPartnerDatasetEnrichment`.
+  """
+  viewPartnerDatasetEnrichments(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ViewPartnerDatasetEnrichmentCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ViewPartnerDatasetEnrichmentFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ViewPartnerDatasetEnrichment`."""
+    orderBy: [ViewPartnerDatasetEnrichmentsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ViewPartnerDatasetEnrichmentsConnection
+  viewPartnerDatasetUpload(id: UUID!): ViewPartnerDatasetUpload
+
+  """
+  Reads a single `ViewPartnerDatasetUpload` using its globally unique `ID`.
+  """
+  viewPartnerDatasetUploadByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `ViewPartnerDatasetUpload`.
+    """
+    nodeId: ID!
+  ): ViewPartnerDatasetUpload
+
+  """
+  Reads and enables pagination through a set of `ViewPartnerDatasetUpload`.
+  """
+  viewPartnerDatasetUploads(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ViewPartnerDatasetUploadCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ViewPartnerDatasetUploadFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ViewPartnerDatasetUpload`."""
+    orderBy: [ViewPartnerDatasetUploadsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ViewPartnerDatasetUploadsConnection
+
+  """Reads and enables pagination through a set of `ViewPartnerDataset`."""
+  viewPartnerDatasets(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ViewPartnerDatasetCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ViewPartnerDatasetFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ViewPartnerDataset`."""
+    orderBy: [ViewPartnerDatasetsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ViewPartnerDatasetsConnection
+  viewPartnerProject(id: UUID!): ViewPartnerProject
+
+  """Reads a single `ViewPartnerProject` using its globally unique `ID`."""
+  viewPartnerProjectByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `ViewPartnerProject`.
+    """
+    nodeId: ID!
+  ): ViewPartnerProject
+
+  """
+  Reads and enables pagination through a set of `ViewPartnerProjectDataset`.
+  """
+  viewPartnerProjectDatasets(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ViewPartnerProjectDatasetCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ViewPartnerProjectDatasetFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ViewPartnerProjectDataset`."""
+    orderBy: [ViewPartnerProjectDatasetsOrderBy!] = [NATURAL]
+  ): ViewPartnerProjectDatasetsConnection
+
+  """Reads and enables pagination through a set of `ViewPartnerProject`."""
+  viewPartnerProjects(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ViewPartnerProjectCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ViewPartnerProjectFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ViewPartnerProject`."""
+    orderBy: [ViewPartnerProjectsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ViewPartnerProjectsConnection
+
+  """
+  Reads and enables pagination through a set of `ViewPfCountryStatistic`.
+  """
+  viewPfCountryStatistics(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ViewPfCountryStatisticCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ViewPfCountryStatisticFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ViewPfCountryStatistic`."""
+    orderBy: [ViewPfCountryStatisticsOrderBy!] = [NATURAL]
+  ): ViewPfCountryStatisticsConnection
+}
+
+type ShareData {
+  files: [File]
+  mapConfig: JSON
+  pfDatasetId: Int
+}
+
+"""
+A filter to be used against String fields. All fields are combined with a logical ‘and.’
+"""
+input StringFilter {
+  """Equal to the specified value."""
+  equalTo: String
+}
+
+"""
+A filter to be used against String List fields. All fields are combined with a logical ‘and.’
+"""
+input StringListFilter {
+  """Equal to the specified value."""
+  equalTo: [String]
+}
+
+"""
+A universally unique identifier as defined by [RFC 4122](https://tools.ietf.org/html/rfc4122).
+"""
+scalar UUID
+
+"""
+A filter to be used against UUID fields. All fields are combined with a logical ‘and.’
+"""
+input UUIDFilter {
+  """Equal to the specified value."""
+  equalTo: UUID
+}
+
+"""All input for the `updatePartnerDataset` mutation."""
+input UpdatePartnerDatasetInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  datasetId: UUID
+  datasetName: String
+}
+
+"""The output of our `updatePartnerDataset` mutation."""
+type UpdatePartnerDatasetPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  pfPartnerDataset: PfPartnerDataset
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+"""All input for the `updatePartnerProject` mutation."""
+input UpdatePartnerProjectInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  imageUrl: String
+  mapConfig: JSON
+  pfDatasetId: Int
+  projectId: UUID
+  projectName: String
+}
+
+"""The output of our `updatePartnerProject` mutation."""
+type UpdatePartnerProjectPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  pfPartnerProject: PfPartnerProject
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
+type ViewPartnerDataset implements Node {
+  createdAt: Datetime
+  description: String
+  id: UUID!
+  isExample: Boolean
+  name: String!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  originalFile: String
+  processedWithCoordinatesFile: String
+  updatedAt: Datetime
+  uploadId: UUID
+}
+
+"""
+A condition to be used against `ViewPartnerDataset` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input ViewPartnerDatasetCondition {
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `description` field."""
+  description: String
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `isExample` field."""
+  isExample: Boolean
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `originalFile` field."""
+  originalFile: String
+
+  """
+  Checks for equality with the object’s `processedWithCoordinatesFile` field.
+  """
+  processedWithCoordinatesFile: String
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+
+  """Checks for equality with the object’s `uploadId` field."""
+  uploadId: UUID
+}
+
+type ViewPartnerDatasetEnrichment implements Node {
+  enrichedDatasetFile: String
+  enrichedRowCount: Int
+  enrichmentErrors: JSON
+  id: UUID!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  pfDatasetId: Int
+  projectId: UUID
+  status: String!
+  uploadId: UUID
+}
+
+"""
+A condition to be used against `ViewPartnerDatasetEnrichment` object types. All
+fields are tested for equality and combined with a logical ‘and.’
+"""
+input ViewPartnerDatasetEnrichmentCondition {
+  """Checks for equality with the object’s `enrichedDatasetFile` field."""
+  enrichedDatasetFile: String
+
+  """Checks for equality with the object’s `enrichedRowCount` field."""
+  enrichedRowCount: Int
+
+  """Checks for equality with the object’s `enrichmentErrors` field."""
+  enrichmentErrors: JSON
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `pfDatasetId` field."""
+  pfDatasetId: Int
+
+  """Checks for equality with the object’s `projectId` field."""
+  projectId: UUID
+
+  """Checks for equality with the object’s `status` field."""
+  status: String
+
+  """Checks for equality with the object’s `uploadId` field."""
+  uploadId: UUID
+}
+
+"""
+A filter to be used against `ViewPartnerDatasetEnrichment` object types. All fields are combined with a logical ‘and.’
+"""
+input ViewPartnerDatasetEnrichmentFilter {
+  """Filter by the object’s `enrichedDatasetFile` field."""
+  enrichedDatasetFile: StringFilter
+
+  """Filter by the object’s `enrichedRowCount` field."""
+  enrichedRowCount: IntFilter
+
+  """Filter by the object’s `enrichmentErrors` field."""
+  enrichmentErrors: JSONFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `pfDatasetId` field."""
+  pfDatasetId: IntFilter
+
+  """Filter by the object’s `projectId` field."""
+  projectId: UUIDFilter
+
+  """Filter by the object’s `status` field."""
+  status: StringFilter
+
+  """Filter by the object’s `uploadId` field."""
+  uploadId: UUIDFilter
+}
+
+"""A connection to a list of `ViewPartnerDatasetEnrichment` values."""
+type ViewPartnerDatasetEnrichmentsConnection {
+  """
+  A list of edges which contains the `ViewPartnerDatasetEnrichment` and cursor to aid in pagination.
+  """
+  edges: [ViewPartnerDatasetEnrichmentsEdge!]!
+
+  """A list of `ViewPartnerDatasetEnrichment` objects."""
+  nodes: [ViewPartnerDatasetEnrichment!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `ViewPartnerDatasetEnrichment` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `ViewPartnerDatasetEnrichment` edge in the connection."""
+type ViewPartnerDatasetEnrichmentsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `ViewPartnerDatasetEnrichment` at the end of the edge."""
+  node: ViewPartnerDatasetEnrichment!
+}
+
+"""Methods to use when ordering `ViewPartnerDatasetEnrichment`."""
+enum ViewPartnerDatasetEnrichmentsOrderBy {
+  ENRICHED_DATASET_FILE_ASC
+  ENRICHED_DATASET_FILE_DESC
+  ENRICHED_ROW_COUNT_ASC
+  ENRICHED_ROW_COUNT_DESC
+  ENRICHMENT_ERRORS_ASC
+  ENRICHMENT_ERRORS_DESC
+  ID_ASC
+  ID_DESC
+  NATURAL
+  PF_DATASET_ID_ASC
+  PF_DATASET_ID_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  PROJECT_ID_ASC
+  PROJECT_ID_DESC
+  STATUS_ASC
+  STATUS_DESC
+  UPLOAD_ID_ASC
+  UPLOAD_ID_DESC
+}
+
+"""
+A filter to be used against `ViewPartnerDataset` object types. All fields are combined with a logical ‘and.’
+"""
+input ViewPartnerDatasetFilter {
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `description` field."""
+  description: StringFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `isExample` field."""
+  isExample: BooleanFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Filter by the object’s `originalFile` field."""
+  originalFile: StringFilter
+
+  """Filter by the object’s `processedWithCoordinatesFile` field."""
+  processedWithCoordinatesFile: StringFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `uploadId` field."""
+  uploadId: UUIDFilter
+}
+
+type ViewPartnerDatasetUpload implements Node {
+  createdAt: Datetime
+  csvHeaders: [String]
+  enrich: Boolean
+  geodataType: String
+  id: UUID!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  originalFile: String!
+  partnerDatasetId: UUID
+  partnerId: UUID
+  processedFile: String
+  processedRowCount: Int
+  processedWithCoordinatesFile: String
+  processedWithCoordinatesRowCount: Int
+  processingErrors: JSON
+  processingTimeMs: Int
+  processingWithCoordinatesErrors: JSON
+  processingWithCoordinatesTimeMs: Int
+  status: String
+  updatedAt: Datetime
+}
+
+"""
+A condition to be used against `ViewPartnerDatasetUpload` object types. All
+fields are tested for equality and combined with a logical ‘and.’
+"""
+input ViewPartnerDatasetUploadCondition {
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `csvHeaders` field."""
+  csvHeaders: [String]
+
+  """Checks for equality with the object’s `enrich` field."""
+  enrich: Boolean
+
+  """Checks for equality with the object’s `geodataType` field."""
+  geodataType: String
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `originalFile` field."""
+  originalFile: String
+
+  """Checks for equality with the object’s `partnerDatasetId` field."""
+  partnerDatasetId: UUID
+
+  """Checks for equality with the object’s `partnerId` field."""
+  partnerId: UUID
+
+  """Checks for equality with the object’s `processedFile` field."""
+  processedFile: String
+
+  """Checks for equality with the object’s `processedRowCount` field."""
+  processedRowCount: Int
+
+  """
+  Checks for equality with the object’s `processedWithCoordinatesFile` field.
+  """
+  processedWithCoordinatesFile: String
+
+  """
+  Checks for equality with the object’s `processedWithCoordinatesRowCount` field.
+  """
+  processedWithCoordinatesRowCount: Int
+
+  """Checks for equality with the object’s `processingErrors` field."""
+  processingErrors: JSON
+
+  """Checks for equality with the object’s `processingTimeMs` field."""
+  processingTimeMs: Int
+
+  """
+  Checks for equality with the object’s `processingWithCoordinatesErrors` field.
+  """
+  processingWithCoordinatesErrors: JSON
+
+  """
+  Checks for equality with the object’s `processingWithCoordinatesTimeMs` field.
+  """
+  processingWithCoordinatesTimeMs: Int
+
+  """Checks for equality with the object’s `status` field."""
+  status: String
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+}
+
+"""
+A filter to be used against `ViewPartnerDatasetUpload` object types. All fields are combined with a logical ‘and.’
+"""
+input ViewPartnerDatasetUploadFilter {
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `csvHeaders` field."""
+  csvHeaders: StringListFilter
+
+  """Filter by the object’s `enrich` field."""
+  enrich: BooleanFilter
+
+  """Filter by the object’s `geodataType` field."""
+  geodataType: StringFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `originalFile` field."""
+  originalFile: StringFilter
+
+  """Filter by the object’s `partnerDatasetId` field."""
+  partnerDatasetId: UUIDFilter
+
+  """Filter by the object’s `partnerId` field."""
+  partnerId: UUIDFilter
+
+  """Filter by the object’s `processedFile` field."""
+  processedFile: StringFilter
+
+  """Filter by the object’s `processedRowCount` field."""
+  processedRowCount: IntFilter
+
+  """Filter by the object’s `processedWithCoordinatesFile` field."""
+  processedWithCoordinatesFile: StringFilter
+
+  """Filter by the object’s `processedWithCoordinatesRowCount` field."""
+  processedWithCoordinatesRowCount: IntFilter
+
+  """Filter by the object’s `processingErrors` field."""
+  processingErrors: JSONFilter
+
+  """Filter by the object’s `processingTimeMs` field."""
+  processingTimeMs: IntFilter
+
+  """Filter by the object’s `processingWithCoordinatesErrors` field."""
+  processingWithCoordinatesErrors: JSONFilter
+
+  """Filter by the object’s `processingWithCoordinatesTimeMs` field."""
+  processingWithCoordinatesTimeMs: IntFilter
+
+  """Filter by the object’s `status` field."""
+  status: StringFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+}
+
+"""A connection to a list of `ViewPartnerDatasetUpload` values."""
+type ViewPartnerDatasetUploadsConnection {
+  """
+  A list of edges which contains the `ViewPartnerDatasetUpload` and cursor to aid in pagination.
+  """
+  edges: [ViewPartnerDatasetUploadsEdge!]!
+
+  """A list of `ViewPartnerDatasetUpload` objects."""
+  nodes: [ViewPartnerDatasetUpload!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `ViewPartnerDatasetUpload` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `ViewPartnerDatasetUpload` edge in the connection."""
+type ViewPartnerDatasetUploadsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `ViewPartnerDatasetUpload` at the end of the edge."""
+  node: ViewPartnerDatasetUpload!
+}
+
+"""Methods to use when ordering `ViewPartnerDatasetUpload`."""
+enum ViewPartnerDatasetUploadsOrderBy {
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  CSV_HEADERS_ASC
+  CSV_HEADERS_DESC
+  ENRICH_ASC
+  ENRICH_DESC
+  GEODATA_TYPE_ASC
+  GEODATA_TYPE_DESC
+  ID_ASC
+  ID_DESC
+  NATURAL
+  ORIGINAL_FILE_ASC
+  ORIGINAL_FILE_DESC
+  PARTNER_DATASET_ID_ASC
+  PARTNER_DATASET_ID_DESC
+  PARTNER_ID_ASC
+  PARTNER_ID_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  PROCESSED_FILE_ASC
+  PROCESSED_FILE_DESC
+  PROCESSED_ROW_COUNT_ASC
+  PROCESSED_ROW_COUNT_DESC
+  PROCESSED_WITH_COORDINATES_FILE_ASC
+  PROCESSED_WITH_COORDINATES_FILE_DESC
+  PROCESSED_WITH_COORDINATES_ROW_COUNT_ASC
+  PROCESSED_WITH_COORDINATES_ROW_COUNT_DESC
+  PROCESSING_ERRORS_ASC
+  PROCESSING_ERRORS_DESC
+  PROCESSING_TIME_MS_ASC
+  PROCESSING_TIME_MS_DESC
+  PROCESSING_WITH_COORDINATES_ERRORS_ASC
+  PROCESSING_WITH_COORDINATES_ERRORS_DESC
+  PROCESSING_WITH_COORDINATES_TIME_MS_ASC
+  PROCESSING_WITH_COORDINATES_TIME_MS_DESC
+  STATUS_ASC
+  STATUS_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""A connection to a list of `ViewPartnerDataset` values."""
+type ViewPartnerDatasetsConnection {
+  """
+  A list of edges which contains the `ViewPartnerDataset` and cursor to aid in pagination.
+  """
+  edges: [ViewPartnerDatasetsEdge!]!
+
+  """A list of `ViewPartnerDataset` objects."""
+  nodes: [ViewPartnerDataset!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `ViewPartnerDataset` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `ViewPartnerDataset` edge in the connection."""
+type ViewPartnerDatasetsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `ViewPartnerDataset` at the end of the edge."""
+  node: ViewPartnerDataset!
+}
+
+"""Methods to use when ordering `ViewPartnerDataset`."""
+enum ViewPartnerDatasetsOrderBy {
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  DESCRIPTION_ASC
+  DESCRIPTION_DESC
+  ID_ASC
+  ID_DESC
+  IS_EXAMPLE_ASC
+  IS_EXAMPLE_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  ORIGINAL_FILE_ASC
+  ORIGINAL_FILE_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  PROCESSED_WITH_COORDINATES_FILE_ASC
+  PROCESSED_WITH_COORDINATES_FILE_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+  UPLOAD_ID_ASC
+  UPLOAD_ID_DESC
+}
+
+type ViewPartnerProject implements Node {
+  createdAt: Datetime!
+  description: String
+  id: UUID!
+  imageUrl: String
+  mapConfig: JSON
+  name: String!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  pfDatasetId: Int
+  updatedAt: Datetime
+}
+
+"""
+A condition to be used against `ViewPartnerProject` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input ViewPartnerProjectCondition {
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `description` field."""
+  description: String
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `imageUrl` field."""
+  imageUrl: String
+
+  """Checks for equality with the object’s `mapConfig` field."""
+  mapConfig: JSON
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `pfDatasetId` field."""
+  pfDatasetId: Int
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+}
+
+type ViewPartnerProjectDataset {
+  datasetDescription: String
+  datasetId: UUID
+  datasetName: String!
+  enrich: Boolean
+  enrichedDatasetFile: String
+  enrichedDatasetId: UUID
+  enrichmentCreatedAt: Datetime
+  enrichmentStatus: String
+  enrichmentUpdatedAt: Datetime
+  isExample: Boolean
+  originalFile: String
+  pfDatasetId: Int
+  processedWithCoordinatesFile: String
+  processedWithCoordinatesRowCount: Int
+  processingStatus: String
+  projectDescription: String
+  projectId: UUID
+  projectName: String!
+  uploadId: UUID
+}
+
+"""
+A condition to be used against `ViewPartnerProjectDataset` object types. All
+fields are tested for equality and combined with a logical ‘and.’
+"""
+input ViewPartnerProjectDatasetCondition {
+  """Checks for equality with the object’s `datasetDescription` field."""
+  datasetDescription: String
+
+  """Checks for equality with the object’s `datasetId` field."""
+  datasetId: UUID
+
+  """Checks for equality with the object’s `datasetName` field."""
+  datasetName: String
+
+  """Checks for equality with the object’s `enrich` field."""
+  enrich: Boolean
+
+  """Checks for equality with the object’s `enrichedDatasetFile` field."""
+  enrichedDatasetFile: String
+
+  """Checks for equality with the object’s `enrichedDatasetId` field."""
+  enrichedDatasetId: UUID
+
+  """Checks for equality with the object’s `enrichmentCreatedAt` field."""
+  enrichmentCreatedAt: Datetime
+
+  """Checks for equality with the object’s `enrichmentStatus` field."""
+  enrichmentStatus: String
+
+  """Checks for equality with the object’s `enrichmentUpdatedAt` field."""
+  enrichmentUpdatedAt: Datetime
+
+  """Checks for equality with the object’s `isExample` field."""
+  isExample: Boolean
+
+  """Checks for equality with the object’s `originalFile` field."""
+  originalFile: String
+
+  """Checks for equality with the object’s `pfDatasetId` field."""
+  pfDatasetId: Int
+
+  """
+  Checks for equality with the object’s `processedWithCoordinatesFile` field.
+  """
+  processedWithCoordinatesFile: String
+
+  """
+  Checks for equality with the object’s `processedWithCoordinatesRowCount` field.
+  """
+  processedWithCoordinatesRowCount: Int
+
+  """Checks for equality with the object’s `processingStatus` field."""
+  processingStatus: String
+
+  """Checks for equality with the object’s `projectDescription` field."""
+  projectDescription: String
+
+  """Checks for equality with the object’s `projectId` field."""
+  projectId: UUID
+
+  """Checks for equality with the object’s `projectName` field."""
+  projectName: String
+
+  """Checks for equality with the object’s `uploadId` field."""
+  uploadId: UUID
+}
+
+"""
+A filter to be used against `ViewPartnerProjectDataset` object types. All fields are combined with a logical ‘and.’
+"""
+input ViewPartnerProjectDatasetFilter {
+  """Filter by the object’s `datasetDescription` field."""
+  datasetDescription: StringFilter
+
+  """Filter by the object’s `datasetId` field."""
+  datasetId: UUIDFilter
+
+  """Filter by the object’s `datasetName` field."""
+  datasetName: StringFilter
+
+  """Filter by the object’s `enrich` field."""
+  enrich: BooleanFilter
+
+  """Filter by the object’s `enrichedDatasetFile` field."""
+  enrichedDatasetFile: StringFilter
+
+  """Filter by the object’s `enrichedDatasetId` field."""
+  enrichedDatasetId: UUIDFilter
+
+  """Filter by the object’s `enrichmentCreatedAt` field."""
+  enrichmentCreatedAt: DatetimeFilter
+
+  """Filter by the object’s `enrichmentStatus` field."""
+  enrichmentStatus: StringFilter
+
+  """Filter by the object’s `enrichmentUpdatedAt` field."""
+  enrichmentUpdatedAt: DatetimeFilter
+
+  """Filter by the object’s `isExample` field."""
+  isExample: BooleanFilter
+
+  """Filter by the object’s `originalFile` field."""
+  originalFile: StringFilter
+
+  """Filter by the object’s `pfDatasetId` field."""
+  pfDatasetId: IntFilter
+
+  """Filter by the object’s `processedWithCoordinatesFile` field."""
+  processedWithCoordinatesFile: StringFilter
+
+  """Filter by the object’s `processedWithCoordinatesRowCount` field."""
+  processedWithCoordinatesRowCount: IntFilter
+
+  """Filter by the object’s `processingStatus` field."""
+  processingStatus: StringFilter
+
+  """Filter by the object’s `projectDescription` field."""
+  projectDescription: StringFilter
+
+  """Filter by the object’s `projectId` field."""
+  projectId: UUIDFilter
+
+  """Filter by the object’s `projectName` field."""
+  projectName: StringFilter
+
+  """Filter by the object’s `uploadId` field."""
+  uploadId: UUIDFilter
+}
+
+"""A connection to a list of `ViewPartnerProjectDataset` values."""
+type ViewPartnerProjectDatasetsConnection {
+  """
+  A list of edges which contains the `ViewPartnerProjectDataset` and cursor to aid in pagination.
+  """
+  edges: [ViewPartnerProjectDatasetsEdge!]!
+
+  """A list of `ViewPartnerProjectDataset` objects."""
+  nodes: [ViewPartnerProjectDataset!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `ViewPartnerProjectDataset` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `ViewPartnerProjectDataset` edge in the connection."""
+type ViewPartnerProjectDatasetsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `ViewPartnerProjectDataset` at the end of the edge."""
+  node: ViewPartnerProjectDataset!
+}
+
+"""Methods to use when ordering `ViewPartnerProjectDataset`."""
+enum ViewPartnerProjectDatasetsOrderBy {
+  DATASET_DESCRIPTION_ASC
+  DATASET_DESCRIPTION_DESC
+  DATASET_ID_ASC
+  DATASET_ID_DESC
+  DATASET_NAME_ASC
+  DATASET_NAME_DESC
+  ENRICHED_DATASET_FILE_ASC
+  ENRICHED_DATASET_FILE_DESC
+  ENRICHED_DATASET_ID_ASC
+  ENRICHED_DATASET_ID_DESC
+  ENRICHMENT_CREATED_AT_ASC
+  ENRICHMENT_CREATED_AT_DESC
+  ENRICHMENT_STATUS_ASC
+  ENRICHMENT_STATUS_DESC
+  ENRICHMENT_UPDATED_AT_ASC
+  ENRICHMENT_UPDATED_AT_DESC
+  ENRICH_ASC
+  ENRICH_DESC
+  IS_EXAMPLE_ASC
+  IS_EXAMPLE_DESC
+  NATURAL
+  ORIGINAL_FILE_ASC
+  ORIGINAL_FILE_DESC
+  PF_DATASET_ID_ASC
+  PF_DATASET_ID_DESC
+  PROCESSED_WITH_COORDINATES_FILE_ASC
+  PROCESSED_WITH_COORDINATES_FILE_DESC
+  PROCESSED_WITH_COORDINATES_ROW_COUNT_ASC
+  PROCESSED_WITH_COORDINATES_ROW_COUNT_DESC
+  PROCESSING_STATUS_ASC
+  PROCESSING_STATUS_DESC
+  PROJECT_DESCRIPTION_ASC
+  PROJECT_DESCRIPTION_DESC
+  PROJECT_ID_ASC
+  PROJECT_ID_DESC
+  PROJECT_NAME_ASC
+  PROJECT_NAME_DESC
+  UPLOAD_ID_ASC
+  UPLOAD_ID_DESC
+}
+
+"""
+A filter to be used against `ViewPartnerProject` object types. All fields are combined with a logical ‘and.’
+"""
+input ViewPartnerProjectFilter {
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `description` field."""
+  description: StringFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `imageUrl` field."""
+  imageUrl: StringFilter
+
+  """Filter by the object’s `mapConfig` field."""
+  mapConfig: JSONFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Filter by the object’s `pfDatasetId` field."""
+  pfDatasetId: IntFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+}
+
+"""A connection to a list of `ViewPartnerProject` values."""
+type ViewPartnerProjectsConnection {
+  """
+  A list of edges which contains the `ViewPartnerProject` and cursor to aid in pagination.
+  """
+  edges: [ViewPartnerProjectsEdge!]!
+
+  """A list of `ViewPartnerProject` objects."""
+  nodes: [ViewPartnerProject!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `ViewPartnerProject` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `ViewPartnerProject` edge in the connection."""
+type ViewPartnerProjectsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `ViewPartnerProject` at the end of the edge."""
+  node: ViewPartnerProject!
+}
+
+"""Methods to use when ordering `ViewPartnerProject`."""
+enum ViewPartnerProjectsOrderBy {
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  DESCRIPTION_ASC
+  DESCRIPTION_DESC
+  ID_ASC
+  ID_DESC
+  IMAGE_URL_ASC
+  IMAGE_URL_DESC
+  MAP_CONFIG_ASC
+  MAP_CONFIG_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PF_DATASET_ID_ASC
+  PF_DATASET_ID_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+type ViewPfCountryStatistic {
+  countryId: UUID
+  datasetId: Int
+  fileUrl: String
+  id: UUID
+  status: String
+}
+
+"""
+A condition to be used against `ViewPfCountryStatistic` object types. All fields
+are tested for equality and combined with a logical ‘and.’
+"""
+input ViewPfCountryStatisticCondition {
+  """Checks for equality with the object’s `countryId` field."""
+  countryId: UUID
+
+  """Checks for equality with the object’s `datasetId` field."""
+  datasetId: Int
+
+  """Checks for equality with the object’s `fileUrl` field."""
+  fileUrl: String
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `status` field."""
+  status: String
+}
+
+"""
+A filter to be used against `ViewPfCountryStatistic` object types. All fields are combined with a logical ‘and.’
+"""
+input ViewPfCountryStatisticFilter {
+  """Filter by the object’s `countryId` field."""
+  countryId: UUIDFilter
+
+  """Filter by the object’s `datasetId` field."""
+  datasetId: IntFilter
+
+  """Filter by the object’s `fileUrl` field."""
+  fileUrl: StringFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `status` field."""
+  status: StringFilter
+}
+
+"""A connection to a list of `ViewPfCountryStatistic` values."""
+type ViewPfCountryStatisticsConnection {
+  """
+  A list of edges which contains the `ViewPfCountryStatistic` and cursor to aid in pagination.
+  """
+  edges: [ViewPfCountryStatisticsEdge!]!
+
+  """A list of `ViewPfCountryStatistic` objects."""
+  nodes: [ViewPfCountryStatistic!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `ViewPfCountryStatistic` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `ViewPfCountryStatistic` edge in the connection."""
+type ViewPfCountryStatisticsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `ViewPfCountryStatistic` at the end of the edge."""
+  node: ViewPfCountryStatistic!
+}
+
+"""Methods to use when ordering `ViewPfCountryStatistic`."""
+enum ViewPfCountryStatisticsOrderBy {
+  COUNTRY_ID_ASC
+  COUNTRY_ID_DESC
+  DATASET_ID_ASC
+  DATASET_ID_DESC
+  FILE_URL_ASC
+  FILE_URL_DESC
+  ID_ASC
+  ID_DESC
+  NATURAL
+  STATUS_ASC
+  STATUS_DESC
+}

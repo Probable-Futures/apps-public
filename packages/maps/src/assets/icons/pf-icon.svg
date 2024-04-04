@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>88399E46-B1D4-4763-B10F-B8AA044CFDAF</title>
+    <defs>
+        <linearGradient x1="0.000238700656%" y1="50.0034405%" x2="99.999938%" y2="50.0034405%" id="linearGradient-1">
+            <stop stop-color="#851FFF" offset="0%"></stop>
+            <stop stop-color="#851FFF" offset="1.38%"></stop>
+            <stop stop-color="#8D47F9" offset="40.51%"></stop>
+            <stop stop-color="#8F54F7" offset="51.93%"></stop>
+            <stop stop-color="#B364B1" offset="62.35%"></stop>
+            <stop stop-color="#E0785D" offset="75.71%"></stop>
+            <stop stop-color="#F1803C" offset="81.81%"></stop>
+            <stop stop-color="#F1803C" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="V1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Data-Hover_PF_CMSV1" transform="translate(-16.000000, -16.000000)" fill-rule="nonzero">
+            <g id="PF_Small-space-mark-off-white-background_RGB" transform="translate(16.000000, 16.000000)">
+                <path d="M10,20 C15.5228704,20 19.9999074,15.5228704 19.9999074,10.0000926 C19.9999074,4.47712963 15.5228704,1.48029737e-15 10,1.48029737e-15 C4.47712963,1.48029737e-15 -9.25925927e-05,4.47712963 -9.25925927e-05,10.0000926 C-9.25925927e-05,15.5228704 4.47712963,20 10,20" id="Path" fill="#ECF0E0"></path>
+                <polyline id="Path" fill="url(#linearGradient-1)" points="3.54375926 9.19988889 16.4562593 9.19988889 16.4562593 10.8185185 3.54375926 10.8185185"></polyline>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,8 @@
+{
+  "name": "@probable-futures/tsconfig",
+  "version": "1.0.0",
+  "main": "tsconfig.json",
+  "repository": "git@github.com:Probable-Futures/probable-futures.git",
+  "license": "UNLICENSED",
+  "private": true
+}

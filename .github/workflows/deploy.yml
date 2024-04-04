@@ -1,0 +1,229 @@
+name: trigger deploy
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_env:
+        description: "Environment to deploy: 'development' | 'staging' | 'production'"
+        required: true
+        default: "development"
+      deploy_global:
+        description: "If 'true' deploy global environment before 'deploy_env'"
+        required: false
+        default: "false"
+      deploy_foundation:
+        description: "If 'true' deploy foundation pulumi project"
+        required: false
+        default: "false"
+      deploy_services:
+        description: "If 'true' deploy services pulumi project"
+        required: false
+        default: "false"
+      deploy_api:
+        description: "If 'true' deploy api pulumi project"
+        required: false
+        default: "false"
+      db_snapshot:
+        description: "If 'true' take a snapshot of the database"
+        required: false
+        default: "false"
+      db_migration:
+        description: "If 'true' run database migration task"
+        required: false
+        default: "false"
+      deploy_sites:
+        description: "If 'true' deploy static sites"
+        required: false
+        default: "false"
+      publish_lib:
+        description: "If 'true' publish the lib package to npm registry"
+        required: false
+        default: "false"
+      publish_probable-futures-maps:
+        description: "If 'true' publish the probable-futures-maps package to npm registry"
+        required: false
+        default: "false"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+          submodules: recursive
+          token: ${{ secrets.FINE_GRAINED_PAT }}
+
+      - name: free disk space
+        run: |
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker rmi $(docker image ls -aq)
+          df -h
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: restore lerna
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install Dependencies
+        run: |
+          yarn install --frozen-lockfile
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Make aws profile
+        run: |
+          mkdir ~/.aws
+          echo "[probablefutures]
+          region=us-west-2
+          aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          " > ~/.aws/credentials
+
+      - name: Deploy global resources
+        if: ${{github.event.inputs.deploy_global == 'true'}}
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: "Probable-Futures/identity/global"
+          work-dir: ./infra/identity
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Deploy foundation resources
+        if: ${{github.event.inputs.deploy_foundation == 'true'}}
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: "Probable-Futures/foundation/${{ github.event.inputs.deploy_env }}"
+          work-dir: ./infra/foundation
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Deploy services
+        if: ${{github.event.inputs.deploy_services == 'true' || github.event.inputs.db_migration == 'true'}}
+        id: pulumiServices
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: "Probable-Futures/services/${{ github.event.inputs.deploy_env }}"
+          work-dir: ./infra/services
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Deploy API resources
+        if: ${{github.event.inputs.deploy_api == 'true' || github.event.inputs.db_migration == 'true'}}
+        id: pulumiApi
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: "Probable-Futures/api/${{ github.event.inputs.deploy_env }}"
+          work-dir: ./infra/apps/api
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Get current date
+        if: ${{github.event.inputs.db_snapshot == 'true' || github.event.inputs.db_migration == 'true'}}
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Create a DB snapshot
+        if: ${{github.event.inputs.db_snapshot == 'true' }}
+        run: |
+          aws rds create-db-cluster-snapshot \
+            --db-cluster-identifier ${{ github.event.inputs.deploy_env }}-pf-core-db-cluster \
+            --db-cluster-snapshot-identifier ${{ github.event.inputs.deploy_env }}-pf-core-db-cluster-${{ steps.date.outputs.date }}
+
+      - name: Run migration task on Amazon ECS
+        # FIXME: `assignPublicIp=ENABLED` is a security risk. We do not want our server running migrations exposed to the public internet
+        if: ${{github.event.inputs.db_migration == 'true' }}
+        run: |
+          aws ecs run-task \
+            --cluster ${{ steps.pulumiServices.outputs.migrateClusterName }} \
+            --task-definition ${{ steps.pulumiApi.outputs.migrateTaskDefinitionArn }} \
+            --network-configuration "awsvpcConfiguration={subnets=${{ steps.pulumiServices.outputs.migrateClusterSubnetIds }},securityGroups=${{ steps.pulumiServices.outputs.migrateClusterSecurityGroups }},assignPublicIp=ENABLED}" \
+            --count 1 \
+            --launch-type FARGATE \
+            --started-by ci
+
+      - name: Build sites
+        if: ${{github.event.inputs.deploy_sites == 'true'}}
+        run: |
+          yarn workspace @probable-futures/maps build
+          yarn workspace @probable-futures/pro build
+          yarn workspace @probable-futures/maps build-storybook
+
+      - name: Create Sentry release for sites
+        if: ${{github.event.inputs.deploy_sites == 'true'}}
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+        with:
+          environment: ${{ github.event.inputs.deploy_env }}
+          projects: "maps pro"
+          sourcemaps: "packages/maps/build packages/pro/build"
+
+      - name: Deploy sites
+        if: ${{github.event.inputs.deploy_sites == 'true'}}
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: "Probable-Futures/sites/${{ github.event.inputs.deploy_env }}"
+          work-dir: ./infra/apps/sites
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Publish lib package to npmjs
+        if: ${{ github.event.inputs.publish_lib == 'true' }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" >> ~/.npmrc
+          echo "Building the lib package..."
+          yarn workspace @probable-futures/lib build
+          echo "Publishing the lib package..."
+          yarn workspace @probable-futures/lib publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+      - name: Publish probable-futures-maps package to npmjs
+        if: ${{ github.event.inputs.publish_probable-futures-maps == 'true' }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" >> ~/.npmrc
+          echo "Building the probable-futures-maps package..."
+          yarn workspace @probable-futures/probable-futures-maps build
+          echo "Publishing the probable-futures-maps package..."
+          yarn workspace @probable-futures/probable-futures-maps publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

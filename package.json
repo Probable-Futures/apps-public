@@ -1,0 +1,70 @@
+{
+  "name": "@probable-futures/build",
+  "private": true,
+  "version": "4.11.3",
+  "scripts": {
+    "precommit": "lefthook run pre-commit",
+    "build": "lerna run build",
+    "clean": "rm -rf *.log coverage packages/*/{*.log,build,dist}",
+    "clean:deps": "rm -rf node_modules *.log coverage packages/*/{*.log,build,dist,node_modules}",
+    "clean:pg": "rm -rf docker/postgres/data",
+    "clean:all": "yarn clean:pg && yarn clean:deps",
+    "deploy": "scripts/deploy",
+    "format": "prettier .",
+    "lint": "lerna run lint",
+    "test": "lerna run test",
+    "typecheck": "lerna run typecheck",
+    "start": "yarn start:graphql",
+    "stop": "yarn stop:graphql",
+    "restart": "yarn restart:graphql",
+    "logs": "yarn logs:graphql",
+    "status": "yarn status:graphql",
+    "start:graphql": "yarn compose:graphql up -d --remove-orphans",
+    "restart:graphql": "yarn compose:graphql restart",
+    "stop:graphql": "yarn compose:graphql down",
+    "status:graphql": "yarn compose:graphql ps",
+    "logs:graphql": "yarn compose:graphql logs",
+    "start:both": "yarn compose:both up -d --remove-orphans",
+    "restart:both": "yarn compose:both restart",
+    "stop:both": "yarn compose:both down",
+    "status:both": "yarn compose:both ps",
+    "logs:both": "yarn compose:both logs",
+    "start:maps": "yarn maps start",
+    "start:pro": "yarn pro start",
+    "--shortcuts to run commands in different compose files--": "",
+    "maps": "yarn --cwd packages/maps",
+    "pro": "yarn --cwd packages/pro",
+    "compose:graphql": "docker-compose -f docker-compose.nginx.yml -f docker-compose.graphql.yml",
+    "release": "release-it"
+  },
+  "devDependencies": {
+    "@arkweid/lefthook": "^0.7.5",
+    "lerna": "^8.1.2",
+    "prettier": "^2.2.1",
+    "release-it": "^17.0.3"
+  },
+  "volta": {
+    "node": "18.19.0",
+    "yarn": "1.22.5"
+  },
+  "workspaces": {
+    "packages": [
+      "infra/**",
+      "config/*",
+      "packages/*"
+    ],
+    "nohoist": [
+      "@probable-futures/api/**",
+      "@probable-futures/infra/**",
+      "kinsta-logs-lambda/**",
+      "slack-notifier/**"
+    ]
+  },
+  "dependencies": {},
+  "resolutions": {
+    "react-vis": "^1.12.1",
+    "**/pro/**/marked": "4.0.10",
+    "@types/debug": "4.1.7",
+    "**/{worker-loader,graphile-worker,graphile-migrate,postgraphile}/json5": "^2.2.2"
+  }
+}

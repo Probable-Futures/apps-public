@@ -1,0 +1,33 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Artifacts
+.build
+.netlify
+.serverless
+.webpack
+.tool-versions
+coverage/
+!docker/node.base.Dockerfile
+docker/postgres/data/*
+docker/redis/data/*
+packages/pulumi/bin/
+
+packages/api/dist/
+packages/worker/dist/
+packages/probable-futures-maps/dist/
+packages/lib/dist/
+
+# Dependencies
+node_modules/
+
+# Miscellaneous
+.vscode/
+*.DS_Store
+*.env
+*.log
+
+data/seeds
+
+mapbox-tilesets/env
+mapbox-tilesets/data
+mapbox-tilesets/conf

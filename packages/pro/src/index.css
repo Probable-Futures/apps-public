@@ -1,0 +1,25 @@
+@import "normalize.css";
+@import "fonts.css";
+@import "./mapStyles.css";
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: "LinearSans";
+  font-size: 16px;
+  color: #2a172d;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+a {
+  color: #1c101e;
+}
+
+a:hover {
+  color: #851fff !important;
+}

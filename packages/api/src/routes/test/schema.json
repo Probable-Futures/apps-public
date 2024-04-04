@@ -1,0 +1,32 @@
+{
+  "id": "https://json-schema.org/draft-04/schema#",
+  "definitions": {},
+  "properties": {
+    "data": {
+      "additionalProperties": false,
+      "properties": {
+        "emailAddress": {
+          "format": "email",
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "includeAnswers": {
+          "type": "boolean"
+        },
+        "subscribeToEmails": {
+          "type": "boolean"
+        }
+      },
+      "required": ["emailAddress", "includeAnswers", "subscribeToEmails"],
+      "type": "object"
+    }
+  },
+  "required": ["data"],
+  "title": "Contact Request Body",
+  "type": "object"
+}

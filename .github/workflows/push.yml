@@ -1,0 +1,194 @@
+name: pulumi
+on:
+  push:
+    branches:
+      - production
+      - staging
+      - main
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+          submodules: recursive
+          token: ${{ secrets.FINE_GRAINED_PAT }}
+
+      - name: free disk space
+        run: |
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker rmi $(docker image ls -aq)
+          df -h
+
+      - name: Get changed files
+        id: changedFiles
+        uses: tj-actions/changed-files@v41
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: restore lerna
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+
+      - run: |
+          yarn install --frozen-lockfile
+
+      - name: Set pulumi stack name based on branch
+        uses: cobraz/setup-variables@v1
+        id: pulumiStack
+        with:
+          key: ${{ github.ref }}
+          map: |
+            'refs/heads/production': production
+            'refs/heads/staging': staging
+            'refs/heads/main': development
+
+      - name: Make aws profile
+        run: |
+          mkdir ~/.aws
+          echo "[probablefutures]
+          region=us-west-2
+          aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          " > ~/.aws/credentials
+
+      - name: Deploy foundation resources
+        if: contains(steps.changedFiles.outputs.all_modified_files, 'infra/foundation/')
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: "Probable-Futures/foundation/${{ steps.pulumiStack.outputs.result }}"
+          work-dir: ./infra/foundation
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Deploy services
+        if: |
+          contains(steps.changedFiles.outputs.all_modified_files, 'infra/services/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'node.base.Dockerfile') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/db/migrations/committed/')
+        id: pulumiServices
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: "Probable-Futures/services/${{ steps.pulumiStack.outputs.result }}"
+          work-dir: ./infra/services
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Deploy API resources
+        if: |
+          contains(steps.changedFiles.outputs.all_modified_files, 'infra/apps/api/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/api/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/worker/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/db/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'api.Dockerfile') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'worker.Dockerfile') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'migrate.Dockerfile')
+        id: pulumiApi
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: "Probable-Futures/api/${{ steps.pulumiStack.outputs.result }}"
+          work-dir: ./infra/apps/api
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Get current date/time
+        if: contains(steps.changedFiles.outputs.all_modified_files, 'packages/db/migrations/committed/')
+        id: date
+        run: echo "date=$(date +'%Y-%m-%dT%H-%M-%S')" >> $GITHUB_OUTPUT
+
+      - name: Create a DB snapshot
+        if: contains(steps.changedFiles.outputs.all_modified_files, 'packages/db/migrations/committed/')
+        run: |
+          aws rds create-db-cluster-snapshot \
+            --db-cluster-identifier ${{ steps.pulumiStack.outputs.result }}-pf-core-db-cluster \
+            --db-cluster-snapshot-identifier ${{ steps.pulumiStack.outputs.result }}-pf-core-db-cluster-${{ steps.date.outputs.date }}
+
+      - name: Run migration task on Amazon ECS
+        if: contains(steps.changedFiles.outputs.all_modified_files, 'packages/db/migrations/committed/')
+        # FIXME: `assignPublicIp=ENABLED` is a security risk. We do not want our server running migrations exposed to the public internet
+        run: |
+          aws ecs run-task \
+            --cluster ${{ steps.pulumiServices.outputs.migrateClusterName }} \
+            --task-definition ${{ steps.pulumiApi.outputs.migrateTaskDefinitionArn }} \
+            --network-configuration "awsvpcConfiguration={subnets=${{ steps.pulumiServices.outputs.migrateClusterSubnetIds }},securityGroups=${{ steps.pulumiServices.outputs.migrateClusterSecurityGroups }},assignPublicIp=ENABLED}" \
+            --count 1 \
+            --launch-type FARGATE \
+            --started-by ci
+
+      - name: Generate build files for maps
+        if: |
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/maps/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/lib/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/components-lib/')
+        run: yarn workspace @probable-futures/maps build
+
+      - name: Generate build files for pf pro
+        if: |
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/pro/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/lib/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/components-lib/')
+        run: yarn workspace @probable-futures/pro build
+
+      - name: Generate build files for story book
+        if: contains(steps.changedFiles.outputs.all_modified_files, 'packages/maps/src/stories')
+        run: yarn workspace @probable-futures/maps build-storybook
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+        with:
+          environment: ${{ steps.pulumiStack.outputs.result }}
+          projects: "maps pro"
+          sourcemaps: "packages/maps/build packages/pro/build"
+
+      - name: Deploy sites
+        if: |
+          contains(steps.changedFiles.outputs.all_modified_files, 'infra/apps/sites/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/maps/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/pro/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/lib/') ||
+          contains(steps.changedFiles.outputs.all_modified_files, 'packages/components-lib/')
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: "Probable-Futures/sites/${{ steps.pulumiStack.outputs.result }}"
+          work-dir: ./infra/apps/sites
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_REGION: us-west-2
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

@@ -1,0 +1,16 @@
+.env
+.git*
+.editorconfig
+.pulumi
+.prettier*
+node_modules
+*/node_modules
+*/dist
+*/build
+docs
+docker*
+!docker/db
+!docker/scripts
+packages/infra
+packages/maps
+*.md
