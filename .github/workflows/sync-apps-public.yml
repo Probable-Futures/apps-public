@@ -1,20 +1,29 @@
 name: Sync apps-public repo
 
 on:
-  push:
-    branches:
-      - main # Trigger the workflow on pushes to main branch of repoA
+  workflow_dispatch:
 
 jobs:
-  sync_repo:
+  sync:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout RepoA
-        uses: actions/checkout@v2
 
-      - name: Push to apps-public
+    steps:
+      - name: Checkout apps repo
+        uses: actions/checkout@v3
+
+      - name: Clone apps-public repo
+        uses: GuillaumeFalourd/clone-github-repo-action@v2.3
+        with:
+          owner: "Probable-Futures"
+          repository: "apps-public"
+          access-token: ${{ secrets.FINE_GRAINED_PAT }}
+
+      - name: Sync Changes
         run: |
-          git remote add apps-public git@github.com:Probable-Futures/apps-public.git
-          git push apps-public main
-        env:
-          FINE_GRAINED_PAT: ${{ secrets.FINE_GRAINED_PAT }}
+          cd apps-public
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config user.name "${GITHUB_ACTOR}"
+          rsync -av --update --exclude .git --exclude apps-public ../../apps/ ./
+          git add .
+          git commit -m "feat: sync with apps repo"
+          git push origin main
