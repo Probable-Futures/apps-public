@@ -32,7 +32,9 @@ export const exportMapAsHTML = async ({
 }: ExportProps) => {
   const selectedDataset =
     dataset ??
-    (datasets.find((dataset) => dataset.dataset.id === datasetId) as types.Map | undefined);
+    (datasets.find((dataset) => dataset.dataset.id === datasetId && dataset.isLatest) as
+      | types.Map
+      | undefined);
   if (!selectedDataset) {
     throw Error("Either the dataset or datasetId fields must be valid.");
   }
@@ -83,5 +85,5 @@ export const exportMapAsHTML = async ({
     datasetDescriptionResponse,
   };
 
-  return consts.exportMapToHTML(data);
+  return isCompare ? consts.exportCompareMapToHTML(data) : consts.exportSimpleMapToHTML(data);
 };

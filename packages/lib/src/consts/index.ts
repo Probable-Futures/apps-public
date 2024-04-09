@@ -2,7 +2,8 @@ import { INITIAL_ZOOM } from "./mapConsts";
 
 export * from "./mapConsts";
 export * from "./styles";
-export * from "./export-map-html";
+export * from "./export-simple-map-html";
+export * from "./export-compare-map-html";
 
 export const colors = {
   cream: "#f0f1e8",

@@ -26,7 +26,7 @@ jobs:
           cd apps-public
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git config user.name "${GITHUB_ACTOR}"
-          rsync -av --update --exclude .git --exclude apps-public ../../apps/ ./
+          rsync -av --compare-dest --update --checksum --exclude .git --exclude apps-public --exclude *node_modules  ../../apps/ ./
           git add .
           git commit -m "$LATEST_COMMIT_MESSAGE" --allow-empty
           git push origin main

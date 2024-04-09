@@ -238,7 +238,7 @@ export const displayHeaderFunction = `
     headerTitle.textContent = "CLIMATE MAP";
     const headerDesc = document.createElement("p");
     headerDesc.className = "embeddable-map-header-description";
-    headerDesc.textContent = showComparisonMaps ? dataset.name : dataset.name + " in a " + degrees + "°C " + "warming scenario";
+    headerDesc.textContent = showCompare ? dataset.name : dataset.name + " in a " + degrees + "°C " + "warming scenario";
     headerDiv.appendChild(headerTitle);
     headerDiv.appendChild(headerDesc);
     document.body.appendChild(headerDiv);
