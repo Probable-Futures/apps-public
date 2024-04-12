@@ -33,6 +33,7 @@ import { components, contexts } from "@probable-futures/components-lib";
 import { Feature } from "@probable-futures/components-lib/src/hooks/useGeocoder";
 import useClimateZoneHighlighter from "../../utils/useClimateZoneHighlighter";
 import { customTabletSizeForHeader } from "@probable-futures/lib/src/consts";
+import ScreenshotHeader from "../ScreenshotHeader";
 
 type MapStyles = {
   stops?: number[];
@@ -125,7 +126,6 @@ const Container = styled.div`
   }
 
   .mapbox-improve-map {
-    ${({ isScreenshot }: { isScreenshot: boolean }) => isScreenshot && "display: none"};
     font-weight: 700;
   }
 `;
@@ -802,7 +802,7 @@ const InteractiveMap = () => {
       return null;
     }
     if (isScreenshot) {
-      return <Link>{`probablefutures.org · map v${selectedDataset.mapVersion}`}</Link>;
+      return <Link>{`Probable Futures map v${selectedDataset.mapVersion}`}</Link>;
     }
     return (
       <Link
@@ -843,14 +843,16 @@ const InteractiveMap = () => {
 
   return (
     <Container
-      isScreenshot={isScreenshot}
       style={{
         backgroundColor: mapProjection.name === "globe" ? "rgb(176, 176, 176)" : "initial",
       }}
     >
+      <components.Loader show={showLoader} />
+      {showHeader && <Header onDatasetDropdownRefChange={onDatasetDropdownRefChange} />}
       <div ref={mapContainerRef}>
-        <components.Loader show={showLoader} />
-        {showHeader && <Header onDatasetDropdownRefChange={onDatasetDropdownRefChange} />}
+        {selectedDataset && isScreenshot && (
+          <ScreenshotHeader datasetName={selectedDataset.name} degrees={degrees} />
+        )}
         <MapKeyContainer id="map-key" datasetDropdownWidth={clientWidth}>
           {showKey && (
             <components.MapKey
