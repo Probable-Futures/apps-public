@@ -126,6 +126,7 @@ const Container = styled.div`
   }
 
   .mapbox-improve-map {
+    ${({ isScreenshot }: { isScreenshot: boolean }) => isScreenshot && "display: none"};
     font-weight: 700;
   }
 `;
@@ -346,7 +347,7 @@ const InteractiveMap = () => {
   const mapboxAccessToken =
     window.pfInteractiveMap?.mapboxAccessToken || process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-  const showHeader = showStory ? !isLaptop : true;
+  const showHeader = (showStory ? !isLaptop : true) && !isScreenshot;
 
   const updateMapStyles = useCallback(
     (map: MapBoxMap, degrees: number, where: boolean) => {
@@ -843,6 +844,7 @@ const InteractiveMap = () => {
 
   return (
     <Container
+      isScreenshot={isScreenshot}
       style={{
         backgroundColor: mapProjection.name === "globe" ? "rgb(176, 176, 176)" : "initial",
       }}
