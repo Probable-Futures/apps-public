@@ -33,6 +33,7 @@ type Props = {
     degreesBefore: number;
     degreesAfter: number;
   };
+  showBorders?: boolean;
 };
 
 export const exportCompareMapToHTML = (options: Props) => {
@@ -276,6 +277,7 @@ export const exportCompareMapToHTML = (options: Props) => {
           let precipitationUnit = '${options.mapStyleConfigs.precipitationUnit}';
           const isFrequent = dataset?.dataset.unit === "x as frequent";
           const datasetDescriptionResponse = ${JSON.stringify(options.datasetDescriptionResponse)};
+          const showBorders = ${options.showBorders}
           let beforeMap, afterMap;
           let longitude=null, latitude=null, popup=null, mapClicked, featuresBefore=[], featuresAfter=[];
           let { dataKeyBefore, dataKeyAfter, dataLayerPaintPropertiesBefore, dataLayerPaintPropertiesAfter, show: showCompare } = ${JSON.stringify(
@@ -298,7 +300,11 @@ export const exportCompareMapToHTML = (options: Props) => {
                 beforeMap?.setPaintProperty(id, "fill-color", dataLayerPaintPropertiesBefore);
                 beforeMap?.setPaintProperty(id, "fill-antialias", ["step", ["zoom"], false, 6, true]);
                 beforeMap?.setPaintProperty(id, "fill-outline-color", "#ffffff");
-              } else if (type === "symbol" || id.includes("road")) beforeMap.setLayoutProperty(id, "visibility", "visible");
+              } else if (type === "symbol" || id.includes("road")) {
+                beforeMap.setLayoutProperty(id, "visibility", "visible");
+              } else if (id.includes("boundary")) {
+                beforeMap.setLayoutProperty(id, "visibility", showBorders ? "visible" : "none");
+              }
             });
           });
           afterMap = new mapboxgl.Map({ 
@@ -315,10 +321,10 @@ export const exportCompareMapToHTML = (options: Props) => {
                 afterMap?.setPaintProperty(id, "fill-color", dataLayerPaintPropertiesAfter);
                 afterMap?.setPaintProperty(id, "fill-antialias", ["step", ["zoom"], false, 6, true]);
                 afterMap?.setPaintProperty(id, "fill-outline-color", "#ffffff");
-              } else if {
-                (type === "symbol" || id.includes("road")) afterMap.setLayoutProperty(id, "visibility", "visible");
+              } else if (type === "symbol" || id.includes("road")) {
+                 afterMap.setLayoutProperty(id, "visibility", "visible");
               } else if (id.includes("boundary")) {
-                map.setLayoutProperty(id, "visibility", "visible");
+                afterMap.setLayoutProperty(id, "visibility", showBorders ? "visible" : "none");
               }
             });
           });

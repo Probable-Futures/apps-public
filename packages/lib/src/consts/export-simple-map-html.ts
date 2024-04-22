@@ -33,6 +33,7 @@ type Props = {
     degreesBefore: number;
     degreesAfter: number;
   };
+  showBorders?: boolean;
 };
 
 export const exportSimpleMapToHTML = (options: Props) => {
@@ -262,6 +263,7 @@ export const exportSimpleMapToHTML = (options: Props) => {
           let precipitationUnit = '${options.mapStyleConfigs.precipitationUnit}';
           const isFrequent = dataset?.dataset.unit === "x as frequent";
           const datasetDescriptionResponse = ${JSON.stringify(options.datasetDescriptionResponse)};
+          const showBorders = ${options.showBorders}
           let map;
           let longitude=null, latitude=null, popup=null, mapClicked, features=[];
           let isTempMap = dataset.dataset.pfDatasetUnitByUnit.unitLong.toLowerCase().includes("temp");
@@ -285,7 +287,7 @@ export const exportSimpleMapToHTML = (options: Props) => {
               } else if (type === "symbol" || id.includes("road")) {
                 map.setLayoutProperty(id, "visibility", "visible");
               } else if (id.includes("boundary")) {
-                map.setLayoutProperty(id, "visibility", "visible");
+                map.setLayoutProperty(id, "visibility", showBorders ? "visible" : "none");
               }
             });
           });

@@ -399,6 +399,7 @@ const InteractiveMap = () => {
       viewState,
       datasetDescriptionResponse,
       precipitationUnit,
+      showBorders: showCountryBorders,
     });
     const fileBlob = new Blob([template], { type: "text/html" });
     downloadFile(fileBlob, `${selectedDataset.name} at ${degreeToString(degrees)}°C`);
@@ -419,6 +420,7 @@ const InteractiveMap = () => {
         scenarioAfter: selectedDegrees[1],
       },
       precipitationUnit,
+      showBorders: showCountryBorders,
     });
     const fileBlob = new Blob([template], { type: "text/html" });
 

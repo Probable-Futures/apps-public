@@ -1,9 +1,12 @@
 import React, { MouseEventHandler } from "react";
 import styled from "styled-components";
+import { Projection } from "mapbox-gl";
+
 import { styles } from "@probable-futures/components-lib";
 import { ReactComponent as QuizIcon } from "@probable-futures/components-lib/src/assets/icons/quiz.svg";
 import { ReactComponent as SearchIcon } from "@probable-futures/components-lib/src/assets/icons/search.svg";
-import { Projection } from "mapbox-gl";
+import { ReactComponent as PublicOnIcon } from "@probable-futures/components-lib/src/assets/icons/public-on.svg";
+import { ReactComponent as PublicOffIcon } from "@probable-futures/components-lib/src/assets/icons/public-off.svg";
 
 import { ReactComponent as LocationOnIcon } from "../assets/icons/location-on.svg";
 import { ReactComponent as LocationOffIcon } from "../assets/icons/location-off.svg";
@@ -16,11 +19,13 @@ type Props = {
   isOpen: boolean;
   showMarkers: boolean;
   mapProjection: Projection;
+  showCountryBorders: boolean;
   closeSheet: MouseEventHandler<HTMLDivElement>;
   onSearchClick: MouseEventHandler<HTMLElement>;
   onBehindMapsClick: MouseEventHandler<HTMLElement>;
   onMarkerClick: MouseEventHandler<HTMLElement>;
   onProjectionChange: MouseEventHandler<HTMLElement>;
+  onBordersClick: MouseEventHandler<HTMLElement>;
 };
 
 const Container = styled.div`
@@ -75,11 +80,13 @@ const ActionsSheet = ({
   isOpen,
   showMarkers,
   mapProjection,
+  showCountryBorders,
   closeSheet,
   onBehindMapsClick,
   onMarkerClick,
   onSearchClick,
   onProjectionChange,
+  onBordersClick,
 }: Props) => {
   const { translate } = useTranslation();
   return (
@@ -96,8 +103,20 @@ const ActionsSheet = ({
           <span>{translate("actionSheet.search")}</span>
         </ActionSheetItem>
         <ActionSheetItem onClick={onMarkerClick}>
-          {showMarkers ? <LocationOnIcon /> : <LocationOffIcon />}
-          <span>{translate("actionSheet.marker")}</span>
+          {showMarkers ? <LocationOffIcon /> : <LocationOnIcon />}
+          <span>
+            {showMarkers
+              ? translate("mapControl.hideMarkerTitle")
+              : translate("mapControl.showMarkerTitle")}
+          </span>
+        </ActionSheetItem>
+        <ActionSheetItem onClick={onBordersClick}>
+          {showCountryBorders ? <PublicOffIcon /> : <PublicOnIcon />}
+          <span>
+            {showCountryBorders
+              ? translate("mapControl.hideCountryBorders")
+              : translate("mapControl.showCountryBorders")}
+          </span>
         </ActionSheetItem>
         <ActionSheetItem className="about-maps-toggle" onClick={onBehindMapsClick}>
           <QuizIcon />

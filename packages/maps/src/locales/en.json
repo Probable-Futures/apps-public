@@ -208,7 +208,7 @@
   "actionSheet": {
     "search": "Search",
     "marker": "Locations on/off",
-    "behindTheMaps": "Behind the maps"
+    "behindTheMaps": "Learn more about the maps"
   },
   "downloadMap": {
     "title": "Download current map view",

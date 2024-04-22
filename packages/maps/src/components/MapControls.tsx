@@ -186,6 +186,7 @@ const MapControls = ({
           showMarkers={showMarkers}
           mapProjection={mapProjection}
           closeSheet={() => setMoreIsOpen(false)}
+          showCountryBorders={showCountryBorders}
           onSearchClick={() => {
             onSearchClick();
             setMoreIsOpen(false);
@@ -200,6 +201,10 @@ const MapControls = ({
           }}
           onProjectionChange={() => {
             onProjectionChange();
+            setMoreIsOpen(false);
+          }}
+          onBordersClick={() => {
+            onBordersClick();
             setMoreIsOpen(false);
           }}
         />
