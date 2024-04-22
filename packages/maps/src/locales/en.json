@@ -191,7 +191,9 @@
     "maxZoomMessage": "This is the closest zoom level",
     "downloadScreenshot": "Download screenshot",
     "showGlobe": "Show globe view",
-    "showMap": "Show map view"
+    "showMap": "Show map view",
+    "hideCountryBorders": "Hide country borders",
+    "showCountryBorders": "Show country borders"
   },
   "vignette": {
     "climateZone": "Climate zone",

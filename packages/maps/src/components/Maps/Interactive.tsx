@@ -279,6 +279,7 @@ const InteractiveMap = () => {
     setActiveClimateZoneLayers,
     activeClimateZoneLayers,
     precipitationUnit,
+    showCountryBorders,
     setPrecipitationUnit,
     setDatasets,
     setSelectedDataset,
@@ -378,11 +379,13 @@ const InteractiveMap = () => {
             map.setPaintProperty(id, "fill-color", dataLayerPaintProperties);
             map.setPaintProperty(id, "fill-antialias", ["step", ["zoom"], false, 6, true]);
             map.setPaintProperty(id, "fill-outline-color", colors.whiteOriginal);
+          } else if (id.includes("boundary")) {
+            map.setLayoutProperty(id, "visibility", showCountryBorders ? "visible" : "none");
           }
         });
       }
     },
-    [locale],
+    [locale, showCountryBorders],
   );
 
   const onExportSimpleMapClick = async () => {

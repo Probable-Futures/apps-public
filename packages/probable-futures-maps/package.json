@@ -1,6 +1,6 @@
 {
   "name": "@probable-futures/probable-futures-maps",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "This package empowers developers to seamlessly integrate dynamic and interactive climate maps into their web applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,7 +36,7 @@
     "eslint": "^8.48.0"
   },
   "dependencies": {
-    "@probable-futures/lib": "^1.0.5"
+    "@probable-futures/lib": "^1.0.6"
   },
   "publishConfig": {
     "access": "public",

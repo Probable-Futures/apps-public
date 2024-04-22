@@ -189,7 +189,11 @@
     "takeQuickTour": "Faire une visite rapide",
     "closeTheTour": "Fermer la visite",
     "maxZoomMessage": "Ceci est le niveau de zoom le plus proche",
-    "downloadScreenshot": "Télécharger la capture d'écran"
+    "downloadScreenshot": "Télécharger la capture d'écran",
+    "showGlobe": "Afficher la vue globale",
+    "showMap": "Afficher la vue carte",
+    "hideCountryBorders": "Masquer les frontières des pays",
+    "showCountryBorders": "Afficher les frontières des pays"
   },
   "vignette": {
     "climateZone": "Zone climatique",

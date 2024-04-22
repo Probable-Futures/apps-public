@@ -31,6 +31,7 @@ type State = {
   mapProjection: Projection;
   activeClimateZoneLayers?: string[];
   precipitationUnit: types.PrecipitationUnit;
+  showCountryBorders: boolean;
   setDatasets(arg: any): void;
   setSelectedDataset(arg: any): void;
   setDegrees(arg: any): void;
@@ -55,6 +56,7 @@ type State = {
   setMapProjection(projection: Projection): void;
   setActiveClimateZoneLayers(arg?: string[]): void;
   setPrecipitationUnit(arg: types.PrecipitationUnit): void;
+  setShowCountryBorders(arg: any): void;
 };
 
 const initialState = {
@@ -80,6 +82,7 @@ const initialState = {
   mapProjection: { name: "mercator" } as Projection,
   activeClimateZoneLayers: undefined,
   precipitationUnit: "mm" as types.PrecipitationUnit,
+  showCountryBorders: true,
   setDatasets: () => {},
   setSelectedDataset: () => {},
   setDegrees: () => {},
@@ -102,6 +105,7 @@ const initialState = {
   setMapProjection: () => {},
   setActiveClimateZoneLayers: () => {},
   setPrecipitationUnit: () => {},
+  setShowCountryBorders: () => {},
 };
 
 const DataContext = createContext<State>(initialState);
@@ -130,6 +134,7 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
   const [mapProjection, setMapProjection] = useState<Projection>({ name: "mercator" });
   const [activeClimateZoneLayers, setActiveClimateZoneLayers] = useState<string[]>();
   const [precipitationUnit, setPrecipitationUnit] = useState("mm" as types.PrecipitationUnit);
+  const [showCountryBorders, setShowCountryBorders] = useState(true);
 
   const value = useMemo(
     () => ({
@@ -177,6 +182,8 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       setActiveClimateZoneLayers,
       precipitationUnit,
       setPrecipitationUnit,
+      showCountryBorders,
+      setShowCountryBorders,
     }),
     [
       datasets,
@@ -201,6 +208,7 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       mapProjection,
       activeClimateZoneLayers,
       precipitationUnit,
+      showCountryBorders,
     ],
   );
 

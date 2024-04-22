@@ -189,7 +189,11 @@
     "takeQuickTour": "快速浏览",
     "closeTheTour": "关闭浏览",
     "maxZoomMessage": "这是最接近的缩放级别",
-    "downloadScreenshot": "下载截图"
+    "downloadScreenshot": "下载截图",
+    "showGlobe": "显示地球视图",
+    "showMap": "显示地图视图",
+    "hideCountryBorders": "隐藏国界",
+    "showCountryBorders": "显示国界"
   },
   "vignette": {
     "climateZone": "气候带",

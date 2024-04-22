@@ -315,7 +315,11 @@ export const exportCompareMapToHTML = (options: Props) => {
                 afterMap?.setPaintProperty(id, "fill-color", dataLayerPaintPropertiesAfter);
                 afterMap?.setPaintProperty(id, "fill-antialias", ["step", ["zoom"], false, 6, true]);
                 afterMap?.setPaintProperty(id, "fill-outline-color", "#ffffff");
-              } else if (type === "symbol" || id.includes("road")) afterMap.setLayoutProperty(id, "visibility", "visible");
+              } else if {
+                (type === "symbol" || id.includes("road")) afterMap.setLayoutProperty(id, "visibility", "visible");
+              } else if (id.includes("boundary")) {
+                map.setLayoutProperty(id, "visibility", "visible");
+              }
             });
           });
           beforeMap.on('click', pfLayerIds , function(e) {

@@ -8,6 +8,8 @@ import { ReactComponent as DownloadIcon } from "@probable-futures/components-lib
 import { ReactComponent as ZoomInIcon } from "@probable-futures/components-lib/src/assets/icons/zoom-in.svg";
 import { ReactComponent as ZoomOutIcon } from "@probable-futures/components-lib/src/assets/icons/zoom-out.svg";
 import { ReactComponent as SearchIcon } from "@probable-futures/components-lib/src/assets/icons/search.svg";
+import { ReactComponent as PublicOnIcon } from "@probable-futures/components-lib/src/assets/icons/public-on.svg";
+import { ReactComponent as PublicOffIcon } from "@probable-futures/components-lib/src/assets/icons/public-off.svg";
 import { Projection } from "mapbox-gl";
 
 import { useMapData } from "../contexts/DataContext";
@@ -103,16 +105,19 @@ const MapControls = ({
   const [showZoomTooltip, setShowZoomTooltip] = useState(false);
   const [showProjectionTooltip, setShowProjectionTooltip] = useState(false);
   const [showScreenshotTooltip, setShowScreenshotTooltip] = useState(false);
+  const [showCountryBordersTooltip, setShowCountryBordersTooltip] = useState(false);
   const {
     showMarkers,
     searchIsOpen,
     moreIsOpen,
     showDegreeDescription,
     mapProjection,
+    showCountryBorders,
     setMoreIsOpen,
     setShowMarkers,
     setSearchIsOpen,
     setMapProjection,
+    setShowCountryBorders,
   } = useMapData();
   const [showSearchTooltip, setShowSearchTooltip] = useState(false);
   const navigate = useNavigate();
@@ -139,6 +144,8 @@ const MapControls = ({
 
   const onSearchClick = () => setSearchIsOpen((isOpen: boolean) => !isOpen);
   const onMarkerClick = () => setShowMarkers((showMarkers: boolean) => !showMarkers);
+  const onBordersClick = () =>
+    setShowCountryBorders((showCountryBorders: boolean) => !showCountryBorders);
   const onProjectionChange = () => {
     const newProjection: Projection = {
       name: mapProjection.name === "globe" ? "mercator" : "globe",
@@ -158,7 +165,9 @@ const MapControls = ({
   const downloadTitle = translate("mapControl.downloadTitle");
   const behindMapsTitle = translate("mapControl.behindMapsTitle");
   const downloadScreenshotTitle = translate("mapControl.downloadScreenshot");
-
+  const countryBordersTitle = showCountryBorders
+    ? translate("mapControl.hideCountryBorders")
+    : translate("mapControl.showCountryBorders");
   return (
     <>
       <MediaQuery maxWidth={customTabletSizeForHeader}>
@@ -230,6 +239,23 @@ const MapControls = ({
               active={showMarkers}
             >
               {showMarkers ? <LocationOffIcon /> : <LocationOnIcon />}
+            </styles.ControlButton>
+          </components.ControlsTooltip>
+          {/* Show/hide country borders */}
+          <components.ControlsTooltip
+            tooltipContent={countryBordersTitle}
+            show={showCountryBordersTooltip}
+            onClickOutside={() => setShowCountryBordersTooltip(false)}
+          >
+            <styles.ControlButton
+              disabled={!!!selectedDataset}
+              title={countryBordersTitle}
+              onClick={onBordersClick}
+              onMouseEnter={() => setShowCountryBordersTooltip(true)}
+              onMouseLeave={() => setShowCountryBordersTooltip(false)}
+              active={showCountryBorders}
+            >
+              {showCountryBorders ? <PublicOffIcon /> : <PublicOnIcon />}
             </styles.ControlButton>
           </components.ControlsTooltip>
           {/* Screenshot */}

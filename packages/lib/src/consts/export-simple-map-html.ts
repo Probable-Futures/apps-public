@@ -282,7 +282,11 @@ export const exportSimpleMapToHTML = (options: Props) => {
                 map?.setPaintProperty(id, "fill-color", dataLayerPaintProperties);
                 map?.setPaintProperty(id, "fill-antialias", ["step", ["zoom"], false, 6, true]);
                 map?.setPaintProperty(id, "fill-outline-color", "#ffffff");
-              } else if (type === "symbol" || id.includes("road")) map.setLayoutProperty(id, "visibility", "visible");
+              } else if (type === "symbol" || id.includes("road")) {
+                map.setLayoutProperty(id, "visibility", "visible");
+              } else if (id.includes("boundary")) {
+                map.setLayoutProperty(id, "visibility", "visible");
+              }
             });
           });
           map.on('click', pfLayerIds, function(e) {
