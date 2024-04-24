@@ -33,7 +33,6 @@ import { components, contexts } from "@probable-futures/components-lib";
 import { Feature } from "@probable-futures/components-lib/src/hooks/useGeocoder";
 import useClimateZoneHighlighter from "../../utils/useClimateZoneHighlighter";
 import { customTabletSizeForHeader } from "@probable-futures/lib/src/consts";
-import ScreenshotHeader from "../ScreenshotHeader";
 
 type MapStyles = {
   stops?: number[];
@@ -348,7 +347,7 @@ const InteractiveMap = () => {
   const mapboxAccessToken =
     window.pfInteractiveMap?.mapboxAccessToken || process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-  const showHeader = (showStory ? !isLaptop : true) && !isScreenshot;
+  const showHeader = showStory ? !isLaptop : true;
 
   const updateMapStyles = useCallback(
     (map: MapBoxMap, degrees: number, where: boolean) => {
@@ -854,12 +853,9 @@ const InteractiveMap = () => {
         backgroundColor: mapProjection.name === "globe" ? "rgb(176, 176, 176)" : "initial",
       }}
     >
-      <components.Loader show={showLoader} />
-      {showHeader && <Header onDatasetDropdownRefChange={onDatasetDropdownRefChange} />}
       <div ref={mapContainerRef}>
-        {selectedDataset && isScreenshot && (
-          <ScreenshotHeader datasetName={selectedDataset.name} degrees={degrees} />
-        )}
+        <components.Loader show={showLoader} />
+        {showHeader && <Header onDatasetDropdownRefChange={onDatasetDropdownRefChange} />}
         <MapKeyContainer id="map-key" datasetDropdownWidth={clientWidth}>
           {showKey && (
             <components.MapKey
