@@ -9,6 +9,9 @@ type StatisticsData = {
   longitude: number;
   latitude: number;
   info?: { [name: string]: any };
+  map_category: string;
+  x: number[];
+  y: number[];
 };
 
 type StatisticsResponse = {

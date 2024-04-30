@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 13.1
--- Dumped by pg_dump version 16.1
+-- Dumped by pg_dump version 16.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -177,7 +177,9 @@ CREATE TYPE pf_public.dataset_statistics_response AS (
 	high_value numeric(6,1),
 	longitude double precision,
 	latitude double precision,
-	map_category text
+	map_category text,
+	x numeric[],
+	y numeric[]
 );
 
 
@@ -934,7 +936,9 @@ begin
       pds.mid_value as mid_value, pds.high_value as high_value,
       (select lon as longitude from pf_gc), 
       (select lat as latitude from pf_gc),
-      d.parent_category as map_category
+      d.parent_category as map_category,
+      pds.x as x,
+      pds.y as y
     from pf_public.pf_dataset_statistics as pds
     join pf_public.pf_datasets d on d.id = pds.dataset_id
     join pf_public.pf_maps m on m.dataset_id = pds.dataset_id and m.is_latest
@@ -1214,7 +1218,9 @@ CREATE TABLE pf_public.pf_dataset_statistics (
     mid_value numeric(6,1),
     high_value numeric(6,1),
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    x numeric[],
+    y numeric[]
 );
 
 

@@ -93,6 +93,14 @@ input BigFloatFilter {
 }
 
 """
+A filter to be used against BigFloat List fields. All fields are combined with a logical ‘and.’
+"""
+input BigFloatListFilter {
+  """Equal to the specified value."""
+  equalTo: [BigFloat]
+}
+
+"""
 A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’
 """
 input BooleanFilter {
@@ -415,6 +423,8 @@ type DatasetStatisticsResponse {
   name: String
   unit: String
   warmingScenario: String
+  x: [BigFloat]
+  y: [BigFloat]
 }
 
 """
@@ -1727,6 +1737,8 @@ type PfDatasetStatistic implements Node {
   pfWarmingScenarioByWarmingScenario: PfWarmingScenario
   updatedAt: Datetime!
   warmingScenario: String!
+  x: [BigFloat]
+  y: [BigFloat]
 }
 
 """
@@ -1760,6 +1772,12 @@ input PfDatasetStatisticCondition {
 
   """Checks for equality with the object’s `warmingScenario` field."""
   warmingScenario: String
+
+  """Checks for equality with the object’s `x` field."""
+  x: [BigFloat]
+
+  """Checks for equality with the object’s `y` field."""
+  y: [BigFloat]
 }
 
 """
@@ -1801,6 +1819,12 @@ input PfDatasetStatisticFilter {
 
   """Filter by the object’s `warmingScenario` field."""
   warmingScenario: StringFilter
+
+  """Filter by the object’s `x` field."""
+  x: BigFloatListFilter
+
+  """Filter by the object’s `y` field."""
+  y: BigFloatListFilter
 }
 
 """A connection to a list of `PfDatasetStatistic` values."""
@@ -1854,6 +1878,10 @@ enum PfDatasetStatisticsOrderBy {
   UPDATED_AT_DESC
   WARMING_SCENARIO_ASC
   WARMING_SCENARIO_DESC
+  X_ASC
+  X_DESC
+  Y_ASC
+  Y_DESC
 }
 
 """A connection to a list of `PfDatasetSubCategory` values."""
