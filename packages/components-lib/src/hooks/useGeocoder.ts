@@ -6,6 +6,7 @@ import debounce from "lodash.debounce";
 import { exceptions, setupConfig } from "@probable-futures/lib/src/utils";
 import { RecentlySearchedItemsKey } from "@probable-futures/lib/src/consts";
 import { GeocoderProps, RecentlySearchedItemType } from "../components/Geocoder";
+import { fly } from "@probable-futures/lib/src/utils";
 
 export type MapboxOutput = {
   attribution: string;
@@ -24,7 +25,7 @@ export interface Feature extends GeoJSON.Feature<GeoJSON.Point> {
   context: any[];
 }
 
-const options = {
+export const options = {
   minLength: 2,
   limit: 5,
   debounceTime: 300,
@@ -81,60 +82,7 @@ const useGeocoder = (props: GeocoderProps) => {
     [onSearch],
   );
 
-  //https://github.com/mapbox/mapbox-gl-geocoder/blob/main/lib/exceptions.js
-  const fly = useCallback(
-    (feature: Feature) => {
-      const map = mapRef.current;
-      if (!map?.flyTo && !map?.fitBounds) {
-        if (onFly) {
-          return onFly(feature);
-        }
-        return;
-      }
-      const shortCode = (
-        feature.properties?.short_code === "string" ? feature.properties?.short_code : ""
-      ) as keyof typeof exceptions;
-      if (exceptions[shortCode]) {
-        if (map) {
-          // @ts-ignore
-          map.fitBounds(exceptions[shortCode].bbox, {});
-        }
-      } else if (feature.bbox) {
-        const bbox = feature.bbox;
-        if (map) {
-          map.fitBounds(
-            [
-              [bbox[0], bbox[1]],
-              [bbox[2], bbox[3]],
-            ],
-            {},
-          );
-        }
-      } else {
-        let flyOptions: { center?: number[][] | number[] | any; zoom?: number } = {
-          zoom: options.defaultZoom,
-        };
-        if (feature.center) {
-          flyOptions.center = feature.center;
-        } else if (
-          feature.geometry &&
-          feature.geometry.type &&
-          feature.geometry.type === "Point" &&
-          feature.geometry.coordinates
-        ) {
-          flyOptions.center = feature.geometry.coordinates;
-        }
-
-        if (map) {
-          map.flyTo(flyOptions);
-        }
-      }
-      if (onFly) {
-        onFly(feature);
-      }
-    },
-    [mapRef, onFly],
-  );
+  const flyTo = useCallback((feature: Feature) => fly({ feature, mapRef, onFly }), [mapRef, onFly]);
 
   const onClear = useCallback(() => {
     setInputValue("");
@@ -216,11 +164,11 @@ const useGeocoder = (props: GeocoderProps) => {
         JSON.stringify(recentlySearchedItems),
       );
 
-      fly(feature);
+      flyTo(feature);
 
       close();
     },
-    [props.localStorageRecentlySearchedIemskey, props.language, fly, close],
+    [props.localStorageRecentlySearchedIemskey, props.language, flyTo, close],
   );
 
   const onRecentlySearchedItemClick = async (

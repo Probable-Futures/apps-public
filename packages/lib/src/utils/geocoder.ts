@@ -1,3 +1,6 @@
+import { MapRef } from "react-map-gl";
+import { Feature, options } from "../../../components-lib/src/hooks/useGeocoder";
+
 export const exceptions = {
   fr: {
     name: "France",
@@ -43,4 +46,62 @@ export const setupConfig = (search: string, limit: number, language = "en") => {
   config = { ...config, ...{ query: search } };
 
   return config;
+};
+interface FlyProps {
+  feature: Feature;
+  mapRef: React.RefObject<MapRef>;
+  onFly?: (arg: Feature) => void;
+}
+
+//https://github.com/mapbox/mapbox-gl-geocoder/blob/main/lib/exceptions.js
+export const fly = (props: FlyProps) => {
+  const { feature, mapRef, onFly } = props;
+
+  const map = mapRef.current?.getMap();
+  if (!map?.flyTo && !map?.fitBounds) {
+    if (onFly) {
+      return onFly(feature);
+    }
+    return;
+  }
+  const shortCode = (
+    feature.properties?.short_code === "string" ? feature.properties?.short_code : ""
+  ) as keyof typeof exceptions;
+  if (exceptions[shortCode]) {
+    if (map) {
+      map.fitBounds(exceptions[shortCode].bbox, {});
+    }
+  } else if (feature.bbox) {
+    const bbox = feature.bbox;
+    if (map) {
+      map.fitBounds(
+        [
+          [bbox[0], bbox[1]],
+          [bbox[2], bbox[3]],
+        ],
+        {},
+      );
+    }
+  } else {
+    let flyOptions: { center?: number[][] | number[] | any; zoom?: number } = {
+      zoom: options.defaultZoom,
+    };
+    if (feature.center) {
+      flyOptions.center = feature.center;
+    } else if (
+      feature.geometry &&
+      feature.geometry.type &&
+      feature.geometry.type === "Point" &&
+      feature.geometry.coordinates
+    ) {
+      flyOptions.center = feature.geometry.coordinates;
+    }
+
+    if (map) {
+      map.flyTo(flyOptions);
+    }
+  }
+  if (onFly) {
+    onFly(feature);
+  }
 };

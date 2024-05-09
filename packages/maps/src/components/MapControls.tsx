@@ -1,4 +1,4 @@
-import React, { useState, MouseEventHandler } from "react";
+import React, { useState, MouseEventHandler, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MediaQuery from "react-responsive";
 import { components, styles } from "@probable-futures/components-lib";
@@ -27,6 +27,9 @@ import { useTranslation } from "../contexts/TranslationContext";
 import { setQueryParam } from "../utils";
 import { customTabletSizeForHeader } from "@probable-futures/lib/src/consts";
 import { Map } from "@probable-futures/lib/src/types";
+import ChatbotIframe from "./ChatbotIframe";
+import { fly } from "@probable-futures/lib/src/utils";
+import { MapRef } from "react-map-gl";
 
 type Props = {
   zoom: number;
@@ -35,11 +38,13 @@ type Props = {
   selectedDataset?: Map;
   onDownloadClick: MouseEventHandler<HTMLButtonElement>;
   onTakeScreenshot: MouseEventHandler<HTMLButtonElement>;
+  mapRef: React.RefObject<MapRef>;
 };
 
 type GroupProps = {
   position: "top" | "middle" | "bottom";
   showDegreeDescription?: boolean;
+  marginRight?: number;
 };
 
 const topStyledGroupCss = css`
@@ -80,6 +85,8 @@ const StyledGroup = styled(styles.Group)`
       ? bottomStyledGroupsCss
       : middleStyledGroupsCss}
 
+  margin-right: ${({ marginRight }) => (marginRight ? `${marginRight}px` : "0")};
+
   @media (min-width: ${size.tablet}) {
     display: flex;
     position: absolute;
@@ -98,6 +105,7 @@ const MapControls = ({
   selectedDataset,
   onDownloadClick,
   onTakeScreenshot,
+  mapRef,
 }: Props) => {
   const [showInfoTooltip, setShowInfoTooltip] = useState(false);
   const [showMarkerTooltip, setShowMarkerTooltip] = useState(false);
@@ -168,6 +176,22 @@ const MapControls = ({
   const countryBordersTitle = showCountryBorders
     ? translate("mapControl.hideCountryBorders")
     : translate("mapControl.showCountryBorders");
+
+  useEffect(() => {
+    const handleChatbotMessage = (event: any) => {
+      if (event.origin === "http://localhost:3000") {
+        const feature = event?.data?.geocoder?.countryObject?.features[0];
+        if (feature) {
+          fly({ feature, mapRef });
+        }
+      }
+    };
+    window.addEventListener("message", handleChatbotMessage);
+    return () => {
+      window.removeEventListener("message", handleChatbotMessage);
+    };
+  });
+
   return (
     <>
       <MediaQuery maxWidth={customTabletSizeForHeader}>
@@ -333,6 +357,9 @@ const MapControls = ({
               {mapProjection.name === "globe" ? <MapIcon /> : <GlobeIcon />}
             </styles.ControlButton>
           </components.ControlsTooltip>
+        </StyledGroup>
+        <StyledGroup position="bottom" marginRight={50}>
+          <ChatbotIframe />
         </StyledGroup>
         <StyledGroup position="bottom" showDegreeDescription={showDegreeDescription}>
           <components.ControlsTooltip

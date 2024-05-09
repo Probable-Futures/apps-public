@@ -964,6 +964,7 @@ const InteractiveMap = () => {
         onDownloadClick={() => setShowDownloadMapModal(true)}
         onTakeScreenshot={takeScreenshot}
         selectedDataset={selectedDataset}
+        mapRef={mapRef}
       />
       {story}
       {isTourActive && step === 1 && (
