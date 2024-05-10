@@ -12,7 +12,7 @@ import { ReactComponent as PublicOnIcon } from "@probable-futures/components-lib
 import { ReactComponent as PublicOffIcon } from "@probable-futures/components-lib/src/assets/icons/public-off.svg";
 import { Projection } from "mapbox-gl";
 
-import { useMapData } from "../contexts/DataContext";
+import { defaultDegreesForChangeMaps, useMapData } from "../contexts/DataContext";
 import { size, colors } from "../consts";
 import TourButton from "./TourButton";
 import { ReactComponent as LocationOnIcon } from "../assets/icons/location-on.svg";
@@ -120,6 +120,10 @@ const MapControls = ({
     moreIsOpen,
     showDegreeDescription,
     mapProjection,
+    degrees,
+    datasets,
+    setDegrees,
+    setSelectedDataset,
     showCountryBorders,
     setMoreIsOpen,
     setShowMarkers,
@@ -177,10 +181,37 @@ const MapControls = ({
     ? translate("mapControl.hideCountryBorders")
     : translate("mapControl.showCountryBorders");
 
+  const selectMap = ({ value }: any) => {
+    const dataset = datasets.find(({ slug, isLatest }) => slug === value && isLatest);
+    if (dataset) {
+      setSelectedDataset(dataset);
+      let warmingScenario = undefined;
+      if (degrees === 0.5 && (dataset.isDiff || dataset?.name.toLowerCase().startsWith("change"))) {
+        setDegrees(defaultDegreesForChangeMaps);
+        warmingScenario = defaultDegreesForChangeMaps;
+      }
+      setQueryParam({
+        mapSlug: dataset.slug,
+        warmingScenario,
+        version: "latest",
+      });
+    }
+  };
+
   useEffect(() => {
     const handleChatbotMessage = (event: any) => {
       if (event.origin === "http://localhost:3000") {
+        const { map } = event?.data;
         const feature = event?.data?.geocoder?.countryObject?.features[0];
+        if (map) {
+          const mappedData: any = {
+            heat: "days_above_32c",
+            drought: "change_in_water_balance",
+            precipitation: "change_in_total_annual_precipitation",
+          };
+          const value = mappedData[map];
+          selectMap({ value });
+        }
         if (feature) {
           fly({ feature, mapRef });
         }
