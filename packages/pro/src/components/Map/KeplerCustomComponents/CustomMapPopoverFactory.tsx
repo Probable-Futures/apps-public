@@ -37,7 +37,11 @@ const CustomLayerHoverInfoFactory = () => {
     // Try to find original coordinate of the point, and then use mapBoxMap.project to get XY which the screen coordinates,
     // that are required by the queryRenderedFeatures function to get the features of a specific point.
     const lonIndex = props[0]?.fields?.find(
-      (field: any) => field.name === "lon" || field.name === "long" || field.name === "longitude",
+      (field: any) =>
+        field.name === "lon" ||
+        field.name === "lng" ||
+        field.name === "long" ||
+        field.name === "longitude",
     )?.fieldIdx;
     const latIndex = props[0]?.fields?.find(
       (field: any) => field.name === "lat" || field.name === "latitude",

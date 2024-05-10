@@ -76,11 +76,17 @@ class ParsedRow extends CsvRow {
 
   private parseCoordinates() {
     const lat = this.parsedData["lat"];
-    const lon = this.parsedData["lon"];
+    const lon = this.parsedData["lon"] || this.parsedData["lng"];
 
     if (lat && lon) {
       delete this.parsedData["lat"];
-      delete this.parsedData["lon"];
+      try {
+        delete this.parsedData["lon"];
+        delete this.parsedData["lng"];
+      } catch (e) {
+        console.error(e);
+      }
+
       return new Coordinates({ longitude: lon, latitude: lat });
     }
 
