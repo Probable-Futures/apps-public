@@ -24,6 +24,8 @@ Sentry.init(sentryConf);
 
 enableAutoPageviews();
 
+window.process = {} as any;
+
 const root = createRoot(document.getElementById("root") as HTMLElement);
 root.render(<App />);
 
