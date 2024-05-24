@@ -1,4 +1,4 @@
-export type Geodata = "latLon" | "cityCountry" | "fullAddress";
+export type Geodata = "latLon" | "cityCountry" | "fullAddress" | "addressOnly";
 
 export type City = string;
 export type Address = string;

@@ -115,7 +115,7 @@ const TabWrapper = styled.div`
 
 const mergeDataTabs = ["Add new dataset", "Use data you uploaded", "Use example dataset"];
 
-export type Geodata = "latLon" | "cityCountry" | "fullAddress";
+export type Geodata = "latLon" | "cityCountry" | "fullAddress" | "addressOnly";
 
 const geodataTypeMessage = `Column labels must specify either latitude and longitude (labeled "lat" and "lon" or
 "latitude" and "longitude"), city and country (labeled "city" and "country") or full
@@ -172,7 +172,9 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
                 datasetUploadNode: { ...datasetUploadResponse.datasetUploadNode },
                 errors: [...datasetUploadResponse.errors],
               },
-              geodataType === "cityCountry" || geodataType === "fullAddress",
+              geodataType === "cityCountry" ||
+                geodataType === "fullAddress" ||
+                geodataType === "addressOnly",
               pId!,
               activeClimateDataset?.dataset.id,
             );
@@ -327,7 +329,11 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
           } else {
             uppyRef.current?.upload().then(() => {});
           }
-          if (geodataType === "cityCountry" || geodataType === "fullAddress") {
+          if (
+            geodataType === "cityCountry" ||
+            geodataType === "fullAddress" ||
+            geodataType === "addressOnly"
+          ) {
             setIsLoading(true);
           }
         } else {
@@ -425,7 +431,11 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
                 geodataType={geodataType}
                 onFileAdded={onFileAdded}
                 onFileRemoved={onFileRemoved}
-                process={geodataType === "cityCountry" || geodataType === "fullAddress"}
+                process={
+                  geodataType === "cityCountry" ||
+                  geodataType === "fullAddress" ||
+                  geodataType === "addressOnly"
+                }
               />
             </TabWrapper>
             <TabWrapper isActive={currentTab === 1}>

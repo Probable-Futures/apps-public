@@ -66,7 +66,7 @@ class ParsedRow extends CsvRow {
         this.coordinates = this.parseCoordinates();
       } else if (this.geodataType === "cityCountry") {
         this.city = this.parseCity();
-      } else if (this.geodataType === "fullAddress") {
+      } else if (this.geodataType === "fullAddress" || this.geodataType === "addressOnly") {
         this.address = this.parseAddress();
       }
     } catch (error: any) {
@@ -114,10 +114,12 @@ class ParsedRow extends CsvRow {
     const city = this.parsedData[csvPlaceColumns.city];
     const country = this.parsedData[csvPlaceColumns.country];
     const address = this.parsedData[csvPlaceColumns.address];
-    if (address && country) {
-      delete this.parsedData[csvPlaceColumns.address];
+    if (country) {
       delete this.parsedData[csvPlaceColumns.country];
-      return new Address({ address, country, city: city || "" });
+    }
+    if (address) {
+      delete this.parsedData[csvPlaceColumns.address];
+      return new Address({ address, country: country || "", city: city || "" });
     }
   }
 

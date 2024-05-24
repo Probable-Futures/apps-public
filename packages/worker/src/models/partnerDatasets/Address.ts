@@ -9,9 +9,9 @@ class Address extends Place {
   coordinates?: Coordinates;
   requiredFields = ["address", "country"];
   optionalFields = ["city"];
-  country: string;
+  country?: string;
 
-  constructor({ address, country, city }: { address: string; country: string; city?: string }) {
+  constructor({ address, country, city }: { address: string; country?: string; city?: string }) {
     super();
     this.city = city;
     this.country = country;

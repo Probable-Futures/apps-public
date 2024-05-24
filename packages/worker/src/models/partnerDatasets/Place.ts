@@ -4,15 +4,15 @@ import Coordinates from "./Coordinates";
 abstract class Place {
   coordinates?: Coordinates;
   abstract requiredFields: string[];
-  abstract country: string;
+  abstract country?: string;
 
   validate(): void {
-    if (this.country.length === 0) {
-      throw new errors.ValidationError({
-        message: "Empty country field",
-        invalidData: { country: this.country },
-      });
-    }
+    // if (this.country?.length === 0) {
+    //   throw new errors.ValidationError({
+    //     message: "Empty country field",
+    //     invalidData: { country: this.country },
+    //   });
+    // }
   }
 
   async getCoordinates() {

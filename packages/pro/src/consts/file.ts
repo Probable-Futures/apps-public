@@ -8,4 +8,5 @@ export const requiredCsvHeaders: Record<Geodata, string[][]> = {
   ],
   fullAddress: [["address", "country"]],
   cityCountry: [["city", "country"]],
+  addressOnly: [["address"]],
 };
