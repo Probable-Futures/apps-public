@@ -33,7 +33,7 @@ import { components, contexts } from "@probable-futures/components-lib";
 import { Feature } from "@probable-futures/components-lib/src/hooks/useGeocoder";
 import useClimateZoneHighlighter from "../../utils/useClimateZoneHighlighter";
 import { customTabletSizeForHeader } from "@probable-futures/lib/src/consts";
-import { sendDataToChatbot } from "utils/chatbot";
+import { sendDataToChatbot } from "../../utils/chatbot";
 
 type MapStyles = {
   stops?: number[];

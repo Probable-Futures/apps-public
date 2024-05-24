@@ -8,7 +8,7 @@ import { trackEvent } from "../utils/analytics";
 import { defaultDegreesForChangeMaps, useMapData } from "../contexts/DataContext";
 import { useTourData } from "../contexts/TourContext";
 import { useTranslation } from "../contexts/TranslationContext";
-import { sendDataToChatbot } from "utils/chatbot";
+import { sendDataToChatbot } from "../utils/chatbot";
 
 type Props = {
   onDatasetDropdownRefChange: (ref: HTMLDivElement) => void;

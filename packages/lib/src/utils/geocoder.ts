@@ -1,4 +1,5 @@
 import { MapRef } from "react-map-gl";
+
 import { Feature, options } from "../../../components-lib/src/hooks/useGeocoder";
 
 export const exceptions = {

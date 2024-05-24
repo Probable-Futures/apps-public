@@ -30,7 +30,7 @@ import { Map } from "@probable-futures/lib/src/types";
 import ChatbotIframe from "./ChatbotIframe";
 import { fly } from "@probable-futures/lib/src/utils";
 import { MapRef } from "react-map-gl";
-import { sendDataToChatbot } from "utils/chatbot";
+import { sendDataToChatbot } from "../utils/chatbot";
 
 type Props = {
   zoom: number;

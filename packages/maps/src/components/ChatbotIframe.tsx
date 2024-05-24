@@ -1,6 +1,24 @@
 import React, { useState } from "react";
+import styled from "styled-components";
+
 import ChatbotIcon from "../assets/icons/chatbot.png";
-import { sendDataToChatbot } from "utils/chatbot";
+import { sendDataToChatbot } from "../utils/chatbot";
+
+const StyledButton = styled.button`
+  border: none;
+  background-color: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+`;
+
+const StyledIframe = styled.iframe`
+  width: 480px;
+  height: 570px;
+  border: none;
+`;
 
 const ChatbotIframe = ({ selectedData, degrees }: { selectedData: any; degrees: any }) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -9,7 +27,7 @@ const ChatbotIframe = ({ selectedData, degrees }: { selectedData: any; degrees: 
     setIsChatOpen(!isChatOpen);
   };
 
-  const chatbotUrl = "http://localhost:3000";
+  const chatbotUrl = process.env.CHATBOT_APP_URL;
 
   const onIframeLoad = () => {
     setTimeout(() => {
@@ -34,35 +52,13 @@ const ChatbotIframe = ({ selectedData, degrees }: { selectedData: any; degrees: 
       </button>
 
       {isChatOpen && (
-        <button
-          onClick={toggleChat}
-          style={{
-            border: "none",
-            backgroundColor: "transparent",
-            borderRadius: "50%",
-            marginRight: "10px",
-            cursor: "pointer",
-            position: "absolute",
-            top: "20px",
-            right: "20px",
-          }}
-        >
-          <span aria-hidden="true">x</span>
-        </button>
-      )}
+        <>
+          <StyledButton onClick={toggleChat}>
+            <span aria-hidden="true">x</span>
+          </StyledButton>
 
-      {isChatOpen && (
-        <iframe
-          id="chatbot-id"
-          src={chatbotUrl}
-          title="Chatbot"
-          width="480px"
-          height="570px"
-          onLoad={onIframeLoad}
-          style={{
-            border: "none",
-          }}
-        />
+          <StyledIframe id="chatbot-id" src={chatbotUrl} title="Chatbot" onLoad={onIframeLoad} />
+        </>
       )}
     </div>
   );
