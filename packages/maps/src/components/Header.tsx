@@ -8,6 +8,7 @@ import { trackEvent } from "../utils/analytics";
 import { defaultDegreesForChangeMaps, useMapData } from "../contexts/DataContext";
 import { useTourData } from "../contexts/TourContext";
 import { useTranslation } from "../contexts/TranslationContext";
+import { sendDataToChatbot } from "utils/chatbot";
 
 type Props = {
   onDatasetDropdownRefChange: (ref: HTMLDivElement) => void;
@@ -51,6 +52,12 @@ const Header = ({ onDatasetDropdownRefChange }: Props) => {
           version: "latest",
         });
         trackEvent("Map viewed", { props: { map: dataset.name } });
+
+        sendDataToChatbot({
+          dataset,
+          warmingScenario: degrees,
+          action: "fetchData",
+        });
       }
     },
     [datasets, degrees, setDegrees, setSelectedDataset],

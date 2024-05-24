@@ -1,4 +1,4 @@
-import React, { useState, MouseEventHandler, useEffect } from "react";
+import React, { useState, MouseEventHandler, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import MediaQuery from "react-responsive";
 import { components, styles } from "@probable-futures/components-lib";
@@ -30,6 +30,7 @@ import { Map } from "@probable-futures/lib/src/types";
 import ChatbotIframe from "./ChatbotIframe";
 import { fly } from "@probable-futures/lib/src/utils";
 import { MapRef } from "react-map-gl";
+import { sendDataToChatbot } from "utils/chatbot";
 
 type Props = {
   zoom: number;
@@ -181,22 +182,29 @@ const MapControls = ({
     ? translate("mapControl.hideCountryBorders")
     : translate("mapControl.showCountryBorders");
 
-  const selectMap = ({ value }: any) => {
-    const dataset = datasets.find(({ slug, isLatest }) => slug === value && isLatest);
-    if (dataset) {
-      setSelectedDataset(dataset);
-      let warmingScenario = undefined;
-      if (degrees === 0.5 && (dataset.isDiff || dataset?.name.toLowerCase().startsWith("change"))) {
-        setDegrees(defaultDegreesForChangeMaps);
-        warmingScenario = defaultDegreesForChangeMaps;
+  const selectMap = useCallback(
+    (value: string) => {
+      const dataset = datasets.find(({ name, isLatest }) => name === value && isLatest);
+      if (dataset) {
+        sendDataToChatbot({ dataset, action: "fetchData" });
+        setSelectedDataset(dataset);
+        let warmingScenario = undefined;
+        if (
+          degrees === 0.5 &&
+          (dataset.isDiff || dataset?.name.toLowerCase().startsWith("change"))
+        ) {
+          setDegrees(defaultDegreesForChangeMaps);
+          warmingScenario = defaultDegreesForChangeMaps;
+        }
+        setQueryParam({
+          mapSlug: dataset.slug,
+          warmingScenario,
+          version: "latest",
+        });
       }
-      setQueryParam({
-        mapSlug: dataset.slug,
-        warmingScenario,
-        version: "latest",
-      });
-    }
-  };
+    },
+    [datasets, degrees, setDegrees, setSelectedDataset],
+  );
 
   useEffect(() => {
     const handleChatbotMessage = (event: any) => {
@@ -204,13 +212,7 @@ const MapControls = ({
         const { map } = event?.data;
         const feature = event?.data?.geocoder?.countryObject?.features[0];
         if (map) {
-          const mappedData: any = {
-            heat: "days_above_32c",
-            drought: "change_in_water_balance",
-            precipitation: "change_in_total_annual_precipitation",
-          };
-          const value = mappedData[map];
-          selectMap({ value });
+          selectMap(map);
         }
         if (feature) {
           fly({ feature, mapRef });
@@ -221,7 +223,7 @@ const MapControls = ({
     return () => {
       window.removeEventListener("message", handleChatbotMessage);
     };
-  });
+  }, [mapRef, selectMap]);
 
   return (
     <>
@@ -390,7 +392,7 @@ const MapControls = ({
           </components.ControlsTooltip>
         </StyledGroup>
         <StyledGroup position="bottom" marginRight={50}>
-          <ChatbotIframe />
+          <ChatbotIframe selectedData={selectedDataset} degrees={degrees} />
         </StyledGroup>
         <StyledGroup position="bottom" showDegreeDescription={showDegreeDescription}>
           <components.ControlsTooltip

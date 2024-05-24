@@ -1,13 +1,21 @@
 import React, { useState } from "react";
 import ChatbotIcon from "../assets/icons/chatbot.png";
+import { sendDataToChatbot } from "utils/chatbot";
 
-const ChatbotIframe = () => {
+const ChatbotIframe = ({ selectedData, degrees }: { selectedData: any; degrees: any }) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
   };
+
   const chatbotUrl = "http://localhost:3000";
+
+  const onIframeLoad = () => {
+    setTimeout(() => {
+      sendDataToChatbot({ dataset: selectedData, warmingScenario: degrees, action: "fetchData" });
+    }, 3000);
+  };
 
   return (
     <div>
@@ -34,19 +42,26 @@ const ChatbotIframe = () => {
             borderRadius: "50%",
             marginRight: "10px",
             cursor: "pointer",
+            position: "absolute",
+            top: "20px",
+            right: "20px",
           }}
         >
-          <span aria-hidden="true">X</span>
+          <span aria-hidden="true">x</span>
         </button>
       )}
 
       {isChatOpen && (
         <iframe
+          id="chatbot-id"
           src={chatbotUrl}
           title="Chatbot"
-          width="100%"
-          height="600px"
-          style={{ border: "none" }}
+          width="480px"
+          height="570px"
+          onLoad={onIframeLoad}
+          style={{
+            border: "none",
+          }}
         />
       )}
     </div>

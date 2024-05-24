@@ -33,6 +33,7 @@ import { components, contexts } from "@probable-futures/components-lib";
 import { Feature } from "@probable-futures/components-lib/src/hooks/useGeocoder";
 import useClimateZoneHighlighter from "../../utils/useClimateZoneHighlighter";
 import { customTabletSizeForHeader } from "@probable-futures/lib/src/consts";
+import { sendDataToChatbot } from "utils/chatbot";
 
 type MapStyles = {
   stops?: number[];
@@ -550,6 +551,15 @@ const InteractiveMap = () => {
         features: e.features,
         lngLat: [e.lngLat.lng, e.lngLat.lat],
       });
+
+      // Send inspector data to chatbot
+      if (e.features) {
+        const properties = e.features[0].properties;
+        sendDataToChatbot({
+          inspectorData: properties,
+          action: "fetchData",
+        });
+      }
     },
     [setPopupFeature],
   );
@@ -927,7 +937,10 @@ const InteractiveMap = () => {
                 dataset={selectedDataset}
                 degreesOfWarming={degrees}
                 tempUnit={tempUnit}
-                onClose={() => setPopupVisible(false)}
+                onClose={() => {
+                  setPopupVisible(false);
+                  sendDataToChatbot({ popupVisible: false, action: "fetchData" });
+                }}
                 onReadMoreClick={() => setShowDescriptionModal((show: boolean) => !show)}
                 onBaselineClick={() => setShowDescriptionModal((show: boolean) => !show)}
                 showInspector={false}
