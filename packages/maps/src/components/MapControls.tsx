@@ -99,6 +99,13 @@ const StyledGroup = styled(styles.Group)`
   }
 `;
 
+const ChatbotIframeWrapper = styled.div`
+  display: flex;
+  position: absolute;
+  bottom: 80px;
+  right: 70px;
+`;
+
 const MapControls = ({
   zoom,
   maxZoom,
@@ -391,9 +398,9 @@ const MapControls = ({
             </styles.ControlButton>
           </components.ControlsTooltip>
         </StyledGroup>
-        <StyledGroup position="bottom" marginRight={50}>
+        <ChatbotIframeWrapper>
           <ChatbotIframe selectedData={selectedDataset} degrees={degrees} />
-        </StyledGroup>
+        </ChatbotIframeWrapper>
         <StyledGroup position="bottom" showDegreeDescription={showDegreeDescription}>
           <components.ControlsTooltip
             tooltipContent={translate("mapControl.maxZoomMessage")}

@@ -82,8 +82,6 @@ const useGeocoder = (props: GeocoderProps) => {
     [onSearch],
   );
 
-  const flyTo = useCallback((feature: Feature) => fly({ feature, mapRef, onFly }), [mapRef, onFly]);
-
   const onClear = useCallback(() => {
     setInputValue("");
     setSuggestionList([]);
@@ -164,11 +162,11 @@ const useGeocoder = (props: GeocoderProps) => {
         JSON.stringify(recentlySearchedItems),
       );
 
-      flyTo(feature);
+      fly({ feature, mapRef, onFly });
 
       close();
     },
-    [props.localStorageRecentlySearchedIemskey, props.language, flyTo, close],
+    [props.localStorageRecentlySearchedIemskey, mapRef, onFly, props.language, close],
   );
 
   const onRecentlySearchedItemClick = async (

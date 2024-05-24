@@ -27,7 +27,7 @@ const ChatbotIframe = ({ selectedData, degrees }: { selectedData: any; degrees: 
     setIsChatOpen(!isChatOpen);
   };
 
-  const chatbotUrl = process.env.CHATBOT_APP_URL;
+  const chatbotUrl = process.env.REACT_APP_CHATBOT_URL;
 
   const onIframeLoad = () => {
     setTimeout(() => {
