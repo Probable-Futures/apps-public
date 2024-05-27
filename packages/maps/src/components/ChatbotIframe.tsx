@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { types } from "@probable-futures/lib";
 
-import ChatbotIcon from "../assets/icons/chatbot.png";
+import ChatbotIcon from "../assets/icons/chatbot.svg";
 import { sendDataToChatbot } from "../utils/chatbot";
 
 type IFrameProps = { selectedData?: types.Map; degrees?: number };
