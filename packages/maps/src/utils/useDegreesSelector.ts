@@ -5,6 +5,7 @@ import { useMediaQuery } from "react-responsive";
 import { useMapData } from "../contexts/DataContext";
 import { trackEvent } from "../utils/analytics";
 import { setQueryParam } from "../utils";
+import { sendDataToChatbot } from "./chatbot";
 
 const useDegreesSelector = () => {
   const {
@@ -82,6 +83,10 @@ const useDegreesSelector = () => {
       }
       trackEvent("Warming tab clicked", eventProps);
     }
+    sendDataToChatbot({
+      warmingScenario: value,
+      action: "fetchData",
+    });
   };
 
   return {

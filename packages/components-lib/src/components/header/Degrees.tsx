@@ -26,7 +26,6 @@ import {
   YearLabel,
 } from "../../styles/warmingScenarioStyles";
 import { useTheme } from "../../contexts";
-import { sendDataToChatbot } from "../../../../maps/src/utils/chatbot";
 
 type Props = {
   degrees: number;
@@ -142,10 +141,6 @@ const Degrees = ({
         disabled={showBaselineModal && value === 0.5}
         onClick={() => {
           onWarmingScenarioClick && onWarmingScenarioClick(value, !!warmingScenarioDescs[descKey]);
-          sendDataToChatbot({
-            warmingScenario: value,
-            action: "fetchData",
-          });
         }}
         showInfo={showInfo}
         style={{ color }}

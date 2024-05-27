@@ -3,7 +3,7 @@ import MapboxClient from "@mapbox/mapbox-sdk/lib/client";
 import mbxGeocoder from "@mapbox/mapbox-sdk/services/geocoding";
 import debounce from "lodash.debounce";
 
-import { exceptions, setupConfig } from "@probable-futures/lib/src/utils";
+import { setupConfig } from "@probable-futures/lib/src/utils";
 import { RecentlySearchedItemsKey } from "@probable-futures/lib/src/consts";
 import { GeocoderProps, RecentlySearchedItemType } from "../components/Geocoder";
 import { fly } from "@probable-futures/lib/src/utils";
