@@ -45,7 +45,6 @@ type Props = {
 type GroupProps = {
   position: "top" | "middle" | "bottom";
   showDegreeDescription?: boolean;
-  marginRight?: number;
 };
 
 const topStyledGroupCss = css`
@@ -85,8 +84,6 @@ const StyledGroup = styled(styles.Group)`
       : position === "bottom"
       ? bottomStyledGroupsCss
       : middleStyledGroupsCss}
-
-  margin-right: ${({ marginRight }) => (marginRight ? `${marginRight}px` : "0")};
 
   @media (min-width: ${size.tablet}) {
     display: flex;

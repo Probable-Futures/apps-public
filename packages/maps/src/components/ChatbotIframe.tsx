@@ -1,17 +1,28 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { types } from "@probable-futures/lib";
 
 import ChatbotIcon from "../assets/icons/chatbot.png";
 import { sendDataToChatbot } from "../utils/chatbot";
 
+type IFrameProps = { selectedData?: types.Map; degrees?: number };
+
+type ButtonProps = {
+  position?: string;
+  top?: string;
+  right?: string;
+};
+
 const StyledButton = styled.button`
-  border: none;
-  background-color: transparent;
-  border-radius: 50%;
-  cursor: pointer;
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  ${({ position, top, right }: ButtonProps) => `
+    border: none;
+    background-color: transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    position: ${position};
+    top: ${top};
+    right: ${right};
+  `}
 `;
 
 const StyledIframe = styled.iframe`
@@ -20,7 +31,12 @@ const StyledIframe = styled.iframe`
   border: none;
 `;
 
-const ChatbotIframe = ({ selectedData, degrees }: { selectedData: any; degrees: any }) => {
+const ChatIcon = styled.img`
+  width: 54px;
+  height: 54px;
+`;
+
+const ChatbotIframe = ({ selectedData, degrees }: IFrameProps) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   const toggleChat = () => {
@@ -37,26 +53,15 @@ const ChatbotIframe = ({ selectedData, degrees }: { selectedData: any; degrees: 
 
   return (
     <div>
-      <button
-        onClick={toggleChat}
-        style={{
-          border: "none",
-          backgroundColor: "transparent",
-          borderRadius: "50%",
-          cursor: "pointer",
-        }}
-      >
-        {!isChatOpen && (
-          <img src={ChatbotIcon} alt="Chatbot icon" style={{ width: "64px", height: "64px" }} />
-        )}
-      </button>
+      <StyledButton onClick={toggleChat}>
+        {!isChatOpen && <ChatIcon src={ChatbotIcon} alt="Chatbot icon" />}
+      </StyledButton>
 
       {isChatOpen && (
         <>
-          <StyledButton onClick={toggleChat}>
+          <StyledButton onClick={toggleChat} position="absolute" top="15px" right="30px">
             <span aria-hidden="true">x</span>
           </StyledButton>
-
           <StyledIframe id="chatbot-id" src={chatbotUrl} title="Chatbot" onLoad={onIframeLoad} />
         </>
       )}
