@@ -5,7 +5,7 @@ export const headerStyles = `
 `;
 
 export const keyStyles = `
-  .embeddable-key-container {position: absolute;min-width: 280px;top: unset;right: 20px;left: 20px;bottom: 20px;z-index: 1;width: auto;font-family: LinearSans, Arial, Helvetica, sans-serif;}
+  .embeddable-key-container {position: absolute;min-width: 280px;top: unset;right: 20px;left: 20px;bottom: 20px;z-index: 1;width: auto;font-family: LinearSans, Arial, Helvetica, sans-serif; max-width: 520px;}
   .map-key-container {border: 1px solid #2a172d;padding: 12px 18px 9px;background-color: #fdfdfd;border-bottom: 1px solid #2a172d;}
   .embeddable-key-content {display: inline-block;width: 100%;}
   .map-key-header {display: flex;flex-direction: row;justify-content: space-between;align-items: center;margin-bottom: 10px;}
@@ -20,7 +20,7 @@ export const keyStyles = `
   .embeddable-bottom-link {position: absolute;left: 0;padding: 0 5px;background-color: rgba(255, 255, 255, 0.5);font-size: 12px;font-family: Helvetica Neue, Arial, Helvetica, sans-serif;line-height: 20px;color: rgba(0, 0, 0, 0.75);z-index: 3;cursor: pointer;text-decoration: none;bottom: 0;}
   @media (orientation: landscape) {.map-key-bin {font-size: 10px;}}
   @media (min-width: 768px) {.map-key-bin {font-size: 9px;}}
-  @media (min-width: 768px) {.embeddable-key-container {right: unset;}}
+  @media (min-width: 768px) {.embeddable-key-container {right: unset; min-width: 480px;}}
   @media (min-width: 1200px) {.map-key-bin {font-size: 13px;margin-top: 4px;}}
   @media (min-width: 1200px) {.map-key-color {height: 14px;}}
   @media (orientation: landscape) {.map-key-bin-container {min-width: 43px;}}

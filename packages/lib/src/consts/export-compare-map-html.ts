@@ -34,6 +34,8 @@ type Props = {
     degreesAfter: number;
   };
   showBorders?: boolean;
+  showPopupOnFirstLoad?: boolean;
+  overrideUIStyles?: { selector: string; styles: any }[];
 };
 
 export const exportCompareMapToHTML = (options: Props) => {
@@ -91,17 +93,19 @@ export const exportCompareMapToHTML = (options: Props) => {
         #beforeMap, #afterMap {overflow: hidden;position: absolute;height: 100%;z-index: 1;user-select: none;width: 100%;}
         .comparison-container {overflow: hidden;position: relative;height: 100%;z-index: 1;}
         .mapboxgl-compare {background-color: rgb(42, 23, 45);height: 100%;position: absolute;width: 2px;z-index: 1;}
-        .mapboxgl-compare .compare-swiper-vertical {background-color: #1b1a1c;background-repeat: no-repeat, no-repeat;background-size: 41px;border-radius: 50%;box-shadow: #f8f9f3 0 0 0 2px inset;color: #f8f9f3;cursor: ew-resize;display: inline-block;height: 40px;left: -20px;margin: -20px 1px 0;position: absolute;top: 50%;width: 40px;}
+        .mapboxgl-compare .compare-swiper-vertical {background-color: #1b1a1c;background-repeat: no-repeat, no-repeat;background-size: 41px;border-radius: 50%;box-shadow: #f8f9f3 0 0 0 2px inset;color: #f8f9f3;cursor: ew-resize;display: inline-block;height: 40px;left: -20px;margin: -20px 1px 0;position: absolute;top: 50%;width: 40px; transition: top 0.5s ease-in-out;}
         .mapboxgl-compare .compare-swiper-vertical::before,
         .mapboxgl-compare .compare-swiper-vertical::after {background-color: #1b1a1c;border: 1px solid #fefffc;color: #f8f9f3;display: block;font-family: RelativeMono,monospace;font-size: 15px;line-height: 1;padding: 2px 0 4px 0;position: absolute;text-align: center;top: 10px;width: 62px;}
+        ${headerStyles}
+        ${keyStyles}
+      </style>
+      <style id="dynamic-slider-styles">
         .mapboxgl-compare .compare-swiper-vertical::before {content: "${
           options.compare?.degreesBefore
-        }°C";left: -71px;}
+        }°C";left: -71px;}  
         .mapboxgl-compare .compare-swiper-vertical::after {content: "${
           options.compare?.degreesAfter
         }°C";right: -71px;}
-        ${headerStyles}
-        ${keyStyles}
       </style>
       <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
       <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
@@ -271,13 +275,18 @@ export const exportCompareMapToHTML = (options: Props) => {
           let { dataLayerPaintProperties, dataKey, degrees } = ${JSON.stringify(
             options.mapStyleConfigs,
           )};
+          let degreesBefore = '${options.compare?.degreesBefore}';
+          let degreesAfter = '${options.compare?.degreesAfter}';
+          
           let dataset = ${JSON.stringify(options.dataset)};
           mapboxgl.accessToken = '${options.mapboxAccessToken}';
           let tempUnit = '${options.mapStyleConfigs.tempUnit}';
           let precipitationUnit = '${options.mapStyleConfigs.precipitationUnit}';
           const isFrequent = dataset?.dataset.unit === "x as frequent";
           const datasetDescriptionResponse = ${JSON.stringify(options.datasetDescriptionResponse)};
-          const showBorders = ${options.showBorders}
+          const showBorders = ${options.showBorders};
+          const showPopupOnFirstLoad = ${options.showPopupOnFirstLoad};
+          let showBaselineDetails = dataset.isDiff && degrees !== 0 && !isFrequent;
           let beforeMap, afterMap;
           let longitude=null, latitude=null, popup=null, mapClicked, featuresBefore=[], featuresAfter=[];
           let { dataKeyBefore, dataKeyAfter, dataLayerPaintPropertiesBefore, dataLayerPaintPropertiesAfter, show: showCompare } = ${JSON.stringify(
@@ -285,7 +294,43 @@ export const exportCompareMapToHTML = (options: Props) => {
           )};
           let isTempMap = dataset.dataset.pfDatasetUnitByUnit.unitLong.toLowerCase().includes("temp");
           const isPrecipitationMap = dataset.dataset.unit === "mm";
-
+          let initiallyLoadedInspector = false;
+          let beforeMapIsIdle = false;
+          let afterMapIsIdle = false;
+          function onStyleLoad(map, dataLayerPaintProperties) {
+            let { layers } = map?.getStyle();
+            layers.forEach(function({id, type}){
+              if (id.includes('region-')) {
+                map?.setPaintProperty(id, "fill-color", dataLayerPaintProperties);
+                map?.setPaintProperty(id, "fill-antialias", ["step", ["zoom"], false, 6, true]);
+                map?.setPaintProperty(id, "fill-outline-color", "#ffffff");
+              } else if (type === "symbol" || id.includes("road")) {
+                map.setLayoutProperty(id, "visibility", "visible");
+              } else if (id.includes("boundary")) {
+                map.setLayoutProperty(id, "visibility", showBorders ? "visible" : "none");
+              }
+            });
+          }
+          function showInspectorOnIdle() {
+            if(showPopupOnFirstLoad && !initiallyLoadedInspector) {
+              const lat = ${options.viewState.latitude || 0};
+              const lng = ${options.viewState.longitude || 0};
+              setTimeout(() => {
+                beforeMap.fire("click", {
+                  lngLat: { lng, lat },
+                  point: beforeMap.project({ lng, lat }),
+                  originalEvent: {},
+                });
+                afterMap.fire("click", {
+                  lngLat: { lng, lat },
+                  point: afterMap.project({ lng, lat }),
+                  originalEvent: {},
+                });
+                initiallyLoadedInspector = true;
+              }, 200);
+            }
+          }
+          // initialize beforeMap
           beforeMap = new mapboxgl.Map({
             container: 'beforeMap', style: '${options.mapStyle}', 
             center: [${options.viewState.longitude || 0},${options.viewState.latitude || 0}], 
@@ -294,19 +339,15 @@ export const exportCompareMapToHTML = (options: Props) => {
             }, minZoom: 2.2, maxZoom: 10, projection: 'mercator'});
           beforeMap.addControl(new mapboxgl.NavigationControl());
           beforeMap.on("style.load", function() {
-            let { layers } = beforeMap?.getStyle();
-            layers.forEach(function({id, type}){
-              if (id.includes('region-')) {
-                beforeMap?.setPaintProperty(id, "fill-color", dataLayerPaintPropertiesBefore);
-                beforeMap?.setPaintProperty(id, "fill-antialias", ["step", ["zoom"], false, 6, true]);
-                beforeMap?.setPaintProperty(id, "fill-outline-color", "#ffffff");
-              } else if (type === "symbol" || id.includes("road")) {
-                beforeMap.setLayoutProperty(id, "visibility", "visible");
-              } else if (id.includes("boundary")) {
-                beforeMap.setLayoutProperty(id, "visibility", showBorders ? "visible" : "none");
-              }
-            });
+            onStyleLoad(beforeMap, dataLayerPaintPropertiesBefore);
           });
+          beforeMap.on("idle", function () {
+            beforeMapIsIdle = true;
+            if(afterMapIsIdle) {
+              showInspectorOnIdle();
+            }
+          });
+          // initialize afterMap
           afterMap = new mapboxgl.Map({ 
             container: 'afterMap', style: '${options.mapStyle}', 
             center: [${options.viewState.longitude || 0}, ${options.viewState.latitude || 0}], 
@@ -315,18 +356,13 @@ export const exportCompareMapToHTML = (options: Props) => {
             }, minZoom: 2.2, maxZoom: 10, projection: 'mercator'});
           afterMap.addControl(new mapboxgl.NavigationControl());
           afterMap.on("style.load", function() {
-            let { layers } = afterMap?.getStyle();
-            layers.forEach(function({id, type}) {
-              if (id.includes('region-')) {
-                afterMap?.setPaintProperty(id, "fill-color", dataLayerPaintPropertiesAfter);
-                afterMap?.setPaintProperty(id, "fill-antialias", ["step", ["zoom"], false, 6, true]);
-                afterMap?.setPaintProperty(id, "fill-outline-color", "#ffffff");
-              } else if (type === "symbol" || id.includes("road")) {
-                 afterMap.setLayoutProperty(id, "visibility", "visible");
-              } else if (id.includes("boundary")) {
-                afterMap.setLayoutProperty(id, "visibility", showBorders ? "visible" : "none");
-              }
-            });
+            onStyleLoad(afterMap, dataLayerPaintPropertiesAfter);
+          });
+          afterMap.on("idle", function () {
+            afterMapIsIdle = true;
+            if(beforeMapIsIdle) {
+              showInspectorOnIdle();
+            }
           });
           beforeMap.on('click', pfLayerIds , function(e) {
             latitude = e.lngLat.lat;
@@ -365,8 +401,19 @@ export const exportCompareMapToHTML = (options: Props) => {
             return convertmmToin(value);
           };
           
+          function mapPopupVisible (map) {
+            return map._popups?.length > 0;
+          }
+
+          function getPopupLngLat (map) {
+            return map._popups[0]._lngLat;
+          }
+          
           function handleMapClick(map, key, features) {
             map._popups.forEach(popup => popup.remove());
+            if (!key || !features) {
+              return;
+            }
             let dataFeature = features ? 
               features.find(function(feature) { 
                 return feature.layer.id.includes("region-")
@@ -379,7 +426,6 @@ export const exportCompareMapToHTML = (options: Props) => {
             };
             let showInF = isTempMap && tempUnit === "°F";
             const showInInch = isPrecipitationMap && precipitationUnit === "in";
-            let showBaselineDetails = dataset.isDiff && degrees !== 0 && !isFrequent;
             let isMidValid = selectedData.mid !== undefined && selectedData.mid !== -99999 && selectedData.mid !== -88888;
             let title = "";
             let unit = "";
@@ -463,10 +509,14 @@ export const exportCompareMapToHTML = (options: Props) => {
               result += popoverContent;
             }
             result += "</div>";
-            popup = new mapboxgl.Popup({anchor: "top", maxWidth:"none"})
+            popup = new mapboxgl.Popup({anchor: "top", maxWidth:"none", focusAfterOpen: false})
             .setLngLat({lng: longitude, lat: latitude})
             .setHTML(result)
             .addTo(map);
+            popup.on("close", function(e) {
+              handleMapClick(beforeMap);
+              handleMapClick(afterMap);
+            })
           }
           function handleToggleChange() {
             let isChecked;
@@ -514,20 +564,83 @@ export const exportCompareMapToHTML = (options: Props) => {
                   )
                 : dataset.dataset.pfDatasetUnitByUnit.unitLong;
             }
-
-            if(!showComparisonMaps) {
-              handleMapClick(map, dataKey, features);
-            }
-            else {
-              if (beforeMap._popups.length > 0) handleMapClick(beforeMap, dataKeyBefore, featuresBefore);
-              if (afterMap._popups.length > 0) handleMapClick(afterMap, dataKeyAfter, featuresAfter);
-            }
+            if (beforeMap._popups.length > 0) handleMapClick(beforeMap, dataKeyBefore, featuresBefore);
+            if (afterMap._popups.length > 0) handleMapClick(afterMap, dataKeyAfter, featuresAfter);
           };
           displayHeader();
           displayBottomLink();
           if(dataset.dataset.unit === "class") displayClimateZoneKey();
           else displayKey();
+          // event listeners
+          window.addEventListener('message', (event) => {
+            const { action, dataKeyBefore: dataKeyBeforeFromEvent, 
+              dataKeyAfter: dataKeyAfterFromEvent, degreeBefore, degreeAfter, 
+              dataLayerPaintPropertiesBefore: dataLayerPaintPropertiesBeforeFromEvent,
+              dataLayerPaintPropertiesAfter: dataLayerPaintPropertiesAfterFromEvent } = event.data;
+            if(action === "onDegreeChanged") {
+              degreesBefore = degreeBefore;
+              degreesAfter = degreeAfter;
+              dataKeyBefore = dataKeyBeforeFromEvent;
+              dataKeyAfter = dataKeyAfterFromEvent;
+              dataLayerPaintPropertiesBefore = dataLayerPaintPropertiesBeforeFromEvent;
+              dataLayerPaintPropertiesAfter = dataLayerPaintPropertiesAfterFromEvent;
+              onStyleLoad(beforeMap, dataLayerPaintPropertiesBefore);
+              onStyleLoad(afterMap, dataLayerPaintPropertiesAfter);
+              const styleSheet = document.getElementById("dynamic-slider-styles").sheet;
+              // Remove the old rule (assuming it's the first rule)
+              if (styleSheet.cssRules.length > 1) {
+                styleSheet.deleteRule(0);
+                styleSheet.deleteRule(0);
+              }
+              // Add the new rule with the updated content
+              styleSheet.addRule(
+                ".mapboxgl-compare .compare-swiper-vertical::before",
+                \`content: "\${degreesBefore + "°C"}"; left: -71px;\`
+              );
+              styleSheet.addRule(
+                ".mapboxgl-compare .compare-swiper-vertical::after",
+                \`content: "\${degreesAfter + "°C"}"; left: 47px;\`
+              );
+              if(mapPopupVisible(beforeMap)) {
+                setTimeout(() => {
+                  const {lat, lng} = getPopupLngLat(beforeMap);
+                  handleMapClick(beforeMap);
+                  beforeMap.fire("click", {
+                    lngLat: { lng, lat },
+                    point: beforeMap.project({ lng, lat }),
+                    originalEvent: {},
+                  });
+                }, 200);
+              }
+              if(mapPopupVisible(afterMap)) {
+                setTimeout(() => {
+                  const {lat, lng} = getPopupLngLat(afterMap);
+                  handleMapClick(afterMap);
+                  afterMap.fire("click", {
+                    lngLat: { lng, lat },
+                    point: afterMap.project({ lng, lat }),
+                    originalEvent: {},
+                  });
+                }, 200);
+              }
+            }
+          });
         })();
+        // apply additional styles if passed.
+        const overrideUIStyles = ${JSON.stringify(options.overrideUIStyles)};
+        window.onload = function() {
+          if(overrideUIStyles?.length) {
+            overrideUIStyles.forEach((overrideStyle) => {
+              const { selector, styles } = overrideStyle;
+              if(selector) {
+                const targetElement = document.querySelector(selector);
+                if (targetElement && styles) {
+                  Object.assign(targetElement.style, styles);
+                }
+              }
+            })
+          }
+        };
       </script>
     </body>
   </html>`;

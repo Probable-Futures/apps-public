@@ -16,6 +16,8 @@ export type ExportProps = {
   datasetDescriptionResponse?: DatasetDescriptionResponse;
   precipitationUnit?: types.PrecipitationUnit;
   showBorders?: boolean;
+  showPopupOnFirstLoad?: boolean;
+  overrideUIStyles?: { selector: string; styles: any }[];
 };
 
 const embedAccessToken =
@@ -31,6 +33,8 @@ export const exportMapAsHTML = async ({
   datasetDescriptionResponse = climateZonesDescriptions,
   precipitationUnit = "mm",
   showBorders,
+  showPopupOnFirstLoad,
+  overrideUIStyles,
 }: ExportProps) => {
   const selectedDataset =
     dataset ??
@@ -86,6 +90,8 @@ export const exportMapAsHTML = async ({
     compare: compareObj,
     datasetDescriptionResponse,
     showBorders,
+    showPopupOnFirstLoad,
+    overrideUIStyles,
   };
 
   return isCompare ? consts.exportCompareMapToHTML(data) : consts.exportSimpleMapToHTML(data);

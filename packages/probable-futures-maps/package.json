@@ -1,22 +1,22 @@
 {
   "name": "@probable-futures/probable-futures-maps",
-  "version": "1.0.9",
+  "version": "1.0.18",
   "description": "This package empowers developers to seamlessly integrate dynamic and interactive climate maps into their web applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "prepublish": "yarn run build",
   "scripts": {
     "build": "tsc -b",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "dev": "yarn run build && node dist/index.js",
     "clean": "rm -rf dist",
-    "publish": "yarn publish --access=public",
+    "publish": "yarn publish --access=public --force",
     "lint": "eslint src/**/*.ts",
     "typecheck": "tsc --noEmit"
   },
+  "prepublish": "yarn run build",
   "keywords": [],
   "author": "Probable Futures",
   "license": "ISC",
@@ -36,7 +36,7 @@
     "eslint": "^8.48.0"
   },
   "dependencies": {
-    "@probable-futures/lib": "^1.0.6"
+    "@probable-futures/lib": "^1.0.17"
   },
   "publishConfig": {
     "access": "public",

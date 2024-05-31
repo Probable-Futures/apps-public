@@ -34,6 +34,7 @@ type Props = {
     degreesAfter: number;
   };
   showBorders?: boolean;
+  showPopupOnFirstLoad?: boolean;
 };
 
 export const exportSimpleMapToHTML = (options: Props) => {
@@ -263,12 +264,15 @@ export const exportSimpleMapToHTML = (options: Props) => {
           let precipitationUnit = '${options.mapStyleConfigs.precipitationUnit}';
           const isFrequent = dataset?.dataset.unit === "x as frequent";
           const datasetDescriptionResponse = ${JSON.stringify(options.datasetDescriptionResponse)};
-          const showBorders = ${options.showBorders}
+          const showBorders = ${options.showBorders};
+          const showPopupOnFirstLoad = ${options.showPopupOnFirstLoad};
+          let showBaselineDetails = dataset.isDiff && degrees !== 0 && !isFrequent;
           let map;
           let longitude=null, latitude=null, popup=null, mapClicked, features=[];
           let isTempMap = dataset.dataset.pfDatasetUnitByUnit.unitLong.toLowerCase().includes("temp");
           const isPrecipitationMap = dataset.dataset.unit === "mm";
           const showCompare = false;
+          let initiallyLoadedInspector = false;
           map = new mapboxgl.Map({ 
             container: 'map', style: '${options.mapStyle}', 
             center: [${options.viewState.longitude || 0},${options.viewState.latitude || 0}],
@@ -277,7 +281,7 @@ export const exportSimpleMapToHTML = (options: Props) => {
             }, minZoom: 2.2, maxZoom: 10, projection: 'mercator'});
           map.addControl(new mapboxgl.NavigationControl());
           map.scrollZoom.disable();
-          map.on("style.load", function() {
+          function onStyleLoad() {
             let { layers } = map?.getStyle();
             layers.forEach(function({id, type}) {
               if (id.includes('region-')) {
@@ -290,6 +294,23 @@ export const exportSimpleMapToHTML = (options: Props) => {
                 map.setLayoutProperty(id, "visibility", showBorders ? "visible" : "none");
               }
             });
+          }
+          map.on("style.load", function() {
+            onStyleLoad();
+          });
+          map.on("idle", function () {
+            if(showPopupOnFirstLoad && !initiallyLoadedInspector) {
+              const lat = ${options.viewState.latitude || 0};
+              const lng = ${options.viewState.longitude || 0};
+              setTimeout(() => {
+                map.fire("click", {
+                  lngLat: { lng, lat },
+                  point: map.project({ lng, lat }),
+                  originalEvent: {},
+                });
+                initiallyLoadedInspector = true;
+              }, 500);
+            }
           });
           map.on('click', pfLayerIds, function(e) {
             latitude = e.lngLat.lat;
@@ -310,9 +331,20 @@ export const exportSimpleMapToHTML = (options: Props) => {
             }
             return convertmmToin(value);
           };
+
+          function mapPopupVisible (map) {
+            return map._popups?.length > 0;
+          }
+
+          function getPopupLngLat (map) {
+            return map._popups[0]._lngLat;
+          }
           
           function handleMapClick(map, key, features) {
             map._popups.forEach(popup => popup.remove());
+            if (!key || !features) {
+              return;
+            }
             let dataFeature = features ? 
               features.find(function(feature) { 
                 return feature.layer.id.includes("region-")
@@ -325,7 +357,6 @@ export const exportSimpleMapToHTML = (options: Props) => {
             };
             let showInF = isTempMap && tempUnit === "°F";
             const showInInch = isPrecipitationMap && precipitationUnit === "in";
-            let showBaselineDetails = dataset.isDiff && degrees !== 0 && !isFrequent;
             let isMidValid = selectedData.mid !== undefined && selectedData.mid !== -99999 && selectedData.mid !== -88888;
             let title = "";
             let unit = "";
@@ -409,7 +440,7 @@ export const exportSimpleMapToHTML = (options: Props) => {
               result += popoverContent;
             }
             result += "</div>";
-            popup = new mapboxgl.Popup({anchor: "top", maxWidth:"none"})
+            popup = new mapboxgl.Popup({anchor: "top", maxWidth:"none", focusAfterOpen: false})
             .setLngLat({lng: longitude, lat: latitude})
             .setHTML(result)
             .addTo(map);
@@ -466,6 +497,32 @@ export const exportSimpleMapToHTML = (options: Props) => {
           displayBottomLink();
           if(dataset.dataset.unit === "class") displayClimateZoneKey();
           else displayKey();
+          // event listeners
+          window.addEventListener('message', (event) => {
+            const { action, dataKey: dayaKeyFromEvent, degree, 
+              dataLayerPaintProperties: dataLayerPaintPropertiesFromEvent } = event.data;
+            if(action === "onDegreeChanged") {
+              degrees = degree;
+              dataKey = dayaKeyFromEvent;
+              dataLayerPaintProperties = dataLayerPaintPropertiesFromEvent;
+              const elements = document.getElementsByClassName('embeddable-map-header-description');
+              if(elements && elements[0]) {
+                elements[0].textContent = dataset.name + " in a " + degrees + "°C " + "warming scenario";
+              }
+              onStyleLoad();
+              if(mapPopupVisible(map)) {
+                setTimeout(() => {
+                  const {lat, lng} = getPopupLngLat(map);
+                  handleMapClick(map);
+                  map.fire("click", {
+                    lngLat: { lng, lat },
+                    point: map.project({ lng, lat }),
+                    originalEvent: {},
+                  });
+                }, 200);
+              }
+            }
+          });
         })();
       </script>
     </body>
