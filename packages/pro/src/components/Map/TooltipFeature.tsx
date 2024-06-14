@@ -72,17 +72,17 @@ export default function TooltipFeature({ feature, dataset, degreesOfWarming }: P
           {feature.selectedData.low !== undefined && (
             <li>
               <Value>{feature.selectedData.low}</Value>
-              <Label>(10th percentile)</Label>
+              <Label>{dataset?.dataLabels[0]}</Label>
             </li>
           )}
           <li>
             <Value>{feature.selectedData.mid}</Value>
-            <Label>(Average)</Label>
+            <Label>{dataset?.dataLabels[1]}</Label>
           </li>
           {feature.selectedData.high !== undefined && (
             <li>
               <Value>{feature.selectedData.high}</Value>
-              <Label>(90th percentile)</Label>
+              <Label>{dataset?.dataLabels[2]}</Label>
             </li>
           )}
         </ul>

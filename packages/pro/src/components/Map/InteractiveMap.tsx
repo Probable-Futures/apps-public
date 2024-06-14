@@ -113,6 +113,31 @@ const DegreesWrapper = styled.div`
   }
 `;
 
+type LinkProps = {
+  showDegreeDescription?: boolean;
+  bottom?: string;
+  activeSidePanel: boolean;
+};
+
+const Link = styled.a`
+  position: absolute;
+  left: 300px;
+  ${({ activeSidePanel }: LinkProps) => !activeSidePanel && "transition: left 250ms; left: 40px;"}
+  padding: 0 5px;
+  background-color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  font-family: Helvetica Neue, Arial, Helvetica, sans-serif;
+  line-height: 20px;
+  color: rgba(0, 0, 0, 0.75);
+  z-index: ${({ showDegreeDescription }: LinkProps) =>
+    showDegreeDescription
+      ? "z-index: 2; transition: z-index 0s step-end;"
+      : "z-index: 3; transition: z-index 0.2s step-end;"};
+  cursor: pointer;
+  text-decoration: none;
+  bottom: ${({ bottom }: LinkProps) => bottom ?? 0};
+`;
+
 function easeCubic(t: any) {
   return ((t *= 2) <= 1 ? t * t * t : (t -= 2) * t * t + 2) / 2;
 }
@@ -417,6 +442,22 @@ const InteractiveMap = (props: PropsFromRedux) => {
     );
   };
 
+  const renderBottomLinks = () => {
+    if (!selectedClimateData) {
+      return null;
+    }
+    return (
+      <Link
+        bottom={`${parseInt(consts.HEADER_HEIGHT_MOBILE) + 2}px`}
+        showDegreeDescription={showDegreeDescription}
+        target="_blank"
+        rel="noopener noreferrer"
+        href={consts.MAP_VERSION_URL}
+        activeSidePanel={activeSidePanel}
+      >{`Probable Futures map v${selectedClimateData.mapVersion}`}</Link>
+    );
+  };
+
   const renderHelmetComponent = () => {
     let description = `Explore this custom map: ${selectedClimateData?.name}`;
     if (yearType) {
@@ -608,6 +649,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
           onFly={handleOnFly}
           top="calc(50% - 220px)"
         />
+        {renderBottomLinks()}
         <MediaQuery minWidth={size.laptop}>
           {searchIsOpen && <components.MapOverlay onClick={() => setSearchIsOpen(false)} />}
         </MediaQuery>
