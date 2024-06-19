@@ -155,7 +155,7 @@ const Binning = ({
   const getMaxBinValue = (index: number) =>
     index === bins.length
       ? selectedDataset.dataset.maxValue
-      : parseFloat((bins[index] - selectedDataset.step).toFixed(1)) || 0;
+      : parseFloat((mapBins[index] - selectedDataset.step).toFixed(1)) || 0;
 
   const getMinBinValue = (index: number) => mapBins[index - 2] + selectedDataset.step;
 
