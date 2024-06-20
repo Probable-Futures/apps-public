@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import styled from "styled-components";
-import { Slider } from "@material-ui/core";
+import { Slider } from "@mui/material";
 
 import { PanelContent, PanelHeaderTitle, StyledDivider } from "../../Common";
 import Info from "../Info";
@@ -17,34 +17,33 @@ type Props = {
 };
 
 const StyledSlider = styled(Slider)`
-  .MuiSlider-root {
-    width: 94%;
-    margin-left: 6px;
-  }
-  .MuiSlider-track {
+  width: 94%;
+  margin-left: 6px;
+  & .MuiSlider-track {
     color: ${colors.darkGrey} !important;
+    height: 2px;
   }
-  .MuiSlider-mark {
+  & .MuiSlider-mark {
     background-color: ${colors.darkGrey};
     height: 8px;
     width: 1px;
     margin-top: 0px;
   }
-  .MuiSlider-thumb {
+  & .MuiSlider-thumb {
     color: ${colors.primaryWhite} !important;
     height: 16px;
     width: 16px;
-    margin-top: -7px;
   }
-  .MuiSlider-markLabel {
+  & .MuiSlider-markLabel {
     font-family: "RelativeMono";
     color: ${colors.primaryWhite};
     font-size: 11px;
     letter-spacing: 0;
     line-height: 16px;
   }
-  .MuiSlider-rail {
+  & .MuiSlider-rail {
     color: ${colors.darkGrey};
+    height: 2px;
   }
 `;
 
@@ -99,7 +98,7 @@ const infoText =
 const ThresholdFilter = ({ onSliderValueChange, filter, min, max, unit }: Props): JSX.Element => {
   const [value, setValue] = React.useState<number[]>(filter?.value || [min, max]);
 
-  const handleChange = (_event: React.ChangeEvent<{}>, newValue: number | number[]) => {
+  const handleChange = (_event: Event, newValue: number | number[], activeThumb: number) => {
     onSliderValueChange(newValue as number[]);
     setValue(newValue as number[]);
   };

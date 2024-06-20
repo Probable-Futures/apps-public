@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import { Collapse } from "@material-ui/core";
+import { Collapse } from "@mui/material";
 
 import DashIcon from "../../../assets/icons/map/dash.svg";
 import PlusIcon from "../../../assets/icons/map/plus.svg";

@@ -1,42 +1,10 @@
-import { useEffect } from "react";
-import { useQuery } from "@apollo/client";
 import styled from "styled-components";
-import { types } from "@probable-futures/lib";
-import { useOutletContext } from "react-router-dom";
 
-import { GET_PF_PARTNER_DATASETS } from "../../../graphql/queries/datasets";
-import { itemsPerPage } from "../../../consts/dashboardConsts";
 import DashboardTitle from "../../Common/DashboardTitle";
-import { GqlResponse, PageInfo } from "../../../shared/types";
 import Item from "./Item";
 import DownloadPfDataModal from "./DownloadPfDataModal";
 import useDownloadPfData from "../../../utils/useDownloadPfData";
 import { colors } from "../../../consts";
-
-export type DatasetNode = {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
-  originalFile: string;
-  uploadId: string;
-  processedWithCoordinatesFile?: string;
-  isExample: boolean;
-};
-
-export type PfDatasetNode = {
-  id: number;
-  name: string;
-  pfDatasetParentCategoryByParentCategory: types.ParentCategory;
-  subCategory: string;
-};
-
-type PartnerDatasetReponse = {
-  viewPartnerDatasets: GqlResponse<DatasetNode> & { totalCount: number } & {
-    pageInfo: PageInfo;
-  };
-};
 
 const Loader = styled.div`
   position: fixed;
@@ -69,18 +37,6 @@ const Description = styled.div`
 `;
 
 const Datasets = () => {
-  const { toggleLoading } = useOutletContext<{
-    toggleLoading: (arg: boolean) => {};
-  }>();
-  const { loading: loadingDatasets } = useQuery<PartnerDatasetReponse>(GET_PF_PARTNER_DATASETS, {
-    variables: {
-      offset: 0,
-      first: itemsPerPage,
-      filter: { isExample: { equalTo: false } },
-    },
-    fetchPolicy: "no-cache",
-    notifyOnNetworkStatusChange: true,
-  });
   const {
     datasetToDownload,
     mapsResponse,
@@ -99,47 +55,37 @@ const Datasets = () => {
     onShowDetailsToggle,
   } = useDownloadPfData();
 
-  useEffect(() => {
-    if (loadingDatasets) {
-      toggleLoading(true);
-    } else {
-      toggleLoading(false);
-    }
-  }, [loadingDatasets, toggleLoading]);
-
   return (
     <>
-      {!loadingDatasets && (
-        <div>
-          <DashboardTitle title="Climate data" />
-          <Description>
-            The datasets below contain the same data as the publicly available{" "}
-            <a href="https://probablefutures.org/maps/" target="_blank" rel="noopener noreferrer">
-              Probable Futures maps
-            </a>
-            . Here, the datasets are available to download in various formats. To understand the
-            data contained in these datasets, please read{" "}
-            <a
-              href="https://docs.probablefutures.org/about-the-data/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Documentation: About the data
-            </a>
-            .
-          </Description>
-          {mapsResponse?.pfMaps?.nodes.length &&
-            mapsResponse.pfMaps.nodes.map((pfmap, index) => (
-              <Item
-                key={index}
-                index={index}
-                name={pfmap.name}
-                onDownload={onDownloadPfDataClick}
-                onTitleClick={onDownloadPfDataClick}
-              />
-            ))}
-        </div>
-      )}
+      <div>
+        <DashboardTitle title="Climate data" />
+        <Description>
+          The datasets below contain the same data as the publicly available{" "}
+          <a href="https://probablefutures.org/maps/" target="_blank" rel="noopener noreferrer">
+            Probable Futures maps
+          </a>
+          . Here, the datasets are available to download in various formats. To understand the data
+          contained in these datasets, please read{" "}
+          <a
+            href="https://docs.probablefutures.org/about-the-data/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Documentation: About the data
+          </a>
+          .
+        </Description>
+        {mapsResponse?.pfMaps?.nodes.length &&
+          mapsResponse.pfMaps.nodes.map((pfmap, index) => (
+            <Item
+              key={index}
+              index={index}
+              name={pfmap.name}
+              onDownload={onDownloadPfDataClick}
+              onTitleClick={onDownloadPfDataClick}
+            />
+          ))}
+      </div>
       {datasetToDownload && countries && isDatasetDownloadModalOpen && (
         <DownloadPfDataModal
           includeColumns={includeColumns}

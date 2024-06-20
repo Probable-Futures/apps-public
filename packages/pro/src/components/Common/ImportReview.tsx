@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import Modal from "react-modal";
-import { Button } from "@material-ui/core";
+import { Button } from "@mui/material";
 import { CSVLink } from "react-csv";
 
 import { modalStyle } from "../../shared/styles/styles";

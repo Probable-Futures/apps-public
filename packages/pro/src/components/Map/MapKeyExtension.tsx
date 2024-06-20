@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Collapse } from "@material-ui/core";
+import { Collapse } from "@mui/material";
 
 import { useMapData } from "../../contexts/DataContext";
 import { colors } from "../../consts";

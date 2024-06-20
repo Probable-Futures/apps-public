@@ -1,44 +1,41 @@
-import { withStyles } from "@material-ui/core";
-import Switch from "@material-ui/core/Switch";
+import { Switch, styled } from "@mui/material";
 
 import CheckmarkIcon from "../../../assets/icons/map/checkmark.svg";
 import { colors } from "../../../consts";
 
-const StyledSwitch = withStyles((theme) => ({
-  root: {
-    width: 32,
-    height: 16,
+const StyledSwitch = styled(Switch)(({ theme }) => ({
+  width: 32,
+  height: 16,
+  padding: 0,
+  margin: 0,
+  "& .MuiSwitch-switchBase": {
     padding: 0,
-    margin: 0,
-  },
-  switchBase: {
-    padding: 0,
-    "&$checked": {
+    "&.Mui-checked": {
       transform: "translateX(16px)",
       color: theme.palette.common.white,
-      "& + $track": {
+      "& + .MuiSwitch-track": {
         backgroundColor: colors.blue,
         opacity: 1,
         border: "none",
       },
     },
-    "&$focusVisible $thumb": {
+    "&.Mui-focusVisible .MuiSwitch-thumb": {
       color: colors.blue,
       border: `6px solid ${colors.primaryWhite}`,
     },
   },
-  thumb: {
+  "& .MuiSwitch-thumb": {
     width: 16,
     height: 16,
   },
-  track: {
+  "& .MuiSwitch-track": {
     borderRadius: 13,
     border: `1px solid ${theme.palette.grey[400]}`,
     backgroundColor: "transparent",
     opacity: 1,
     transition: theme.transitions.create(["background-color", "border"]),
   },
-  checked: {
+  "& .Mui-checked": {
     "&:after": {
       content: '""',
       position: "absolute",
@@ -52,22 +49,7 @@ const StyledSwitch = withStyles((theme) => ({
     },
   },
   focusVisible: {},
-}))(({ classes, ...props }: any) => {
-  return (
-    <Switch
-      focusVisibleClassName={classes.focusVisible}
-      disableRipple
-      classes={{
-        root: classes.root,
-        switchBase: classes.switchBase,
-        thumb: classes.thumb,
-        track: classes.track,
-        checked: classes.checked,
-      }}
-      {...props}
-    />
-  );
-});
+}));
 
 type Props = {
   checked: boolean;

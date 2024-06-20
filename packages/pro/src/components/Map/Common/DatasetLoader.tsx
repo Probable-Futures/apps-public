@@ -1,4 +1,4 @@
-import { LinearProgress } from "@material-ui/core";
+import { LinearProgress } from "@mui/material";
 import { useCallback, useEffect } from "react";
 import styled from "styled-components";
 

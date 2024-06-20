@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { LinearProgress } from "@material-ui/core";
+import { LinearProgress } from "@mui/material";
 
 import { colors } from "../../consts";
 

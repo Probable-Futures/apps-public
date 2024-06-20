@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { Tooltip } from "@material-ui/core";
+import { Tooltip } from "@mui/material";
 import Modal from "react-modal";
 import { useMutation } from "@apollo/client";
 

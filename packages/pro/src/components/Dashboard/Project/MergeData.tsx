@@ -16,7 +16,7 @@ import DatasetSelect from "./DatasetSelect";
 import { UploadProcessErrorsUI } from "../../../shared/types";
 import { CREATE_PF_PARTNER_PROJECT_DATASET } from "../../../graphql/queries/projects";
 import { modalStyle } from "../../../shared/styles/styles";
-import { DatasetNode } from "../Dataset/Datasets";
+import { DatasetNode } from "../Dataset/UserDatasets";
 import Loader from "../../Common/Loader";
 import { useMapData } from "../../../contexts/DataContext";
 import { Project } from "../../../utils/projectHelper";

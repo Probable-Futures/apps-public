@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { colors } from "../../../consts";
-import { DatasetNode } from "../Dataset/Datasets";
+import { DatasetNode } from "../Dataset/UserDatasets";
 import FileIcon from "../../../assets/icons/dashboard/file.svg";
 
 type Props = {

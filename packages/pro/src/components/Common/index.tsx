@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Divider } from "@material-ui/core";
+import { Divider } from "@mui/material";
 
 import { size } from "../../consts";
 import Pagination from "./Pagination";

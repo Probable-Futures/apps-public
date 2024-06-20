@@ -1,13 +1,5 @@
 import {
-  Link as StyledLink,
-  LinkProps as StyledLinkProps,
-  ListItem,
-  ListItemText,
-} from "@material-ui/core";
-import { Link as LinkImpl, useMatch } from "react-router-dom";
-import {
   createContext,
-  forwardRef,
   useState,
   useContext,
   useRef,
@@ -38,10 +30,6 @@ import { useTranslation } from "../../contexts/TranslationContext";
 import { defaultDegreesForNonChangeMaps } from "../../contexts/DataContext";
 
 type SelectRef = (context: MenuState) => RefObject<HTMLElement>;
-type LinkProps = Omit<StyledLinkProps<typeof LinkImpl>, "component" | "to"> & {
-  disabled?: boolean;
-  to: string;
-};
 
 interface MenuState {
   controls: RefObject<HTMLDivElement>;
@@ -100,22 +88,9 @@ interface DataState {
 }
 
 const MenuContext = createContext(getInitialState());
-const StyledLinkRef = forwardRef((props: Omit<LinkProps, "disabled">, ref: any) => (
-  <StyledLink color="textPrimary" component={LinkImpl} ref={ref} {...props} />
-));
 
 export const Controls = createPortalComponent(({ controls }) => controls);
 export const Sidebar = createPortalComponent(({ sidebar }) => sidebar.element);
-
-export function Link({ children, disabled, ...props }: LinkProps): JSX.Element {
-  const selected = useMatch(props.to) != null;
-
-  return (
-    <ListItem button component={StyledLinkRef} disabled={disabled} selected={selected} {...props}>
-      <ListItemText primary={children} />
-    </ListItem>
-  );
-}
 
 const DrawerContent = styled.div`
   flex: 1;

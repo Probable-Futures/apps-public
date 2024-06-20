@@ -1,5 +1,7 @@
 import styled from "styled-components";
-import { Slider } from "@material-ui/core";
+import { Slider } from "@mui/material";
+import { SyntheticEvent } from "react";
+
 import { colors } from "@probable-futures/lib/src/consts";
 import { degreesOptions } from "@probable-futures/lib/src/consts";
 
@@ -9,9 +11,9 @@ type Props = {
   min: number;
   max: number;
   onChangeCommitted?:
-    | ((event: React.ChangeEvent<{}>, value: number | number[]) => void)
+    | ((event: Event | SyntheticEvent<Element, Event>, value: number | number[]) => void)
     | undefined;
-  onChange?: ((event: React.ChangeEvent<{}>, value: number | number[]) => void) | undefined;
+  onChange?: ((event: Event, value: number | number[]) => void) | undefined;
 };
 
 const Container = styled.div`
@@ -35,19 +37,26 @@ const Title = styled.span`
 const StyledSlider = styled(Slider)`
   margin: 10px 18px 0;
   width: 246px !important;
+  color: #006ec2 !important;
+  height: 2px !important;
 
-  &.MuiSlider-root {
-    color: #006ec2 !important;
-  }
-
-  .MuiSlider-mark {
+  & .MuiSlider-mark {
     background-color: ${colors.grey};
     height: 8px;
     width: 1px;
-    margin-top: -3px;
   }
 
-  .MuiSlider-markLabel {
+  & .MuiSlider-track {
+    height: 2px !important;
+    border: none;
+  }
+
+  & .MuiSlider-thumb {
+    width: 12px;
+    height: 12px;
+  }
+
+  & .MuiSlider-markLabel {
     font-family: LinearSans;
     color: ${colors.darkPurple};
     font-size: 12px;
