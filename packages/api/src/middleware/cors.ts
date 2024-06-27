@@ -21,6 +21,7 @@ export default (app: Express) => {
       "https://probablefutures.kinsta.cloud",
       "https://editor.probablefutures.org",
       "https://probablefutures.org",
+      "https://dev-maps-tour.probablefutures.org",
     ],
     methods: ["HEAD", "GET", "POST", "PUT", "OPTIONS"],
     allowedHeaders: [
