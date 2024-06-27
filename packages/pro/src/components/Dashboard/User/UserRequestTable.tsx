@@ -9,7 +9,7 @@ import TableRow from "@mui/material/TableRow";
 import { TextField, Paper } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
-import { UserRequestNode, UserAccessRequestResponse } from "./UserRequests";
+import { UserRequestNode, UserAccessRequestResponse, RequestField } from "./UserRequests";
 import { requestUserAccessFormFields } from "../../../consts/forms";
 import { isDateString } from "../../../utils/date";
 
@@ -39,6 +39,17 @@ type Props = {
   onAccept: (userRequest: UserRequestNode) => void;
   isAccepting: boolean;
   isRejecting: boolean;
+};
+
+const getFormFieldValueByName = (name: string, formFields: Record<string, RequestField>) => {
+  for (const key in formFields) {
+    if (formFields.hasOwnProperty(key)) {
+      const field = formFields[key];
+      if (field.name === name) {
+        return field.value;
+      }
+    }
+  }
 };
 
 const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }: Props) => {
@@ -113,7 +124,7 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
                     width={field.width}
                     sx={{ minWidth: field.width }}
                   >
-                    {cellValue(row.formFields[field.id].value)}
+                    {cellValue(getFormFieldValueByName(field.name, row.formFields))}
                   </StyledTableCell>
                 );
               })}
