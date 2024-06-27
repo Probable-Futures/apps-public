@@ -1,6 +1,7 @@
 import { makeExtendSchemaPlugin, gql } from "graphile-utils";
 
 import { datasetSignedUrls, projectSharedData } from "../services/graphql/project";
+import acceptInvitation from "../services/auth/acceptInvitation";
 
 export const ExtendGqlSchemaPlugin = makeExtendSchemaPlugin((build) => {
   return {
@@ -26,8 +27,17 @@ export const ExtendGqlSchemaPlugin = makeExtendSchemaPlugin((build) => {
         files: [File]
         pfDatasetId: Int
       }
+      type AcceptInvitationResponse {
+        userId: String
+        clientId: String
+      }
+      input AcceptInvitationInput {
+        requestId: UUID!
+        note: String
+      }
       extend type Mutation {
         datasetSignedUrls(input: FileInput!): [String]!
+        acceptInvitation(input: AcceptInvitationInput!): AcceptInvitationResponse
       }
       extend type Query {
         projectSharedData(slugId: UUID!): ShareData!
@@ -36,6 +46,7 @@ export const ExtendGqlSchemaPlugin = makeExtendSchemaPlugin((build) => {
     resolvers: {
       Mutation: {
         datasetSignedUrls,
+        acceptInvitation,
       },
       Query: {
         projectSharedData,

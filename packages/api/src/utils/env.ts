@@ -86,3 +86,15 @@ export const REDIS_PORT = env.get("REDIS_PORT").default(6379).asPortNumber();
 export const REDIS_HOST = env.get("REDIS_HOST").required().asString();
 
 export const MAPBOX_ACCESS_TOKEN = env.get("MAPBOX_ACCESS_TOKEN").required().asString();
+
+export const AUTH_MANAGEMENT_CLIENT_ID = env.get("AUTH_MANAGEMENT_CLIENT_ID").required().asString();
+export const AUTH_MANAGEMENT_CLIENT_SECRET = env
+  .get("AUTH_MANAGEMENT_CLIENT_SECRET")
+  .required()
+  .asString();
+
+export const AUTH_PRO_CLIENT_USER_DB_CONNECTION_NAME = env
+  .get("AUTH_PRO_CLIENT_USER_DB_CONNECTION_NAME")
+  .required()
+  .asString();
+export const AUTH_FULL_USER_ROLE_ID = env.get("AUTH_FULL_USER_ROLE_ID").required().asString();

@@ -2,6 +2,7 @@ import Projects from "../components/Dashboard/Project/Projects";
 import Datasets from "../components/Dashboard/Dataset/Datasets";
 import Documentation from "../components/Dashboard/Documentation/Documentation";
 import UserDatasets from "../components/Dashboard/Dataset/UserDatasets";
+import UserRquests from "../components/Dashboard/User/UserRequests";
 
 export const routes = [
   {
@@ -23,6 +24,12 @@ export const routes = [
     title: "Climate data",
     path: "climate-data",
     component: Datasets,
+  },
+  {
+    title: "User Requests",
+    path: "user-requests",
+    adminOnly: true,
+    component: UserRquests,
   },
   {
     title: "Log out",

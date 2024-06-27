@@ -1,8 +1,6 @@
-import https from "https";
-
 import * as types from "./types";
 import { redisClient } from "../../database";
-import { env } from "../../utils";
+import { request } from "./request";
 
 const debug = require("debug")("api-users");
 
@@ -16,46 +14,19 @@ type Auth0TokenResponse = {
   token_type: string;
 };
 
-const request = async (data: string): Promise<Auth0TokenResponse> => {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: env.AUTH0_DOMAIN,
-      path: "/oauth/token",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(data),
-      },
-    };
-
-    const req = https.request(options, (res) => {
-      let responseData = "";
-      res.on("data", (chunk) => {
-        responseData += chunk;
-      });
-      res.on("end", () => {
-        resolve(JSON.parse(responseData));
-      });
-    });
-
-    req.on("error", (error) => {
-      reject(new Error("Error getting token"));
-    });
-
-    req.write(data);
-    req.end();
-  });
-};
-
-async function getToken(clientId: string, clientSecret: string): Promise<types.ApiUser> {
+async function getToken(
+  clientId: string,
+  clientSecret: string,
+  audience: string,
+): Promise<types.ApiUser> {
   const postData = JSON.stringify({
     client_id: clientId,
     client_secret: clientSecret,
-    audience: env.AUTH0_AUDIENCE.replace(/\/$/, ""),
+    audience: audience,
     grant_type: "client_credentials",
   });
 
-  const result = await request(postData);
+  const result = await request<Auth0TokenResponse>(postData, "/oauth/token");
   return {
     access_token: result.access_token,
     scope: result.scope,
@@ -64,7 +35,11 @@ async function getToken(clientId: string, clientSecret: string): Promise<types.A
   };
 }
 
-export async function verify(clientId: string, clientSecret: string): Promise<types.ApiUser> {
+export async function verify(
+  clientId: string,
+  clientSecret: string,
+  audience: string,
+): Promise<types.ApiUser> {
   debug("Input: %o", clientId);
 
   let results: types.ApiUser;
@@ -72,13 +47,13 @@ export async function verify(clientId: string, clientSecret: string): Promise<ty
   const redisKey = `${clientId}-v${CACHE_VERSION}`;
 
   if (!cache[redisKey]) {
-    results = await getToken(clientId, clientSecret);
+    results = await getToken(clientId, clientSecret, audience);
     redisClient.HSET(KEY, redisKey, JSON.stringify(results));
   } else {
     results = JSON.parse(cache[redisKey]) as types.ApiUser;
 
     if (new Date(results.expires_at) < new Date()) {
-      results = await getToken(clientId, clientSecret);
+      results = await getToken(clientId, clientSecret, audience);
       redisClient.HSET(KEY, redisKey, JSON.stringify(results));
     }
   }

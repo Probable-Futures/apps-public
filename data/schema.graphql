@@ -1,3 +1,13 @@
+input AcceptInvitationInput {
+  note: String
+  requestId: UUID!
+}
+
+type AcceptInvitationResponse {
+  clientId: String
+  userId: String
+}
+
 """All input for the `addPartnerExampleDataset` mutation."""
 input AddPartnerExampleDatasetInput {
   """
@@ -408,6 +418,33 @@ type CreatePfCountryStatisticsPayload {
   query: Query
 }
 
+"""All input for the `createUserAccessRequest` mutation."""
+input CreateUserAccessRequestInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  email: String
+  formFields: JSON
+  formName: String
+}
+
+"""The output of our `createUserAccessRequest` mutation."""
+type CreateUserAccessRequestPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+  uuid: UUID
+}
+
 """A location in a connection that can be used for resuming pagination."""
 scalar Cursor
 
@@ -731,6 +768,12 @@ input JSONFilter {
 The root mutation type which contains root level fields which mutate data.
 """
 type Mutation {
+  acceptInvitation(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: AcceptInvitationInput!
+  ): AcceptInvitationResponse
   addPartnerExampleDataset(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
@@ -791,6 +834,12 @@ type Mutation {
     """
     input: CreatePfCountryStatisticsInput!
   ): CreatePfCountryStatisticsPayload
+  createUserAccessRequest(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateUserAccessRequestInput!
+  ): CreateUserAccessRequestPayload
   datasetSignedUrls(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
@@ -832,6 +881,12 @@ type Mutation {
     """
     input: InsertNewVersionOfAnExistingMapInput!
   ): InsertNewVersionOfAnExistingMapPayload
+  pfUpdateUserAccessRequest(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: PfUpdateUserAccessRequestInput!
+  ): PfUpdateUserAccessRequestPayload
   projectShare(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
@@ -3021,6 +3076,36 @@ enum PfStatisticalVariableNamesOrderBy {
   SLUG_DESC
 }
 
+"""All input for the `pfUpdateUserAccessRequest` mutation."""
+input PfUpdateUserAccessRequestInput {
+  accessGranted: Boolean!
+
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+  note: String!
+  rejected: Boolean!
+}
+
+"""The output of our `pfUpdateUserAccessRequest` mutation."""
+type PfUpdateUserAccessRequestPayload {
+  boolean: Boolean
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+}
+
 """A user who can log in to the application."""
 type PfUser {
   createdAt: Datetime!
@@ -4052,6 +4137,40 @@ type Query implements Node {
     """The method to use when ordering `ViewPfCountryStatistic`."""
     orderBy: [ViewPfCountryStatisticsOrderBy!] = [NATURAL]
   ): ViewPfCountryStatisticsConnection
+
+  """Reads and enables pagination through a set of `ViewUserAccessRequest`."""
+  viewUserAccessRequests(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ViewUserAccessRequestCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ViewUserAccessRequestFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ViewUserAccessRequest`."""
+    orderBy: [ViewUserAccessRequestsOrderBy!] = [NATURAL]
+  ): ViewUserAccessRequestsConnection
 }
 
 type ShareData {
@@ -5069,4 +5188,114 @@ enum ViewPfCountryStatisticsOrderBy {
   NATURAL
   STATUS_ASC
   STATUS_DESC
+}
+
+type ViewUserAccessRequest {
+  accessGranted: Boolean
+  email: String
+  formFields: JSON
+  formName: String
+  id: UUID
+  note: String
+  rejected: Boolean
+}
+
+"""
+A condition to be used against `ViewUserAccessRequest` object types. All fields
+are tested for equality and combined with a logical ‘and.’
+"""
+input ViewUserAccessRequestCondition {
+  """Checks for equality with the object’s `accessGranted` field."""
+  accessGranted: Boolean
+
+  """Checks for equality with the object’s `email` field."""
+  email: String
+
+  """Checks for equality with the object’s `formFields` field."""
+  formFields: JSON
+
+  """Checks for equality with the object’s `formName` field."""
+  formName: String
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `note` field."""
+  note: String
+
+  """Checks for equality with the object’s `rejected` field."""
+  rejected: Boolean
+}
+
+"""
+A filter to be used against `ViewUserAccessRequest` object types. All fields are combined with a logical ‘and.’
+"""
+input ViewUserAccessRequestFilter {
+  """Filter by the object’s `accessGranted` field."""
+  accessGranted: BooleanFilter
+
+  """Filter by the object’s `email` field."""
+  email: StringFilter
+
+  """Filter by the object’s `formFields` field."""
+  formFields: JSONFilter
+
+  """Filter by the object’s `formName` field."""
+  formName: StringFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `note` field."""
+  note: StringFilter
+
+  """Filter by the object’s `rejected` field."""
+  rejected: BooleanFilter
+}
+
+"""A connection to a list of `ViewUserAccessRequest` values."""
+type ViewUserAccessRequestsConnection {
+  """
+  A list of edges which contains the `ViewUserAccessRequest` and cursor to aid in pagination.
+  """
+  edges: [ViewUserAccessRequestsEdge!]!
+
+  """A list of `ViewUserAccessRequest` objects."""
+  nodes: [ViewUserAccessRequest!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `ViewUserAccessRequest` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `ViewUserAccessRequest` edge in the connection."""
+type ViewUserAccessRequestsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `ViewUserAccessRequest` at the end of the edge."""
+  node: ViewUserAccessRequest!
+}
+
+"""Methods to use when ordering `ViewUserAccessRequest`."""
+enum ViewUserAccessRequestsOrderBy {
+  ACCESS_GRANTED_ASC
+  ACCESS_GRANTED_DESC
+  EMAIL_ASC
+  EMAIL_DESC
+  FORM_FIELDS_ASC
+  FORM_FIELDS_DESC
+  FORM_NAME_ASC
+  FORM_NAME_DESC
+  ID_ASC
+  ID_DESC
+  NATURAL
+  NOTE_ASC
+  NOTE_DESC
+  REJECTED_ASC
+  REJECTED_DESC
 }

@@ -794,6 +794,24 @@ $$;
 
 
 --
+-- Name: create_user_access_request(text, text, jsonb); Type: FUNCTION; Schema: pf_public; Owner: -
+--
+
+CREATE FUNCTION pf_public.create_user_access_request(form_name text, email text, form_fields jsonb) RETURNS uuid
+    LANGUAGE plpgsql
+    AS $$
+declare
+    new_id uuid;
+begin
+    insert into pf_private.pf_user_access_requests (form_name, email, form_fields, create_by_user_sub)
+        values (form_name, email, form_fields, pf_public.current_user_sub())
+    returning id into new_id;
+    return new_id;
+end;
+$$;
+
+
+--
 -- Name: current_user(); Type: FUNCTION; Schema: pf_public; Owner: -
 --
 
@@ -1093,6 +1111,26 @@ begin
   delete from pf_private.pf_audit
   where created_at < NOW() - INTERVAL '180 days';
   return null;
+end;
+$$;
+
+
+--
+-- Name: pf_update_user_access_request(uuid, boolean, text, boolean); Type: FUNCTION; Schema: pf_public; Owner: -
+--
+
+CREATE FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, rejected boolean) RETURNS boolean
+    LANGUAGE plpgsql STRICT SECURITY DEFINER
+    AS $$
+begin
+  if not exists (select 1 from pf_private.pf_user_access_requests where pf_private.pf_user_access_requests.id = pf_update_user_access_request.id) then
+    raise exception 'user % not found', pf_update_user_access_request.id;
+  end if;
+  update pf_private.pf_user_access_requests 
+    set access_granted = pf_update_user_access_request.access_granted, note = pf_update_user_access_request.note,
+      rejected = pf_update_user_access_request.rejected
+        where pf_private.pf_user_access_requests.id = pf_update_user_access_request.id;
+  return true;
 end;
 $$;
 
@@ -1400,6 +1438,24 @@ CREATE TABLE pf_private.pf_partner_enrichment_statuses (
 
 COMMENT ON TABLE pf_private.pf_partner_enrichment_statuses IS '@enum
 @enumName EnrichmentStatus';
+
+
+--
+-- Name: pf_user_access_requests; Type: TABLE; Schema: pf_private; Owner: -
+--
+
+CREATE TABLE pf_private.pf_user_access_requests (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    form_name text NOT NULL,
+    email text NOT NULL,
+    form_fields jsonb NOT NULL,
+    access_granted boolean DEFAULT false,
+    rejected boolean DEFAULT false,
+    note text,
+    create_by_user_sub text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
 
 
 --
@@ -1829,6 +1885,21 @@ CREATE VIEW pf_public.view_pf_country_statistics AS
     pf_country_statistics.file_url,
     pf_country_statistics.status
    FROM pf_private.pf_country_statistics;
+
+
+--
+-- Name: view_user_access_request; Type: VIEW; Schema: pf_public; Owner: -
+--
+
+CREATE VIEW pf_public.view_user_access_request AS
+ SELECT pf_user_access_requests.id,
+    pf_user_access_requests.form_name,
+    pf_user_access_requests.email,
+    pf_user_access_requests.form_fields,
+    pf_user_access_requests.access_granted,
+    pf_user_access_requests.rejected,
+    pf_user_access_requests.note
+   FROM pf_private.pf_user_access_requests;
 
 
 --
@@ -2322,6 +2393,13 @@ CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON pf_private.pf_partner_
 --
 
 CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON pf_private.pf_partner_projects FOR EACH ROW EXECUTE FUNCTION pf_private.tg__timestamps();
+
+
+--
+-- Name: pf_user_access_requests _100_timestamps; Type: TRIGGER; Schema: pf_private; Owner: -
+--
+
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON pf_private.pf_user_access_requests FOR EACH ROW EXECUTE FUNCTION pf_private.tg__timestamps();
 
 
 --
@@ -2999,6 +3077,16 @@ GRANT ALL ON FUNCTION pf_public.create_pf_country_statistics(country_id uuid, da
 
 
 --
+-- Name: FUNCTION create_user_access_request(form_name text, email text, form_fields jsonb); Type: ACL; Schema: pf_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION pf_public.create_user_access_request(form_name text, email text, form_fields jsonb) FROM PUBLIC;
+GRANT ALL ON FUNCTION pf_public.create_user_access_request(form_name text, email text, form_fields jsonb) TO pf_root;
+GRANT ALL ON FUNCTION pf_public.create_user_access_request(form_name text, email text, form_fields jsonb) TO pf_anonymous;
+GRANT ALL ON FUNCTION pf_public.create_user_access_request(form_name text, email text, form_fields jsonb) TO pf_admin;
+
+
+--
 -- Name: FUNCTION "current_user"(); Type: ACL; Schema: pf_public; Owner: -
 --
 
@@ -3093,6 +3181,16 @@ GRANT ALL ON FUNCTION pf_public.pf_audit_table_delete_old_rows() TO pf_partner;
 
 
 --
+-- Name: FUNCTION pf_update_user_access_request(id uuid, access_granted boolean, note text, rejected boolean); Type: ACL; Schema: pf_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, rejected boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, rejected boolean) TO pf_root;
+GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, rejected boolean) TO pf_anonymous;
+GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, rejected boolean) TO pf_admin;
+
+
+--
 -- Name: FUNCTION project_share(slug_id uuid); Type: ACL; Schema: pf_public; Owner: -
 --
 
@@ -3178,6 +3276,14 @@ GRANT ALL ON TABLE pf_private.pf_partner_dataset_coordinates TO pf_root;
 --
 
 GRANT ALL ON TABLE pf_private.pf_partner_enrichment_statuses TO pf_root;
+
+
+--
+-- Name: TABLE pf_user_access_requests; Type: ACL; Schema: pf_private; Owner: -
+--
+
+GRANT ALL ON TABLE pf_private.pf_user_access_requests TO pf_root;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE pf_private.pf_user_access_requests TO pf_admin;
 
 
 --
@@ -3324,6 +3430,14 @@ GRANT SELECT ON TABLE pf_public.view_partner_projects TO pf_authenticated;
 
 GRANT ALL ON TABLE pf_public.view_pf_country_statistics TO pf_root;
 GRANT SELECT ON TABLE pf_public.view_pf_country_statistics TO pf_authenticated;
+
+
+--
+-- Name: TABLE view_user_access_request; Type: ACL; Schema: pf_public; Owner: -
+--
+
+GRANT ALL ON TABLE pf_public.view_user_access_request TO pf_root;
+GRANT SELECT ON TABLE pf_public.view_user_access_request TO pf_admin;
 
 
 --

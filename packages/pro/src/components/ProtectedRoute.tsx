@@ -11,6 +11,8 @@ import Loader from "@probable-futures/components-lib/src/components/Loader";
 import { AUTHENTICATE } from "../graphql/queries/users";
 import { isProd } from "../consts/env";
 import Error from "./Common/Error";
+import { routes } from "../consts/dashboardConsts";
+import { isAdmin } from "../utils/user";
 
 type Props = {
   component: ComponentType;
@@ -35,6 +37,17 @@ export default function ProtectedRoute({ component, ...args }: Props) {
 
   if (!user && !auth0Loading) {
     return <Navigate to="/" />;
+  }
+
+  if (user) {
+    for (const route of routes) {
+      const pathname = window.location.pathname;
+      if (pathname.endsWith(route.path) && route.adminOnly) {
+        if (!isAdmin(user)) {
+          return <Navigate to="/" />;
+        }
+      }
+    }
   }
 
   const goBackToLogin = () => navigate("/login");
