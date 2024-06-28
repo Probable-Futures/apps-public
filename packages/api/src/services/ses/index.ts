@@ -18,7 +18,7 @@ const sendEmail = async (
         },
         Subject: { Data: subject },
       },
-      Source: "pcroce@probablefutures.org",
+      Source: "Peter Croce <pcroce@probablefutures.org>",
     };
 
     try {

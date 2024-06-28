@@ -12,6 +12,7 @@ import {
 import { GqlResponse } from "../../../shared/types";
 import UserRequestTable from "./UserRequestTable";
 import { colors } from "@probable-futures/lib/src/consts";
+import { isProd } from "../../../consts/env";
 
 export type RequestField = {
   name: string;
@@ -97,7 +98,11 @@ const UserRequests = () => {
       )}
       <div style={{ marginTop: 10 }}>
         <Link
-          href="https://airtable.com/app5vySCXl6f2s8zB/tblAwRZ543C2izH3B/viwVzNxu66YUOFF6n?blocks=hide"
+          href={
+            isProd
+              ? "https://airtable.com/app5vySCXl6f2s8zB/tblAwRZ543C2izH3B/viwVzNxu66YUOFF6n?blocks=hide"
+              : "https://airtable.com/app6CUTr7QTYBc57b/tblBDd0UeypLRjEBb/viwWG9yjgBLDnpCEX?blocks=hide"
+          }
           rel="noopener"
           target="_blank"
           sx={{ color: colors.purple, textDecorationColor: "inherit" }}

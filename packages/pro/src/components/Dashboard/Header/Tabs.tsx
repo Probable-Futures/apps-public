@@ -6,7 +6,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import LogoIcon from "../../../assets/icons/logo-black.svg";
 import TabTitle from "../../Common/TabTitle";
 import { routes } from "../../../consts/dashboardConsts";
-import { isAdmin } from "../../../utils/user";
 
 const Container = styled.div`
   display: flex;
@@ -41,12 +40,11 @@ const StyledLogo = styled.i`
 
 const Tabs: React.FC = () => {
   const navigate = useNavigate();
-  const { logout, user } = useAuth0();
+  const { logout } = useAuth0();
 
   const filteredRoutes = useMemo(() => {
-    const userIsAdmin = isAdmin(user);
-    return routes.filter((route) => (!route.adminOnly ? true : userIsAdmin));
-  }, [user]);
+    return routes.filter((route) => !route.adminOnly);
+  }, []);
 
   const onClick = useCallback(
     (index: number) => {
