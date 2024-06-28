@@ -1,32 +1,18 @@
 import { sendEmail } from "../ses";
-const emailIntro = `
-  Hi
-  <p>
-  Thanks for reaching out. If you'd like, I would be happy to meet on a call to give you a guided demo and answer any
-  questions. You can <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2TEZX3fp1ty-JZr8iIVE5K8tmEE8AAyDLXvAm8Iqn1bo4xEWDtuw1rC_AAt7maw6iiybODG3mH">schedule a time on my calendar here</a>.
-  </p>
-  <p>
-  If you haven't already done so, I would recommend you read (or listen to) the 
-  <a href="https://probablefutures.org/stability/">climate handbook</a> on the Probable Futures website. It provides essential context for interpreting the maps and data you will find in the resources below.
-  </p>`;
 
 const emailStartOfTheList = `Here are the resources:
   <ol>
     <li>
       <a href="https://probablefutures.org/maps/">Climate maps</a>. Our climate maps are publicly available to everyone. The other resources below are simply other ways
         of accessing or analyzing the data in these same climate maps.
-    </li>
-    <li>
-      Customizable climate maps. If you would like to create custom climate maps, you have a few options. To embed the
-      in an article or webpage, use our <a href="https://docs.probablefutures.org/embeddable-maps/embeddable">embeddable climate maps</a>. To create custom maps using our climate map
-      layers with Mapbox, begin with the <a href="https://docs.probablefutures.org/mapbox-quick-start/">quick-start guide</a> or visit the <a href="https://docs.probablefutures.org/tilesets/">tilesets page</a> of our docs to learn how to use the map
-      layers called tilesets.
     </li>`;
 
-const joinSlackPart = `<li>
-    <a href="https://join.slack.com/t/probablefuturesdata/shared_invite/zt-1id97wfdw-49padl_S6Dt6mi5HiRbbYg">Join the Slack</a>. This is a group of others using Probable Futures Pro and Probable Futures data. If you decide to join,
-    please introduce yourself in the #general channel. This is a good way to connect with others using our climate tools.
-  </li>`;
+const customizableMapsPart = `<li>
+  Customizable climate maps. If you would like to create custom climate maps, you have a few options. To embed the
+  in an article or webpage, use our <a href="https://docs.probablefutures.org/embeddable-maps/embeddable">embeddable climate maps</a>. To create custom maps using our climate map
+  layers with Mapbox, begin with the <a href="https://docs.probablefutures.org/mapbox-quick-start/">quick-start guide</a> or visit the <a href="https://docs.probablefutures.org/tilesets/">tilesets page</a> of our docs to learn how to use the map
+  layers called tilesets.
+</li>`;
 
 const thanksPart = `
   </ol>
@@ -48,20 +34,36 @@ const thanksPart = `
   <span>he/him</span>
 `;
 
-export const composeEmail = (
-  authClient?: any,
+export const composeEmail = ({
+  firstName,
+  authClient,
+  authUser,
+  note = "Thanks for reaching out.",
+}: {
+  firstName: string;
+  authClient?: any;
   authUser?: {
     userId: string;
     password: string;
     email: string;
-  },
-  note?: string,
-) => {
-  let finalEmail = emailIntro;
-  // include custom note if available
-  if (note) {
-    finalEmail += `<p>${note}</p>`;
-  }
+  };
+  note?: string;
+}) => {
+  const greetingPart = `Hi ${firstName},`;
+  const dotAddedToNote = note.endsWith(".") ? note : note + ".";
+
+  const emailIntro = `
+    <p>
+      ${dotAddedToNote} If you'd like, I would be happy to meet on a call to give you a guided demo and answer any
+      questions. You can <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2TEZX3fp1ty-JZr8iIVE5K8tmEE8AAyDLXvAm8Iqn1bo4xEWDtuw1rC_AAt7maw6iiybODG3mH">schedule a time on my calendar here</a>.
+    </p>
+    <p>
+      If you haven't already done so, I would recommend you read (or listen to) the 
+      <a href="https://probablefutures.org/stability/">climate handbook</a> on the Probable Futures website. It provides essential context for interpreting the maps and data you will find in the resources below.
+    </p>`;
+
+  let finalEmail = greetingPart + emailIntro;
+
   finalEmail += emailStartOfTheList;
   // request access to api
   if (authClient) {
@@ -75,7 +77,6 @@ export const composeEmail = (
           <br />
           <b>Client Secret:</b> ${authClient.client_secret}
           <br />
-          <br/>
         </li>
       `;
   }
@@ -84,13 +85,12 @@ export const composeEmail = (
     finalEmail += `
       <li>
         <a href="https://pro.probablefutures.org/">Probable Futures Pro</a>. This visualization and analysis tool contains all the same climate maps, but also enables you to
-        upload and overlay any geospatial data on top of the climate maps. To get started, please log in using your email:
+        upload and overlay any geospatial data on top of the climate maps. To get started, please log in using Google, Slack or using your email and password:
         <br />
         <br />
         <b>Email:</b> ${authUser.email}
         <br />
-        <b>Client Secret:</b> ${authUser.password}
-        <br />
+        <b>Password:</b> ${authUser.password}
         <br />
         <span>If you are unable to log in, let me know.</span>
       </li>
@@ -100,11 +100,11 @@ export const composeEmail = (
       </li> 
     `;
   }
-  finalEmail += joinSlackPart + thanksPart;
+  finalEmail += customizableMapsPart + thanksPart;
   return finalEmail;
 };
 
 const sendAccessEmail = async (userEmail: string, emailBody: string) => {
-  return await sendEmail(userEmail, "Access to Probable Futures Api", emailBody);
+  return await sendEmail(userEmail, "Access to Probable Futures data resources", emailBody);
 };
 export default sendAccessEmail;

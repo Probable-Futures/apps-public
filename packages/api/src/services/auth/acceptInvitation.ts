@@ -108,13 +108,14 @@ const acceptInvitation = async (
       }
     }
 
-    const composedEmail = composeEmail(
-      auth0Client,
-      response.userId
+    const composedEmail = composeEmail({
+      firstName: firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase(),
+      authClient: auth0Client,
+      authUser: response.userId
         ? { userId: response.userId, password, email: userRequestResponse.email }
         : undefined,
       note,
-    );
+    });
 
     await sendAccessEmail(userRequestResponse.email, composedEmail);
 

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { useOutletContext } from "react-router-dom";
+import { Link } from "@mui/material";
 
 import DashboardTitle from "../../Common/DashboardTitle";
 import {
@@ -10,6 +11,7 @@ import {
 } from "../../../graphql/queries/userRequests";
 import { GqlResponse } from "../../../shared/types";
 import UserRequestTable from "./UserRequestTable";
+import { colors } from "@probable-futures/lib/src/consts";
 
 export type RequestField = {
   name: string;
@@ -93,6 +95,16 @@ const UserRequests = () => {
           isRejecting={isRejecting}
         />
       )}
+      <div style={{ marginTop: 10 }}>
+        <Link
+          href="https://airtable.com/app5vySCXl6f2s8zB/tblAwRZ543C2izH3B/viwVzNxu66YUOFF6n?blocks=hide"
+          rel="noopener"
+          target="_blank"
+          sx={{ color: colors.purple, textDecorationColor: "inherit" }}
+        >
+          Link to all user requests in Airtable
+        </Link>
+      </div>
     </>
   );
 };

@@ -41,6 +41,8 @@ type Props = {
   isRejecting: boolean;
 };
 
+const defaultNoteValue = "Thanks for reaching out.";
+
 const getFormFieldValueByName = (name: string, formFields: Record<string, RequestField>) => {
   for (const key in formFields) {
     if (formFields.hasOwnProperty(key)) {
@@ -72,7 +74,10 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
   };
 
   const filteredData = useMemo(
-    () => data.viewUserAccessRequests.nodes.filter((node) => !node.accessGranted && !node.rejected),
+    () =>
+      data.viewUserAccessRequests.nodes
+        .filter((node) => !node.accessGranted && !node.rejected)
+        .map((node) => ({ ...node, note: defaultNoteValue })),
     [data.viewUserAccessRequests.nodes],
   );
 
@@ -88,7 +93,6 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
       <Table sx={{ minWidth: 700 }} aria-label="customized table">
         <TableHead>
           <TableRow>
-            <StyledTableCell sx={{ minWidth: 400 }}>Request Id</StyledTableCell>
             {requestUserAccessFormFields.map((field) => (
               <StyledTableCell
                 key={field.id}
@@ -113,9 +117,6 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
           )}
           {filteredData.map((row) => (
             <StyledTableRow key={row.id}>
-              <StyledTableCell key={row.id} component="th" scope="row">
-                {row.id}
-              </StyledTableCell>
               {requestUserAccessFormFields.map((field) => {
                 return (
                   <StyledTableCell
@@ -138,6 +139,7 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
                   placeholder="⚠️This note will be included in the email"
                   sx={{ width: 200 }}
                   onChange={(e) => handleNoteChange(e, row)}
+                  defaultValue={defaultNoteValue}
                 />
               </StyledTableCell>
               <StyledTableCell>
