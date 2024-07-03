@@ -45,6 +45,7 @@ export const composeEmail = ({
   authClient,
   authUser,
   note = defaultNoteValue,
+  includeCustomizableMaps,
 }: {
   firstName: string;
   authClient?: any;
@@ -54,6 +55,7 @@ export const composeEmail = ({
     email: string;
   };
   note?: string;
+  includeCustomizableMaps: boolean;
 }) => {
   const greetingPart = `Hi ${firstName},`;
 
@@ -88,7 +90,9 @@ export const composeEmail = ({
       </li> 
     `;
   }
-  finalEmail += customizableMapsPart;
+  if (includeCustomizableMaps) {
+    finalEmail += customizableMapsPart;
+  }
   // request access to api
   if (authClient) {
     finalEmail += `

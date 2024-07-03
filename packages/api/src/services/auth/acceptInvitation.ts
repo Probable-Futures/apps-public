@@ -22,6 +22,7 @@ type UserRequestResponse = {
 type Response = {
   userId?: string;
   clientId?: string;
+  error?: string;
 };
 
 const getFormFieldValueByName = (name: string, formFields: Record<string, RequestField>) => {
@@ -82,6 +83,7 @@ const acceptInvitation = async (
     let password: any;
 
     let grantedAccessToPro = false;
+    let includeCustomizableMaps = false;
     for (const item of whatWouldYouLikeToUse) {
       // if a user wants access to the Probable Futures API
       if (item.name === "Probable Futures API") {
@@ -89,8 +91,16 @@ const acceptInvitation = async (
           fullName.trim(),
           auth0ManagementToken.access_token,
         );
-        auth0Client = clientResponse.client;
-        response.clientId = clientResponse.client.client_id;
+        if (
+          clientResponse.client.statusCode !== 200 &&
+          clientResponse.client.statusCode !== 201 &&
+          clientResponse.client.error
+        ) {
+          response.error = clientResponse.client.message;
+        } else {
+          auth0Client = clientResponse.client;
+          response.clientId = clientResponse.client.client_id;
+        }
       }
       // access to Probable Futures Pro
       else if (
@@ -102,9 +112,19 @@ const acceptInvitation = async (
           fullName.trim(),
           auth0ManagementToken.access_token,
         );
+        if (
+          pfProAccessResponse.user.statusCode !== 200 &&
+          pfProAccessResponse.user.statusCode !== 201 &&
+          pfProAccessResponse.user.error
+        ) {
+          response.error = pfProAccessResponse.user.message;
+        } else {
+          response.userId = pfProAccessResponse.user.user_id;
+          password = pfProAccessResponse.password;
+        }
         grantedAccessToPro = true;
-        response.userId = pfProAccessResponse.userId;
-        password = pfProAccessResponse.password;
+      } else if (item.name === "Probable Futures map tilesets (using Mapbox)") {
+        includeCustomizableMaps = true;
       }
     }
 
@@ -115,6 +135,7 @@ const acceptInvitation = async (
         ? { userId: response.userId, password, email: userRequestResponse.email }
         : undefined,
       note,
+      includeCustomizableMaps,
     });
 
     await sendAccessEmail(userRequestResponse.email, composedEmail);

@@ -30,6 +30,7 @@ export const ExtendGqlSchemaPlugin = makeExtendSchemaPlugin((build) => {
       type AcceptInvitationResponse {
         userId: String
         clientId: String
+        error: String
       }
       input AcceptInvitationInput {
         requestId: UUID!

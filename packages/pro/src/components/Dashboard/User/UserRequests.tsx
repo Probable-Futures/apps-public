@@ -51,7 +51,7 @@ const UserRequests = () => {
   const [rejectRequest, { loading: isRejecting }] = useMutation(UPDATE_USER_ACCESS_REQUEST, {
     onCompleted: () => refetchUserRequests(),
   });
-  const [approveRequest, { loading: isAccepting, error }] = useMutation(
+  const [approveRequest, { loading: isAccepting, error, data: dataFromAccept }] = useMutation(
     APPROVE_USER_ACCESS_REQUEST,
     {
       onCompleted: () => refetchUserRequests(),
@@ -95,6 +95,12 @@ const UserRequests = () => {
       }
     }
   }, [error]);
+
+  useEffect(() => {
+    if (dataFromAccept && dataFromAccept.error) {
+      setApiError(dataFromAccept.error);
+    }
+  }, [dataFromAccept]);
 
   return (
     <>

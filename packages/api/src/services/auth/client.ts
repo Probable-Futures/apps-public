@@ -1,6 +1,14 @@
 import { env } from "../../utils";
 import { request } from "./request";
 
+type AuthClient = {
+  client_id: string;
+  client_secret: string;
+  statusCode: number;
+  error?: string;
+  message: string;
+};
+
 async function createClient(fullName: string, auth0ManagementToken: string) {
   const clientData = JSON.stringify({
     name: "API Access for " + fullName,
@@ -15,19 +23,9 @@ async function createClient(fullName: string, auth0ManagementToken: string) {
     },
   });
 
-  let response = { client: {} as any };
+  let response = { client: {} as AuthClient };
   try {
-    const client = await request<{
-      client_id: string;
-      client_secret: string;
-      statusCode: number;
-      error?: string;
-      message: string;
-    }>(clientData, "/api/v2/clients", auth0ManagementToken);
-
-    if (client.statusCode !== 200 && client.statusCode !== 201 && client.error) {
-      throw Error(client.message);
-    }
+    const client = await request<AuthClient>(clientData, "/api/v2/clients", auth0ManagementToken);
 
     const grantsData = JSON.stringify({
       audience: env.AUTH0_AUDIENCE.replace(/\/$/, ""),

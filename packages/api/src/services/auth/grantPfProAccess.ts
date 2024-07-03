@@ -3,6 +3,19 @@ import generator from "generate-password";
 import { request } from "./request";
 import { env } from "../../utils";
 
+type AuthUser = {
+  email: string;
+  email_verified: boolean;
+  identities: any[];
+  name: string;
+  nickname: string;
+  picture: string;
+  user_id: string;
+  statusCode: number;
+  error?: string;
+  message: string;
+};
+
 const grantPfProAccess = async (email: string, name: string, auth0ManagementToken: string) => {
   const password = generator.generate({
     numbers: true,
@@ -22,24 +35,9 @@ const grantPfProAccess = async (email: string, name: string, auth0ManagementToke
     password,
   });
 
-  let response: { password: string; userId: string } = { password: "", userId: "" };
+  let response: { password: string; user: AuthUser } = { password: "", user: {} as AuthUser };
   try {
-    const user = await request<{
-      email: string;
-      email_verified: boolean;
-      identities: any[];
-      name: string;
-      nickname: string;
-      picture: string;
-      user_id: string;
-      statusCode: number;
-      error?: string;
-      message: string;
-    }>(userData, "/api/v2/users", auth0ManagementToken);
-
-    if (user.statusCode !== 200 && user.statusCode !== 201 && user.error) {
-      throw Error(user.message);
-    }
+    const user = await request<AuthUser>(userData, "/api/v2/users", auth0ManagementToken);
 
     const rolesData = JSON.stringify({
       roles: [env.AUTH_FULL_USER_ROLE_ID],
@@ -47,7 +45,7 @@ const grantPfProAccess = async (email: string, name: string, auth0ManagementToke
 
     await request(rolesData, `/api/v2/users/${user.user_id}/roles`, auth0ManagementToken);
 
-    response.userId = user.user_id;
+    response.user = user;
     response.password = password;
   } catch (e) {
     console.error(e);
