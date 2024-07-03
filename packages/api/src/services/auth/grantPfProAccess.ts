@@ -32,7 +32,14 @@ const grantPfProAccess = async (email: string, name: string, auth0ManagementToke
       nickname: string;
       picture: string;
       user_id: string;
+      statusCode: number;
+      error?: string;
+      message: string;
     }>(userData, "/api/v2/users", auth0ManagementToken);
+
+    if (user.statusCode !== 200 && user.statusCode !== 201 && user.error) {
+      throw Error(user.message);
+    }
 
     const rolesData = JSON.stringify({
       roles: [env.AUTH_FULL_USER_ROLE_ID],

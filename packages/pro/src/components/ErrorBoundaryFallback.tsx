@@ -14,7 +14,7 @@ const ErrorBoundaryFallback = ({
     <Fragment>
       <Error
         title="You have encountered an error!"
-        description={error?.toString() ?? ""}
+        description={error?.message ? error?.message : error?.toString() ?? ""}
         actionName="Close and reload"
         onButtonClicked={onClick}
       />

@@ -13,25 +13,38 @@ const thanksPart = `
     Let me know if you have questions. Thanks for joining us in our efforts to help people explore the risks and consequences
     of climate change.
   </p>
-
   <br />
-  <br />
-  <span>Peter</span>
-  <br />
-  ———
-  <br />
-  <span>Probable Futures</span>
-  <br />
-  <span>Peter Croce, Product Lead</span>
-  <br />
-  <span>he/him</span>
+  <div style="margin:0in;line-height:19.2px;font-size:12pt;font-family:Calibri,sans-serif;color:rgb(0,0,0)">
+    <span style="font-family:Helvetica;color:rgb(42,23,45)">—</span>
+    <span style="font-family:Helvetica;color:rgb(133,31,255)">—</span>
+    <span style="font-family:Helvetica;color:rgb(241,128,60)">—</span>
+  </div>
+  <div style="margin:0in;line-height:19.2px;font-size:12pt;font-family:Calibri,sans-serif;color:rgb(0,0,0)">
+    <b style="font-family:Calibri,sans-serif">
+      <span style="font-size:7.5pt;line-height:12px;font-family:Helvetica;color:rgb(42,23,45)">
+        <a href="https://probablefutures.org/" style="font-family:Helvetica;color:rgb(17,85,204)" target="_blank">
+          Probable Futures
+        </a>
+      </span>
+    </b>
+  </div>
+  <div style="margin:0in;line-height:19.2px;font-size:12pt;font-family:Calibri,sans-serif;color:rgb(0,0,0)">
+    <span style="font-size:x-small;font-family:Calibri,sans-serif">Peter Croce, Product Lead</span>
+  </div>
+  <div style="margin:0in;line-height:19.2px;font-family:Calibri,sans-serif;color:rgb(0,0,0)">
+    <span style="font-size:x-small;font-family:Calibri,sans-serif">he/him</span>
+    <font size="1" style="font-family:Calibri,sans-serif;color:rgb(0,0,0)"><br></font>
+  </div>
 `;
+
+const defaultNoteValue = `Thanks for reaching out. If you'd like, I would be happy to meet on a call to give you a guided demo and answer any
+      questions. You can <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2TEZX3fp1ty-JZr8iIVE5K8tmEE8AAyDLXvAm8Iqn1bo4xEWDtuw1rC_AAt7maw6iiybODG3mH">schedule a time on my calendar here</a>`;
 
 export const composeEmail = ({
   firstName,
   authClient,
   authUser,
-  note = "Thanks for reaching out.",
+  note = defaultNoteValue,
 }: {
   firstName: string;
   authClient?: any;
@@ -43,12 +56,10 @@ export const composeEmail = ({
   note?: string;
 }) => {
   const greetingPart = `Hi ${firstName},`;
-  const dotAddedToNote = note.endsWith(".") ? note : note + ".";
 
   const emailIntro = `
     <p>
-      ${dotAddedToNote} If you'd like, I would be happy to meet on a call to give you a guided demo and answer any
-      questions. You can <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2TEZX3fp1ty-JZr8iIVE5K8tmEE8AAyDLXvAm8Iqn1bo4xEWDtuw1rC_AAt7maw6iiybODG3mH">schedule a time on my calendar here</a>.
+      ${note}.
     </p>
     <p>
       If you haven't already done so, I would recommend you read (or listen to) the 

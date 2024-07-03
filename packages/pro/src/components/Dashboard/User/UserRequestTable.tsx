@@ -1,4 +1,4 @@
-import { ChangeEvent, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -6,8 +6,9 @@ import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { TextField, Paper } from "@mui/material";
+import { Paper } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import Editor, { ContentEditableEvent } from "react-simple-wysiwyg";
 
 import { UserRequestNode, UserAccessRequestResponse, RequestField } from "./UserRequests";
 import { requestUserAccessFormFields } from "../../../consts/forms";
@@ -35,13 +36,14 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 type Props = {
   data: UserAccessRequestResponse;
-  onReject: (userRequest: UserRequestNode) => void;
-  onAccept: (userRequest: UserRequestNode) => void;
+  onReject: (userRequest: UserRequestNode, note: string) => void;
+  onAccept: (userRequest: UserRequestNode, note: string) => void;
   isAccepting: boolean;
   isRejecting: boolean;
 };
 
-const defaultNoteValue = "Thanks for reaching out.";
+const defaultNoteValue = `Thanks for reaching out.  If you'd like, I would be happy to meet on a call to give you a guided demo and answer any
+      questions. You can <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2TEZX3fp1ty-JZr8iIVE5K8tmEE8AAyDLXvAm8Iqn1bo4xEWDtuw1rC_AAt7maw6iiybODG3mH">schedule a time on my calendar here</a>`;
 
 const getFormFieldValueByName = (name: string, formFields: Record<string, RequestField>) => {
   for (const key in formFields) {
@@ -55,6 +57,8 @@ const getFormFieldValueByName = (name: string, formFields: Record<string, Reques
 };
 
 const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }: Props) => {
+  const [notes, setNotes] = useState<{ [noteId: string]: string }>({});
+
   const cellValue = (value: any) => {
     if (typeof value === "string") {
       if (isDateString(value)) {
@@ -77,15 +81,25 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
     () =>
       data.viewUserAccessRequests.nodes
         .filter((node) => !node.accessGranted && !node.rejected)
-        .map((node) => ({ ...node, note: defaultNoteValue })),
-    [data.viewUserAccessRequests.nodes],
+        .map((node) => {
+          const note = notes[node.id] || defaultNoteValue;
+          return { ...node, note };
+        }),
+    [data.viewUserAccessRequests.nodes, notes],
   );
 
-  const handleNoteChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    userRequest: UserRequestNode,
-  ) => {
-    userRequest.note = event.target.value;
+  useEffect(() => {
+    const defaultNotes: { [noteId: string]: string } = {};
+    data.viewUserAccessRequests.nodes.forEach((node) => {
+      defaultNotes[node.id] = defaultNoteValue;
+    });
+
+    setNotes(defaultNotes);
+  }, [data.viewUserAccessRequests.nodes]);
+
+  const handleNoteChange = (event: ContentEditableEvent, userRequest: UserRequestNode) => {
+    const newNotes = { ...notes, [userRequest.id]: event.target.value };
+    setNotes(newNotes);
   };
 
   return (
@@ -130,16 +144,10 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
                 );
               })}
               <StyledTableCell>
-                <TextField
-                  id="filled-multiline-static"
-                  label="note"
-                  multiline
-                  rows={4}
-                  variant="filled"
-                  placeholder="⚠️This note will be included in the email"
-                  sx={{ width: 200 }}
+                <Editor
+                  value={notes[row.id]}
+                  style={{ width: 300 }}
                   onChange={(e) => handleNoteChange(e, row)}
-                  defaultValue={defaultNoteValue}
                 />
               </StyledTableCell>
               <StyledTableCell>
@@ -147,7 +155,7 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
                   loading={isAccepting}
                   color="success"
                   variant="contained"
-                  onClick={() => onAccept(row)}
+                  onClick={() => onAccept(row, notes[row.id])}
                   sx={{ marginBottom: 2, width: 150 }}
                   loadingIndicator="Accepting…"
                 >
@@ -157,7 +165,7 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
                   loading={isRejecting}
                   color="error"
                   variant="contained"
-                  onClick={() => onReject(row)}
+                  onClick={() => onReject(row, notes[row.id])}
                   sx={{ marginBottom: 2, width: 150 }}
                   loadingIndicator="Rejecting…"
                 >

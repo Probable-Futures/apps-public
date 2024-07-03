@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { useOutletContext } from "react-router-dom";
-import { Link } from "@mui/material";
+import { Alert, Link, Snackbar } from "@mui/material";
 
 import DashboardTitle from "../../Common/DashboardTitle";
 import {
@@ -34,6 +34,7 @@ export type UserAccessRequestResponse = {
 };
 
 const UserRequests = () => {
+  const [apiError, setApiError] = useState<string>();
   const { toggleLoading } = useOutletContext<{
     toggleLoading: (arg: boolean) => {};
   }>();
@@ -50,26 +51,29 @@ const UserRequests = () => {
   const [rejectRequest, { loading: isRejecting }] = useMutation(UPDATE_USER_ACCESS_REQUEST, {
     onCompleted: () => refetchUserRequests(),
   });
-  const [approveRequest, { loading: isAccepting }] = useMutation(APPROVE_USER_ACCESS_REQUEST, {
-    onCompleted: () => refetchUserRequests(),
-  });
+  const [approveRequest, { loading: isAccepting, error }] = useMutation(
+    APPROVE_USER_ACCESS_REQUEST,
+    {
+      onCompleted: () => refetchUserRequests(),
+    },
+  );
 
-  const onReject = (userRequest: UserRequestNode) => {
+  const onReject = (userRequest: UserRequestNode, note: string) => {
     rejectRequest({
       variables: {
         id: userRequest.id,
         accessGranted: false,
         rejected: true,
-        note: userRequest.note || "",
+        note,
       },
     });
   };
 
-  const onAccept = (userRequest: UserRequestNode) => {
+  const onAccept = (userRequest: UserRequestNode, note: string) => {
     approveRequest({
       variables: {
         requestId: userRequest.id,
-        note: userRequest.note || "",
+        note,
       },
     });
   };
@@ -82,8 +86,21 @@ const UserRequests = () => {
     }
   }, [loadingUserAccessRequests, toggleLoading]);
 
+  useEffect(() => {
+    if (error) {
+      if (error.message) {
+        setApiError(error.message);
+      } else {
+        setApiError("Something went wrong!");
+      }
+    }
+  }, [error]);
+
   return (
     <>
+      <Snackbar open={!!apiError} autoHideDuration={6000}>
+        <Alert severity="error">{apiError}</Alert>
+      </Snackbar>
       <div>
         <DashboardTitle title="User Requests" />
       </div>

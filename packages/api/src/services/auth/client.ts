@@ -17,11 +17,17 @@ async function createClient(fullName: string, auth0ManagementToken: string) {
 
   let response = { client: {} as any };
   try {
-    const client = await request<{ client_id: string; client_secret: string }>(
-      clientData,
-      "/api/v2/clients",
-      auth0ManagementToken,
-    );
+    const client = await request<{
+      client_id: string;
+      client_secret: string;
+      statusCode: number;
+      error?: string;
+      message: string;
+    }>(clientData, "/api/v2/clients", auth0ManagementToken);
+
+    if (client.statusCode !== 200 && client.statusCode !== 201 && client.error) {
+      throw Error(client.message);
+    }
 
     const grantsData = JSON.stringify({
       audience: env.AUTH0_AUDIENCE.replace(/\/$/, ""),

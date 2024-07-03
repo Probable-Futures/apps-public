@@ -84,7 +84,7 @@ const acceptInvitation = async (
     let grantedAccessToPro = false;
     for (const item of whatWouldYouLikeToUse) {
       // if a user wants access to the Probable Futures API
-      if (item.id === "selHB9fHgC4AQz2Lj") {
+      if (item.name === "Probable Futures API") {
         const clientResponse = await createClient(
           fullName.trim(),
           auth0ManagementToken.access_token,
