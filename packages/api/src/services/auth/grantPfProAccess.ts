@@ -23,7 +23,7 @@ const grantPfProAccess = async (email: string, name: string, auth0ManagementToke
     symbols: true,
     uppercase: true,
     lowercase: true,
-    length: 10,
+    length: 14,
   });
   const userData = JSON.stringify({
     email,
