@@ -25,7 +25,12 @@ async function createClient(fullName: string, auth0ManagementToken: string) {
 
   let response = { client: {} as AuthClient };
   try {
-    const client = await request<AuthClient>(clientData, "/api/v2/clients", auth0ManagementToken);
+    const client = await request<AuthClient>(
+      "/api/v2/clients",
+      "POST",
+      clientData,
+      auth0ManagementToken,
+    );
 
     const grantsData = JSON.stringify({
       audience: env.AUTH0_AUDIENCE.replace(/\/$/, ""),
@@ -33,7 +38,7 @@ async function createClient(fullName: string, auth0ManagementToken: string) {
       scope: ["statistics:read"],
     });
 
-    await request(grantsData, "/api/v2/client-grants", auth0ManagementToken);
+    await request("/api/v2/client-grants", "POST", grantsData, auth0ManagementToken);
 
     response.client = client;
   } catch (e) {

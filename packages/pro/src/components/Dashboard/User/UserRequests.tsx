@@ -51,12 +51,19 @@ const UserRequests = () => {
   const [rejectRequest, { loading: isRejecting }] = useMutation(UPDATE_USER_ACCESS_REQUEST, {
     onCompleted: () => refetchUserRequests(),
   });
-  const [approveRequest, { loading: isAccepting, error, data: dataFromAccept }] = useMutation(
-    APPROVE_USER_ACCESS_REQUEST,
-    {
-      onCompleted: () => refetchUserRequests(),
-    },
-  );
+  const [approveRequest, { loading: isAccepting, error, data: dataFromAccept }] = useMutation<{
+    acceptInvitation: { clientId: string; error: string; userId: string };
+  }>(APPROVE_USER_ACCESS_REQUEST, {
+    onCompleted: () => refetchUserRequests(),
+  });
+
+  useEffect(() => {
+    if (apiError) {
+      setTimeout(() => {
+        setApiError(undefined);
+      }, 6000);
+    }
+  }, [apiError]);
 
   const onReject = (userRequest: UserRequestNode, note: string) => {
     rejectRequest({
@@ -97,8 +104,8 @@ const UserRequests = () => {
   }, [error]);
 
   useEffect(() => {
-    if (dataFromAccept && dataFromAccept.error) {
-      setApiError(dataFromAccept.error);
+    if (dataFromAccept?.acceptInvitation.error) {
+      setApiError(dataFromAccept.acceptInvitation.error);
     }
   }, [dataFromAccept]);
 

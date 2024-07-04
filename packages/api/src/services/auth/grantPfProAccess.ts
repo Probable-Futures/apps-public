@@ -14,6 +14,7 @@ type AuthUser = {
   statusCode: number;
   error?: string;
   message: string;
+  errorCode?: string;
 };
 
 const grantPfProAccess = async (email: string, name: string, auth0ManagementToken: string) => {
@@ -35,17 +36,56 @@ const grantPfProAccess = async (email: string, name: string, auth0ManagementToke
     password,
   });
 
-  let response: { password: string; user: AuthUser } = { password: "", user: {} as AuthUser };
+  let response: { password: string; user: AuthUser; alreadyExists: boolean } = {
+    password: "",
+    user: {} as AuthUser,
+    alreadyExists: false,
+  };
   try {
-    const user = await request<AuthUser>(userData, "/api/v2/users", auth0ManagementToken);
+    const user = await request<AuthUser>("/api/v2/users", "POST", userData, auth0ManagementToken);
+    let existingUser: AuthUser | undefined = undefined;
 
     const rolesData = JSON.stringify({
       roles: [env.AUTH_FULL_USER_ROLE_ID],
     });
 
-    await request(rolesData, `/api/v2/users/${user.user_id}/roles`, auth0ManagementToken);
+    // if the user already exists make sure he has the required permissions to access pf pro
+    if (user.message === "The user already exists." || user.error === "Conflict") {
+      const existingUsers = await request<AuthUser[]>(
+        `/api/v2/users-by-email?email=${email}`,
+        "GET",
+        "",
+        auth0ManagementToken,
+      );
+      if (existingUsers?.length > 0) {
+        existingUser = existingUsers.find((u) => !u.identities[0].isSocial);
+        if (existingUser) {
+          const existingUserRoles = await request<any>(
+            `/api/v2/users/${existingUser.user_id}/roles`,
+            "GET",
+            "",
+            auth0ManagementToken,
+          );
+          if (
+            !existingUserRoles.find(
+              (ur: { name: string }) => ur.name.trim() === env.AUTH_FULL_USER_ROLE_ID.trim(),
+            )
+          ) {
+            await request(
+              `/api/v2/users/${user.user_id}/roles`,
+              "POST",
+              rolesData,
+              auth0ManagementToken,
+            );
+          }
+        }
+      }
+    } else {
+      await request(`/api/v2/users/${user.user_id}/roles`, "POST", rolesData, auth0ManagementToken);
+    }
 
-    response.user = user;
+    response.alreadyExists = !!existingUser;
+    response.user = existingUser ?? user;
     response.password = password;
   } catch (e) {
     console.error(e);

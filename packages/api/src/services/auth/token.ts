@@ -26,7 +26,7 @@ async function getToken(
     grant_type: "client_credentials",
   });
 
-  const result = await request<Auth0TokenResponse>(postData, "/oauth/token");
+  const result = await request<Auth0TokenResponse>("/oauth/token", "POST", postData);
   return {
     access_token: result.access_token,
     scope: result.scope,

@@ -5,6 +5,7 @@ input AcceptInvitationInput {
 
 type AcceptInvitationResponse {
   clientId: String
+  error: String
   userId: String
 }
 

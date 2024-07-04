@@ -3,18 +3,19 @@ import https from "https";
 import { env } from "../../utils";
 
 export const request = async <T>(
-  data: string,
   path: string,
+  method: "GET" | "POST",
+  data: string = "",
   auth0ManagementToken?: string,
 ): Promise<T> => {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: env.AUTH0_DOMAIN,
       path,
-      method: "POST",
+      method,
       headers: {
         "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(data),
+        ...(method === "POST" && { "Content-Length": Buffer.byteLength(data) }),
         ...(auth0ManagementToken && { Authorization: "Bearer " + auth0ManagementToken }),
       },
     };
@@ -33,7 +34,9 @@ export const request = async <T>(
       reject(new Error("Error getting token"));
     });
 
-    req.write(data);
+    if (method === "POST") {
+      req.write(data);
+    }
     req.end();
   });
 };

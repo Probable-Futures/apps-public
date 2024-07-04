@@ -53,6 +53,7 @@ export const composeEmail = ({
     userId: string;
     password: string;
     email: string;
+    userAlreadyExists?: boolean;
   };
   note?: string;
   includeCustomizableMaps: boolean;
@@ -69,11 +70,25 @@ export const composeEmail = ({
       You may also be aware of our <a href="https://probablefutures.org/maps">climate maps</a>, which are publicly available. The resources below are simply other ways of accessing or analyzing the data in these same climate maps.
     </p>`;
 
-  let finalEmail = greetingPart + emailIntro + emailStartOfTheList;
+  let resourcesList = "";
+  let finalEmail = greetingPart + emailIntro;
 
   // request access to pro
   if (authUser) {
-    finalEmail += `
+    if (authUser.userAlreadyExists) {
+      resourcesList += `
+      <li>
+        <a href="https://pro.probablefutures.org/">Probable Futures Pro</a>. This visualization and analysis tool enables anyone to
+        upload and overlay any geospatial data on top of the climate maps. 
+        The email address you provided is already in our database. While we can't send you a password, you can still reset it by clicking the "Forgot Password" link. Alternatively, you can use other authentication methods such as Google or Slack. If you are unable to log in, let me know.
+      </li>
+      <li>
+        Download the data. If you would like to download the data in our climate maps directly, go to the <a href="https://pro.probablefutures.org/dashboard/datasets">"Datasets" tab in
+        Probable Futures Pro</a>. The data is available to download in CSV, GeoJSON, and NetCDF formats.
+      </li> 
+    `;
+    } else {
+      resourcesList += `
       <li>
         <a href="https://pro.probablefutures.org/">Probable Futures Pro</a>. This visualization and analysis tool enables anyone to
         upload and overlay any geospatial data on top of the climate maps. To get started, please log in using Google, Slack or using your email and password below. If you are unable to log in, let me know.
@@ -83,19 +98,21 @@ export const composeEmail = ({
         <br />
         <b>Password:</b> ${authUser.password}
         <br />
+        <br />
       </li>
       <li>
         Download the data. If you would like to download the data in our climate maps directly, go to the <a href="https://pro.probablefutures.org/dashboard/datasets">"Datasets" tab in
         Probable Futures Pro</a>. The data is available to download in CSV, GeoJSON, and NetCDF formats.
       </li> 
     `;
+    }
   }
   if (includeCustomizableMaps) {
-    finalEmail += customizableMapsPart;
+    resourcesList += customizableMapsPart;
   }
   // request access to api
   if (authClient) {
-    finalEmail += `
+    resourcesList += `
         <li>
           API. Your client ID and client secret to access the API are below. Instructions for API access are on the <a href="https://docs.probablefutures.org/api-access/">API access</a> and <a href="https://docs.probablefutures.org/calling-the-api/">calling the API</a> pages in the docs.
           <br />
@@ -106,6 +123,9 @@ export const composeEmail = ({
           <br />
         </li>
       `;
+  }
+  if (resourcesList !== "") {
+    finalEmail += emailStartOfTheList + resourcesList;
   }
   finalEmail += thanksPart;
   return finalEmail;

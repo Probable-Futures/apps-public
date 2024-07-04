@@ -31,6 +31,7 @@ export const APPROVE_USER_ACCESS_REQUEST = gql`
     acceptInvitation(input: { requestId: $requestId, note: $note }) {
       userId
       clientId
+      error
     }
   }
 `;

@@ -58,6 +58,7 @@ const getFormFieldValueByName = (name: string, formFields: Record<string, Reques
 
 const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }: Props) => {
   const [notes, setNotes] = useState<{ [noteId: string]: string }>({});
+  const [rowIdOfClickedAction, setRowIdOfClickedAction] = useState<string>();
 
   const cellValue = (value: any) => {
     if (typeof value === "string") {
@@ -152,20 +153,26 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
               </StyledTableCell>
               <StyledTableCell>
                 <LoadingButton
-                  loading={isAccepting}
+                  loading={isAccepting && rowIdOfClickedAction === row.id}
                   color="success"
                   variant="contained"
-                  onClick={() => onAccept(row, notes[row.id])}
+                  onClick={() => {
+                    setRowIdOfClickedAction(row.id);
+                    onAccept(row, notes[row.id]);
+                  }}
                   sx={{ marginBottom: 2, width: 150 }}
                   loadingIndicator="Accepting…"
                 >
                   Accept
                 </LoadingButton>
                 <LoadingButton
-                  loading={isRejecting}
+                  loading={isRejecting && rowIdOfClickedAction === row.id}
                   color="error"
                   variant="contained"
-                  onClick={() => onReject(row, notes[row.id])}
+                  onClick={() => {
+                    setRowIdOfClickedAction(row.id);
+                    onReject(row, notes[row.id]);
+                  }}
                   sx={{ marginBottom: 2, width: 150 }}
                   loadingIndicator="Rejecting…"
                 >

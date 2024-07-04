@@ -23,6 +23,7 @@ type Response = {
   userId?: string;
   clientId?: string;
   error?: string;
+  userAlreadyExists?: boolean;
 };
 
 const getFormFieldValueByName = (name: string, formFields: Record<string, RequestField>) => {
@@ -120,6 +121,7 @@ const acceptInvitation = async (
           response.error = pfProAccessResponse.user.message;
         } else {
           response.userId = pfProAccessResponse.user.user_id;
+          response.userAlreadyExists = pfProAccessResponse.alreadyExists;
           password = pfProAccessResponse.password;
         }
         grantedAccessToPro = true;
@@ -132,7 +134,12 @@ const acceptInvitation = async (
       firstName: firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase(),
       authClient: auth0Client,
       authUser: response.userId
-        ? { userId: response.userId, password, email: userRequestResponse.email }
+        ? {
+            userId: response.userId,
+            password,
+            email: userRequestResponse.email,
+            userAlreadyExists: response.userAlreadyExists,
+          }
         : undefined,
       note,
       includeCustomizableMaps,
