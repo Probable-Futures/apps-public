@@ -39,7 +39,7 @@ const thanksPart = `
 `;
 
 const defaultNoteValue = `Thanks for reaching out. If you'd like, I would be happy to meet on a call to give you a guided demo and answer any
-      questions. You can <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2TEZX3fp1ty-JZr8iIVE5K8tmEE8AAyDLXvAm8Iqn1bo4xEWDtuw1rC_AAt7maw6iiybODG3mH">schedule a time on my calendar here</a>`;
+      questions. You can <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2TEZX3fp1ty-JZr8iIVE5K8tmEE8AAyDLXvAm8Iqn1bo4xEWDtuw1rC_AAt7maw6iiybODG3mH">schedule a time on my calendar here</a>.`;
 
 export const composeEmail = ({
   firstName,
