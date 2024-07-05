@@ -1,7 +1,7 @@
 import { env } from "../../utils";
 import { request } from "./request";
 
-type AuthClient = {
+export type AuthClient = {
   client_id: string;
   client_secret: string;
   statusCode: number;

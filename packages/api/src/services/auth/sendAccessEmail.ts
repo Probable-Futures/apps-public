@@ -1,4 +1,5 @@
 import { sendEmail } from "../ses";
+import { AuthClient } from "./client";
 
 const emailStartOfTheList = `Here are the resources:
   <ol>`;
@@ -48,12 +49,10 @@ export const composeEmail = ({
   includeCustomizableMaps,
 }: {
   firstName: string;
-  authClient?: any;
+  authClient?: AuthClient;
   authUser?: {
     userId: string;
-    password: string;
     email: string;
-    userAlreadyExists?: boolean;
   };
   note?: string;
   includeCustomizableMaps: boolean;
@@ -62,7 +61,7 @@ export const composeEmail = ({
 
   const emailIntro = `
     <p>
-      ${note}.
+      ${note}
     </p>
     <p>
       If you haven't already done so, I would recommend you read (or listen to) the 
@@ -75,37 +74,15 @@ export const composeEmail = ({
 
   // request access to pro
   if (authUser) {
-    if (authUser.userAlreadyExists) {
-      resourcesList += `
+    resourcesList += `
       <li>
-        <a href="https://pro.probablefutures.org/">Probable Futures Pro</a>. This visualization and analysis tool enables anyone to
-        upload and overlay any geospatial data on top of the climate maps. 
-        The email address you provided is already in our database. While we can't send you a password, you can still reset it by clicking the "Forgot Password" link. Alternatively, you can use other authentication methods such as Google or Slack. If you are unable to log in, let me know.
+        <a href="https://pro.probablefutures.org/">Probable Futures Pro</a> enables anyone to overlay any location data on the climate maps or download the climate data directly. To log in for the first time, please use the "Forgot Password" option to set a password, or log in with Google or Slack. If you are unable to log in, let me know.
       </li>
       <li>
         Download the data. If you would like to download the data in our climate maps directly, go to the <a href="https://pro.probablefutures.org/dashboard/datasets">"Datasets" tab in
         Probable Futures Pro</a>. The data is available to download in CSV, GeoJSON, and NetCDF formats.
       </li> 
     `;
-    } else {
-      resourcesList += `
-      <li>
-        <a href="https://pro.probablefutures.org/">Probable Futures Pro</a>. This visualization and analysis tool enables anyone to
-        upload and overlay any geospatial data on top of the climate maps. To get started, please log in using Google, Slack or using your email and password below. If you are unable to log in, let me know.
-        <br />
-        <br />
-        <b>Email:</b> ${authUser.email}
-        <br />
-        <b>Password:</b> ${authUser.password}
-        <br />
-        <br />
-      </li>
-      <li>
-        Download the data. If you would like to download the data in our climate maps directly, go to the <a href="https://pro.probablefutures.org/dashboard/datasets">"Datasets" tab in
-        Probable Futures Pro</a>. The data is available to download in CSV, GeoJSON, and NetCDF formats.
-      </li> 
-    `;
-    }
   }
   if (includeCustomizableMaps) {
     resourcesList += customizableMapsPart;

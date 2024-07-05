@@ -1,5 +1,5 @@
 import { verify } from "../../services/auth/token";
-import createClient from "../../services/auth/client";
+import createClient, { AuthClient } from "../../services/auth/client";
 import sendAccessEmail, { composeEmail } from "./sendAccessEmail";
 import { env } from "../../utils";
 import grantPfProAccess from "./grantPfProAccess";
@@ -80,8 +80,7 @@ const acceptInvitation = async (
       "https://" + env.AUTH0_DOMAIN + "/api/v2/",
     );
 
-    let auth0Client: any;
-    let password: any;
+    let auth0Client: AuthClient | undefined = undefined;
 
     let grantedAccessToPro = false;
     let includeCustomizableMaps = false;
@@ -122,7 +121,6 @@ const acceptInvitation = async (
         } else {
           response.userId = pfProAccessResponse.user.user_id;
           response.userAlreadyExists = pfProAccessResponse.alreadyExists;
-          password = pfProAccessResponse.password;
         }
         grantedAccessToPro = true;
       } else if (item.name === "Probable Futures map tilesets (using Mapbox)") {
@@ -136,9 +134,7 @@ const acceptInvitation = async (
       authUser: response.userId
         ? {
             userId: response.userId,
-            password,
             email: userRequestResponse.email,
-            userAlreadyExists: response.userAlreadyExists,
           }
         : undefined,
       note,
