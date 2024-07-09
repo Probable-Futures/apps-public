@@ -1,0 +1,33 @@
+enum FormFields {
+  FirstName = "firstName",
+  LastName = "lastName",
+  Email = "email",
+  Title = "title",
+  Company = "company",
+  Location = "location",
+  UsingPFToolsFor = "usingPFToolsFor",
+  HowDidYouFindUs = "howDidYouFindUs",
+  AnythingElse = "anuthingElse",
+  WhatWouldYouLikeToUse = "whatWouldYouLikeToUse",
+  PfPro = "pfPro",
+  PfApi = "pfApi",
+  PfRawData = "pfRawData",
+  CustomizableMaps = "customizableMaps",
+}
+
+export const formfieldsNameIdMap: Record<FormFields, string> = {
+  [FormFields.FirstName]: "fldUF40ZB8gUYh8iY",
+  [FormFields.LastName]: "fldAAYWSbPEk4QRRi",
+  [FormFields.Email]: "fldBjdKZSEGbakGLe",
+  [FormFields.Title]: "fld7aYwzxiUF3Wqk1",
+  [FormFields.Company]: "fldZEfMzK01lxHhgD",
+  [FormFields.Location]: "fldYWWB4mTg5zmbTq",
+  [FormFields.UsingPFToolsFor]: "fldvs1CXisDQTlHgj",
+  [FormFields.HowDidYouFindUs]: "fld86vMpR4WD5sb3e",
+  [FormFields.AnythingElse]: "fldL30tYRJDTPakaX",
+  [FormFields.WhatWouldYouLikeToUse]: "fld56lzcRJPV9EDrW",
+  [FormFields.PfPro]: "selObrA5VpB4XVjDt",
+  [FormFields.PfApi]: "selHB9fHgC4AQz2Lj",
+  [FormFields.PfRawData]: "selkpsGFYsWDKIm8Z",
+  [FormFields.CustomizableMaps]: "sel9Em7tUgvjWQ8fk",
+};

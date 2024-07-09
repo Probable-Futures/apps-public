@@ -2,6 +2,7 @@ import { verify } from "../../services/auth/token";
 import createClient, { AuthClient } from "../../services/auth/client";
 import sendAccessEmail, { composeEmail } from "./sendAccessEmail";
 import { env } from "../../utils";
+import { formfieldsNameIdMap } from "../../utils/form";
 import grantPfProAccess from "./grantPfProAccess";
 
 type AnyArg = { [arg: string]: any };
@@ -26,16 +27,8 @@ type Response = {
   userAlreadyExists?: boolean;
 };
 
-const getFormFieldValueByName = (name: string, formFields: Record<string, RequestField>) => {
-  for (const key in formFields) {
-    if (formFields.hasOwnProperty(key)) {
-      const field = formFields[key];
-      if (field.name === name) {
-        return field.value;
-      }
-    }
-  }
-};
+const getFormFieldValueById = (id: string, formFields: Record<string, RequestField>) =>
+  formFields[id].value;
 
 const acceptInvitation = async (
   _query: AnyArg,
@@ -61,17 +54,19 @@ const acceptInvitation = async (
 
   const userRequestResponse = rawUserRequestResponse.rows[0] as UserRequestResponse;
 
-  // get the value of the "What would you like to use?" field.
-  // const whatWouldYouLikeToUse: { id: string; name: string }[] =
-  //   userRequestResponse.form_fields["fld56lzcRJPV9EDrW"].value;
-  const whatWouldYouLikeToUse: { id: string; name: string }[] = getFormFieldValueByName(
-    "What would you like to use?",
+  const whatWouldYouLikeToUse: { id: string; name: string }[] = getFormFieldValueById(
+    formfieldsNameIdMap["whatWouldYouLikeToUse"],
     userRequestResponse.form_fields,
   );
-  const firstName = getFormFieldValueByName("First name", userRequestResponse.form_fields);
-  const lastName = getFormFieldValueByName("Last name", userRequestResponse.form_fields);
+  const firstName = getFormFieldValueById(
+    formfieldsNameIdMap["firstName"],
+    userRequestResponse.form_fields,
+  );
+  const lastName = getFormFieldValueById(
+    formfieldsNameIdMap["lastName"],
+    userRequestResponse.form_fields,
+  );
   const fullName = `${firstName} ${lastName}`;
-  // const fullName = `${userRequestResponse.form_fields["fldUF40ZB8gUYh8iY"].value} ${userRequestResponse.form_fields["fldAAYWSbPEk4QRRi"].value}`;
 
   try {
     const auth0ManagementToken = await verify(
@@ -86,7 +81,7 @@ const acceptInvitation = async (
     let includeCustomizableMaps = false;
     for (const item of whatWouldYouLikeToUse) {
       // if a user wants access to the Probable Futures API
-      if (item.name === "Probable Futures API") {
+      if (item.id === formfieldsNameIdMap["pfApi"]) {
         const clientResponse = await createClient(
           fullName.trim(),
           auth0ManagementToken.access_token,
@@ -105,7 +100,7 @@ const acceptInvitation = async (
       // access to Probable Futures Pro
       else if (
         !grantedAccessToPro &&
-        (item.name === "Probable Futures raw data" || item.name === "Probable Futures Pro")
+        (item.id === formfieldsNameIdMap["pfRawData"] || item.id === formfieldsNameIdMap["pfPro"])
       ) {
         const pfProAccessResponse = await grantPfProAccess(
           userRequestResponse.email,
@@ -123,7 +118,7 @@ const acceptInvitation = async (
           response.userAlreadyExists = pfProAccessResponse.alreadyExists;
         }
         grantedAccessToPro = true;
-      } else if (item.name === "Probable Futures map tilesets (using Mapbox)") {
+      } else if (item.id === formfieldsNameIdMap["customizableMaps"]) {
         includeCustomizableMaps = true;
       }
     }
