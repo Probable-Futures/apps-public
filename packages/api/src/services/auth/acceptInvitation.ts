@@ -2,7 +2,7 @@ import { verify } from "../../services/auth/token";
 import createClient, { AuthClient } from "../../services/auth/client";
 import sendAccessEmail, { composeEmail } from "./sendAccessEmail";
 import { env } from "../../utils";
-import { formfieldsNameIdMap } from "../../utils/form";
+import { formFieldsNameIdMap } from "../../utils/form";
 import grantPfProAccess from "./grantPfProAccess";
 
 type AnyArg = { [arg: string]: any };
@@ -55,15 +55,15 @@ const acceptInvitation = async (
   const userRequestResponse = rawUserRequestResponse.rows[0] as UserRequestResponse;
 
   const whatWouldYouLikeToUse: { id: string; name: string }[] = getFormFieldValueById(
-    formfieldsNameIdMap["whatWouldYouLikeToUse"],
+    formFieldsNameIdMap["whatWouldYouLikeToUse"],
     userRequestResponse.form_fields,
   );
   const firstName = getFormFieldValueById(
-    formfieldsNameIdMap["firstName"],
+    formFieldsNameIdMap["firstName"],
     userRequestResponse.form_fields,
   );
   const lastName = getFormFieldValueById(
-    formfieldsNameIdMap["lastName"],
+    formFieldsNameIdMap["lastName"],
     userRequestResponse.form_fields,
   );
   const fullName = `${firstName} ${lastName}`;
@@ -81,7 +81,7 @@ const acceptInvitation = async (
     let includeCustomizableMaps = false;
     for (const item of whatWouldYouLikeToUse) {
       // if a user wants access to the Probable Futures API
-      if (item.id === formfieldsNameIdMap["pfApi"]) {
+      if (item.id === formFieldsNameIdMap["pfApi"]) {
         const clientResponse = await createClient(
           fullName.trim(),
           auth0ManagementToken.access_token,
@@ -100,7 +100,7 @@ const acceptInvitation = async (
       // access to Probable Futures Pro
       else if (
         !grantedAccessToPro &&
-        (item.id === formfieldsNameIdMap["pfRawData"] || item.id === formfieldsNameIdMap["pfPro"])
+        (item.id === formFieldsNameIdMap["pfRawData"] || item.id === formFieldsNameIdMap["pfPro"])
       ) {
         const pfProAccessResponse = await grantPfProAccess(
           userRequestResponse.email,
@@ -118,7 +118,7 @@ const acceptInvitation = async (
           response.userAlreadyExists = pfProAccessResponse.alreadyExists;
         }
         grantedAccessToPro = true;
-      } else if (item.id === formfieldsNameIdMap["customizableMaps"]) {
+      } else if (item.id === formFieldsNameIdMap["customizableMaps"]) {
         includeCustomizableMaps = true;
       }
     }
