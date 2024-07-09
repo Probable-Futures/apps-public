@@ -38,8 +38,14 @@ const thanksPart = `
   </div>
 `;
 
-const defaultNoteValue = `Thanks for reaching out. If you'd like, I would be happy to meet on a call to give you a guided demo and answer any
-      questions. You can <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2TEZX3fp1ty-JZr8iIVE5K8tmEE8AAyDLXvAm8Iqn1bo4xEWDtuw1rC_AAt7maw6iiybODG3mH">schedule a time on my calendar here</a>.`;
+const defaultNoteValue = `
+    <p> Thanks for reaching out. If you'd like, I would be happy to meet on a call to give you a guided demo and answer any
+      questions. You can <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2TEZX3fp1ty-JZr8iIVE5K8tmEE8AAyDLXvAm8Iqn1bo4xEWDtuw1rC_AAt7maw6iiybODG3mH">schedule a time on my calendar here</a>.</p>
+    <p>
+      If you haven't already done so, I would recommend you read (or listen to) the 
+      <a href="https://probablefutures.org/stability/">climate handbook</a> on the Probable Futures website. It provides essential context for interpreting the maps and data you will find in the resources below. 
+      You may also be aware of our <a href="https://probablefutures.org/maps">climate maps</a>, which are publicly available. The resources below are simply other ways of accessing or analyzing the data in these same climate maps.
+    </p>`;
 
 export const composeEmail = ({
   firstName,
@@ -59,15 +65,7 @@ export const composeEmail = ({
 }) => {
   const greetingPart = `Hi ${firstName},`;
 
-  const emailIntro = `
-    <p>
-      ${note}
-    </p>
-    <p>
-      If you haven't already done so, I would recommend you read (or listen to) the 
-      <a href="https://probablefutures.org/stability/">climate handbook</a> on the Probable Futures website. It provides essential context for interpreting the maps and data you will find in the resources below. 
-      You may also be aware of our <a href="https://probablefutures.org/maps">climate maps</a>, which are publicly available. The resources below are simply other ways of accessing or analyzing the data in these same climate maps.
-    </p>`;
+  const emailIntro = note;
 
   let resourcesList = "";
   let finalEmail = greetingPart + emailIntro;
