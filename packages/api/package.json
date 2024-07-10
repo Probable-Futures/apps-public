@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "build:production": "tsc -p tsconfig.production.json",
-    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --files --inspect=0.0.0.0 -- src/main.ts",
+    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --files --exit-child --inspect=0.0.0.0 -- src/main.ts",
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit"
   },
