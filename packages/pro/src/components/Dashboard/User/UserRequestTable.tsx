@@ -36,20 +36,21 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 type Props = {
   data: UserAccessRequestResponse;
-  onReject: (userRequest: UserRequestNode, note: string) => void;
-  onAccept: (userRequest: UserRequestNode, note: string) => void;
+  onReject: (userRequest: UserRequestNode, note: string, closing: string) => void;
+  onAccept: (userRequest: UserRequestNode, note: string, closing: string) => void;
   isAccepting: boolean;
   isRejecting: boolean;
 };
 
-const defaultNoteValue = `
-    <p> Thanks for reaching out. If you'd like, I would be happy to meet on a call to give you a guided demo and answer any
+const defaultNoteValue = `<p> Thanks for reaching out. If you'd like, I would be happy to meet on a call to give you a guided demo and answer any
       questions. You can <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2TEZX3fp1ty-JZr8iIVE5K8tmEE8AAyDLXvAm8Iqn1bo4xEWDtuw1rC_AAt7maw6iiybODG3mH">schedule a time on my calendar here</a>.</p>
     <p>
       If you haven't already done so, I would recommend you read (or listen to) the 
       <a href="https://probablefutures.org/stability/">climate handbook</a> on the Probable Futures website. It provides essential context for interpreting the maps and data you will find in the resources below. 
       You may also be aware of our <a href="https://probablefutures.org/maps">climate maps</a>, which are publicly available. The resources below are simply other ways of accessing or analyzing the data in these same climate maps.
     </p>`;
+
+const defaultClosingValue = `<p>Let me know if you have questions. Thanks for joining us in our efforts to help people explore the risks and consequences of climate change.</p>`;
 
 const getFormFieldValueByName = (name: string, formFields: Record<string, RequestField>) => {
   for (const key in formFields) {
@@ -63,7 +64,8 @@ const getFormFieldValueByName = (name: string, formFields: Record<string, Reques
 };
 
 const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }: Props) => {
-  const [notes, setNotes] = useState<{ [noteId: string]: string }>({});
+  const [notes, setNotes] = useState<{ [nodeId: string]: string }>({});
+  const [closings, setClosings] = useState<{ [nodeId: string]: string }>({});
   const [rowIdOfClickedAction, setRowIdOfClickedAction] = useState<string>();
 
   const cellValue = (value: any) => {
@@ -90,23 +92,32 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
         .filter((node) => !node.accessGranted && !node.rejected)
         .map((node) => {
           const note = notes[node.id] || defaultNoteValue;
-          return { ...node, note };
+          const closing = closings[node.id] || defaultClosingValue;
+          return { ...node, note, closing };
         }),
-    [data.viewUserAccessRequests.nodes, notes],
+    [closings, data.viewUserAccessRequests.nodes, notes],
   );
 
   useEffect(() => {
-    const defaultNotes: { [noteId: string]: string } = {};
+    const defaultNotes: { [nodeId: string]: string } = {};
+    const defaultClosings: { [nodeId: string]: string } = {};
     data.viewUserAccessRequests.nodes.forEach((node) => {
       defaultNotes[node.id] = defaultNoteValue;
+      defaultClosings[node.id] = defaultClosingValue;
     });
 
     setNotes(defaultNotes);
+    setClosings(defaultClosings);
   }, [data.viewUserAccessRequests.nodes]);
 
   const handleNoteChange = (event: ContentEditableEvent, userRequest: UserRequestNode) => {
     const newNotes = { ...notes, [userRequest.id]: event.target.value };
     setNotes(newNotes);
+  };
+
+  const handleClosingChange = (event: ContentEditableEvent, userRequest: UserRequestNode) => {
+    const newClosings = { ...closings, [userRequest.id]: event.target.value };
+    setClosings(newClosings);
   };
 
   return (
@@ -124,14 +135,15 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
                 {field.name}
               </StyledTableCell>
             ))}
-            <StyledTableCell>Admin note</StyledTableCell>
+            <StyledTableCell sx={{ minWidth: 80 }}>Email intro</StyledTableCell>
+            <StyledTableCell sx={{ minWidth: 90 }}>Email closing</StyledTableCell>
             <StyledTableCell>Action</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {filteredData.length === 0 && (
             <StyledTableRow>
-              <StyledTableCell colSpan={requestUserAccessFormFields.length + 2}>
+              <StyledTableCell colSpan={requestUserAccessFormFields.length + 3}>
                 No Requests Found
               </StyledTableCell>
             </StyledTableRow>
@@ -157,6 +169,13 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
                   onChange={(e) => handleNoteChange(e, row)}
                 />
               </StyledTableCell>
+              <StyledTableCell sx={{ maxWidth: 400, maxHeight: 200, display: "flex" }}>
+                <Editor
+                  value={closings[row.id]}
+                  style={{ paddingLeft: 20, paddingRight: 20, maxHeight: 200, overflowY: "auto" }}
+                  onChange={(e) => handleClosingChange(e, row)}
+                />
+              </StyledTableCell>
               <StyledTableCell>
                 <LoadingButton
                   loading={isAccepting && rowIdOfClickedAction === row.id}
@@ -164,7 +183,7 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
                   variant="contained"
                   onClick={() => {
                     setRowIdOfClickedAction(row.id);
-                    onAccept(row, notes[row.id]);
+                    onAccept(row, notes[row.id], closings[row.id]);
                   }}
                   sx={{ marginBottom: 2, width: 150 }}
                   loadingIndicator="Accepting…"
@@ -177,7 +196,7 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
                   variant="contained"
                   onClick={() => {
                     setRowIdOfClickedAction(row.id);
-                    onReject(row, notes[row.id]);
+                    onReject(row, notes[row.id], closings[row.id]);
                   }}
                   sx={{ marginBottom: 2, width: 150 }}
                   loadingIndicator="Rejecting…"

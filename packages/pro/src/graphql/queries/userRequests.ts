@@ -11,15 +11,28 @@ export const GET_PF_USER_ACCESS_REQUESTS = gql`
         accessGranted
         rejected
         note
+        closing
       }
     }
   }
 `;
 
 export const UPDATE_USER_ACCESS_REQUEST = gql`
-  mutation ($id: UUID!, $accessGranted: Boolean!, $rejected: Boolean!, $note: String!) {
+  mutation (
+    $id: UUID!
+    $accessGranted: Boolean!
+    $rejected: Boolean!
+    $note: String!
+    $closing: String!
+  ) {
     pfUpdateUserAccessRequest(
-      input: { id: $id, accessGranted: $accessGranted, rejected: $rejected, note: $note }
+      input: {
+        id: $id
+        accessGranted: $accessGranted
+        rejected: $rejected
+        note: $note
+        closing: $closing
+      }
     ) {
       boolean
     }
@@ -27,8 +40,8 @@ export const UPDATE_USER_ACCESS_REQUEST = gql`
 `;
 
 export const APPROVE_USER_ACCESS_REQUEST = gql`
-  mutation ($requestId: UUID!, $note: String) {
-    acceptInvitation(input: { requestId: $requestId, note: $note }) {
+  mutation ($requestId: UUID!, $note: String, $closing: String) {
+    acceptInvitation(input: { requestId: $requestId, note: $note, closing: $closing }) {
       userId
       clientId
       error

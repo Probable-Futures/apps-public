@@ -27,6 +27,7 @@ export type UserRequestNode = {
   accessGranted: boolean;
   rejected: boolean;
   note: string;
+  closing: string;
 };
 
 export type UserAccessRequestResponse = {
@@ -65,22 +66,24 @@ const UserRequests = () => {
     }
   }, [apiError]);
 
-  const onReject = (userRequest: UserRequestNode, note: string) => {
+  const onReject = (userRequest: UserRequestNode, note: string, closing: string) => {
     rejectRequest({
       variables: {
         id: userRequest.id,
         accessGranted: false,
         rejected: true,
         note,
+        closing,
       },
     });
   };
 
-  const onAccept = (userRequest: UserRequestNode, note: string) => {
+  const onAccept = (userRequest: UserRequestNode, note: string, closing: string) => {
     approveRequest({
       variables: {
         requestId: userRequest.id,
         note,
+        closing,
       },
     });
   };

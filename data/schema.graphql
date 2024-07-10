@@ -1,4 +1,5 @@
 input AcceptInvitationInput {
+  closing: String
   note: String
   requestId: UUID!
 }
@@ -3086,6 +3087,7 @@ input PfUpdateUserAccessRequestInput {
   payload verbatim. May be used to track mutations by the client.
   """
   clientMutationId: String
+  closing: String!
   id: UUID!
   note: String!
   rejected: Boolean!
@@ -5193,6 +5195,7 @@ enum ViewPfCountryStatisticsOrderBy {
 
 type ViewUserAccessRequest {
   accessGranted: Boolean
+  closing: String
   email: String
   formFields: JSON
   formName: String
@@ -5208,6 +5211,9 @@ are tested for equality and combined with a logical ‘and.’
 input ViewUserAccessRequestCondition {
   """Checks for equality with the object’s `accessGranted` field."""
   accessGranted: Boolean
+
+  """Checks for equality with the object’s `closing` field."""
+  closing: String
 
   """Checks for equality with the object’s `email` field."""
   email: String
@@ -5234,6 +5240,9 @@ A filter to be used against `ViewUserAccessRequest` object types. All fields are
 input ViewUserAccessRequestFilter {
   """Filter by the object’s `accessGranted` field."""
   accessGranted: BooleanFilter
+
+  """Filter by the object’s `closing` field."""
+  closing: StringFilter
 
   """Filter by the object’s `email` field."""
   email: StringFilter
@@ -5286,6 +5295,8 @@ type ViewUserAccessRequestsEdge {
 enum ViewUserAccessRequestsOrderBy {
   ACCESS_GRANTED_ASC
   ACCESS_GRANTED_DESC
+  CLOSING_ASC
+  CLOSING_DESC
   EMAIL_ASC
   EMAIL_DESC
   FORM_FIELDS_ASC

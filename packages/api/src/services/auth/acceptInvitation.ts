@@ -35,7 +35,7 @@ const acceptInvitation = async (
   args: AnyArg,
   context: AnyArg,
 ): Promise<Response> => {
-  const { requestId, note } = args.input;
+  const { requestId, note, closing } = args.input;
 
   if (!requestId) {
     throw Error("RequestId is missing.");
@@ -133,6 +133,7 @@ const acceptInvitation = async (
           }
         : undefined,
       note,
+      closing,
       includeCustomizableMaps,
     });
 
@@ -140,8 +141,8 @@ const acceptInvitation = async (
 
     try {
       await context.pgClient.query(
-        "select * from pf_public.pf_update_user_access_request ($1, $2, $3, $4)",
-        [requestId, true, note, false],
+        "select * from pf_public.pf_update_user_access_request ($1, $2, $3, $4, $5)",
+        [requestId, true, note, closing, false],
       );
     } catch (error) {
       console.error(error);

@@ -35,6 +35,7 @@ export const ExtendGqlSchemaPlugin = makeExtendSchemaPlugin((build) => {
       input AcceptInvitationInput {
         requestId: UUID!
         note: String
+        closing: String
       }
       extend type Mutation {
         datasetSignedUrls(input: FileInput!): [String]!
