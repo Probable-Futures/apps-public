@@ -65,6 +65,10 @@
     "react-vis": "^1.12.1",
     "**/pro/**/marked": "4.0.10",
     "@types/debug": "4.1.7",
-    "**/{worker-loader,graphile-worker,graphile-migrate,postgraphile}/json5": "^2.2.2"
+    "**/{worker-loader,graphile-worker,graphile-migrate,postgraphile}/json5": "^2.2.2",
+    "**/maps/react-scripts/jest/**/ws": "7.5.10",
+    "**/api/postgraphile/**/ws": "7.5.10",
+    "**/api/@uppy/companion/ws": "8.17.1",
+    "**/maps/react-scripts/webpack-dev-server/ws": "8.17.1"
   }
 }
