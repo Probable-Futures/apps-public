@@ -3,9 +3,9 @@ import { Task } from "graphile-worker";
 import { extendDebugger } from "../utils/debugger";
 import * as types from "../types";
 import {
-  createCountryStatisticsfile,
-  selectDatasetStatisticsByCountry,
-  streamCountryStatistics,
+  createGeoPlaceStatisticsfile,
+  selectDatasetStatisticsByGeoPlace,
+  streamGeoPlaceStatistics,
   updateDatasetStatisticsFileCreationFailed,
   updateDatasetStatisticsFileCreationInProgress,
   updateDatasetStatisticsFileCreationSuccessful,
@@ -13,29 +13,30 @@ import {
 
 const debug = extendDebugger("tasks:create_statistics_file");
 
-type Country = {
+type GeoPlace = {
   name: string;
   iso_a2: string;
   iso_a3: string;
   id: string;
+  geo_place_type: string;
 };
 
 const createStatisticsFile: Task = async (payload, { withPgClient, logger }) => {
   debug("start task: %o", payload);
   try {
-    const { id, datasetId, countryId } = payload as types.CreateStatisticsFilePayload;
-    const path = "climate-data/data-by-country";
-    let country: Country | null = null;
+    const { id, datasetId, geoPlaceId } = payload as types.CreateStatisticsFilePayload;
+    const path = "climate-data/data-by-place";
+    let geoPlace: GeoPlace | null = null;
     let pfMap = null;
 
     await withPgClient(async (pgClient) => {
-      // Validate country and dataset
+      // Validate place and dataset
       try {
         if (!datasetId) {
           throw "datasetId is not valid";
         }
-        if (!countryId) {
-          throw "countryId is not valid";
+        if (!geoPlaceId) {
+          throw "geoPlaceId is not valid";
         }
         let pfMapResponse = null;
         pfMapResponse = await pgClient.query(
@@ -46,14 +47,14 @@ const createStatisticsFile: Task = async (payload, { withPgClient, logger }) => 
         if (!pfMap) {
           throw "Climate map does not exist";
         }
-        let countryResponse = await pgClient.query(
-          "select * from pf_public.countries where id = $1",
-          [countryId],
+        let placeResponse = await pgClient.query(
+          "select * from pf_public.geo_places where id = $1",
+          [geoPlaceId],
         );
-        country = countryResponse.rows[0];
-        if (!country) {
+        geoPlace = placeResponse.rows[0];
+        if (!geoPlace) {
           await pgClient.query(updateDatasetStatisticsFileCreationFailed(id));
-          throw "Country does not exist in the database";
+          throw "geo Place does not exist in the database";
         }
       } catch (error) {
         await pgClient.query(updateDatasetStatisticsFileCreationFailed(id));
@@ -63,20 +64,20 @@ const createStatisticsFile: Task = async (payload, { withPgClient, logger }) => 
       await pgClient.query(updateDatasetStatisticsFileCreationInProgress(id));
       try {
         // Create a query stream that reads data from the db
-        let queryStream = streamCountryStatistics(
-          selectDatasetStatisticsByCountry(countryId, datasetId),
+        let queryStream = streamGeoPlaceStatistics(
+          selectDatasetStatisticsByGeoPlace(geoPlaceId, datasetId),
           pgClient,
         );
         // Create the statistics file and upload it to S3
-        const { writeFileLocation } = await createCountryStatisticsfile({
+        const { writeFileLocation } = await createGeoPlaceStatisticsfile({
           logger,
           queryStream,
-          file: `${country.name.replace(/\s+/g, "_")}-${pfMap.name.replace(/\s+/g, "_")}.csv`, // replace empty space with underscors.
+          file: `${geoPlace.name.replace(/\s+/g, "_")}-${pfMap.name.replace(/\s+/g, "_")}.csv`, // replace empty space with underscors.
           path,
         });
         await pgClient.query(updateDatasetStatisticsFileCreationSuccessful(id, writeFileLocation));
       } catch (e: any) {
-        logger.error("Failed to stream country statistics", e);
+        logger.error("Failed to stream geoPlace statistics", e);
         await pgClient.query(updateDatasetStatisticsFileCreationFailed(id));
       }
     });

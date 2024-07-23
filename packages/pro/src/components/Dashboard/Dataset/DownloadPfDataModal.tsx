@@ -16,7 +16,7 @@ import {
 import { colors } from "../../../consts";
 import { modalStyle, Theme } from "../../../shared/styles/styles";
 import { Option } from "../../../shared/types";
-import { Country, IncludeColumnType } from "../../../utils/useDownloadPfData";
+import { GeoPlace, IncludeColumnType } from "../../../utils/useDownloadPfData";
 import ErrorMessage from "../../Common/ErrorMessage";
 
 export type FileFormatOption = "csv" | "geojson" | "netcdf";
@@ -24,11 +24,11 @@ export type FileFormatOption = "csv" | "geojson" | "netcdf";
 type Props = {
   includeColumns: IncludeColumnType[];
   datasetToDownload: types.Map;
-  countries: Country[];
+  geoPlaces: GeoPlace[];
   errorMessage: string;
   modalOpen: boolean;
   onDownloadClick: (FileFormatOption: FileFormatOption) => void;
-  setCountry: (country?: Country) => void;
+  setGeoPlace: (geoPlace?: GeoPlace) => void;
   setIncludeColumns: (includeColumns: IncludeColumnType[]) => void;
   onModalClose: () => void;
 };
@@ -105,31 +105,31 @@ const ButtonWrapper = styled.div`
 const DownloadPfDataModal = ({
   includeColumns,
   datasetToDownload,
-  countries,
+  geoPlaces,
   errorMessage,
   modalOpen,
   setIncludeColumns,
-  setCountry,
+  setGeoPlace,
   onModalClose,
   onDownloadClick,
 }: Props) => {
-  const [selectedCountry, setSelectedCountry] = useState<Option>({ label: "All", value: "All" });
+  const [selectedGeoPlace, setSelectedGeoPlace] = useState<Option>();
   const [selectedFormat, setSelectedFormat] = useState<FileFormatOption>("csv");
   const [currentStep, setCurrentStep] = useState<number>(1);
 
-  const getCountryOptions = useCallback(() => {
-    const datasetOptions = countries.map((item) => ({
+  const getGeoPlaceOptions = useCallback(() => {
+    const datasetOptions = geoPlaces.map((item) => ({
       label: item.name,
       value: item.id,
     }));
-    datasetOptions.unshift({ label: "All", value: "All" });
+    datasetOptions.unshift();
     return datasetOptions;
-  }, [countries]);
+  }, [geoPlaces]);
 
   const onDatasetChange = (option: Option) => {
-    const country = countries.find((c) => c.id === option.value);
-    setSelectedCountry(option);
-    setCountry(country);
+    const geoPlace = geoPlaces.find((c) => c.id === option.value);
+    setSelectedGeoPlace(option);
+    setGeoPlace(geoPlace);
   };
 
   const onColumChecked = (index: number) => {
@@ -182,14 +182,15 @@ const DownloadPfDataModal = ({
     <>
       <StyledLabel>
         By default, all data is included, covering most of the world. If you want data only for a
-        specific country, choose it below:
+        specific geoPlace, choose it below:
       </StyledLabel>
       <Dropdown
-        value={selectedCountry}
-        options={getCountryOptions()}
+        value={selectedGeoPlace}
+        options={getGeoPlaceOptions()}
         onChange={onDatasetChange}
         theme={Theme.LIGHT}
         isSearchable
+        placeholder="Select a place (a country or a state).."
       />
       <StyledLabel>Choose columns to include:</StyledLabel>
       <div>

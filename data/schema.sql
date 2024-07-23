@@ -218,7 +218,7 @@ CREATE FUNCTION pf_private.create_statistics_file() RETURNS trigger
     AS $$
 begin
   perform
-    graphile_worker.add_job ('create_statistics_file', payload := json_build_object('id', (new.id), 'countryId', (new.country_id), 'datasetId', (new.dataset_id)), max_attempts := 1);
+    graphile_worker.add_job ('create_statistics_file', payload := json_build_object('id', (new.id), 'geoPlaceId', (new.geo_place_id), 'datasetId', (new.dataset_id)), max_attempts := 1);
   return new;
 end;
 $$;
@@ -754,12 +754,12 @@ $$;
 
 
 --
--- Name: pf_country_statistics; Type: TABLE; Schema: pf_private; Owner: -
+-- Name: pf_geo_place_statistics; Type: TABLE; Schema: pf_private; Owner: -
 --
 
-CREATE TABLE pf_private.pf_country_statistics (
+CREATE TABLE pf_private.pf_geo_place_statistics (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    country_id uuid NOT NULL,
+    geo_place_id uuid NOT NULL,
     dataset_id integer NOT NULL,
     file_url text,
     status text DEFAULT 'requested'::text,
@@ -769,26 +769,26 @@ CREATE TABLE pf_private.pf_country_statistics (
 
 
 --
--- Name: create_pf_country_statistics(uuid, integer); Type: FUNCTION; Schema: pf_public; Owner: -
+-- Name: create_pf_geo_place_statistics(uuid, integer); Type: FUNCTION; Schema: pf_public; Owner: -
 --
 
-CREATE FUNCTION pf_public.create_pf_country_statistics(country_id uuid, dataset_id integer) RETURNS SETOF pf_private.pf_country_statistics
+CREATE FUNCTION pf_public.create_pf_geo_place_statistics(geo_place_id uuid, dataset_id integer) RETURNS SETOF pf_private.pf_geo_place_statistics
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
   declare 
-    country_statistics pf_private.pf_country_statistics;
+    geo_place_statistics pf_private.pf_geo_place_statistics;
   begin
-  select * into country_statistics 
-  from pf_private.pf_country_statistics cs 
-  where cs.country_id = create_pf_country_statistics.country_id 
-  and cs.dataset_id = create_pf_country_statistics.dataset_id
-  and (cs.status = 'successful' or cs.status = 'in progress');
-  if country_statistics is null then
-    insert into pf_private.pf_country_statistics (country_id, dataset_id)
-      values (create_pf_country_statistics.country_id, create_pf_country_statistics.dataset_id) 
-        returning * into country_statistics;
+  select * into geo_place_statistics 
+  from pf_private.pf_geo_place_statistics cs 
+  where cs.geo_place_id = create_pf_geo_place_statistics.geo_place_id 
+  and cs.dataset_id = create_pf_geo_place_statistics.dataset_id
+  and cs.status = 'successful';
+  if geo_place_statistics is null then
+    insert into pf_private.pf_geo_place_statistics (geo_place_id, dataset_id)
+      values (create_pf_geo_place_statistics.geo_place_id, create_pf_geo_place_statistics.dataset_id) 
+        returning * into geo_place_statistics;
   end if;
-  return next country_statistics;
+  return next geo_place_statistics;
   end;
 $$;
 
@@ -1461,17 +1461,18 @@ CREATE TABLE pf_private.pf_user_access_requests (
 
 
 --
--- Name: countries; Type: TABLE; Schema: pf_public; Owner: -
+-- Name: geo_places; Type: TABLE; Schema: pf_public; Owner: -
 --
 
-CREATE TABLE pf_public.countries (
+CREATE TABLE pf_public.geo_places (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name text NOT NULL,
     iso_a2 character varying,
     iso_a3 character varying,
     wkb_geometry public.geometry(MultiPolygon,4326) NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    geo_place_type text
 );
 
 
@@ -1877,16 +1878,16 @@ COMMENT ON COLUMN pf_public.view_partner_projects.created_at IS '@notNull';
 
 
 --
--- Name: view_pf_country_statistics; Type: VIEW; Schema: pf_public; Owner: -
+-- Name: view_pf_geo_place_statistics; Type: VIEW; Schema: pf_public; Owner: -
 --
 
-CREATE VIEW pf_public.view_pf_country_statistics AS
- SELECT pf_country_statistics.id,
-    pf_country_statistics.dataset_id,
-    pf_country_statistics.country_id,
-    pf_country_statistics.file_url,
-    pf_country_statistics.status
-   FROM pf_private.pf_country_statistics;
+CREATE VIEW pf_public.view_pf_geo_place_statistics AS
+ SELECT pf_geo_place_statistics.id,
+    pf_geo_place_statistics.dataset_id,
+    pf_geo_place_statistics.geo_place_id,
+    pf_geo_place_statistics.file_url,
+    pf_geo_place_statistics.status
+   FROM pf_private.pf_geo_place_statistics;
 
 
 --
@@ -1906,10 +1907,10 @@ CREATE VIEW pf_public.view_user_access_request AS
 
 
 --
--- Name: pf_country_statistics pf_country_statistics_pkey; Type: CONSTRAINT; Schema: pf_private; Owner: -
+-- Name: pf_geo_place_statistics pf_country_statistics_pkey; Type: CONSTRAINT; Schema: pf_private; Owner: -
 --
 
-ALTER TABLE ONLY pf_private.pf_country_statistics
+ALTER TABLE ONLY pf_private.pf_geo_place_statistics
     ADD CONSTRAINT pf_country_statistics_pkey PRIMARY KEY (id);
 
 
@@ -2002,18 +2003,10 @@ ALTER TABLE ONLY pf_private.connect_pg_simple_sessions
 
 
 --
--- Name: countries countries_name_unique; Type: CONSTRAINT; Schema: pf_public; Owner: -
+-- Name: geo_places countries_pkey; Type: CONSTRAINT; Schema: pf_public; Owner: -
 --
 
-ALTER TABLE ONLY pf_public.countries
-    ADD CONSTRAINT countries_name_unique UNIQUE (name);
-
-
---
--- Name: countries countries_pkey; Type: CONSTRAINT; Schema: pf_public; Owner: -
---
-
-ALTER TABLE ONLY pf_public.countries
+ALTER TABLE ONLY pf_public.geo_places
     ADD CONSTRAINT countries_pkey PRIMARY KEY (id);
 
 
@@ -2231,10 +2224,10 @@ COMMENT ON INDEX pf_private.pf_partner_dataset_coordinates_idx IS 'This GiST ind
 
 
 --
--- Name: pf_countries_wkb_geometry_idx; Type: INDEX; Schema: pf_public; Owner: -
+-- Name: geo_places_wkb_geometry_idx; Type: INDEX; Schema: pf_public; Owner: -
 --
 
-CREATE INDEX pf_countries_wkb_geometry_idx ON pf_public.countries USING gist (wkb_geometry);
+CREATE INDEX geo_places_wkb_geometry_idx ON pf_public.geo_places USING gist (wkb_geometry);
 
 
 --
@@ -2343,10 +2336,10 @@ CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON pf_private.pf_audit FO
 
 
 --
--- Name: pf_country_statistics _100_timestamps; Type: TRIGGER; Schema: pf_private; Owner: -
+-- Name: pf_geo_place_statistics _100_timestamps; Type: TRIGGER; Schema: pf_private; Owner: -
 --
 
-CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON pf_private.pf_country_statistics FOR EACH ROW EXECUTE FUNCTION pf_private.tg__timestamps();
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON pf_private.pf_geo_place_statistics FOR EACH ROW EXECUTE FUNCTION pf_private.tg__timestamps();
 
 
 --
@@ -2413,10 +2406,10 @@ CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON pf_private.pf_users FO
 
 
 --
--- Name: pf_country_statistics _500_create_statistics_file; Type: TRIGGER; Schema: pf_private; Owner: -
+-- Name: pf_geo_place_statistics _500_create_statistics_file; Type: TRIGGER; Schema: pf_private; Owner: -
 --
 
-CREATE TRIGGER _500_create_statistics_file BEFORE INSERT ON pf_private.pf_country_statistics FOR EACH ROW EXECUTE FUNCTION pf_private.create_statistics_file();
+CREATE TRIGGER _500_create_statistics_file BEFORE INSERT ON pf_private.pf_geo_place_statistics FOR EACH ROW EXECUTE FUNCTION pf_private.create_statistics_file();
 
 
 --
@@ -2490,19 +2483,19 @@ COMMENT ON TRIGGER _200_set_cell ON pf_public.pf_grid_coordinates IS 'Set cell f
 
 
 --
--- Name: pf_country_statistics pf_country_statistics_countries_fkey; Type: FK CONSTRAINT; Schema: pf_private; Owner: -
+-- Name: pf_geo_place_statistics pf_geo_place_statistics_geo_places_fkey; Type: FK CONSTRAINT; Schema: pf_private; Owner: -
 --
 
-ALTER TABLE ONLY pf_private.pf_country_statistics
-    ADD CONSTRAINT pf_country_statistics_countries_fkey FOREIGN KEY (country_id) REFERENCES pf_public.countries(id);
+ALTER TABLE ONLY pf_private.pf_geo_place_statistics
+    ADD CONSTRAINT pf_geo_place_statistics_geo_places_fkey FOREIGN KEY (geo_place_id) REFERENCES pf_public.geo_places(id);
 
 
 --
--- Name: pf_country_statistics pf_country_statistics_pf_datastes_fkey; Type: FK CONSTRAINT; Schema: pf_private; Owner: -
+-- Name: pf_geo_place_statistics pf_geo_place_statistics_pf_datasets_fkey; Type: FK CONSTRAINT; Schema: pf_private; Owner: -
 --
 
-ALTER TABLE ONLY pf_private.pf_country_statistics
-    ADD CONSTRAINT pf_country_statistics_pf_datastes_fkey FOREIGN KEY (dataset_id) REFERENCES pf_public.pf_datasets(id);
+ALTER TABLE ONLY pf_private.pf_geo_place_statistics
+    ADD CONSTRAINT pf_geo_place_statistics_pf_datasets_fkey FOREIGN KEY (dataset_id) REFERENCES pf_public.pf_datasets(id);
 
 
 --
@@ -3064,19 +3057,20 @@ GRANT ALL ON FUNCTION pf_public.create_partner_project_share(project_id uuid) TO
 
 
 --
--- Name: TABLE pf_country_statistics; Type: ACL; Schema: pf_private; Owner: -
+-- Name: TABLE pf_geo_place_statistics; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_country_statistics TO pf_root;
+GRANT ALL ON TABLE pf_private.pf_geo_place_statistics TO pf_root;
 
 
 --
--- Name: FUNCTION create_pf_country_statistics(country_id uuid, dataset_id integer); Type: ACL; Schema: pf_public; Owner: -
+-- Name: FUNCTION create_pf_geo_place_statistics(geo_place_id uuid, dataset_id integer); Type: ACL; Schema: pf_public; Owner: -
 --
 
-REVOKE ALL ON FUNCTION pf_public.create_pf_country_statistics(country_id uuid, dataset_id integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION pf_public.create_pf_country_statistics(country_id uuid, dataset_id integer) TO pf_root;
-GRANT ALL ON FUNCTION pf_public.create_pf_country_statistics(country_id uuid, dataset_id integer) TO pf_authenticated;
+REVOKE ALL ON FUNCTION pf_public.create_pf_geo_place_statistics(geo_place_id uuid, dataset_id integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION pf_public.create_pf_geo_place_statistics(geo_place_id uuid, dataset_id integer) TO pf_root;
+GRANT ALL ON FUNCTION pf_public.create_pf_geo_place_statistics(geo_place_id uuid, dataset_id integer) TO pf_anonymous;
+GRANT ALL ON FUNCTION pf_public.create_pf_geo_place_statistics(geo_place_id uuid, dataset_id integer) TO pf_authenticated;
 
 
 --
@@ -3290,12 +3284,12 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE pf_private.pf_user_access_requests TO
 
 
 --
--- Name: TABLE countries; Type: ACL; Schema: pf_public; Owner: -
+-- Name: TABLE geo_places; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.countries TO pf_root;
-GRANT SELECT ON TABLE pf_public.countries TO pf_anonymous;
-GRANT SELECT ON TABLE pf_public.countries TO pf_authenticated;
+GRANT ALL ON TABLE pf_public.geo_places TO pf_root;
+GRANT SELECT ON TABLE pf_public.geo_places TO pf_anonymous;
+GRANT SELECT ON TABLE pf_public.geo_places TO pf_authenticated;
 
 
 --
@@ -3428,11 +3422,11 @@ GRANT SELECT ON TABLE pf_public.view_partner_projects TO pf_authenticated;
 
 
 --
--- Name: TABLE view_pf_country_statistics; Type: ACL; Schema: pf_public; Owner: -
+-- Name: TABLE view_pf_geo_place_statistics; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.view_pf_country_statistics TO pf_root;
-GRANT SELECT ON TABLE pf_public.view_pf_country_statistics TO pf_authenticated;
+GRANT ALL ON TABLE pf_public.view_pf_geo_place_statistics TO pf_root;
+GRANT SELECT ON TABLE pf_public.view_pf_geo_place_statistics TO pf_authenticated;
 
 
 --

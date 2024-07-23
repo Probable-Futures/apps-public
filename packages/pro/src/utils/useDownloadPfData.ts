@@ -6,11 +6,11 @@ import Papa from "papaparse";
 import { PUBLISHED_MAPS_QUERY } from "../graphql/queries/maps";
 import { GRAPHQL_API_KEY } from "../consts/env";
 import {
-  CREATE_PF_COUNTRY_STATISTICS,
-  VIEW_PF_COUNTRY_STATISTICS_BY_COUNTRY_AND_DATASET,
-  VIEW_PF_COUNTRY_STATISTICS_BY_ID,
-  COUNTRIES,
-} from "../graphql/queries/country";
+  CREATE_PF_GEO_PLACE_STATISTICS,
+  VIEW_PF_GEO_PLACE_STATISTICS_BY_GEO_PLACE_AND_DATASET,
+  VIEW_PF_GEO_PLACE_STATISTICS_BY_ID,
+  GEO_PLACES,
+} from "../graphql/queries/geoPlace";
 import { GET_DATASET_SIGNED_URLS } from "../graphql/queries/datasets";
 import { GqlResponse } from "../shared/types";
 import { FileFormatOption } from "../components/Dashboard/Dataset/DownloadPfDataModal";
@@ -22,17 +22,18 @@ export type IncludeColumnType = {
   options: string[];
 };
 
-export type Country = {
+export type GeoPlace = {
   name: string;
-  iso_a2: string;
-  iso_a3: string;
+  isoA2: string;
+  isoA3: string;
   id: string;
+  geoPlaceType: string;
 };
 
-type CountryStatistics = {
+type GeoPlaceStatistics = {
   id: string;
   datasetId: number;
-  countryId: string;
+  geoPlaceId: string;
   fileUrl: string;
   status: "requested" | "in progress" | "failed" | "successful";
 };
@@ -41,8 +42,8 @@ type PFMapsResponse = {
   pfMaps: GqlResponse<types.Map>;
 };
 
-type CountryStatisticsResponse = {
-  createPfCountryStatistics: { pfCountryStatistics: CountryStatistics[] };
+type GeoPlaceStatisticsResponse = {
+  createPfGeoPlaceStatistics: { pfGeoPlaceStatistics: GeoPlaceStatistics[] };
 };
 
 const defaultCSVColumns = [
@@ -96,28 +97,30 @@ const pollingInterval = 7000;
 
 export default function useDownloadPfData() {
   // State variables
-  const [country, setCountry] = useState<Country>();
+  const [geoPlace, setGeoPlace] = useState<GeoPlace>();
   const [datasetToDownload, setDatasetToDownload] = useState<types.Map>();
   const [isDatasetDownloadModalOpen, setIsDatasetDownloadModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showDetails, setShowDetails] = useState(false);
   const [inProgressData, setInProgressData] = useState<{
-    country: Country;
+    geoPlace: GeoPlace;
     dataset: types.Map;
     includeColumns: IncludeColumnType[];
     fileFormatOption: FileFormatOption;
   }>();
-  const [countryStatisticsFromCreate, setCountryStatisticsFromCreate] =
-    useState<CountryStatistics>();
+  const [geoPlaceStatisticsFromCreate, setGeoPlaceStatisticsFromCreate] =
+    useState<GeoPlaceStatistics>();
   const [includeColumns, setIncludeColumns] = useState<IncludeColumnType[]>(
     structuredClone(defaultCSVColumns),
   );
+
+  const [isToastOpen, setIsToastOpen] = useState(false);
 
   const getNameFromUrl = useCallback(
     (fileUrl: string) => {
       const name = new URL(fileUrl).pathname.split("/").pop() || "";
       if (!name && inProgressData?.fileFormatOption === "csv") {
-        return `${inProgressData.country?.name.replaceAll(
+        return `${inProgressData.geoPlace?.name.replaceAll(
           " ",
           "_",
         )}-${inProgressData.dataset.name.replaceAll(" ", "_")}.csv`;
@@ -187,7 +190,7 @@ export default function useDownloadPfData() {
   );
 
   // Queries and mutations
-  const { data: countries } = useQuery<{ countries: { nodes: Country[] } }>(COUNTRIES, {
+  const { data: geoPlaces } = useQuery<{ geoPlaces: { nodes: GeoPlace[] } }>(GEO_PLACES, {
     context: {
       headers: {
         "api-key": GRAPHQL_API_KEY,
@@ -197,12 +200,12 @@ export default function useDownloadPfData() {
 
   const [getSignedUrls] = useMutation(GET_DATASET_SIGNED_URLS);
 
-  const [createPfCountryStatistics] = useMutation<CountryStatisticsResponse>(
-    CREATE_PF_COUNTRY_STATISTICS,
+  const [createPfGeoPlaceStatistics] = useMutation<GeoPlaceStatisticsResponse>(
+    CREATE_PF_GEO_PLACE_STATISTICS,
     {
       onCompleted(data) {
-        if (data?.createPfCountryStatistics?.pfCountryStatistics) {
-          setCountryStatisticsFromCreate(data.createPfCountryStatistics.pfCountryStatistics[0]);
+        if (data?.createPfGeoPlaceStatistics?.pfGeoPlaceStatistics) {
+          setGeoPlaceStatisticsFromCreate(data.createPfGeoPlaceStatistics.pfGeoPlaceStatistics[0]);
         }
       },
     },
@@ -216,39 +219,42 @@ export default function useDownloadPfData() {
     },
   });
 
-  const [getPfCountryStatistics] = useLazyQuery<{
-    viewPfCountryStatistics: { nodes: CountryStatistics[] };
-  }>(VIEW_PF_COUNTRY_STATISTICS_BY_COUNTRY_AND_DATASET);
+  const [getPfGeoPlaceStatistics] = useLazyQuery<{
+    viewPfGeoPlaceStatistics: { nodes: GeoPlaceStatistics[] };
+  }>(VIEW_PF_GEO_PLACE_STATISTICS_BY_GEO_PLACE_AND_DATASET);
 
   const { startPolling, stopPolling } = useQuery<{
-    viewPfCountryStatistics: { nodes: CountryStatistics[] };
-  }>(VIEW_PF_COUNTRY_STATISTICS_BY_ID, {
+    viewPfGeoPlaceStatistics: { nodes: GeoPlaceStatistics[] };
+  }>(VIEW_PF_GEO_PLACE_STATISTICS_BY_ID, {
     skip:
       !inProgressData?.dataset ||
-      !inProgressData?.country ||
-      countryStatisticsFromCreate === null ||
-      countryStatisticsFromCreate === undefined ||
-      !!(countryStatisticsFromCreate && countryStatisticsFromCreate.fileUrl),
+      !inProgressData?.geoPlace ||
+      geoPlaceStatisticsFromCreate === null ||
+      geoPlaceStatisticsFromCreate === undefined ||
+      !!(geoPlaceStatisticsFromCreate && geoPlaceStatisticsFromCreate.fileUrl),
     variables: {
-      id: countryStatisticsFromCreate?.id,
+      id: geoPlaceStatisticsFromCreate?.id,
     },
+    notifyOnNetworkStatusChange: true,
     onCompleted: async (data) => {
-      if (data?.viewPfCountryStatistics?.nodes) {
-        const countryStatistics = data.viewPfCountryStatistics.nodes[0];
-        if (!countryStatistics) {
+      if (data?.viewPfGeoPlaceStatistics?.nodes) {
+        const geoPlaceStatistics = data.viewPfGeoPlaceStatistics.nodes[0];
+        if (!geoPlaceStatistics) {
           return;
         }
-        if (countryStatistics.status === "successful" && countryStatistics.fileUrl) {
+        if (geoPlaceStatistics.status === "successful" && geoPlaceStatistics.fileUrl) {
           stopPolling();
-          setCountryStatisticsFromCreate(undefined);
+          setGeoPlaceStatisticsFromCreate(undefined);
           const signedUrl = await getSignedUrl(
-            decodeURIComponent(new URL(countryStatistics.fileUrl).pathname).substring(1),
+            decodeURIComponent(new URL(geoPlaceStatistics.fileUrl).pathname).substring(1),
           );
           handleDownload(signedUrl);
-        } else if (countryStatistics.status === "failed") {
-          setCountryStatisticsFromCreate(undefined);
+        } else if (geoPlaceStatistics.status === "failed") {
+          setGeoPlaceStatisticsFromCreate(undefined);
           stopPolling();
-          setErrorMessage("Error occured, please downloading the file again.");
+          setErrorMessage("Error occured, please download the file again.");
+          setIsToastOpen(true);
+          setInProgressData(undefined);
         }
       }
     },
@@ -259,7 +265,7 @@ export default function useDownloadPfData() {
     setIncludeColumns(structuredClone(defaultCSVColumns));
     setErrorMessage("");
     setDatasetToDownload(undefined);
-    setCountry(undefined);
+    setGeoPlace(undefined);
   };
 
   const onDownloadPfData = useCallback(
@@ -272,17 +278,17 @@ export default function useDownloadPfData() {
         );
         return;
       }
-      const countryCopy = country ? structuredClone(country) : undefined;
+      const geoPlaceCopy = geoPlace ? structuredClone(geoPlace) : undefined;
       const datasetCopy = structuredClone(datasetToDownload);
       const includeColumnsCopy = structuredClone(includeColumns);
       setInProgressData({
-        country: countryCopy!,
+        geoPlace: geoPlaceCopy!,
         dataset: datasetCopy,
         includeColumns: includeColumnsCopy,
         fileFormatOption,
       });
     },
-    [country, inProgressData, includeColumns, datasetToDownload],
+    [geoPlace, inProgressData, includeColumns, datasetToDownload],
   );
 
   const onDownloadPfDataClick = async (index: number) => {
@@ -324,29 +330,29 @@ export default function useDownloadPfData() {
   useEffect(() => {
     const proceedWithDownload = async () => {
       onDownloadDatasetModalClose();
-      // Downloading data by country only supported for CSV file formats
-      if (inProgressData?.country && inProgressData.fileFormatOption === "csv") {
-        // If a file is already created for this country get its url. Else call createPfCountryStatistics to start creating the file in background.
-        const res = await getPfCountryStatistics({
+      // Downloading data by geoPlace only supported for CSV file formats
+      if (inProgressData?.geoPlace && inProgressData.fileFormatOption === "csv") {
+        // If a file is already created for this geoPlace get its url. Else call createPfGeoPlaceStatistics to start creating the file in background.
+        const res = await getPfGeoPlaceStatistics({
           variables: {
-            countryId: inProgressData.country.id,
+            geoPlaceId: inProgressData.geoPlace.id,
             datasetId: inProgressData.dataset.dataset.id,
           },
         });
-        if (res.data && res.data.viewPfCountryStatistics.nodes.length > 0) {
-          const countryData = res.data.viewPfCountryStatistics.nodes?.find(
+        if (res.data && res.data.viewPfGeoPlaceStatistics.nodes.length > 0) {
+          const geoPlaceData = res.data.viewPfGeoPlaceStatistics.nodes?.find(
             (cd) => cd.status === "successful" && cd.fileUrl,
           );
-          if (countryData) {
+          if (geoPlaceData) {
             const signedUrl = await getSignedUrl(
-              decodeURIComponent(new URL(countryData.fileUrl).pathname).substring(1),
+              decodeURIComponent(new URL(geoPlaceData.fileUrl).pathname).substring(1),
             );
             return handleDownload(signedUrl);
           }
         }
-        await createPfCountryStatistics({
+        await createPfGeoPlaceStatistics({
           variables: {
-            countryId: inProgressData.country.id,
+            geoPlaceId: inProgressData.geoPlace.id,
             datasetId: inProgressData.dataset.dataset.id,
           },
         });
@@ -374,47 +380,49 @@ export default function useDownloadPfData() {
     }
   }, [
     inProgressData,
-    createPfCountryStatistics,
-    getPfCountryStatistics,
+    createPfGeoPlaceStatistics,
+    getPfGeoPlaceStatistics,
     handleDownload,
     getSignedUrl,
   ]);
 
   useEffect(() => {
-    const handleCountryStatisticsCreated = async () => {
+    const handleGeoPlaceStatisticsCreated = async () => {
       // if file alreay exists
-      if (countryStatisticsFromCreate && countryStatisticsFromCreate.fileUrl) {
+      if (geoPlaceStatisticsFromCreate && geoPlaceStatisticsFromCreate.fileUrl) {
         const signedUrl = await getSignedUrl(
-          decodeURIComponent(new URL(countryStatisticsFromCreate.fileUrl).pathname).substring(1),
+          decodeURIComponent(new URL(geoPlaceStatisticsFromCreate.fileUrl).pathname).substring(1),
         );
-        setCountryStatisticsFromCreate(undefined);
+        setGeoPlaceStatisticsFromCreate(undefined);
         handleDownload(signedUrl);
-      } else if (countryStatisticsFromCreate && !countryStatisticsFromCreate.fileUrl) {
+      } else if (geoPlaceStatisticsFromCreate && !geoPlaceStatisticsFromCreate.fileUrl) {
         // start polling and wait for the file to be created and pushed to S3
         startPolling(pollingInterval);
       }
     };
-    if (countryStatisticsFromCreate) {
-      handleCountryStatisticsCreated();
+    if (geoPlaceStatisticsFromCreate) {
+      handleGeoPlaceStatisticsCreated();
     }
-  }, [countryStatisticsFromCreate, getSignedUrl, handleDownload, startPolling]);
+  }, [geoPlaceStatisticsFromCreate, getSignedUrl, handleDownload, startPolling]);
 
   return {
     datasetToDownload,
     mapsResponse,
-    countries,
+    geoPlaces,
     isDatasetDownloadModalOpen,
     includeColumns,
     errorMessage,
-    country,
+    geoPlace,
     inProgressData,
     fileStatus,
     showDetails,
+    isToastOpen,
     onDownloadPfDataClick,
     onDownloadDatasetModalClose,
     setIncludeColumns,
-    setCountry,
+    setGeoPlace,
     onDownloadPfData,
     onShowDetailsToggle,
+    setIsToastOpen,
   };
 }

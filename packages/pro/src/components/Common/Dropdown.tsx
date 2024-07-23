@@ -78,6 +78,7 @@ export default function Dropdown({
   disabled,
   loading,
   isSearchable = false,
+  placeholder = "",
   isOptionDisabled,
 }: {
   value: Option | Option[] | undefined;
@@ -88,6 +89,7 @@ export default function Dropdown({
   disabled?: boolean;
   loading?: boolean;
   isSearchable?: boolean;
+  placeholder?: string;
   isOptionDisabled?: (arg: any) => boolean;
 }): JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
@@ -108,6 +110,7 @@ export default function Dropdown({
       formatGroupLabel={formatGroupLabel}
       isOptionDisabled={isOptionDisabled}
       isLoading={loading}
+      placeholder={placeholder}
     />
   );
 }

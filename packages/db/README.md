@@ -9,3 +9,16 @@ This is a diagram of the database schema, created by Wajeeh Zantout. This was cr
 ## Migrations
 
 We're using [graphile-migrate](https://github.com/graphile/migrate) tool to manage the migrations in this project. Check the [README](migrations/README.md) in `migrations` folder for more info.
+
+## How to seed the the database with geojson data from the internet
+
+1. Download org2org from gdal's main site
+2. Run this command on the geojson file you have: `ogrinfo -so -al ${PATH_TO_GEOJSON_FILE}.json`. This will validate the geojson and returns metdata including the driver that will be used by org2org during data conversion
+3. Run the command to save the geo data in your table:
+   `ogr2ogr -f "PostgreSQL" PG:"host=${HOST} port=${PORT} dbname=${DB} user=${DB_USER} password=${DB_PASSWORD}" \
+"${PATH_TO_GEOJSON_FILE}.json" -nln "${DB_TABLE_NAME}" -lco GEOMETRY_NAME=wkb_geometry \
+-nlt MULTIPOLYGON`
+4. Select the data you want and save into targeted table, eg.
+   `INSERT INTO pf_public.geo_places (name, wkb_geometry, geo_place_type)
+SELECT name, ST_SetSRID(wkb_geometry, 4326) AS wkb_geometry, 'state' AS geo_place_type
+    FROM pf_public.states;`

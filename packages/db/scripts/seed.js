@@ -138,9 +138,9 @@ const baseImports = [
     fileName: "pf_public.pf_maps.csv",
   },
   {
-    tableName: "pf_public.countries",
-    tableColumns: "name, iso_a2, iso_a3, wkb_geometry",
-    fileName: "pf_public.countries.csv",
+    tableName: "pf_public.geo_places",
+    tableColumns: "name, iso_a2, iso_a3, geo_place_type, wkb_geometry",
+    fileName: "pf_public.geo_places.csv",
   },
 ];
 

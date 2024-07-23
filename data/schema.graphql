@@ -120,117 +120,6 @@ input BooleanFilter {
   equalTo: Boolean
 }
 
-"""A connection to a list of `Country` values."""
-type CountriesConnection {
-  """
-  A list of edges which contains the `Country` and cursor to aid in pagination.
-  """
-  edges: [CountriesEdge!]!
-
-  """A list of `Country` objects."""
-  nodes: [Country!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Country` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `Country` edge in the connection."""
-type CountriesEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Country` at the end of the edge."""
-  node: Country!
-}
-
-"""Methods to use when ordering `Country`."""
-enum CountriesOrderBy {
-  CREATED_AT_ASC
-  CREATED_AT_DESC
-  ID_ASC
-  ID_DESC
-  ISO_A2_ASC
-  ISO_A2_DESC
-  ISO_A3_ASC
-  ISO_A3_DESC
-  NAME_ASC
-  NAME_DESC
-  NATURAL
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  UPDATED_AT_ASC
-  UPDATED_AT_DESC
-  WKB_GEOMETRY_ASC
-  WKB_GEOMETRY_DESC
-}
-
-type Country implements Node {
-  createdAt: Datetime!
-  id: UUID!
-  isoA2: String
-  isoA3: String
-  name: String!
-
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  nodeId: ID!
-  updatedAt: Datetime!
-  wkbGeometry: GeometryMultiPolygon!
-}
-
-"""
-A condition to be used against `Country` object types. All fields are tested for equality and combined with a logical ‘and.’
-"""
-input CountryCondition {
-  """Checks for equality with the object’s `createdAt` field."""
-  createdAt: Datetime
-
-  """Checks for equality with the object’s `id` field."""
-  id: UUID
-
-  """Checks for equality with the object’s `isoA2` field."""
-  isoA2: String
-
-  """Checks for equality with the object’s `isoA3` field."""
-  isoA3: String
-
-  """Checks for equality with the object’s `name` field."""
-  name: String
-
-  """Checks for equality with the object’s `updatedAt` field."""
-  updatedAt: Datetime
-
-  """Checks for equality with the object’s `wkbGeometry` field."""
-  wkbGeometry: GeoJSON
-}
-
-"""
-A filter to be used against `Country` object types. All fields are combined with a logical ‘and.’
-"""
-input CountryFilter {
-  """Filter by the object’s `createdAt` field."""
-  createdAt: DatetimeFilter
-
-  """Filter by the object’s `id` field."""
-  id: UUIDFilter
-
-  """Filter by the object’s `isoA2` field."""
-  isoA2: StringFilter
-
-  """Filter by the object’s `isoA3` field."""
-  isoA3: StringFilter
-
-  """Filter by the object’s `name` field."""
-  name: StringFilter
-
-  """Filter by the object’s `updatedAt` field."""
-  updatedAt: DatetimeFilter
-}
-
 """All input for the `createAudit` mutation."""
 input CreateAuditInput {
   actionType: String
@@ -394,25 +283,25 @@ type CreatePartnerProjectSharePayload {
   query: Query
 }
 
-"""All input for the `createPfCountryStatistics` mutation."""
-input CreatePfCountryStatisticsInput {
+"""All input for the `createPfGeoPlaceStatistics` mutation."""
+input CreatePfGeoPlaceStatisticsInput {
   """
   An arbitrary string value with no semantic meaning. Will be included in the
   payload verbatim. May be used to track mutations by the client.
   """
   clientMutationId: String
-  countryId: UUID
   datasetId: Int
+  geoPlaceId: UUID
 }
 
-"""The output of our `createPfCountryStatistics` mutation."""
-type CreatePfCountryStatisticsPayload {
+"""The output of our `createPfGeoPlaceStatistics` mutation."""
+type CreatePfGeoPlaceStatisticsPayload {
   """
   The exact same `clientMutationId` that was provided in the mutation input,
   unchanged and unused. May be used by a client to track mutations.
   """
   clientMutationId: String
-  pfCountryStatistics: [PfCountryStatistic!]
+  pfGeoPlaceStatistics: [PfGeoPlaceStatistic!]
 
   """
   Our root query field type. Allows us to run any query from our mutation payload.
@@ -589,6 +478,127 @@ input FloatListFilter {
 The `GeoJSON` scalar type represents GeoJSON values as specified by[RFC 7946](https://tools.ietf.org/html/rfc7946).
 """
 scalar GeoJSON
+
+type GeoPlace implements Node {
+  createdAt: Datetime!
+  geoPlaceType: String
+  id: UUID!
+  isoA2: String
+  isoA3: String
+  name: String!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  updatedAt: Datetime!
+  wkbGeometry: GeometryMultiPolygon!
+}
+
+"""
+A condition to be used against `GeoPlace` object types. All fields are tested
+for equality and combined with a logical ‘and.’
+"""
+input GeoPlaceCondition {
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `geoPlaceType` field."""
+  geoPlaceType: String
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `isoA2` field."""
+  isoA2: String
+
+  """Checks for equality with the object’s `isoA3` field."""
+  isoA3: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+
+  """Checks for equality with the object’s `wkbGeometry` field."""
+  wkbGeometry: GeoJSON
+}
+
+"""
+A filter to be used against `GeoPlace` object types. All fields are combined with a logical ‘and.’
+"""
+input GeoPlaceFilter {
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `geoPlaceType` field."""
+  geoPlaceType: StringFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `isoA2` field."""
+  isoA2: StringFilter
+
+  """Filter by the object’s `isoA3` field."""
+  isoA3: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+}
+
+"""A connection to a list of `GeoPlace` values."""
+type GeoPlacesConnection {
+  """
+  A list of edges which contains the `GeoPlace` and cursor to aid in pagination.
+  """
+  edges: [GeoPlacesEdge!]!
+
+  """A list of `GeoPlace` objects."""
+  nodes: [GeoPlace!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `GeoPlace` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `GeoPlace` edge in the connection."""
+type GeoPlacesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `GeoPlace` at the end of the edge."""
+  node: GeoPlace!
+}
+
+"""Methods to use when ordering `GeoPlace`."""
+enum GeoPlacesOrderBy {
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  GEO_PLACE_TYPE_ASC
+  GEO_PLACE_TYPE_DESC
+  ID_ASC
+  ID_DESC
+  ISO_A2_ASC
+  ISO_A2_DESC
+  ISO_A3_ASC
+  ISO_A3_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+  WKB_GEOMETRY_ASC
+  WKB_GEOMETRY_DESC
+}
 
 """All geography XY types implement this interface"""
 interface GeographyGeometry {
@@ -830,12 +840,12 @@ type Mutation {
     """
     input: CreatePartnerProjectShareInput!
   ): CreatePartnerProjectSharePayload
-  createPfCountryStatistics(
+  createPfGeoPlaceStatistics(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
     """
-    input: CreatePfCountryStatisticsInput!
-  ): CreatePfCountryStatisticsPayload
+    input: CreatePfGeoPlaceStatisticsInput!
+  ): CreatePfGeoPlaceStatisticsPayload
   createUserAccessRequest(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
@@ -930,16 +940,6 @@ type PageInfo {
 
   """When paginating backwards, the cursor to continue."""
   startCursor: Cursor
-}
-
-type PfCountryStatistic {
-  countryId: UUID!
-  createdAt: Datetime!
-  datasetId: Int!
-  fileUrl: String
-  id: UUID!
-  status: String
-  updatedAt: Datetime!
 }
 
 """Metadata for Probable Futures datasets"""
@@ -2332,6 +2332,16 @@ enum PfDatasetsOrderBy {
   UPDATED_AT_DESC
 }
 
+type PfGeoPlaceStatistic {
+  createdAt: Datetime!
+  datasetId: Int!
+  fileUrl: String
+  geoPlaceId: UUID!
+  id: UUID!
+  status: String
+  updatedAt: Datetime!
+}
+
 """
 Dataset coordinates contains the geographic data for coordinates in particular model grids.
     Datasets with different model sources but the same model grid will share the same coordintes
@@ -3299,8 +3309,21 @@ type ProjectShareResponse {
 
 """The root query type which gives access points into the data universe."""
 type Query implements Node {
-  """Reads and enables pagination through a set of `Country`."""
-  countries(
+  currentUser: PfUser
+  currentUserId: UUID
+
+  """Handy method to get the current user sub id."""
+  currentUserSub: String
+  geoPlace(id: UUID!): GeoPlace
+
+  """Reads a single `GeoPlace` using its globally unique `ID`."""
+  geoPlaceByNodeId(
+    """The globally unique `ID` to be used in selecting a single `GeoPlace`."""
+    nodeId: ID!
+  ): GeoPlace
+
+  """Reads and enables pagination through a set of `GeoPlace`."""
+  geoPlaces(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -3310,12 +3333,12 @@ type Query implements Node {
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-    condition: CountryCondition
+    condition: GeoPlaceCondition
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-    filter: CountryFilter
+    filter: GeoPlaceFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -3329,22 +3352,9 @@ type Query implements Node {
     """
     offset: Int
 
-    """The method to use when ordering `Country`."""
-    orderBy: [CountriesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): CountriesConnection
-  country(id: UUID!): Country
-  countryByName(name: String!): Country
-
-  """Reads a single `Country` using its globally unique `ID`."""
-  countryByNodeId(
-    """The globally unique `ID` to be used in selecting a single `Country`."""
-    nodeId: ID!
-  ): Country
-  currentUser: PfUser
-  currentUserId: UUID
-
-  """Handy method to get the current user sub id."""
-  currentUserSub: String
+    """The method to use when ordering `GeoPlace`."""
+    orderBy: [GeoPlacesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): GeoPlacesConnection
 
   """Fetches an object given its globally unique `ID`."""
   node(
@@ -4106,9 +4116,9 @@ type Query implements Node {
   ): ViewPartnerProjectsConnection
 
   """
-  Reads and enables pagination through a set of `ViewPfCountryStatistic`.
+  Reads and enables pagination through a set of `ViewPfGeoPlaceStatistic`.
   """
-  viewPfCountryStatistics(
+  viewPfGeoPlaceStatistics(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -4118,12 +4128,12 @@ type Query implements Node {
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-    condition: ViewPfCountryStatisticCondition
+    condition: ViewPfGeoPlaceStatisticCondition
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-    filter: ViewPfCountryStatisticFilter
+    filter: ViewPfGeoPlaceStatisticFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -4137,9 +4147,9 @@ type Query implements Node {
     """
     offset: Int
 
-    """The method to use when ordering `ViewPfCountryStatistic`."""
-    orderBy: [ViewPfCountryStatisticsOrderBy!] = [NATURAL]
-  ): ViewPfCountryStatisticsConnection
+    """The method to use when ordering `ViewPfGeoPlaceStatistic`."""
+    orderBy: [ViewPfGeoPlaceStatisticsOrderBy!] = [NATURAL]
+  ): ViewPfGeoPlaceStatisticsConnection
 
   """Reads and enables pagination through a set of `ViewUserAccessRequest`."""
   viewUserAccessRequests(
@@ -5101,27 +5111,27 @@ enum ViewPartnerProjectsOrderBy {
   UPDATED_AT_DESC
 }
 
-type ViewPfCountryStatistic {
-  countryId: UUID
+type ViewPfGeoPlaceStatistic {
   datasetId: Int
   fileUrl: String
+  geoPlaceId: UUID
   id: UUID
   status: String
 }
 
 """
-A condition to be used against `ViewPfCountryStatistic` object types. All fields
-are tested for equality and combined with a logical ‘and.’
+A condition to be used against `ViewPfGeoPlaceStatistic` object types. All
+fields are tested for equality and combined with a logical ‘and.’
 """
-input ViewPfCountryStatisticCondition {
-  """Checks for equality with the object’s `countryId` field."""
-  countryId: UUID
-
+input ViewPfGeoPlaceStatisticCondition {
   """Checks for equality with the object’s `datasetId` field."""
   datasetId: Int
 
   """Checks for equality with the object’s `fileUrl` field."""
   fileUrl: String
+
+  """Checks for equality with the object’s `geoPlaceId` field."""
+  geoPlaceId: UUID
 
   """Checks for equality with the object’s `id` field."""
   id: UUID
@@ -5131,17 +5141,17 @@ input ViewPfCountryStatisticCondition {
 }
 
 """
-A filter to be used against `ViewPfCountryStatistic` object types. All fields are combined with a logical ‘and.’
+A filter to be used against `ViewPfGeoPlaceStatistic` object types. All fields are combined with a logical ‘and.’
 """
-input ViewPfCountryStatisticFilter {
-  """Filter by the object’s `countryId` field."""
-  countryId: UUIDFilter
-
+input ViewPfGeoPlaceStatisticFilter {
   """Filter by the object’s `datasetId` field."""
   datasetId: IntFilter
 
   """Filter by the object’s `fileUrl` field."""
   fileUrl: StringFilter
+
+  """Filter by the object’s `geoPlaceId` field."""
+  geoPlaceId: UUIDFilter
 
   """Filter by the object’s `id` field."""
   id: UUIDFilter
@@ -5150,42 +5160,42 @@ input ViewPfCountryStatisticFilter {
   status: StringFilter
 }
 
-"""A connection to a list of `ViewPfCountryStatistic` values."""
-type ViewPfCountryStatisticsConnection {
+"""A connection to a list of `ViewPfGeoPlaceStatistic` values."""
+type ViewPfGeoPlaceStatisticsConnection {
   """
-  A list of edges which contains the `ViewPfCountryStatistic` and cursor to aid in pagination.
+  A list of edges which contains the `ViewPfGeoPlaceStatistic` and cursor to aid in pagination.
   """
-  edges: [ViewPfCountryStatisticsEdge!]!
+  edges: [ViewPfGeoPlaceStatisticsEdge!]!
 
-  """A list of `ViewPfCountryStatistic` objects."""
-  nodes: [ViewPfCountryStatistic!]!
+  """A list of `ViewPfGeoPlaceStatistic` objects."""
+  nodes: [ViewPfGeoPlaceStatistic!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
 
   """
-  The count of *all* `ViewPfCountryStatistic` you could get from the connection.
+  The count of *all* `ViewPfGeoPlaceStatistic` you could get from the connection.
   """
   totalCount: Int!
 }
 
-"""A `ViewPfCountryStatistic` edge in the connection."""
-type ViewPfCountryStatisticsEdge {
+"""A `ViewPfGeoPlaceStatistic` edge in the connection."""
+type ViewPfGeoPlaceStatisticsEdge {
   """A cursor for use in pagination."""
   cursor: Cursor
 
-  """The `ViewPfCountryStatistic` at the end of the edge."""
-  node: ViewPfCountryStatistic!
+  """The `ViewPfGeoPlaceStatistic` at the end of the edge."""
+  node: ViewPfGeoPlaceStatistic!
 }
 
-"""Methods to use when ordering `ViewPfCountryStatistic`."""
-enum ViewPfCountryStatisticsOrderBy {
-  COUNTRY_ID_ASC
-  COUNTRY_ID_DESC
+"""Methods to use when ordering `ViewPfGeoPlaceStatistic`."""
+enum ViewPfGeoPlaceStatisticsOrderBy {
   DATASET_ID_ASC
   DATASET_ID_DESC
   FILE_URL_ASC
   FILE_URL_DESC
+  GEO_PLACE_ID_ASC
+  GEO_PLACE_ID_DESC
   ID_ASC
   ID_DESC
   NATURAL

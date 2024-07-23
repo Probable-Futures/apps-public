@@ -32,5 +32,5 @@ export interface DeletePartnerDatasetPayload {
 export interface CreateStatisticsFilePayload {
   id: string;
   datasetId: number;
-  countryId: string;
+  geoPlaceId: string;
 }

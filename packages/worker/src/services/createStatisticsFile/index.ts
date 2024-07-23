@@ -9,15 +9,15 @@ import * as types from "../../types";
 
 const debug = extendDebugger("services:createStatisticsFile:index");
 
-export const streamCountryStatistics = (query: string, pgClient: PoolClient): QueryStream => {
+export const streamGeoPlaceStatistics = (query: string, pgClient: PoolClient): QueryStream => {
   const queryStream = new QueryStream(query);
   return pgClient.query(queryStream);
 };
 
-export const selectDatasetStatisticsByCountry = (countryId: string, datasetId: number) =>
+export const selectDatasetStatisticsByGeoPlace = (geo_placeId: string, datasetId: number) =>
   format(
-    `with country as (
-      select ST_Transform(wkb_geometry, 4326)::geography as boundary from pf_public.countries where id = %L
+    `with geo_place as (
+      select ST_Transform(wkb_geometry, 4326)::geography as boundary from pf_public.geo_places where id = %L
     )
     select * from (
       select (ST_X(gc.point::geometry)) as longitude,
@@ -43,21 +43,21 @@ export const selectDatasetStatisticsByCountry = (countryId: string, datasetId: n
         stats.data_3c_high as high_value_3C
         from pf_private.aggregate_pf_dataset_statistics stats
         join pf_public.pf_grid_coordinates gc on stats.coordinate_hash = gc.md5_hash
-        where stats.dataset_id = %L and st_intersects((select boundary from country), gc.cell)) as t
+        where stats.dataset_id = %L and st_intersects((select boundary from geo_place), gc.cell)) as t
       order by t.longitude, t.latitude;`,
-    countryId,
+    geo_placeId,
     datasetId,
   );
 
 export const updateDatasetStatisticsFileCreationInProgress = (id: string) =>
-  format("update pf_private.pf_country_statistics set status = 'in progress' where id = %L", id);
+  format("update pf_private.pf_geo_place_statistics set status = 'in progress' where id = %L", id);
 
 export const updateDatasetStatisticsFileCreationFailed = (id: string) =>
-  format("update pf_private.pf_country_statistics set status = 'failed' where id = %L", id);
+  format("update pf_private.pf_geo_place_statistics set status = 'failed' where id = %L", id);
 
 export const updateDatasetStatisticsFileCreationSuccessful = (id: string, fileUrl: string) =>
   format(
-    "update pf_private.pf_country_statistics set status = 'successful', file_url = %L where id = %L",
+    "update pf_private.pf_geo_place_statistics set status = 'successful', file_url = %L where id = %L",
     fileUrl,
     id,
   );
@@ -81,7 +81,7 @@ const writeDatasetStream = ({ path, file }: WriteStreamArgs) => {
   }
 };
 
-export const createCountryStatisticsfile = async ({
+export const createGeoPlaceStatisticsfile = async ({
   file,
   path,
   logger,
@@ -92,7 +92,7 @@ export const createCountryStatisticsfile = async ({
   path: string;
   logger: types.Logger;
 }): Promise<{ writeFileLocation: string }> => {
-  debug("createCountryStatisticsfile");
+  debug("createGeoPlaceStatisticsfile");
   try {
     let writeFileLocation = "";
     return new Promise((resolve, reject) => {

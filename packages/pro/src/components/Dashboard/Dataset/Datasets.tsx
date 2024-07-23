@@ -1,4 +1,6 @@
 import styled from "styled-components";
+import Snackbar from "@mui/material/Snackbar";
+import { Alert } from "@mui/material";
 
 import DashboardTitle from "../../Common/DashboardTitle";
 import Item from "./Item";
@@ -40,19 +42,21 @@ const Datasets = () => {
   const {
     datasetToDownload,
     mapsResponse,
-    countries,
+    geoPlaces,
     isDatasetDownloadModalOpen,
     includeColumns,
     errorMessage,
     inProgressData,
     fileStatus,
     showDetails,
+    isToastOpen,
     onDownloadPfDataClick,
     onDownloadDatasetModalClose,
     setIncludeColumns,
-    setCountry,
+    setGeoPlace,
     onDownloadPfData,
     onShowDetailsToggle,
+    setIsToastOpen,
   } = useDownloadPfData();
 
   return (
@@ -86,19 +90,29 @@ const Datasets = () => {
             />
           ))}
       </div>
-      {datasetToDownload && countries && isDatasetDownloadModalOpen && (
+      {datasetToDownload && geoPlaces && isDatasetDownloadModalOpen && (
         <DownloadPfDataModal
           includeColumns={includeColumns}
           datasetToDownload={datasetToDownload}
-          countries={countries.countries.nodes}
+          geoPlaces={geoPlaces.geoPlaces.nodes}
           onModalClose={onDownloadDatasetModalClose}
           setIncludeColumns={setIncludeColumns}
-          setCountry={setCountry}
+          setGeoPlace={setGeoPlace}
           onDownloadClick={onDownloadPfData}
           errorMessage={errorMessage}
           modalOpen={isDatasetDownloadModalOpen}
         />
       )}
+      <Snackbar open={isToastOpen} autoHideDuration={6000} onClose={() => setIsToastOpen(false)}>
+        <Alert
+          onClose={() => setIsToastOpen(false)}
+          severity="error"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       {inProgressData && (
         <Loader>
           <LoaderText>
@@ -112,9 +126,9 @@ const Datasets = () => {
               <LoaderText>
                 <b>Dataset:</b> {inProgressData.dataset.name}
               </LoaderText>
-              {inProgressData.country && (
+              {inProgressData.geoPlace && (
                 <LoaderText>
-                  <b>Country:</b> {inProgressData.country.name}
+                  <b>Place:</b> {inProgressData.geoPlace.name}
                 </LoaderText>
               )}
               <LoaderText>
