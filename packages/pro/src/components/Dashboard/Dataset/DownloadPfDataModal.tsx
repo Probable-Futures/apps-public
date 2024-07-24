@@ -131,18 +131,26 @@ const DownloadPfDataModal = ({
 
     const datasetOptions = sortedGeoPlaces.map((item) => {
       let label = item.name;
-      label += `<span style="font-size: 10px;">(${item.geoPlaceType})</span>`;
+      let defaultPlaceType = `<span style="font-size: 10px;"> (${item.geoPlaceType})</span>`;
       if (item.properties) {
-        label += "<div>";
+        if (item.properties["placeType"]) {
+          label += `<span style="font-size: 10px;"> (${item.properties["placeType"]})</span>`;
+        } else {
+          label += defaultPlaceType;
+        }
         let arrayOfProps: string[] = [];
 
         Object.keys(item.properties).forEach((propKey) => {
-          const propValue = item.properties[propKey];
-          arrayOfProps.push(
-            `<span style="font-size: 10px;"><b>${propKey}</b>: ${propValue} </span>`,
-          );
+          if (propKey !== "placeType") {
+            const propValue = item.properties[propKey];
+            arrayOfProps.push(`<span style="font-size: 10px;">${propValue} (${propKey})</span>`);
+          }
         });
-        label += arrayOfProps.join(", ") + "</div>";
+        if (arrayOfProps.length > 0) {
+          label += "<div>" + arrayOfProps.join(", ") + "</div>";
+        }
+      } else {
+        label += defaultPlaceType;
       }
       return {
         label,
@@ -213,7 +221,7 @@ const DownloadPfDataModal = ({
     <>
       <StyledLabel>
         By default, all data is included, covering most of the world. If you want data only for a
-        specific geoPlace, choose it below:
+        specific place, choose it below:
       </StyledLabel>
       <Dropdown
         value={selectedGeoPlace}
