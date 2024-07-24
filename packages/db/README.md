@@ -19,6 +19,10 @@ We're using [graphile-migrate](https://github.com/graphile/migrate) tool to mana
 "${PATH_TO_GEOJSON_FILE}.json" -nln "${DB_TABLE_NAME}" -lco GEOMETRY_NAME=wkb_geometry \
 -nlt MULTIPOLYGON`
 4. Select the data you want and save into targeted table, eg.
-   `INSERT INTO pf_public.geo_places (name, wkb_geometry, geo_place_type)
-SELECT name, ST_SetSRID(wkb_geometry, 4326) AS wkb_geometry, 'state' AS geo_place_type
-    FROM pf_public.states;`
+   `INSERT INTO pf_public.geo_places (name, wkb_geometry, geo_place_type, properties)
+SELECT coty_name[1], ST_SetSRID(wkb_geometry, 4326) AS wkb_geometry, 'county' AS geo_place_type, jsonb_build_object('state name', ste_name[1]) AS properties
+    FROM pf_public.counties2;`
+5. copy the newly imported data into a CSV file, then use it to seed tables in any database evironment:
+   `\copy (select name,iso_a2,iso_a3,wkb_geometry,geo_place_type from pf_public.geo_places where geo_place_type='state' order by name desc) to '/Users/moustafawehbe/work/seed-files/pf_public.geo_places_states.csv' csv header`
+6. Finally, copy the data from the CSV into the database:
+   `\copy pf_public.geo_places (name,iso_a2,iso_a3,wkb_geometry,geo_place_type) from '/Users/moustafawehbe/work/seed-files/pf_public.geo_places_states.csv' with (format CSV, HEADER);`

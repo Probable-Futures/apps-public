@@ -1472,7 +1472,8 @@ CREATE TABLE pf_public.geo_places (
     wkb_geometry public.geometry(MultiPolygon,4326) NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    geo_place_type text
+    geo_place_type text,
+    properties jsonb
 );
 
 

@@ -118,10 +118,37 @@ const DownloadPfDataModal = ({
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   const getGeoPlaceOptions = useCallback(() => {
-    const datasetOptions = geoPlaces.map((item) => ({
-      label: item.name,
-      value: item.id,
-    }));
+    const sortOrder: { [key in GeoPlace["geoPlaceType"]]: number } = {
+      country: 1,
+      state: 2,
+      county: 3,
+    };
+
+    // Create a mutable copy of geoPlaces array and sort it based on geoPlaceType
+    const sortedGeoPlaces = [...geoPlaces].sort((a, b) => {
+      return sortOrder[a.geoPlaceType] - sortOrder[b.geoPlaceType];
+    });
+
+    const datasetOptions = sortedGeoPlaces.map((item) => {
+      let label = item.name;
+      label += `<span style="font-size: 10px;">(${item.geoPlaceType})</span>`;
+      if (item.properties) {
+        label += "<div>";
+        let arrayOfProps: string[] = [];
+
+        Object.keys(item.properties).forEach((propKey) => {
+          const propValue = item.properties[propKey];
+          arrayOfProps.push(
+            `<span style="font-size: 10px;"><b>${propKey}</b>: ${propValue} </span>`,
+          );
+        });
+        label += arrayOfProps.join(", ") + "</div>";
+      }
+      return {
+        label,
+        value: item.id,
+      };
+    });
     datasetOptions.unshift();
     return datasetOptions;
   }, [geoPlaces]);
@@ -178,6 +205,10 @@ const DownloadPfDataModal = ({
     );
   };
 
+  const formatOptionLabel = (data: Option) => (
+    <span dangerouslySetInnerHTML={{ __html: data.label }} />
+  );
+
   const renderStepTwoForFiltering = () => (
     <>
       <StyledLabel>
@@ -190,7 +221,8 @@ const DownloadPfDataModal = ({
         onChange={onDatasetChange}
         theme={Theme.LIGHT}
         isSearchable
-        placeholder="Select a place (a country or a state).."
+        placeholder="Select a place (country, state, county..)"
+        formatOptionLabel={formatOptionLabel}
       />
       <StyledLabel>Choose columns to include:</StyledLabel>
       <div>

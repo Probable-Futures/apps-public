@@ -23,6 +23,7 @@ export const GEO_PLACES = gql`
         isoA3
         name
         geoPlaceType
+        properties
       }
     }
   }

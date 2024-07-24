@@ -109,7 +109,7 @@ export const getDropDownStyles = (isOpen: boolean, theme: Theme) => {
     valueContainer: (provided: any) => ({
       ...provided,
       minHeight: "34px",
-      padding: "0px 8px",
+      padding: "10px 8px",
       boxSizing: "border-box",
     }),
     menu: (provided: any) => ({

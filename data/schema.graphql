@@ -491,6 +491,7 @@ type GeoPlace implements Node {
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
   nodeId: ID!
+  properties: JSON
   updatedAt: Datetime!
   wkbGeometry: GeometryMultiPolygon!
 }
@@ -517,6 +518,9 @@ input GeoPlaceCondition {
 
   """Checks for equality with the object’s `name` field."""
   name: String
+
+  """Checks for equality with the object’s `properties` field."""
+  properties: JSON
 
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
@@ -546,6 +550,9 @@ input GeoPlaceFilter {
 
   """Filter by the object’s `name` field."""
   name: StringFilter
+
+  """Filter by the object’s `properties` field."""
+  properties: JSONFilter
 
   """Filter by the object’s `updatedAt` field."""
   updatedAt: DatetimeFilter
@@ -594,6 +601,8 @@ enum GeoPlacesOrderBy {
   NATURAL
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
+  PROPERTIES_ASC
+  PROPERTIES_DESC
   UPDATED_AT_ASC
   UPDATED_AT_DESC
   WKB_GEOMETRY_ASC

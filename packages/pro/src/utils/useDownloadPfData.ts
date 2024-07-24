@@ -27,7 +27,8 @@ export type GeoPlace = {
   isoA2: string;
   isoA3: string;
   id: string;
-  geoPlaceType: string;
+  geoPlaceType: "country" | "state" | "county";
+  properties: { [key: string]: string };
 };
 
 type GeoPlaceStatistics = {

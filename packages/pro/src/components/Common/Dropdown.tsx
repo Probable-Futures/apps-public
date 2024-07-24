@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Select, { components } from "react-select";
+import Select, { components, FormatOptionLabelMeta } from "react-select";
 import styled from "styled-components";
 import DarkArrow from "@probable-futures/components-lib/src/assets/icons/triangle.svg";
 import { GroupedOptions } from "@probable-futures/lib/src/types";
@@ -80,6 +80,7 @@ export default function Dropdown({
   isSearchable = false,
   placeholder = "",
   isOptionDisabled,
+  formatOptionLabel,
 }: {
   value: Option | Option[] | undefined;
   options: Option[] | GroupedOptions[];
@@ -91,6 +92,9 @@ export default function Dropdown({
   isSearchable?: boolean;
   placeholder?: string;
   isOptionDisabled?: (arg: any) => boolean;
+  formatOptionLabel?:
+    | ((option: Option, labelMeta: FormatOptionLabelMeta<Option, boolean>) => React.ReactNode)
+    | undefined;
 }): JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -111,6 +115,7 @@ export default function Dropdown({
       isOptionDisabled={isOptionDisabled}
       isLoading={loading}
       placeholder={placeholder}
+      formatOptionLabel={formatOptionLabel}
     />
   );
 }
