@@ -12,6 +12,7 @@ export const GET_PF_USER_ACCESS_REQUESTS = gql`
         rejected
         note
         closing
+        finalEmail
       }
     }
   }

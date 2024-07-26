@@ -28,6 +28,7 @@ export type UserRequestNode = {
   rejected: boolean;
   note: string;
   closing: string;
+  finalEmail: string;
 };
 
 export type UserAccessRequestResponse = {

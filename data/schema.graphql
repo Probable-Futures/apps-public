@@ -3107,6 +3107,7 @@ input PfUpdateUserAccessRequestInput {
   """
   clientMutationId: String
   closing: String!
+  finalEmail: String
   id: UUID!
   note: String!
   rejected: Boolean!
@@ -5216,6 +5217,7 @@ type ViewUserAccessRequest {
   accessGranted: Boolean
   closing: String
   email: String
+  finalEmail: String
   formFields: JSON
   formName: String
   id: UUID
@@ -5236,6 +5238,9 @@ input ViewUserAccessRequestCondition {
 
   """Checks for equality with the object’s `email` field."""
   email: String
+
+  """Checks for equality with the object’s `finalEmail` field."""
+  finalEmail: String
 
   """Checks for equality with the object’s `formFields` field."""
   formFields: JSON
@@ -5265,6 +5270,9 @@ input ViewUserAccessRequestFilter {
 
   """Filter by the object’s `email` field."""
   email: StringFilter
+
+  """Filter by the object’s `finalEmail` field."""
+  finalEmail: StringFilter
 
   """Filter by the object’s `formFields` field."""
   formFields: JSONFilter
@@ -5318,6 +5326,8 @@ enum ViewUserAccessRequestsOrderBy {
   CLOSING_DESC
   EMAIL_ASC
   EMAIL_DESC
+  FINAL_EMAIL_ASC
+  FINAL_EMAIL_DESC
   FORM_FIELDS_ASC
   FORM_FIELDS_DESC
   FORM_NAME_ASC

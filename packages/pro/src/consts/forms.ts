@@ -80,7 +80,7 @@ const requestUserAccessFormFieldsDev = [
     type: "richText",
     options: null,
     isComputed: false,
-    width: 150,
+    width: 300,
   },
   {
     id: "fld6dHA11eCEIoAZw",
@@ -185,7 +185,7 @@ const requestUserAccessFormFieldsProd = [
     type: "richText",
     options: null,
     isComputed: false,
-    width: 150,
+    width: 300,
   },
   {
     id: "fld56lzcRJPV9EDrW",

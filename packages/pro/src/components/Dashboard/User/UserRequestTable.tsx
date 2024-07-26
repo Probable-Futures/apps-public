@@ -162,14 +162,16 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
                   </StyledTableCell>
                 );
               })}
-              <StyledTableCell sx={{ maxWidth: 400, maxHeight: 200 }}>
+              <StyledTableCell sx={{ maxWidth: 400, maxHeight: 200, verticalAlign: "top" }}>
                 <Editor
                   value={notes[row.id]}
                   style={{ paddingLeft: 20, paddingRight: 20, maxHeight: 200, overflowY: "auto" }}
                   onChange={(e) => handleNoteChange(e, row)}
                 />
               </StyledTableCell>
-              <StyledTableCell sx={{ maxWidth: 400, maxHeight: 200, display: "flex" }}>
+              <StyledTableCell
+                sx={{ maxWidth: 400, maxHeight: 200, display: "flex", verticalAlign: "top" }}
+              >
                 <Editor
                   value={closings[row.id]}
                   style={{ paddingLeft: 20, paddingRight: 20, maxHeight: 200, overflowY: "auto" }}

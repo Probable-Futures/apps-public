@@ -1116,10 +1116,10 @@ $$;
 
 
 --
--- Name: pf_update_user_access_request(uuid, boolean, text, text, boolean); Type: FUNCTION; Schema: pf_public; Owner: -
+-- Name: pf_update_user_access_request(uuid, boolean, text, text, boolean, text); Type: FUNCTION; Schema: pf_public; Owner: -
 --
 
-CREATE FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean) RETURNS boolean
+CREATE FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text DEFAULT NULL::text) RETURNS boolean
     LANGUAGE plpgsql STRICT SECURITY DEFINER
     AS $$
 begin
@@ -1129,7 +1129,8 @@ begin
   update pf_private.pf_user_access_requests 
     set access_granted = pf_update_user_access_request.access_granted, note = pf_update_user_access_request.note,
         closing = pf_update_user_access_request.closing,
-        rejected = pf_update_user_access_request.rejected
+        rejected = pf_update_user_access_request.rejected,
+        final_email = pf_update_user_access_request.final_email
         where pf_private.pf_user_access_requests.id = pf_update_user_access_request.id;
   return true;
 end;
@@ -1456,7 +1457,8 @@ CREATE TABLE pf_private.pf_user_access_requests (
     create_by_user_sub text,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    closing text
+    closing text,
+    final_email text
 );
 
 
@@ -1903,7 +1905,8 @@ CREATE VIEW pf_public.view_user_access_request AS
     pf_user_access_requests.access_granted,
     pf_user_access_requests.rejected,
     pf_user_access_requests.note,
-    pf_user_access_requests.closing
+    pf_user_access_requests.closing,
+    pf_user_access_requests.final_email
    FROM pf_private.pf_user_access_requests;
 
 
@@ -3179,13 +3182,13 @@ GRANT ALL ON FUNCTION pf_public.pf_audit_table_delete_old_rows() TO pf_partner;
 
 
 --
--- Name: FUNCTION pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean); Type: ACL; Schema: pf_public; Owner: -
+-- Name: FUNCTION pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text); Type: ACL; Schema: pf_public; Owner: -
 --
 
-REVOKE ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean) FROM PUBLIC;
-GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean) TO pf_root;
-GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean) TO pf_anonymous;
-GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean) TO pf_admin;
+REVOKE ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text) FROM PUBLIC;
+GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text) TO pf_root;
+GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text) TO pf_anonymous;
+GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text) TO pf_admin;
 
 
 --

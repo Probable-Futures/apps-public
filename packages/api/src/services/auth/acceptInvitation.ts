@@ -141,8 +141,8 @@ const acceptInvitation = async (
 
     try {
       await context.pgClient.query(
-        "select * from pf_public.pf_update_user_access_request ($1, $2, $3, $4, $5)",
-        [requestId, true, note, closing, false],
+        "select * from pf_public.pf_update_user_access_request ($1, $2, $3, $4, $5, $6)",
+        [requestId, true, note, closing, false, composedEmail],
       );
     } catch (error) {
       console.error(error);
