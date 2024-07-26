@@ -13,7 +13,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_32c",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40104,
@@ -21,7 +21,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -44,7 +44,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_32c",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40104,
@@ -52,7 +52,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -75,7 +75,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_32c",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40104,
@@ -83,7 +83,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -106,7 +106,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_35c",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40105,
@@ -114,7 +114,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -137,7 +137,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_35c",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40105,
@@ -145,7 +145,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -168,7 +168,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_35c",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40105,
@@ -176,7 +176,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -199,7 +199,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_38c",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40106,
@@ -207,7 +207,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -230,7 +230,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_38c",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40106,
@@ -238,7 +238,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -261,7 +261,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_38c",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40106,
@@ -269,7 +269,38 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
+      pfDatasetUnitByUnit: {
+        unitLong: "Number of days per year",
+      },
+      pfDatasetParentCategoryByParentCategory: {
+        name: "heat",
+        label: "Maps of temperature",
+      },
+      subCategory: "increasing heat",
+    },
+  },
+  {
+    mapStyleId: "clr4pe2k400ds01p56a6jc3en",
+    name: "Days above 45°C (113°F)",
+    stops: [1, 8, 31, 91, 181],
+    binHexColors: ["#515866", "#0ed5a3", "#0099e4", "#8be1ff", "#ff45d0", "#d70066"],
+    isDiff: false,
+    step: 1,
+    binLabels: null,
+    binningType: "range",
+    slug: "days_above_45c",
+    mapVersion: 3,
+    isLatest: true,
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
+    methodUsedForMid: "mean",
+    dataset: {
+      id: 40107,
+      name: "Days above 45°C (113°F)",
+      unit: "days",
+      minValue: 0,
+      maxValue: 365,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -292,7 +323,7 @@ export const datasets: types.Map[] = [
     slug: "average_temperature",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40101,
@@ -300,7 +331,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -323,7 +354,7 @@ export const datasets: types.Map[] = [
     slug: "average_temperature",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40101,
@@ -331,7 +362,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -354,7 +385,7 @@ export const datasets: types.Map[] = [
     slug: "average_temperature",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40101,
@@ -362,7 +393,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -385,7 +416,7 @@ export const datasets: types.Map[] = [
     slug: "average_daytime_temperature",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40102,
@@ -393,7 +424,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -416,7 +447,7 @@ export const datasets: types.Map[] = [
     slug: "average_daytime_temperature",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40102,
@@ -424,7 +455,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -447,7 +478,7 @@ export const datasets: types.Map[] = [
     slug: "average_daytime_temperature",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40102,
@@ -455,7 +486,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -478,7 +509,7 @@ export const datasets: types.Map[] = [
     slug: "10_hottest_days",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40103,
@@ -486,7 +517,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -509,7 +540,7 @@ export const datasets: types.Map[] = [
     slug: "10_hottest_days",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40103,
@@ -517,7 +548,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -540,7 +571,7 @@ export const datasets: types.Map[] = [
     slug: "10_hottest_days",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40103,
@@ -548,7 +579,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -571,7 +602,7 @@ export const datasets: types.Map[] = [
     slug: "freezing_days",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Warmer year", "Average year", "Cooler year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40205,
@@ -579,7 +610,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -602,7 +633,7 @@ export const datasets: types.Map[] = [
     slug: "freezing_days",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Warmer year", "Average year", "Cooler year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40205,
@@ -610,7 +641,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -633,7 +664,7 @@ export const datasets: types.Map[] = [
     slug: "freezing_days",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Warmer year", "Average year", "Cooler year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40205,
@@ -641,7 +672,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -664,7 +695,7 @@ export const datasets: types.Map[] = [
     slug: "frost_nights",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Warmer year", "Average year", "Cooler year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40202,
@@ -672,7 +703,7 @@ export const datasets: types.Map[] = [
       unit: "nights",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of nights per year",
       },
@@ -695,7 +726,7 @@ export const datasets: types.Map[] = [
     slug: "frost_nights",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Warmer year", "Average year", "Cooler year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40202,
@@ -703,7 +734,7 @@ export const datasets: types.Map[] = [
       unit: "nights",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of nights per year",
       },
@@ -726,7 +757,7 @@ export const datasets: types.Map[] = [
     slug: "frost_nights",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Warmer year", "Average year", "Cooler year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40202,
@@ -734,7 +765,7 @@ export const datasets: types.Map[] = [
       unit: "nights",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of nights per year",
       },
@@ -757,7 +788,7 @@ export const datasets: types.Map[] = [
     slug: "nights_above_20c",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40203,
@@ -765,7 +796,7 @@ export const datasets: types.Map[] = [
       unit: "nights",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of nights per year",
       },
@@ -788,7 +819,7 @@ export const datasets: types.Map[] = [
     slug: "nights_above_20c",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40203,
@@ -796,7 +827,7 @@ export const datasets: types.Map[] = [
       unit: "nights",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of nights per year",
       },
@@ -819,7 +850,7 @@ export const datasets: types.Map[] = [
     slug: "nights_above_20c",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40203,
@@ -827,7 +858,7 @@ export const datasets: types.Map[] = [
       unit: "nights",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of nights per year",
       },
@@ -850,7 +881,7 @@ export const datasets: types.Map[] = [
     slug: "nights_above_25c",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40204,
@@ -858,7 +889,7 @@ export const datasets: types.Map[] = [
       unit: "nights",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of nights per year",
       },
@@ -881,7 +912,7 @@ export const datasets: types.Map[] = [
     slug: "nights_above_25c",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40204,
@@ -889,7 +920,7 @@ export const datasets: types.Map[] = [
       unit: "nights",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of nights per year",
       },
@@ -912,7 +943,7 @@ export const datasets: types.Map[] = [
     slug: "nights_above_25c",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40204,
@@ -920,7 +951,7 @@ export const datasets: types.Map[] = [
       unit: "nights",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of nights per year",
       },
@@ -943,7 +974,7 @@ export const datasets: types.Map[] = [
     slug: "average_nighttime_temperature",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40201,
@@ -951,7 +982,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -974,7 +1005,7 @@ export const datasets: types.Map[] = [
     slug: "average_nighttime_temperature",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40201,
@@ -982,7 +1013,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -1005,7 +1036,7 @@ export const datasets: types.Map[] = [
     slug: "average_nighttime_temperature",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40201,
@@ -1013,7 +1044,38 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
+      pfDatasetUnitByUnit: {
+        unitLong: "Temperature (°C)",
+      },
+      pfDatasetParentCategoryByParentCategory: {
+        name: "heat",
+        label: "Maps of temperature",
+      },
+      subCategory: "decreasing cold",
+    },
+  },
+  {
+    mapStyleId: "cltx1yoqo00eb01qwcebs7d3z",
+    name: "Average winter temperature",
+    stops: [-20, -8, 0, 5, 20],
+    binHexColors: ["#515866", "#0ed5a3", "#0099e4", "#8be1ff", "#ff45d0", "#d70066"],
+    isDiff: false,
+    step: 1,
+    binLabels: null,
+    binningType: "range",
+    slug: "average_winter_temperature",
+    mapVersion: 3,
+    isLatest: true,
+    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
+    methodUsedForMid: "mean",
+    dataset: {
+      id: 40207,
+      name: "Mean average winter temperature",
+      unit: "°C",
+      minValue: -46,
+      maxValue: 37,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -1036,7 +1098,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_26c_wet-bulb",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40301,
@@ -1044,7 +1106,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1067,7 +1129,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_26c_wet-bulb",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40301,
@@ -1075,7 +1137,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1098,7 +1160,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_26c_wet-bulb",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40301,
@@ -1106,7 +1168,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1129,7 +1191,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_28c_wet-bulb",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40302,
@@ -1137,7 +1199,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1160,7 +1222,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_28c_wet-bulb",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40302,
@@ -1168,7 +1230,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1191,7 +1253,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_28c_wet-bulb",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40302,
@@ -1199,7 +1261,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1222,7 +1284,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_30c_wet-bulb",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40303,
@@ -1230,7 +1292,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1253,7 +1315,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_30c_wet-bulb",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40303,
@@ -1261,7 +1323,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1284,7 +1346,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_30c_wet-bulb",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40303,
@@ -1292,7 +1354,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1315,7 +1377,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_32c_wet-bulb",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40304,
@@ -1323,7 +1385,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1346,7 +1408,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_32c_wet-bulb",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40304,
@@ -1354,7 +1416,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1377,7 +1439,7 @@ export const datasets: types.Map[] = [
     slug: "days_above_32c_wet-bulb",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40304,
@@ -1385,7 +1447,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: 0,
       maxValue: 365,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1408,7 +1470,7 @@ export const datasets: types.Map[] = [
     slug: "10_hottest_wet-bulb_days",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40305,
@@ -1416,7 +1478,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -1439,7 +1501,7 @@ export const datasets: types.Map[] = [
     slug: "10_hottest_wet-bulb_days",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40305,
@@ -1447,7 +1509,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -1470,7 +1532,7 @@ export const datasets: types.Map[] = [
     slug: "10_hottest_wet-bulb_days",
     mapVersion: 2,
     isLatest: false,
-    dataLabels: ["5th percentile", "average", "95th percentile"],
+    dataLabels: ["Cooler year", "Average year", "Warmer year"],
     methodUsedForMid: "mean",
     dataset: {
       id: 40305,
@@ -1478,7 +1540,7 @@ export const datasets: types.Map[] = [
       unit: "°C",
       minValue: -30,
       maxValue: 60,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "average", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Temperature (°C)",
       },
@@ -1501,7 +1563,7 @@ export const datasets: types.Map[] = [
     slug: "change_in_total_annual_precipitation",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
+    dataLabels: ["Drier year", "Median year", "Wetter year"],
     methodUsedForMid: "median",
     dataset: {
       id: 40601,
@@ -1509,7 +1571,7 @@ export const datasets: types.Map[] = [
       unit: "mm",
       minValue: -5943,
       maxValue: 15004,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Change in precipitation (mm)",
       },
@@ -1532,7 +1594,7 @@ export const datasets: types.Map[] = [
     slug: "change_in_total_annual_precipitation",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
+    dataLabels: ["Drier year", "Median year", "Wetter year"],
     methodUsedForMid: "median",
     dataset: {
       id: 40601,
@@ -1540,7 +1602,7 @@ export const datasets: types.Map[] = [
       unit: "mm",
       minValue: -5943,
       maxValue: 15004,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Change in precipitation (mm)",
       },
@@ -1563,7 +1625,7 @@ export const datasets: types.Map[] = [
     slug: "change_in_snowy_days",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
+    dataLabels: ["Less snowy year", "Median year", "Snowier year"],
     methodUsedForMid: "median",
     dataset: {
       id: 40614,
@@ -1571,7 +1633,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: -230,
       maxValue: 294,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1594,7 +1656,7 @@ export const datasets: types.Map[] = [
     slug: "change_in_snowy_days",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
+    dataLabels: ["Less snowy year", "Median year", "Snowier year"],
     methodUsedForMid: "median",
     dataset: {
       id: 40614,
@@ -1602,7 +1664,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: -230,
       maxValue: 294,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1625,7 +1687,7 @@ export const datasets: types.Map[] = [
     slug: "change_in_dry_hot_days",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
+    dataLabels: ["Wetter year", "Median year", "Drier year"],
     methodUsedForMid: "median",
     dataset: {
       id: 40607,
@@ -1633,7 +1695,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: -8,
       maxValue: 251,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1656,7 +1718,7 @@ export const datasets: types.Map[] = [
     slug: "change_in_dry_hot_days",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
+    dataLabels: ["Wetter year", "Median year", "Drier year"],
     methodUsedForMid: "median",
     dataset: {
       id: 40607,
@@ -1664,7 +1726,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: -8,
       maxValue: 251,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -1687,7 +1749,7 @@ export const datasets: types.Map[] = [
     slug: "change_in_wettest_90_days",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
+    dataLabels: ["Drier wet season", "Median wet season", "Wetter wet season"],
     methodUsedForMid: "median",
     dataset: {
       id: 40616,
@@ -1695,7 +1757,7 @@ export const datasets: types.Map[] = [
       unit: "mm",
       minValue: -2718,
       maxValue: 5629,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Change in precipitation (mm)",
       },
@@ -1718,7 +1780,7 @@ export const datasets: types.Map[] = [
     slug: "change_in_wettest_90_days",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
+    dataLabels: ["Drier wet season", "Median wet season", "Wetter wet season"],
     methodUsedForMid: "median",
     dataset: {
       id: 40616,
@@ -1726,7 +1788,7 @@ export const datasets: types.Map[] = [
       unit: "mm",
       minValue: -2718,
       maxValue: 5629,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Change in precipitation (mm)",
       },
@@ -1757,7 +1819,7 @@ export const datasets: types.Map[] = [
       unit: "x as frequent",
       minValue: 0,
       maxValue: 45,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Times more/less frequent",
       },
@@ -1788,7 +1850,7 @@ export const datasets: types.Map[] = [
       unit: "x as frequent",
       minValue: 0,
       maxValue: 45,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Times more/less frequent",
       },
@@ -1819,7 +1881,7 @@ export const datasets: types.Map[] = [
       unit: "mm",
       minValue: -217,
       maxValue: 1190,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Change in precipitation (mm)",
       },
@@ -1850,7 +1912,7 @@ export const datasets: types.Map[] = [
       unit: "mm",
       minValue: -217,
       maxValue: 1190,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Change in precipitation (mm)",
       },
@@ -1881,7 +1943,7 @@ export const datasets: types.Map[] = [
       unit: "z-score",
       minValue: -3.3,
       maxValue: 2.3,
-      dataVariables: null,
+      dataVariables: ["Dry year", "Average year", "Wet year"],
       pfDatasetUnitByUnit: {
         unitLong: "Change in water balance",
       },
@@ -1912,7 +1974,7 @@ export const datasets: types.Map[] = [
       unit: "z-score",
       minValue: -3.3,
       maxValue: 2.3,
-      dataVariables: null,
+      dataVariables: ["Dry year", "Average year", "Wet year"],
       pfDatasetUnitByUnit: {
         unitLong: "Change in water balance",
       },
@@ -1935,7 +1997,7 @@ export const datasets: types.Map[] = [
     slug: "likelihood_of_year-plus_drought",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "Average year", "95th percentile"],
+    dataLabels: ["", "Average year", ""],
     methodUsedForMid: "mean",
     dataset: {
       id: 40702,
@@ -1943,7 +2005,7 @@ export const datasets: types.Map[] = [
       unit: "%",
       minValue: 0,
       maxValue: 100,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "Average year", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Annual likelihood (%)",
       },
@@ -1966,7 +2028,7 @@ export const datasets: types.Map[] = [
     slug: "likelihood_of_year-plus_drought",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "Average year", "95th percentile"],
+    dataLabels: ["", "Average year", ""],
     methodUsedForMid: "mean",
     dataset: {
       id: 40702,
@@ -1974,7 +2036,7 @@ export const datasets: types.Map[] = [
       unit: "%",
       minValue: 0,
       maxValue: 100,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "Average year", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Annual likelihood (%)",
       },
@@ -1997,7 +2059,7 @@ export const datasets: types.Map[] = [
     slug: "likelihood_of_year-plus_extreme_drought",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "Average year", "95th percentile"],
+    dataLabels: ["", "Average year", ""],
     methodUsedForMid: "mean",
     dataset: {
       id: 40701,
@@ -2005,7 +2067,7 @@ export const datasets: types.Map[] = [
       unit: "%",
       minValue: 0,
       maxValue: 100,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "Average year", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Annual likelihood (%)",
       },
@@ -2028,7 +2090,7 @@ export const datasets: types.Map[] = [
     slug: "likelihood_of_year-plus_extreme_drought",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "Average year", "95th percentile"],
+    dataLabels: ["", "Average year", ""],
     methodUsedForMid: "mean",
     dataset: {
       id: 40701,
@@ -2036,7 +2098,7 @@ export const datasets: types.Map[] = [
       unit: "%",
       minValue: 0,
       maxValue: 100,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "Average year", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Annual likelihood (%)",
       },
@@ -2059,7 +2121,7 @@ export const datasets: types.Map[] = [
     slug: "change_in_wildfire_danger_days",
     mapVersion: 3,
     isLatest: true,
-    dataLabels: ["5th percentile", "Average year", "95th percentile"],
+    dataLabels: ["Wetter year", "Average year", "Drier year"],
     methodUsedForMid: "median",
     dataset: {
       id: 40704,
@@ -2067,7 +2129,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: -18,
       maxValue: 155,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "Average year", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -2090,7 +2152,7 @@ export const datasets: types.Map[] = [
     slug: "change_in_wildfire_danger_days",
     mapVersion: 1,
     isLatest: false,
-    dataLabels: ["5th percentile", "Average year", "95th percentile"],
+    dataLabels: ["Wetter year", "Average year", "Drier year"],
     methodUsedForMid: "median",
     dataset: {
       id: 40704,
@@ -2098,7 +2160,7 @@ export const datasets: types.Map[] = [
       unit: "days",
       minValue: -18,
       maxValue: 155,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "Average year", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Number of days per year",
       },
@@ -2107,6 +2169,96 @@ export const datasets: types.Map[] = [
         label: "Maps of dryness",
       },
       subCategory: null,
+    },
+  },
+  {
+    mapStyleId: "cl82u2msx003a15lkolpjs18p",
+    name: "Climate zones",
+    stops: [12, 13, 21, 22, 31, 32, 33, 41, 42, 43, 51, 52],
+    binHexColors: [
+      "#1e8245",
+      "#58b368",
+      "#81d895",
+      "#7f5539",
+      "#c9a47e",
+      "#1b4965",
+      "#0081a7",
+      "#74d2df",
+      "#9b2226",
+      "#e85d04",
+      "#ffc7c2",
+      "#5e548e",
+      "#be95c4",
+    ],
+    isDiff: false,
+    step: 1,
+    binLabels: [
+      "Tropical rainforest",
+      "Tropical savanna",
+      "Tropical monsoon",
+      "Arid desert",
+      "Semi-arid steppe",
+      "Temperate dry summer",
+      "Temperate dry winter",
+      "Temperate humid",
+      "Continental dry summer",
+      "Continental dry winter",
+      "Continental humid",
+      "Polar tundra",
+      "Polar ice cap",
+    ],
+    binningType: "number",
+    slug: "climate_zones",
+    mapVersion: 1,
+    isLatest: false,
+    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
+    methodUsedForMid: "mean",
+    dataset: {
+      id: 40901,
+      name: "Climate zones",
+      unit: "class",
+      minValue: 1,
+      maxValue: 52,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
+      pfDatasetUnitByUnit: {
+        unitLong: "Climate zone",
+      },
+      pfDatasetParentCategoryByParentCategory: {
+        name: "other",
+        label: "Other maps",
+      },
+      subCategory: null,
+    },
+  },
+  {
+    mapStyleId: "clrjfvn2900oi01pe6lzhesid",
+    name: "10 hottest nights",
+    stops: [1, 8, 15, 26, 32],
+    binHexColors: ["#515866", "#0ed5a3", "#0099e4", "#8be1ff", "#ff45d0", "#d70066"],
+    isDiff: false,
+    step: 1,
+    binLabels: null,
+    binningType: "range",
+    slug: "10_hottest_nights",
+    mapVersion: 3,
+    isLatest: true,
+    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
+    methodUsedForMid: "mean",
+    dataset: {
+      id: 40206,
+      name: "Mean minimum temperature of the 10 hottest days in any given year",
+      unit: "°C",
+      minValue: -10,
+      maxValue: 40,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
+      pfDatasetUnitByUnit: {
+        unitLong: "Temperature (°C)",
+      },
+      pfDatasetParentCategoryByParentCategory: {
+        name: "heat",
+        label: "Maps of temperature",
+      },
+      subCategory: "decreasing cold",
     },
   },
   {
@@ -2188,7 +2340,7 @@ export const datasets: types.Map[] = [
       unit: "class",
       minValue: 1,
       maxValue: 52,
-      dataVariables: null,
+      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
       pfDatasetUnitByUnit: {
         unitLong: "Climate zone",
       },
@@ -2197,99 +2349,6 @@ export const datasets: types.Map[] = [
         label: "Other maps",
       },
       subCategory: null,
-    },
-  },
-  {
-    mapStyleId: "clr4pe2k400ds01p56a6jc3en",
-    name: "Days above 45°C (113°F)",
-    stops: [1, 8, 31, 91, 181],
-    binHexColors: ["#515866", "#0ed5a3", "#0099e4", "#8be1ff", "#ff45d0", "#d70066"],
-    isDiff: false,
-    step: 1,
-    binLabels: null,
-    binningType: "range",
-    slug: "days_above_45c",
-    mapVersion: 3,
-    isLatest: true,
-    dataLabels: ["Cooler year", "Average year", "Warmer year"],
-    methodUsedForMid: "mean",
-    dataset: {
-      id: 40107,
-      name: "Days above 45°C (113°F)",
-      unit: "days",
-      minValue: 0,
-      maxValue: 365,
-      dataVariables: ["5th percentile", "average", "95th percentile"],
-      pfDatasetUnitByUnit: {
-        unitLong: "Number of days per year",
-      },
-      pfDatasetParentCategoryByParentCategory: {
-        name: "heat",
-        label: "Maps of temperature",
-      },
-      subCategory: "increasing heat",
-    },
-  },
-  {
-    mapStyleId: "clrjfvn2900oi01pe6lzhesid",
-    name: "10 hottest nights",
-    stops: [1, 8, 15, 26, 32],
-    binHexColors: ["#515866", "#0ed5a3", "#0099e4", "#8be1ff", "#ff45d0", "#d70066"],
-    isDiff: false,
-    step: 1,
-    binLabels: null,
-    binningType: "range",
-    slug: "10_hottest_nights",
-    mapVersion: 3,
-    isLatest: true,
-    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
-    methodUsedForMid: "mean",
-    dataset: {
-      id: 40206,
-      name: "Mean minimum temperature of the 10 hottest days in any given year",
-      unit: "°C",
-      minValue: -10,
-      maxValue: 40,
-      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
-      pfDatasetUnitByUnit: {
-        unitLong: "Temperature (°C)",
-      },
-      pfDatasetParentCategoryByParentCategory: {
-        name: "heat",
-        label: "Maps of temperature",
-      },
-      subCategory: "decreasing cold",
-    },
-  },
-  {
-    mapStyleId: "cltx1yoqo00eb01qwcebs7d3z",
-    name: "Average winter temperature",
-    stops: [-20, -8, 0, 5, 20],
-    binHexColors: ["#515866", "#0ed5a3", "#0099e4", "#8be1ff", "#ff45d0", "#d70066"],
-    isDiff: false,
-    step: 1,
-    binLabels: null,
-    binningType: "range",
-    slug: "average_winter_temperature",
-    mapVersion: 3,
-    isLatest: true,
-    dataLabels: ["5th percentile", "50th percentile", "95th percentile"],
-    methodUsedForMid: "mean",
-    dataset: {
-      id: 40207,
-      name: "Mean average winter temperature",
-      unit: "°C",
-      minValue: -46,
-      maxValue: 37,
-      dataVariables: ["5th percentile", "50th percentile", "95th percentile"],
-      pfDatasetUnitByUnit: {
-        unitLong: "Temperature (°C)",
-      },
-      pfDatasetParentCategoryByParentCategory: {
-        name: "heat",
-        label: "Maps of temperature",
-      },
-      subCategory: "decreasing cold",
     },
   },
 ];
