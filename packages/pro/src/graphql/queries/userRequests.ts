@@ -25,6 +25,7 @@ export const UPDATE_USER_ACCESS_REQUEST = gql`
     $rejected: Boolean!
     $note: String!
     $closing: String!
+    $finalEmail: String!
   ) {
     pfUpdateUserAccessRequest(
       input: {
@@ -33,6 +34,7 @@ export const UPDATE_USER_ACCESS_REQUEST = gql`
         rejected: $rejected
         note: $note
         closing: $closing
+        finalEmail: $finalEmail
       }
     ) {
       boolean

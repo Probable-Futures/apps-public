@@ -3107,7 +3107,7 @@ input PfUpdateUserAccessRequestInput {
   """
   clientMutationId: String
   closing: String!
-  finalEmail: String
+  finalEmail: String!
   id: UUID!
   note: String!
   rejected: Boolean!

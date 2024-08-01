@@ -1119,7 +1119,7 @@ $$;
 -- Name: pf_update_user_access_request(uuid, boolean, text, text, boolean, text); Type: FUNCTION; Schema: pf_public; Owner: -
 --
 
-CREATE FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text DEFAULT NULL::text) RETURNS boolean
+CREATE FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text) RETURNS boolean
     LANGUAGE plpgsql STRICT SECURITY DEFINER
     AS $$
 begin

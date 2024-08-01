@@ -75,6 +75,7 @@ const UserRequests = () => {
         rejected: true,
         note,
         closing,
+        finalEmail: "",
       },
     });
   };
