@@ -1,5 +1,6 @@
 import { exportMapAsHTML, ExportProps } from "./exportMap";
 import { getMap, getLatestMaps as getMaps, getDatasetIds as getIds } from "./getMapObject";
+import { magicSentenceMappingByDatasetId } from "./magicSentence";
 
 function generateEmbedMap(props: ExportProps) {
   return exportMapAsHTML(props);
@@ -17,4 +18,8 @@ function getDatasetIds() {
   return getIds();
 }
 
-export { generateEmbedMap, getMapObject, getLatestMaps, getDatasetIds };
+function getMagicSentenceGenerator() {
+  return magicSentenceMappingByDatasetId;
+}
+
+export { generateEmbedMap, getMapObject, getLatestMaps, getDatasetIds, getMagicSentenceGenerator };
