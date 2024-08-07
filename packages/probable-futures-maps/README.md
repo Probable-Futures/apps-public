@@ -65,14 +65,10 @@ fs.writeFileSync(fullPath, htmlTemplate);
   // call the function by passing the required params:
   const sentence = func({
     place: "Arizona, United States",
-    value1Low: 6,
-    value1Mid: 32,
-    value1High: 74,
-    value2Low: 26,
-    value2Mid: 57,
-    value2High: 106,
-    degree1: 0.5,
-    degree2: 1.5,
+    valueLow: 6,
+    valueMid: 32,
+    valueHigh: 74,
+    degree: 0.5,
     datasetId: 40104,
   });
 
