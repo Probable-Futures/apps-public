@@ -51,19 +51,19 @@ fs.writeFileSync(fullPath, htmlTemplate);
 - **getLatestMaps**: Use this function to get the latest Maps. Each Map object is of type Map.
 - **getMapObject**: Get the full object of a spcific Map. eg. `getMapObject(40104)`
 - **getDatasetIds**: Get all the available dataset Ids. Find each map and its associated datasetId [here](https://docs.probablefutures.org/maps/)
-- **getMagicSentenceGenerator**: You can generate a magic sentence that describes the data of a specific map at a specific location. Currenly, only maps whose names start with "Days above" have an associated magic sentence. Usage example:
+- **getDataDescriptionAtPlaceGenerator**: You can generate a magic sentence that describes the data of a specific map at a specific location. Currenly, only maps whose names start with "Days above" have an associated magic sentence. Usage example:
 
   ```js
   import {
-    getMagicSentenceGenerator,
+    getDataDescriptionAtPlaceGenerator,
     getMapObject,
-    MagicSentenceFuncType,
+    DataDescriptionAtPlaceFuncType,
   } from "@probable-futures/probable-futures-maps";
 
-  const generator = getMagicSentenceGenerator();
-  const func: MagicSentenceFuncType = generator[40104];
+  const generator = getDataDescriptionAtPlaceGenerator();
+  const func: DataDescriptionAtPlaceFuncType = generator[40104];
   // call the function by passing the required params:
-  const test = func({
+  const sentence = func({
     place: "Arizona, United States",
     value1Low: 6,
     value1Mid: 32,
@@ -75,6 +75,8 @@ fs.writeFileSync(fullPath, htmlTemplate);
     degree2: 1.5,
     datasetId: 40104,
   });
+
+  console.log(sentence);
 
   // The result:
   // Between 1970 and 2000, people in Arizona, United States could expect about 32 Days above 32°C (90°F) in an average year, 6 days in a cooler year and 74 days in a warmer year. In a 1.5°C warming scenario, people in Arizona, United States can expect about 57 Days above 32°C (90°F) in an average year, 26 days in a cooler year and 106 days in a warmer year.
