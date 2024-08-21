@@ -30,7 +30,9 @@ const daysAboveFunc = ({ place, valueLow, valueMid, valueHigh, degree, datasetId
 
   return `${
     degree === 0.5 ? "Between 1970 and 2000" : `In a ${degree}°C warming scenario`
-  }, people in ${place} could expect about ${parseToInt(valueMid)} ${mapName} in ${getArticle(
+  }, people in ${place} could expect about ${parseToInt(
+    valueMid,
+  )} ${mapName.toLowerCase()} in ${getArticle(
     dataLabels[1],
   )} ${dataLabels[1].toLowerCase()}, ${parseToInt(valueLow)} ${unit} in ${getArticle(
     dataLabels[0],
