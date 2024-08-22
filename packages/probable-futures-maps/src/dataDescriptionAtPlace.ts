@@ -30,15 +30,13 @@ const daysAboveFunc = ({ place, valueLow, valueMid, valueHigh, degree, datasetId
 
   return `${
     degree === 0.5 ? "Between 1970 and 2000" : `In a ${degree}°C warming scenario`
-  }, people in ${place} could expect about ${parseToInt(
-    valueMid,
-  )} ${mapName.toLowerCase()} in ${getArticle(
-    dataLabels[1],
-  )} ${dataLabels[1].toLowerCase()}, ${parseToInt(valueLow)} ${unit} in ${getArticle(
-    dataLabels[0],
-  )} ${dataLabels[0].toLowerCase()} and ${parseToInt(valueHigh)} ${unit} in ${getArticle(
-    dataLabels[2],
-  )} ${dataLabels[2].toLowerCase()}.`;
+  }, people in ${place} could expect about ${parseToInt(valueMid)} ${
+    mapName.charAt(0).toLowerCase() + mapName.slice(1)
+  } in ${getArticle(dataLabels[1])} ${dataLabels[1].toLowerCase()}, ${parseToInt(
+    valueLow,
+  )} ${unit} in ${getArticle(dataLabels[0])} ${dataLabels[0].toLowerCase()} and ${parseToInt(
+    valueHigh,
+  )} ${unit} in ${getArticle(dataLabels[2])} ${dataLabels[2].toLowerCase()}.`;
 };
 
 export const dataDescriptionAtPlaceMappingByDatasetId = (function () {
