@@ -33,3 +33,5 @@ comment on role :PARTNER_ROLE is E'Role used for executing database queries from
 grant :PARTNER_ROLE to :GRAPHILE_ROLE;
 
 grant :VISITOR_ROLE to :PARTNER_ROLE;
+
+grant :PARTNER_ROLE to :AUTHENTICATED_ROLE;

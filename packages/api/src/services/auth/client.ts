@@ -33,7 +33,7 @@ async function createClient(fullName: string, auth0ManagementToken: string) {
     );
 
     const grantsData = JSON.stringify({
-      audience: env.AUTH0_AUDIENCE.replace(/\/$/, ""),
+      audience: "https://" + env.AUTH0_DOMAIN.replace(/\/$/, "") + "/api/v2",
       client_id: client.client_id,
       scope: ["statistics:read"],
     });
