@@ -43,10 +43,13 @@ fs.writeFileSync(fullPath, htmlTemplate);
 - **generateEmbedMap**: This function can be used to generate embeddable maps as an html-string template. It takes the following parameters:
 
   - **datasetId:** The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps/#all-maps)
-  - **tempUnit**: `°C` or `°F`. If the map unit is a temperature unit, eg. "Average Tempareture" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key.
+  - **tempUnit**: `°C` or `°F`. If the map unit is a temperature unit, eg. "Average Tempareture" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key
   - **scenario**: The warming scenario
   - **viewState**: This is an object which defines the initial view port of the map. The object includes `longitude`, `latitude`, and `zoom`
   - **compare**: This object can be specified in case the user wants to generate a comparison embeddable map. The object fields are `scenarioBefore` and `scenarioAfter`
+  - **hideControls**: `boolean` Hide the map controls, such as zoom buttons
+  - **hideMapLegend**: `boolean` Hide the map key
+  - **hideTitle**: `boolean` Hide the title containing the map name
 
 - **getLatestMaps**: Use this function to get the latest Maps. Each Map object is of type Map.
 - **getMapObject**: Get the full object of a spcific Map. eg. `getMapObject(40104)`

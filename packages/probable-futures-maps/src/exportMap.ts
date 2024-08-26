@@ -18,6 +18,9 @@ export type ExportProps = {
   showBorders?: boolean;
   showPopupOnFirstLoad?: boolean;
   overrideUIStyles?: { selector: string; styles: any }[];
+  hideTitle?: boolean;
+  hideControls?: boolean;
+  hideMapLegend?: boolean;
 };
 
 const embedAccessToken =
@@ -35,6 +38,9 @@ export const exportMapAsHTML = async ({
   showBorders,
   showPopupOnFirstLoad,
   overrideUIStyles,
+  hideControls,
+  hideMapLegend,
+  hideTitle,
 }: ExportProps) => {
   const selectedDataset =
     dataset ??
@@ -92,6 +98,9 @@ export const exportMapAsHTML = async ({
     showBorders,
     showPopupOnFirstLoad,
     overrideUIStyles,
+    hideControls,
+    hideMapLegend,
+    hideTitle,
   };
 
   return isCompare ? consts.exportCompareMapToHTML(data) : consts.exportSimpleMapToHTML(data);

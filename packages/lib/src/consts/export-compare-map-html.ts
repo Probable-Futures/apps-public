@@ -36,6 +36,9 @@ type Props = {
   showBorders?: boolean;
   showPopupOnFirstLoad?: boolean;
   overrideUIStyles?: { selector: string; styles: any }[];
+  hideTitle?: boolean;
+  hideControls?: boolean;
+  hideMapLegend?: boolean;
 };
 
 export const exportCompareMapToHTML = (options: Props) => {
@@ -285,6 +288,9 @@ export const exportCompareMapToHTML = (options: Props) => {
           const isFrequent = dataset?.dataset.unit === "x as frequent";
           const datasetDescriptionResponse = ${JSON.stringify(options.datasetDescriptionResponse)};
           const showBorders = ${options.showBorders};
+          const hideControls = ${options.hideControls};
+          const hideMapLegend = ${options.hideMapLegend};
+          const hideTitle = ${options.hideTitle};
           const showPopupOnFirstLoad = ${options.showPopupOnFirstLoad};
           let showBaselineDetails = dataset.isDiff && degrees !== 0 && !isFrequent;
           let beforeMap, afterMap;
@@ -334,10 +340,14 @@ export const exportCompareMapToHTML = (options: Props) => {
           beforeMap = new mapboxgl.Map({
             container: 'beforeMap', style: '${options.mapStyle}', 
             center: [${options.viewState.longitude || 0},${options.viewState.latitude || 0}], 
-            zoom: ${
-              options.viewState.zoom || 2.2
-            }, minZoom: 2.2, maxZoom: 10, projection: 'mercator'});
-          beforeMap.addControl(new mapboxgl.NavigationControl());
+            zoom: ${options.viewState.zoom || 2.2}, 
+            minZoom: 2.2,
+            maxZoom: 10,
+            projection: 'mercator'
+          });
+          if(!hideControls) {
+            beforeMap.addControl(new mapboxgl.NavigationControl());
+          }
           beforeMap.on("style.load", function() {
             onStyleLoad(beforeMap, dataLayerPaintPropertiesBefore);
           });
@@ -354,7 +364,9 @@ export const exportCompareMapToHTML = (options: Props) => {
             zoom: ${
               options.viewState.zoom || 2.2
             }, minZoom: 2.2, maxZoom: 10, projection: 'mercator'});
-          afterMap.addControl(new mapboxgl.NavigationControl());
+          if(!hideControls) {
+            afterMap.addControl(new mapboxgl.NavigationControl());
+          }
           afterMap.on("style.load", function() {
             onStyleLoad(afterMap, dataLayerPaintPropertiesAfter);
           });
@@ -387,12 +399,15 @@ export const exportCompareMapToHTML = (options: Props) => {
           beforeMap.scrollZoom.disable();
           afterMap.scrollZoom.disable();
           let compareMap = new mapboxgl.Compare(beforeMap, afterMap, "#comparison-container", {});
-
-          ${displayHeaderFunction}
+          if(!hideTitle) {
+            ${displayHeaderFunction}
+          }
           ${displayBottomLinkFunction}
-          ${displayClimateZonesKey}
-          ${displayKeyToggleFunction}
-          ${displayKeyFunction}
+          if(!hideMapLegend) {
+            ${displayClimateZonesKey}
+            ${displayKeyToggleFunction}
+            ${displayKeyFunction}
+          }
 
           const checkEdgeCaseForPrecipitationBinsAfterConvertingToInch = (value) => {
             if (value === -51 || value === -26) {
@@ -567,10 +582,18 @@ export const exportCompareMapToHTML = (options: Props) => {
             if (beforeMap._popups.length > 0) handleMapClick(beforeMap, dataKeyBefore, featuresBefore);
             if (afterMap._popups.length > 0) handleMapClick(afterMap, dataKeyAfter, featuresAfter);
           };
-          displayHeader();
+          if(!hideTitle) {
+            displayHeader();
+          }
           displayBottomLink();
-          if(dataset.dataset.unit === "class") displayClimateZoneKey();
-          else displayKey();
+          if(!hideMapLegend) {
+            if(dataset.dataset.unit === "class") {
+              displayClimateZoneKey();
+            }
+            else {
+              displayKey();
+            }
+          }
           // event listeners
           window.addEventListener('message', (event) => {
             const { action, dataKeyBefore: dataKeyBeforeFromEvent, 

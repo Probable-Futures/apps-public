@@ -35,6 +35,9 @@ type Props = {
   };
   showBorders?: boolean;
   showPopupOnFirstLoad?: boolean;
+  hideTitle?: boolean;
+  hideControls?: boolean;
+  hideMapLegend?: boolean;
 };
 
 export const exportSimpleMapToHTML = (options: Props) => {
@@ -265,6 +268,9 @@ export const exportSimpleMapToHTML = (options: Props) => {
           const isFrequent = dataset?.dataset.unit === "x as frequent";
           const datasetDescriptionResponse = ${JSON.stringify(options.datasetDescriptionResponse)};
           const showBorders = ${options.showBorders};
+          const hideControls = ${options.hideControls};
+          const hideMapLegend = ${options.hideMapLegend};
+          const hideTitle = ${options.hideTitle};
           const showPopupOnFirstLoad = ${options.showPopupOnFirstLoad};
           let showBaselineDetails = dataset.isDiff && degrees !== 0 && !isFrequent;
           let map;
@@ -276,10 +282,14 @@ export const exportSimpleMapToHTML = (options: Props) => {
           map = new mapboxgl.Map({ 
             container: 'map', style: '${options.mapStyle}', 
             center: [${options.viewState.longitude || 0},${options.viewState.latitude || 0}],
-            zoom: ${
-              options.viewState.zoom || 2.2
-            }, minZoom: 2.2, maxZoom: 10, projection: 'mercator'});
-          map.addControl(new mapboxgl.NavigationControl());
+            zoom: ${options.viewState.zoom || 2.2},
+            minZoom: 2.2,
+            maxZoom: 10,
+            projection: 'mercator'
+          });
+          if(!hideControls) {
+            map.addControl(new mapboxgl.NavigationControl());
+          }
           map.scrollZoom.disable();
           function onStyleLoad() {
             let { layers } = map?.getStyle();
@@ -318,12 +328,15 @@ export const exportSimpleMapToHTML = (options: Props) => {
             features = e.features;
             handleMapClick(map, dataKey, features);
           });
-          
-          ${displayHeaderFunction}
+          if(!hideTitle) {
+            ${displayHeaderFunction}
+          }
           ${displayBottomLinkFunction}
-          ${displayClimateZonesKey}
-          ${displayKeyToggleFunction}
-          ${displayKeyFunction}
+          if(!hideMapLegend) {
+            ${displayClimateZonesKey}
+            ${displayKeyToggleFunction}
+            ${displayKeyFunction}
+          }
 
           const checkEdgeCaseForPrecipitationBinsAfterConvertingToInch = (value) => {
             if (value === -51 || value === -26) {
@@ -493,10 +506,18 @@ export const exportSimpleMapToHTML = (options: Props) => {
             }
             handleMapClick(map, dataKey, features);
           };
-          displayHeader();
+          if(!hideTitle) {
+            displayHeader();
+          }
           displayBottomLink();
-          if(dataset.dataset.unit === "class") displayClimateZoneKey();
-          else displayKey();
+          if(!hideMapLegend) {
+            if(dataset.dataset.unit === "class") {
+              displayClimateZoneKey();
+            }
+            else {
+              displayKey();
+            }
+          }
           // event listeners
           window.addEventListener('message', (event) => {
             const { action, dataKey: dayaKeyFromEvent, degree, 

@@ -23,7 +23,7 @@
     "@emotion/styled": "^11.11.5",
     "@probable-futures/components-lib": "^1.0.2",
     "@probable-futures/lib": "^1.0.17",
-    "@probable-futures/probable-futures-maps": "^1.0.26",
+    "@probable-futures/probable-futures-maps": "^1.0.27",
     "@sentry/react": "^6.9.0",
     "@sentry/tracing": "^6.9.0",
     "@storybook/client-api": "^7.6.4",
