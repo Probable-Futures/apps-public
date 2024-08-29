@@ -134,6 +134,40 @@ export const exportSimpleMapToHTML = (options: Props) => {
             return Math.floor((value * 9) / 5 + 32);
           }
           
+          function getDataAttribute (degrees, percentileValue) {
+            if (degrees === 0.5) {
+              return "data_baseline_" + percentileValue;
+            } else {
+              return "data_" + degrees.toString().replace(".", "_") + "c_" + percentileValue;
+            }
+          };
+          function getMapLayerColors (colors, bins, degrees, percentileValue = "mid") {
+            const dataAttribute = getDataAttribute(degrees, percentileValue);
+            const startIndex = 5;
+            const additionalBins = colors
+              .slice(startIndex)
+              .map((_, index) => [bins[startIndex + index - 1], colors[startIndex + index]]);
+
+            return [
+              "step",
+              ["get", dataAttribute],
+              // color the areas with error values the same as the ocean color
+              "#f5f5f5",
+              -99999 + 1,
+              "#e6e6e6",
+              -88888 + 1,
+              colors[0],
+              bins[0],
+              colors[1],
+              bins[1],
+              colors[2],
+              bins[2],
+              colors[3],
+              bins[3],
+              colors[4],
+              ...additionalBins.flat(),
+            ];
+          };
           function convertCToF(values) {
             if (values === undefined) {
               return values;
@@ -262,6 +296,7 @@ export const exportSimpleMapToHTML = (options: Props) => {
             options.mapStyleConfigs,
           )};
           let dataset = ${JSON.stringify(options.dataset)};
+          const degreesOptions = ${JSON.stringify(consts.degreesOptions)};
           mapboxgl.accessToken = '${options.mapboxAccessToken}';
           let tempUnit = '${options.mapStyleConfigs.tempUnit}';
           let precipitationUnit = '${options.mapStyleConfigs.precipitationUnit}';
@@ -520,12 +555,15 @@ export const exportSimpleMapToHTML = (options: Props) => {
           }
           // event listeners
           window.addEventListener('message', (event) => {
-            const { action, dataKey: dayaKeyFromEvent, degree, 
-              dataLayerPaintProperties: dataLayerPaintPropertiesFromEvent } = event.data;
+            const { action, degree } = event.data;
             if(action === "onDegreeChanged") {
+              const [{ dataKey: dayaKeyFromEvent }] = degreesOptions.filter(
+                (d) => d.value === degree
+              );
               degrees = degree;
               dataKey = dayaKeyFromEvent;
-              dataLayerPaintProperties = dataLayerPaintPropertiesFromEvent;
+              dataLayerPaintProperties = getMapLayerColors(dataset.binHexColors || [], dataset.stops || [], degree);
+
               const elements = document.getElementsByClassName('embeddable-map-header-description');
               if(elements && elements[0]) {
                 elements[0].textContent = dataset.name + " in a " + degrees + "°C " + "warming scenario";

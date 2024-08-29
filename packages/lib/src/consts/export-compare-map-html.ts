@@ -150,6 +150,43 @@ export const exportCompareMapToHTML = (options: Props) => {
           function cToF(value) {
             return Math.floor((value * 9) / 5 + 32);
           }
+
+        function getDataAttribute (degrees, percentileValue) {
+          if (degrees === 0.5) {
+            return "data_baseline_" + percentileValue;
+          } else {
+            return "data_" + degrees.toString().replace(".", "_") + "c_" + percentileValue;
+          }
+        };
+
+        function getMapLayerColors (colors, bins, degrees, percentileValue = "mid") {
+          const dataAttribute = getDataAttribute(degrees, percentileValue);
+          const startIndex = 5;
+          const additionalBins = colors
+            .slice(startIndex)
+            .map((_, index) => [bins[startIndex + index - 1], colors[startIndex + index]]);
+
+          return [
+            "step",
+            ["get", dataAttribute],
+            // color the areas with error values the same as the ocean color
+            "#f5f5f5",
+            -99999 + 1,
+            "#e6e6e6",
+            -88888 + 1,
+            colors[0],
+            bins[0],
+            colors[1],
+            bins[1],
+            colors[2],
+            bins[2],
+            colors[3],
+            bins[3],
+            colors[4],
+            ...additionalBins.flat(),
+          ];
+        };
+
           
           function convertCToF(values) {
             if (values === undefined) {
@@ -282,6 +319,7 @@ export const exportCompareMapToHTML = (options: Props) => {
           let degreesAfter = '${options.compare?.degreesAfter}';
           
           let dataset = ${JSON.stringify(options.dataset)};
+          const degreesOptions = ${JSON.stringify(consts.degreesOptions)};
           mapboxgl.accessToken = '${options.mapboxAccessToken}';
           let tempUnit = '${options.mapStyleConfigs.tempUnit}';
           let precipitationUnit = '${options.mapStyleConfigs.precipitationUnit}';
@@ -596,17 +634,20 @@ export const exportCompareMapToHTML = (options: Props) => {
           }
           // event listeners
           window.addEventListener('message', (event) => {
-            const { action, dataKeyBefore: dataKeyBeforeFromEvent, 
-              dataKeyAfter: dataKeyAfterFromEvent, degreeBefore, degreeAfter, 
-              dataLayerPaintPropertiesBefore: dataLayerPaintPropertiesBeforeFromEvent,
-              dataLayerPaintPropertiesAfter: dataLayerPaintPropertiesAfterFromEvent } = event.data;
+            const { action, degreeBefore, degreeAfter } = event.data;
             if(action === "onDegreeChanged") {
+              const [{ dataKey: dataKeyBeforeFromEvent }] = degreesOptions.filter(
+                (d) => d.value === degreeBefore
+              );
+              const [{ dataKey: dataKeyAfterFromEvent }] = degreesOptions.filter(
+                (d) => d.value === degreeAfter
+              );
               degreesBefore = degreeBefore;
               degreesAfter = degreeAfter;
               dataKeyBefore = dataKeyBeforeFromEvent;
               dataKeyAfter = dataKeyAfterFromEvent;
-              dataLayerPaintPropertiesBefore = dataLayerPaintPropertiesBeforeFromEvent;
-              dataLayerPaintPropertiesAfter = dataLayerPaintPropertiesAfterFromEvent;
+              dataLayerPaintPropertiesBefore = getMapLayerColors(dataset.binHexColors || [], dataset.stops || [], degreeBefore);
+              dataLayerPaintPropertiesAfter = getMapLayerColors(dataset.binHexColors || [], dataset.stops || [], degreeAfter);
               onStyleLoad(beforeMap, dataLayerPaintPropertiesBefore);
               onStyleLoad(afterMap, dataLayerPaintPropertiesAfter);
               const styleSheet = document.getElementById("dynamic-slider-styles").sheet;
