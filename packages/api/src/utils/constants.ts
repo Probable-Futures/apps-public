@@ -7,6 +7,7 @@ export const apiRoutes = {
   contact: "/contact",
   upload: "/upload",
   auth: "/auth",
+  donate: "/donate",
 };
 
 export const rdsRootCA = path.join(

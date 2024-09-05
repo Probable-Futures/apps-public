@@ -98,3 +98,14 @@ export const AUTH_PRO_CLIENT_USER_DB_CONNECTION_NAME = env
   .required()
   .asString();
 export const AUTH_FULL_USER_ROLE_ID = env.get("AUTH_FULL_USER_ROLE_ID").required().asString();
+
+export const AIRTABLE_ACCESS_TOKEN = env.get("AIRTABLE_ACCESS_TOKEN").required().asString();
+export const API_KEY_FOR_DONATE_ENDPOINT = env
+  .get("API_KEY_FOR_DONATE_ENDPOINT")
+  .required()
+  .asString();
+export const AIRTABLE_DONATION_BASE_ID = env.get("AIRTABLE_DONATION_BASE_ID").required().asString();
+export const AIRTABLE_DONATION_TABLE_ID = env
+  .get("AIRTABLE_DONATION_TABLE_ID")
+  .required()
+  .asString();

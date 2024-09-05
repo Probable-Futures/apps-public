@@ -5,6 +5,7 @@ import { Server } from "http";
 import { constants, error, httpLogger, extendDebugger, errorHandler } from "./utils";
 import * as middleware from "./middleware";
 import contact from "./routes/contact";
+import donate from "./routes/donate";
 import auth from "./routes/auth";
 
 const debug = extendDebugger("app");
@@ -41,6 +42,7 @@ export async function initApp({ httpServer }: { httpServer: Server }): Promise<E
   middleware.installUppyCompanion(app, httpServer);
 
   app.use(apiRoutes.contact, contact);
+  app.use(apiRoutes.donate, donate);
   app.use(apiRoutes.auth, auth);
 
   app.use(errorHandler);
