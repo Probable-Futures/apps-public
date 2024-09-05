@@ -23,9 +23,10 @@ Easily embed any Probable Futures map in a website without touching a single lin
 - `scenario` (Number): The warming scenario
 - `viewState` (Object): This is an object which defines the initial view port of the map. The object includes `longitude`, `latitude`, and `zoom`
 - `compare` (Object): This object can be specified in case the user wants to generate a comparison embeddable map. The object fields are `scenarioBefore` and `scenarioAfter`
-- `hideControls` (Boolean): Hide the map controls, such as zoom buttons
-- `hideMapLegend` (Boolean): Hide the map key
-- `hideTitle` (Boolean): Hide the title containing the map name
+- `hideControls` (Boolean) - default false: Hide the map controls, such as zoom buttons
+- `hideMapLegend` (Boolean) - default false: Hide the map key
+- `hideTitle` (Boolean) - default false: Hide the title containing the map name
+- `hideResetMapButton` (Boolean) - default true: Hide the reset button. This button could be used to reset the map to its original view given the initial long, lat and zoom.
 
 **Example:**
 

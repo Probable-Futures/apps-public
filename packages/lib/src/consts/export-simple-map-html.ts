@@ -6,8 +6,10 @@ import {
   displayHeaderFunction,
   displayKeyFunction,
   displayKeyToggleFunction,
+  displayResetMapButton,
   headerStyles,
   keyStyles,
+  miscStyles,
 } from "../utils/embed.shared";
 import { DatasetDescriptionResponse } from "../types";
 
@@ -38,6 +40,7 @@ type Props = {
   hideTitle?: boolean;
   hideControls?: boolean;
   hideMapLegend?: boolean;
+  hideResetMapButton?: boolean;
 };
 
 export const exportSimpleMapToHTML = (options: Props) => {
@@ -93,6 +96,7 @@ export const exportSimpleMapToHTML = (options: Props) => {
         .mapboxgl-popup-tip{width: 12px;height: 12px;transform: rotate(45deg);background-color: #fdfdfd;border-width: 1px !important;margin-bottom: -8px;border-left: 1px solid #2a172d;border-top: 1px solid #2a172d!important;box-sizing: content-box;align-self: center;border-bottom-color: #fff;}
         ${headerStyles}
         ${keyStyles}
+        ${miscStyles}
       </style>
       <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
       <!-- Open Graph / Facebook -->
@@ -305,7 +309,9 @@ export const exportSimpleMapToHTML = (options: Props) => {
           const showBorders = ${options.showBorders};
           const hideControls = ${options.hideControls};
           const hideMapLegend = ${options.hideMapLegend};
+          const hideResetMapButton = ${options.hideResetMapButton === undefined ? true : false};
           const hideTitle = ${options.hideTitle};
+          const viewState = ${JSON.stringify(options.viewState)};
           const showPopupOnFirstLoad = ${options.showPopupOnFirstLoad};
           let showBaselineDetails = dataset.isDiff && degrees !== 0 && !isFrequent;
           let map;
@@ -371,6 +377,9 @@ export const exportSimpleMapToHTML = (options: Props) => {
             ${displayClimateZonesKey}
             ${displayKeyToggleFunction}
             ${displayKeyFunction}
+          }
+          if(!hideResetMapButton) {
+            ${displayResetMapButton}
           }
 
           const checkEdgeCaseForPrecipitationBinsAfterConvertingToInch = (value) => {
@@ -541,6 +550,31 @@ export const exportSimpleMapToHTML = (options: Props) => {
             }
             handleMapClick(map, dataKey, features);
           };
+
+          function handleResetButtonClick() {
+            const lat = viewState.latitude || 0;
+            const lng = viewState.longitude || 0;
+            const zoom = viewState.zoom || 2.2;
+
+            map.flyTo({
+              center: [lng, lat],
+              zoom,
+            });
+            setTimeout(() => {
+              map.fire("click", {
+                lngLat: {
+                  lng,
+                  lat,
+                },
+                point: map.project({
+                  lng,
+                  lat,
+                }),
+                originalEvent: {},
+              });
+            }, 1200);
+          }
+
           if(!hideTitle) {
             displayHeader();
           }
@@ -552,6 +586,9 @@ export const exportSimpleMapToHTML = (options: Props) => {
             else {
               displayKey();
             }
+          }
+          if(!hideResetMapButton) {
+            displayResetButton();
           }
           // event listeners
           window.addEventListener('message', (event) => {

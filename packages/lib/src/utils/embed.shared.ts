@@ -57,6 +57,10 @@ export const keyStyles = `
   @media (min-width: 768px) {.climate-zones-key-container {overflow-x: hidden;}}
 `;
 
+export const miscStyles = `
+  .reset-map-button:hover {background-color: rgb(0 0 0 / 5%)!important;}
+`;
+
 export const displayKeyFunction = `
   function displayKey() {
     // create main divs
@@ -242,5 +246,67 @@ export const displayHeaderFunction = `
     headerDiv.appendChild(headerTitle);
     headerDiv.appendChild(headerDesc);
     document.body.appendChild(headerDiv);
+  }
+`;
+
+export const displayResetMapButton = `
+  function displayResetButton() {
+    const resetDiv = document.createElement("div");
+    resetDiv.className = "reset-map-container";
+    resetDiv.style.position = "absolute";
+    resetDiv.style.right = "20px";
+    resetDiv.style.top = "calc(50% + 85px)";
+    resetDiv.style.transform = "translateY(-50%)";
+    resetDiv.style.zIndex = "1000";
+    resetDiv.style.backgroundColor = "white";
+    resetDiv.style.borderRadius = "50%";
+
+    const resetButton = document.createElement("button");
+    resetButton.className = "reset-map-button";
+
+    resetButton.style.padding = "10px";
+    resetButton.style.backgroundColor = "#fdfdfd";
+    resetButton.style.border = "none";
+    resetButton.style.borderRadius = "50%";
+    resetButton.style.width = "35px";
+    resetButton.style.height = "35px";
+    resetButton.style.display = "flex";
+    resetButton.style.alignItems = "center";
+    resetButton.style.justifyContent = "center";
+    resetButton.style.cursor = "pointer";
+    resetButton.style.position = "relative";
+    resetButton.style.boxShadow = "0 3px 5px 0 rgb(56 22 63 / 50%)";
+
+    const arrowDiv = document.createElement("div");
+    arrowDiv.className = "incomplete-circular-arrow";
+
+    arrowDiv.style.width = "15px";
+    arrowDiv.style.height = "11px";
+    arrowDiv.style.border = "2px solid transparent";
+    arrowDiv.style.borderTopColor = "black";
+    arrowDiv.style.borderLeftColor = "black";
+    arrowDiv.style.borderBottomColor = "black";
+    arrowDiv.style.borderRadius = "50%";
+    arrowDiv.style.position = "relative";
+
+    const arrowHead = document.createElement("div");
+    arrowHead.className = "arrow-head";
+
+    arrowHead.style.width = "4px";
+    arrowHead.style.height = "4px";
+    arrowHead.style.borderTop = "2px solid black";
+    arrowHead.style.borderRight = "2px solid black";
+    arrowHead.style.transform = "rotate(72deg)";
+    arrowHead.style.position = "absolute";
+    arrowHead.style.top = "-3px";
+    arrowHead.style.right = "0px";
+
+    arrowDiv.appendChild(arrowHead);
+    resetButton.appendChild(arrowDiv);
+
+    resetButton.addEventListener("click", handleResetButtonClick);
+
+    resetDiv.appendChild(resetButton);
+    document.body.appendChild(resetDiv);
   }
 `;

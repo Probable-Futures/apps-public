@@ -21,6 +21,7 @@ export type ExportProps = {
   hideTitle?: boolean;
   hideControls?: boolean;
   hideMapLegend?: boolean;
+  hideResetMapButton?: boolean;
 };
 
 const embedAccessToken =
@@ -41,6 +42,7 @@ export const exportMapAsHTML = async ({
   hideControls,
   hideMapLegend,
   hideTitle,
+  hideResetMapButton,
 }: ExportProps) => {
   const selectedDataset =
     dataset ??
@@ -101,6 +103,7 @@ export const exportMapAsHTML = async ({
     hideControls,
     hideMapLegend,
     hideTitle,
+    hideResetMapButton,
   };
 
   return isCompare ? consts.exportCompareMapToHTML(data) : consts.exportSimpleMapToHTML(data);

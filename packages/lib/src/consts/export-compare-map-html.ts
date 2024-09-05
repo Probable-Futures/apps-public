@@ -8,6 +8,8 @@ import {
   displayKeyToggleFunction,
   headerStyles,
   keyStyles,
+  displayResetMapButton,
+  miscStyles,
 } from "../utils/embed.shared";
 import { DatasetDescriptionResponse } from "../types";
 
@@ -39,6 +41,7 @@ type Props = {
   hideTitle?: boolean;
   hideControls?: boolean;
   hideMapLegend?: boolean;
+  hideResetMapButton?: boolean;
 };
 
 export const exportCompareMapToHTML = (options: Props) => {
@@ -101,6 +104,7 @@ export const exportCompareMapToHTML = (options: Props) => {
         .mapboxgl-compare .compare-swiper-vertical::after {background-color: #1b1a1c;border: 1px solid #fefffc;color: #f8f9f3;display: block;font-family: RelativeMono,monospace;font-size: 15px;line-height: 1;padding: 2px 0 4px 0;position: absolute;text-align: center;top: 10px;width: 62px;}
         ${headerStyles}
         ${keyStyles}
+        ${miscStyles}
       </style>
       <style id="dynamic-slider-styles">
         .mapboxgl-compare .compare-swiper-vertical::before {content: "${
@@ -329,6 +333,8 @@ export const exportCompareMapToHTML = (options: Props) => {
           const hideControls = ${options.hideControls};
           const hideMapLegend = ${options.hideMapLegend};
           const hideTitle = ${options.hideTitle};
+          const hideResetMapButton = ${options.hideResetMapButton === undefined ? true : false};
+          const viewState = ${JSON.stringify(options.viewState)};
           const showPopupOnFirstLoad = ${options.showPopupOnFirstLoad};
           let showBaselineDetails = dataset.isDiff && degrees !== 0 && !isFrequent;
           let beforeMap, afterMap;
@@ -446,7 +452,9 @@ export const exportCompareMapToHTML = (options: Props) => {
             ${displayKeyToggleFunction}
             ${displayKeyFunction}
           }
-
+          if(!hideResetMapButton) {
+            ${displayResetMapButton}
+          }
           const checkEdgeCaseForPrecipitationBinsAfterConvertingToInch = (value) => {
             if (value === -51 || value === -26) {
               return convertmmToin(value) - 0.1;
@@ -620,6 +628,39 @@ export const exportCompareMapToHTML = (options: Props) => {
             if (beforeMap._popups.length > 0) handleMapClick(beforeMap, dataKeyBefore, featuresBefore);
             if (afterMap._popups.length > 0) handleMapClick(afterMap, dataKeyAfter, featuresAfter);
           };
+
+          function handleResetButtonClick() {
+            const lat = viewState.latitude || 0;
+            const lng = viewState.longitude || 0;
+            const zoom = viewState.zoom || 2.2;
+            beforeMap.flyTo({
+              center: [lng, lat],
+              zoom,
+            });
+            afterMap.flyTo({
+              center: [lng, lat],
+              zoom,
+            });
+
+            handleMapClick(beforeMap);
+            handleMapClick(afterMap);
+            setTimeout(() => {
+              beforeMap.fire("click", {
+                lngLat: { lng, lat },
+                point: beforeMap.project({ lng, lat }),
+                originalEvent: {},
+              });
+            }, 1200);
+            
+            setTimeout(() => {
+              afterMap.fire("click", {
+                lngLat: { lng, lat },
+                point: afterMap.project({ lng, lat }),
+                originalEvent: {},
+              });
+            }, 1200);
+          }
+
           if(!hideTitle) {
             displayHeader();
           }
@@ -631,6 +672,9 @@ export const exportCompareMapToHTML = (options: Props) => {
             else {
               displayKey();
             }
+          }
+          if(!hideResetMapButton) {
+            displayResetButton();
           }
           // event listeners
           window.addEventListener('message', (event) => {
