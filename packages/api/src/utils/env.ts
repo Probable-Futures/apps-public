@@ -110,3 +110,8 @@ export const EVERY_DOT_ORG_ACCESS_TOKEN = env
   .get("EVERY_DOT_ORG_ACCESS_TOKEN")
   .required()
   .asString();
+
+export const API_KEY_FOR_DONATE_ENDPOINT = env
+  .get("API_KEY_FOR_DONATE_ENDPOINT")
+  .required()
+  .asString();

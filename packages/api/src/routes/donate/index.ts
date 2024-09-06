@@ -2,6 +2,7 @@ import express from "express";
 import { serialize } from "../../utils/error";
 import { submitToAirtable } from "../../services/donation/request";
 import { verifyToken } from "../../middleware/verifyToken";
+import { env } from "../../utils";
 const router = express.Router();
 
 export interface EveryOrgObject {
@@ -27,16 +28,25 @@ export interface EveryOrgObject {
 router.post("/", verifyToken, async (req, res) => {
   try {
     const data = req.body as EveryOrgObject;
-    const request = await submitToAirtable(data);
+    console.log("The body data recieved from every.org: ", data);
 
-    if (request.ok) {
-      res.status(200).send({ success: true, message: "Donation processed successfully." });
+    const apiKey = req.query.apiKeyForDonate as string | undefined;
+
+    if (apiKey === env.API_KEY_FOR_DONATE_ENDPOINT) {
+      const request = await submitToAirtable(data);
+
+      if (request.ok) {
+        res.status(200).send({ success: true, message: "Donation processed successfully." });
+      } else {
+        const errorData = await request.json();
+        res.status(request.status).send({ error: errorData });
+      }
     } else {
-      const errorData = await request.json();
-      res.status(request.status).send({ error: errorData });
+      res.status(401).send({ error: "Unauthorized access." });
     }
   } catch (error: any) {
     const status = "status" in error && typeof error.status === "number" ? error.status : 500;
+    console.error(error);
     res.status(status).send(serialize(error));
   }
 });
