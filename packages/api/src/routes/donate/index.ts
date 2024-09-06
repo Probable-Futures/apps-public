@@ -15,7 +15,7 @@ export interface EveryOrgObject {
     ein?: string;
     name: string;
   };
-  amount: number;
+  amount: string;
   netAmount: string;
   currency: string;
   frequency: "Monthly" | "One-time";

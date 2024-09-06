@@ -22,7 +22,7 @@ export const submitToAirtable = async (data: EveryOrgObject): Promise<Response> 
         fields: {
           [formFieldsDonation["Full Name"]]: `${data.firstName ?? ""} ${data.lastName ?? ""}`,
           [formFieldsDonation["Email"]]: data.email || "",
-          [formFieldsDonation["Total Donated"]]: data.amount,
+          [formFieldsDonation["Total Donated"]]: parseFloat(data.amount || ""),
           [formFieldsDonation["Donation Date"]]: data.donationDate
             ? new Date(data.donationDate).toISOString().split("T")[0]
             : "",
