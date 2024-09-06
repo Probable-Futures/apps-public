@@ -1,8 +1,7 @@
 import express from "express";
-import * as env from "../../utils/env";
 import { serialize } from "../../utils/error";
 import { submitToAirtable } from "../../services/donation/request";
-
+import { verifyToken } from "../../middleware/verifyToken";
 const router = express.Router();
 
 export interface EveryOrgObject {
@@ -20,27 +19,21 @@ export interface EveryOrgObject {
   netAmount: string;
   currency: string;
   frequency: "Monthly" | "One-time";
-  donationDate: string;
+  donationDate: Date;
   privateNote: string;
   publicTestimony?: string;
 }
 
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, async (req, res) => {
   try {
     const data = req.body as EveryOrgObject;
-    const apiKey = req.query.apiKeyForDonate as string | undefined;
+    const request = await submitToAirtable(data);
 
-    if (apiKey === env.API_KEY_FOR_DONATE_ENDPOINT) {
-      const request = await submitToAirtable(data);
-
-      if (request.ok) {
-        res.status(200).send({ success: true, message: "Donation processed successfully." });
-      } else {
-        const errorData = await request.json();
-        res.status(request.status).send({ error: errorData });
-      }
+    if (request.ok) {
+      res.status(200).send({ success: true, message: "Donation processed successfully." });
     } else {
-      res.status(401).send({ error: "Unauthorized access." });
+      const errorData = await request.json();
+      res.status(request.status).send({ error: errorData });
     }
   } catch (error: any) {
     const status = "status" in error && typeof error.status === "number" ? error.status : 500;

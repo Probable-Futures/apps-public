@@ -5,7 +5,7 @@ import { formFieldsDonation } from "../../routes/donate/fields";
 
 interface AirtableData {
   records: {
-    fields: Record<string, string>;
+    fields: Record<string, string | number | Date>;
   }[];
 }
 
@@ -20,12 +20,12 @@ export const submitToAirtable = async (data: EveryOrgObject): Promise<Response> 
     records: [
       {
         fields: {
-          [formFieldsDonation["Full Name"]]: `${data.firstName ?? ""} ${
-            data.lastName ?? ""
-          }`.trim(),
+          [formFieldsDonation["Full Name"]]: `${data.firstName ?? ""} ${data.lastName ?? ""}`,
           [formFieldsDonation["Email"]]: data.email || "",
-          [formFieldsDonation["Total Donated"]]: String(data.amount || ""),
-          [formFieldsDonation["Donation Date"]]: data.donationDate || "",
+          [formFieldsDonation["Total Donated"]]: data.amount,
+          [formFieldsDonation["Donation Date"]]: data.donationDate
+            ? new Date(data.donationDate).toISOString().split("T")[0]
+            : "",
           [formFieldsDonation["Private Note"]]: data.privateNote || "",
         },
       },
