@@ -28,8 +28,6 @@ export interface EveryOrgObject {
 router.post("/", verifyToken, async (req, res) => {
   try {
     const data = req.body as EveryOrgObject;
-    console.log("The body data recieved from every.org: ", data);
-
     const apiKey = req.query.apiKeyForDonate as string | undefined;
 
     if (apiKey === env.API_KEY_FOR_DONATE_ENDPOINT) {
@@ -39,6 +37,7 @@ router.post("/", verifyToken, async (req, res) => {
         res.status(200).send({ success: true, message: "Donation processed successfully." });
       } else {
         const errorData = await request.json();
+        console.error(errorData);
         res.status(request.status).send({ error: errorData });
       }
     } else {

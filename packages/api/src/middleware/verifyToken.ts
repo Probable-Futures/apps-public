@@ -1,12 +1,11 @@
 import express, { Request, Response, NextFunction } from "express";
 
-import * as env from "../utils/env";
+// import * as env from "../utils/env";
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
-  console.log("Here are the headers received from every.org: ", authHeader);
-  const token = authHeader && authHeader.split(" ")[1];
-  console.log("Here is the token received from every.org: ", token);
+  console.log("Headers received from every.org: ", authHeader);
+  // const token = authHeader && authHeader.split(" ")[1];
 
   next();
   // if (!token) {
