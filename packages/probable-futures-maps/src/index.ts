@@ -29,3 +29,5 @@ export {
   getDatasetIds,
   getDataDescriptionAtPlaceGenerator,
 };
+
+export { default as Chart } from "./react-components/chart/Chart";

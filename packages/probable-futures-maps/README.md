@@ -122,3 +122,40 @@ console.log(sentence);
 // The result:
 // Between 1970 and 2000, people in Arizona, United States could expect about 32 Days above 32°C (90°F) in an average year, 6 days in a cooler year and 74 days in a warmer year. In a 1.5°C warming scenario, people in Arizona, United States can expect about 57 Days above 32°C (90°F) in an average year, 26 days in a cooler year and 106 days in a warmer year.
 ```
+
+## Components
+
+This library provides react components that you can use to easily and quickly integrate some of the tools and functionalities that Probable Futures provides into your own app.
+
+### `Chart`
+
+Rather than calling the API and creating your own charts, we've provided a Chart component that you can easily integrate into your React app.
+
+**Props:**
+
+- **width** (number, required)
+- **height** (number, required)
+- **datasetStats** (StatisticsData[], required): the stats that you receive after calling the PF API to get the climate data of a specific location ([learn more about calling the api](https://docs.probablefutures.org/calling-the-api/)).
+  Note that you can import that StatisticsData from `@probable-futures/lib`
+- **datasetId** (number, required)
+- **warmingScenario** (number, required) - supported values: `0.5 | 1 | 1.5 | 2 | 2.5 | 3`
+- **hideTitle** (boolean, optional): show or hide the title of the chart
+- **onLineClicked** (Function): this event will fire whenever one of the chart lines is clicked
+
+Example:
+
+```jsx
+import { Chart } from "@probable-futures/probable-futures-maps";
+
+const [selectedChartDegree, setSelectedChartDegree] = useState(0.5);
+
+<Chart
+  width={700}
+  height={400}
+  datasetStats={datasetStats}
+  datasetId={40104}
+  warmingScenario={selectedChartDegree}
+  hideTitle
+  onLineClicked={(degree) => setSelectedChartDegree(degree)}
+/>;
+```
