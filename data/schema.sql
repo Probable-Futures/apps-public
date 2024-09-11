@@ -178,8 +178,8 @@ CREATE TYPE pf_public.dataset_statistics_response AS (
 	longitude double precision,
 	latitude double precision,
 	map_category text,
-	x numeric[],
-	y numeric[]
+	"values" numeric[],
+	cumulative_probability numeric[]
 );
 
 
@@ -955,8 +955,8 @@ begin
       (select lon as longitude from pf_gc), 
       (select lat as latitude from pf_gc),
       d.parent_category as map_category,
-      pds.x as x,
-      pds.y as y
+      pds.values as values,
+      pds.cumulative_probability as cumulative_probability
     from pf_public.pf_dataset_statistics as pds
     join pf_public.pf_datasets d on d.id = pds.dataset_id
     join pf_public.pf_maps m on m.dataset_id = pds.dataset_id and m.is_latest
@@ -1259,8 +1259,8 @@ CREATE TABLE pf_public.pf_dataset_statistics (
     high_value numeric(6,1),
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    x numeric[],
-    y numeric[]
+    "values" numeric[],
+    cumulative_probability numeric[]
 );
 
 
