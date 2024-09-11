@@ -38,8 +38,8 @@ const Chart = ({
 
   const selectMaxYForX = useCallback((stat: StatisticsData) => {
     const map = new Map<number, number>();
-    stat.y.forEach((y, index) => {
-      const x = stat!.x[index];
+    stat.cumulativeProbability.forEach((y, index) => {
+      const x = stat!.values[index];
       if (!map.has(x) || y > map.get(x)!) {
         map.set(x, y);
       }
@@ -51,7 +51,10 @@ const Chart = ({
   const data = useMemo(() => {
     return datasetStats.map((dst) => ({
       name: dst.name + " at " + dst.warmingScenario,
-      data: selectMaxYForX({ ...dst, y: Array.from({ length: 101 }, (_, i) => i) }),
+      data: selectMaxYForX({
+        ...dst,
+        cumulativeProbability: Array.from({ length: 101 }, (_, i) => i),
+      }),
       degree: dst.warmingScenario,
     }));
   }, [datasetStats, selectMaxYForX]);
@@ -62,7 +65,7 @@ const Chart = ({
   const minX = useMemo(() => {
     return (
       datasetStats.reduce((prev, cur) => {
-        prev = Math.round(Math.min(prev, Math.min(...cur.x)));
+        prev = Math.round(Math.min(prev, Math.min(...cur.values)));
         return prev;
       }, Number.MAX_VALUE) || 0
     );
@@ -71,7 +74,7 @@ const Chart = ({
   const maxX = useMemo(() => {
     return (
       datasetStats.reduce((prev, cur) => {
-        prev = Math.ceil(Math.max(prev, Math.max(...cur.x)));
+        prev = Math.ceil(Math.max(prev, Math.max(...cur.values)));
         return prev;
       }, Number.MIN_SAFE_INTEGER) || 0
     );

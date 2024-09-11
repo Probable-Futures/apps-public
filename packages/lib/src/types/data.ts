@@ -10,6 +10,6 @@ export type StatisticsData = {
   latitude: number;
   info?: { [name: string]: any };
   mapCategory: string;
-  x: number[];
-  y: number[];
+  values: number[];
+  cumulativeProbability: number[];
 };
