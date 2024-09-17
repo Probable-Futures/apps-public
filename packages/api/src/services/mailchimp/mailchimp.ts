@@ -1,57 +1,12 @@
-import { mapKeys, snakeCase } from "lodash";
-import fetch, { Headers, RequestInit, Response } from "node-fetch";
+import { mapKeys, snakeCase, omit } from "lodash";
+import { Response } from "node-fetch";
 import md5 from "md5";
 
-import { error, env } from "../../utils";
-
-const config = {
-  apiKey: env.MAILCHIMP_API_KEY,
-  apiEndpoint: env.MAILCHIMP_API_ENDPOINT,
-  contactListId: env.MAILCHIMP_CONTACT_LIST_ID,
-};
-
-export type Status = "subscribed" | "unsubscribed" | "pending" | "archived";
-
-export interface NewContact {
-  emailAddress: string;
-  mergeFields: { [name: string]: unknown };
-  status: Status;
-}
-
-type Subscriber = {
-  userId: string;
-  status: Status;
-};
-export async function getSubscriber(emailAddress: string): Promise<Subscriber> {
-  let response: Response | undefined;
-  let user: Subscriber = {
-    userId: "",
-    status: "pending",
-  };
-  try {
-    response = await sendRequest(`lists/${config.contactListId}/members/${md5(emailAddress)}`, {
-      method: "GET",
-    });
-  } catch (e) {
-    //@ts-ignore
-    if (e.message === "The requested resource could not be found.") {
-      user = {
-        userId: "",
-        status: "pending",
-      };
-    }
-  }
-
-  if (response instanceof Response) {
-    const { id, status } = (await response.json()) as { id: string; status: Status };
-    user = {
-      userId: id,
-      status,
-    };
-  }
-
-  return user;
-}
+import { error } from "../../utils";
+import { NewContact, Status } from "./mailchimp.types";
+import { sendRequest } from "./request";
+import { config } from "./config";
+import { attachTagToMemeber } from "./tags";
 
 export async function createContact(
   newContact: NewContact,
@@ -62,9 +17,12 @@ export async function createContact(
       `/lists/${config.contactListId}/members/${md5(newContact.emailAddress)}`,
       {
         method: "PUT",
-        body: JSON.stringify(mapKeys(newContact, (_, key) => snakeCase(key))),
+        body: JSON.stringify(mapKeys(omit(newContact, ["tags"]), (_, key) => snakeCase(key))),
       },
     );
+    if (newContact.tags?.length) {
+      await attachTagToMemeber(newContact.emailAddress, { tags: newContact.tags });
+    }
   } catch (e) {
     if ((e as error.ApplicationError).name === "Member In Compliance State") {
       response = await sendRequest(
@@ -77,6 +35,7 @@ export async function createContact(
         },
       );
     } else {
+      console.error(e);
       throw e;
     }
   }
@@ -95,22 +54,4 @@ export async function createContact(
   }
 
   return { contactId: "", status: "", emailAddress: "" };
-}
-
-async function sendRequest(pathname: string, options: RequestInit = {}): Promise<Response> {
-  const credentials = Buffer.from(`functions:${config.apiKey}`, "utf8").toString("base64");
-  const response = await fetch(`${config.apiEndpoint}/${pathname}`, {
-    ...options,
-    headers: new Headers([
-      ["Authorization", `Basic ${credentials}`],
-      ["Content-Type", "application/json"],
-    ]),
-  });
-  if (!response.ok) {
-    const body = (await response.json()) as { detail: any; errors: any; title: string };
-    const err = error.collect(500, body.detail, body.errors, body.title);
-    throw err;
-  }
-
-  return response;
 }

@@ -3,6 +3,10 @@ import { serialize } from "../../utils/error";
 import { submitToAirtable } from "../../services/donation/request";
 import { verifyToken } from "../../middleware/verifyToken";
 import { env } from "../../utils";
+import { createContact } from "../../services/mailchimp/mailchimp";
+import { MergeField } from "../contact";
+import { getSubscriber } from "../../services/mailchimp/member";
+
 const router = express.Router();
 
 export interface EveryOrgObject {
@@ -25,6 +29,8 @@ export interface EveryOrgObject {
   publicTestimony?: string;
 }
 
+const DonorTag = "Donor";
+
 router.post("/", verifyToken, async (req, res) => {
   try {
     const data = req.body as EveryOrgObject;
@@ -35,6 +41,22 @@ router.post("/", verifyToken, async (req, res) => {
 
       if (request.ok) {
         res.status(200).send({ success: true, message: "Donation processed successfully." });
+        if (data.email) {
+          const user = await getSubscriber(data.email);
+          const statusToSend = user?.status === "subscribed" ? "subscribed" : "pending";
+          const tags = [{ name: DonorTag, status: "active" }];
+
+          await createContact({
+            emailAddress: data.email,
+            status: statusToSend,
+            tags,
+            mergeFields: {
+              [MergeField.IncludeAnswers]: true,
+              [MergeField.FName]: data.firstName,
+              [MergeField.LName]: data.lastName,
+            },
+          });
+        }
       } else {
         const errorData = await request.json();
         console.error(errorData);

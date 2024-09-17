@@ -17,6 +17,8 @@ export interface FormData {
   lastName: string;
   includeAnswers: boolean;
   subscribeToEmails: boolean;
+  tags?: string[];
+  interests?: string[];
 }
 
 export async function validateFormData(body: { data: object }): Promise<FormData> {

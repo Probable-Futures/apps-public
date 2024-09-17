@@ -20,6 +20,12 @@
         },
         "subscribeToEmails": {
           "type": "boolean"
+        },
+        "tags": {
+          "type": "array"
+        },
+        "interests": {
+          "type": "array"
         }
       },
       "required": ["emailAddress", "includeAnswers", "subscribeToEmails"],
