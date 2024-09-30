@@ -159,3 +159,7 @@ const [selectedChartDegree, setSelectedChartDegree] = useState(0.5);
   onLineClicked={(degree) => setSelectedChartDegree(degree)}
 />;
 ```
+
+#### Version history
+
+For details about updates and changes in each version of this package, check the version history at this [link](https://github.com/Probable-Futures/apps-public/blob/main/packages/probable-futures-maps/CHANGELOG.md).
