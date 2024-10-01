@@ -2,7 +2,6 @@ import { Provider } from "react-redux";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 
-import Map from "./screens/Map";
 import Login from "./screens/Login";
 import Consent from "./screens/Consent";
 import NotFound from "./screens/NotFound";
@@ -11,8 +10,11 @@ import ErrorBoundaryFallback from "./components/ErrorBoundaryFallback";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthProvider from "./components/AuthProvider";
 import { AuthorizedApolloProvider } from "./components/AuthorizedApolloProvider";
-import Dashboard from "./screens/Dashboard";
 import { routes as dashboardRoutes } from "./consts/dashboardConsts";
+import React from "react";
+
+const Map = React.lazy(() => import("./screens/Map"));
+const Dashboard = React.lazy(() => import("./screens/Dashboard"));
 
 export const App = () => {
   return (

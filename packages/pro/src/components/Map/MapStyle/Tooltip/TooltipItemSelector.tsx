@@ -1,7 +1,6 @@
 import React, { useState, memo } from "react";
 import styled from "styled-components";
 import uniqBy from "lodash.uniqby";
-import classnames from "classnames";
 import { SortableHandle, SortableContainer, SortableElement } from "react-sortable-hoc";
 
 import DotsIcon from "../../../../assets/icons/map/multi-dots.svg";
@@ -117,7 +116,7 @@ const DragHandle = SortableHandle(() => (
 
 const SortableItem = SortableElement<SortableElementProps>(
   ({ item, onRemoveClick }: SortableElementProps) => (
-    <SortableStyledItem className={classnames("sortable-layer-items")}>
+    <SortableStyledItem>
       <SelectedItem>
         <DragHandle />
         <TooltipText>{item?.displayName}</TooltipText>

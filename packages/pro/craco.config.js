@@ -14,6 +14,7 @@ module.exports = {
 
         match.loader.include = include.concat(packages);
       }
+      webpackConfig.devtool = "source-map";
       return webpackConfig;
     },
   },
