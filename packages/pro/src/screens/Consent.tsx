@@ -137,7 +137,7 @@ const Consent = () => {
               alpha group. By using the Pro tool, you are both agreeing to Probable Futures general
               terms of use, as well as the full addendum,{" "}
               <a
-                href="https://docs.google.com/document/d/1mLYJ7ACAHB2T6hkAOVsq52oYFsvoR0Un/edit"
+                href="https://probablefutures.org/pro-alpha-terms/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
