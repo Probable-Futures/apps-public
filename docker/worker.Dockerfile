@@ -1,5 +1,5 @@
 ARG BASE_IMAGE=base
-FROM node:18.19.0-buster-slim AS base
+FROM node:18.19.0-bullseye-slim AS base
 
 ARG BASE_IMAGE
 ARG YARN_VERSION="1.22.5"

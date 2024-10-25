@@ -1,5 +1,5 @@
 ARG BASE_IMAGE=base
-FROM node:18.19.0-buster-slim AS base
+FROM node:18.19.0-bullseye-slim AS base
 ARG BASE_IMAGE
 ARG YARN_VERSION="1.22.5"
 ENV YARN_VERSION $YARN_VERSION
@@ -21,7 +21,7 @@ RUN curl -fSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$
 
 # Install Postgres PGP Key so we can install Postgres v12
 RUN curl -L "https://www.postgresql.org/media/keys/ACCC4CF8.asc" | apt-key add -
-RUN echo "deb http://apt.postgresql.org/pub/repos/apt buster-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc/apt/sources.list.d/pgdg.list
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   postgresql-client-12 \
