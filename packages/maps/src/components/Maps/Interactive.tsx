@@ -884,6 +884,7 @@ const InteractiveMap = () => {
                   isTourActive,
                   steps,
                   stories,
+                  showMarkers,
                   onNext: onNext,
                   onClose: onClose,
                 }}
@@ -975,6 +976,7 @@ const InteractiveMap = () => {
           steps={steps}
           stories={stories}
           isTourActive={isTourActive}
+          showMarkers={showMarkers}
         />
       )}
       <components.MapModal

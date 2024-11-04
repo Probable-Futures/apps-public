@@ -140,6 +140,7 @@ export type TourProps = {
   isTourActive: boolean;
   steps: Steps;
   stories: Story[];
+  showMarkers: boolean;
   onNext: () => void;
   onClose: () => void;
 };

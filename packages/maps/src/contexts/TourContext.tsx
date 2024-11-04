@@ -52,15 +52,15 @@ export function TourProvider(props: PropsWithChildren<{}>): JSX.Element {
   const [steps, setSteps] = useState({});
   const [closedTour, setClosedTour] = useState(false);
   const [inspectPromptLocation, setInspectPromptLocation] = useState({});
-  const { stories, showStory, setShowStory } = useMapData();
+  const { stories, showStory, showMarkers, setShowStory } = useMapData();
 
   const onNext = useCallback(() => {
-    const skipThirdStep = step === 1 && stories.length === 0;
+    const skipThirdStep = step === 1 && (stories.length === 0 || !showMarkers);
     if (showStory) {
       setShowStory(false);
     }
     setStep(step + (skipThirdStep ? 2 : 1));
-  }, [showStory, setShowStory, step, stories.length]);
+  }, [step, stories.length, showMarkers, showStory, setShowStory]);
 
   const onClose = useCallback(() => {
     setIsTourActive(false);

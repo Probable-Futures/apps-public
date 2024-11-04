@@ -25,6 +25,7 @@ const Header = ({ onDatasetDropdownRefChange }: Props) => {
     showDegreeDescription,
     datasets,
     moreIsOpen,
+    showMarkers,
     setSelectedDataset,
     setDegrees,
   } = useMapData();
@@ -75,6 +76,7 @@ const Header = ({ onDatasetDropdownRefChange }: Props) => {
         tourProps={{
           step,
           isTourActive,
+          showMarkers,
           steps,
           stories,
           onNext,

@@ -121,7 +121,7 @@ export default function StoryMarker({
   setActiveStoryTooltip,
 }: Props): JSX.Element {
   const { isTourActive, step, steps, onNext, onClose } = useTourData();
-  const { stories } = useMapData();
+  const { stories, showMarkers } = useMapData();
   const markerSize = { width: 30, height: 35 };
   const defaultHoverText = `Read vignette${location ? ` about ${location}` : ""}`;
 
@@ -141,6 +141,7 @@ export default function StoryMarker({
           steps={steps}
           stories={stories}
           isTourActive={isTourActive}
+          showMarkers={showMarkers}
         >
           <Button size={markerSize} onClick={onClick} />
         </components.TourBox>
