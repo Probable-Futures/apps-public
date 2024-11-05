@@ -32,6 +32,7 @@ type State = {
   activeClimateZoneLayers?: string[];
   precipitationUnit: types.PrecipitationUnit;
   showCountryBorders: boolean;
+  temporaryShowMarkers: boolean;
   setDatasets(arg: any): void;
   setSelectedDataset(arg: any): void;
   setDegrees(arg: any): void;
@@ -57,6 +58,7 @@ type State = {
   setActiveClimateZoneLayers(arg?: string[]): void;
   setPrecipitationUnit(arg: types.PrecipitationUnit): void;
   setShowCountryBorders(arg: any): void;
+  setTemporaryShowMarkers(arg: any): void;
 };
 
 const initialState = {
@@ -83,6 +85,7 @@ const initialState = {
   activeClimateZoneLayers: undefined,
   precipitationUnit: "mm" as types.PrecipitationUnit,
   showCountryBorders: true,
+  temporaryShowMarkers: false,
   setDatasets: () => {},
   setSelectedDataset: () => {},
   setDegrees: () => {},
@@ -106,6 +109,7 @@ const initialState = {
   setActiveClimateZoneLayers: () => {},
   setPrecipitationUnit: () => {},
   setShowCountryBorders: () => {},
+  setTemporaryShowMarkers: () => {},
 };
 
 const DataContext = createContext<State>(initialState);
@@ -135,6 +139,7 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
   const [activeClimateZoneLayers, setActiveClimateZoneLayers] = useState<string[]>();
   const [precipitationUnit, setPrecipitationUnit] = useState("mm" as types.PrecipitationUnit);
   const [showCountryBorders, setShowCountryBorders] = useState(true);
+  const [temporaryShowMarkers, setTemporaryShowMarkers] = useState(false);
 
   const value = useMemo(
     () => ({
@@ -184,6 +189,8 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       setPrecipitationUnit,
       showCountryBorders,
       setShowCountryBorders,
+      temporaryShowMarkers,
+      setTemporaryShowMarkers,
     }),
     [
       datasets,
@@ -209,6 +216,7 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       activeClimateZoneLayers,
       precipitationUnit,
       showCountryBorders,
+      temporaryShowMarkers,
     ],
   );
 

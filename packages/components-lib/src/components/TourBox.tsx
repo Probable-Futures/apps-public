@@ -112,7 +112,7 @@ const TourBox = ({
   };
 
   const getCurrentStep = () => {
-    if (stories.length > 0 && showMarkers) {
+    if (stories.length > 0) {
       return `${step + 1} of ${Object.keys(steps).length}`;
     }
     // If there are no stories on the map, skip 3rd step

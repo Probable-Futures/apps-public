@@ -52,7 +52,8 @@ const Message = styled.span`
 const TourButton = ({ last }: { last: boolean }) => {
   const [showTourTooltip, setShowTourTooltip] = useState(false);
   const { isTourActive, setIsTourActive, setStep, steps } = useTourData();
-  const { selectedDataset } = useMapData();
+  const { selectedDataset, temporaryShowMarkers, setShowMarkers, setTemporaryShowMarkers } =
+    useMapData();
   const { translate } = useTranslation();
 
   const onCloseButtonClick = (event: any) => {
@@ -62,6 +63,10 @@ const TourButton = ({ last }: { last: boolean }) => {
     }
     setIsTourActive(false);
     setStep(0);
+    if (temporaryShowMarkers) {
+      setTemporaryShowMarkers(false);
+      setShowMarkers(false);
+    }
   };
 
   const onTakeTourButtonClick = () => {

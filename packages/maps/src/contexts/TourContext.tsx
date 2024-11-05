@@ -52,21 +52,45 @@ export function TourProvider(props: PropsWithChildren<{}>): JSX.Element {
   const [steps, setSteps] = useState({});
   const [closedTour, setClosedTour] = useState(false);
   const [inspectPromptLocation, setInspectPromptLocation] = useState({});
-  const { stories, showStory, showMarkers, setShowStory } = useMapData();
+  const {
+    stories,
+    showStory,
+    showMarkers,
+    temporaryShowMarkers,
+    setShowStory,
+    setShowMarkers,
+    setTemporaryShowMarkers,
+  } = useMapData();
 
   const onNext = useCallback(() => {
-    const skipThirdStep = step === 1 && (stories.length === 0 || !showMarkers);
+    const skipThirdStep = step === 1 && stories.length === 0;
     if (showStory) {
       setShowStory(false);
     }
+    if (!showMarkers) {
+      setShowMarkers(true);
+      setTemporaryShowMarkers(true);
+    }
     setStep(step + (skipThirdStep ? 2 : 1));
-  }, [step, stories.length, showMarkers, showStory, setShowStory]);
+  }, [
+    step,
+    stories.length,
+    showStory,
+    showMarkers,
+    setShowStory,
+    setShowMarkers,
+    setTemporaryShowMarkers,
+  ]);
 
   const onClose = useCallback(() => {
     setIsTourActive(false);
     setStep(0);
     setClosedTour(true);
-  }, []);
+    if (temporaryShowMarkers) {
+      setTemporaryShowMarkers(false);
+      setShowMarkers(false);
+    }
+  }, [setShowMarkers, setTemporaryShowMarkers, temporaryShowMarkers]);
 
   const value = useMemo(
     () => ({
