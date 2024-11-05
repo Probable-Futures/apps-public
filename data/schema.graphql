@@ -340,6 +340,7 @@ type CreateUserAccessRequestPayload {
 scalar Cursor
 
 type DatasetStatisticsResponse {
+  cumulativeProbability: [BigFloat]
   datasetId: Int
   highValue: BigFloat
   info: JSON
@@ -350,9 +351,8 @@ type DatasetStatisticsResponse {
   midValue: BigFloat
   name: String
   unit: String
+  values: [BigFloat]
   warmingScenario: String
-  x: [BigFloat]
-  y: [BigFloat]
 }
 
 """
@@ -1776,6 +1776,7 @@ type PfDatasetStatistic implements Node {
   """
   coordinateHash: String!
   createdAt: Datetime!
+  cumulativeProbability: [BigFloat]
 
   """
   Reads a single `PfDataset` that is related to this `PfDatasetStatistic`.
@@ -1802,9 +1803,8 @@ type PfDatasetStatistic implements Node {
   """
   pfWarmingScenarioByWarmingScenario: PfWarmingScenario
   updatedAt: Datetime!
+  values: [BigFloat]
   warmingScenario: String!
-  x: [BigFloat]
-  y: [BigFloat]
 }
 
 """
@@ -1817,6 +1817,9 @@ input PfDatasetStatisticCondition {
 
   """Checks for equality with the object’s `createdAt` field."""
   createdAt: Datetime
+
+  """Checks for equality with the object’s `cumulativeProbability` field."""
+  cumulativeProbability: [BigFloat]
 
   """Checks for equality with the object’s `datasetId` field."""
   datasetId: Int
@@ -1836,14 +1839,11 @@ input PfDatasetStatisticCondition {
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
 
+  """Checks for equality with the object’s `values` field."""
+  values: [BigFloat]
+
   """Checks for equality with the object’s `warmingScenario` field."""
   warmingScenario: String
-
-  """Checks for equality with the object’s `x` field."""
-  x: [BigFloat]
-
-  """Checks for equality with the object’s `y` field."""
-  y: [BigFloat]
 }
 
 """
@@ -1855,6 +1855,9 @@ input PfDatasetStatisticFilter {
 
   """Filter by the object’s `createdAt` field."""
   createdAt: DatetimeFilter
+
+  """Filter by the object’s `cumulativeProbability` field."""
+  cumulativeProbability: BigFloatListFilter
 
   """Filter by the object’s `dataset` relation."""
   dataset: PfDatasetFilter
@@ -1883,14 +1886,11 @@ input PfDatasetStatisticFilter {
   """Filter by the object’s `updatedAt` field."""
   updatedAt: DatetimeFilter
 
+  """Filter by the object’s `values` field."""
+  values: BigFloatListFilter
+
   """Filter by the object’s `warmingScenario` field."""
   warmingScenario: StringFilter
-
-  """Filter by the object’s `x` field."""
-  x: BigFloatListFilter
-
-  """Filter by the object’s `y` field."""
-  y: BigFloatListFilter
 }
 
 """A connection to a list of `PfDatasetStatistic` values."""
@@ -1927,6 +1927,8 @@ enum PfDatasetStatisticsOrderBy {
   COORDINATE_HASH_DESC
   CREATED_AT_ASC
   CREATED_AT_DESC
+  CUMULATIVE_PROBABILITY_ASC
+  CUMULATIVE_PROBABILITY_DESC
   DATASET_ID_ASC
   DATASET_ID_DESC
   HIGH_VALUE_ASC
@@ -1942,12 +1944,10 @@ enum PfDatasetStatisticsOrderBy {
   PRIMARY_KEY_DESC
   UPDATED_AT_ASC
   UPDATED_AT_DESC
+  VALUES_ASC
+  VALUES_DESC
   WARMING_SCENARIO_ASC
   WARMING_SCENARIO_DESC
-  X_ASC
-  X_DESC
-  Y_ASC
-  Y_DESC
 }
 
 """A connection to a list of `PfDatasetSubCategory` values."""
