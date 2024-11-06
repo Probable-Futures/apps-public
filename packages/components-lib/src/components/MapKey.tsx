@@ -253,7 +253,11 @@ const MapKey = ({
       <Content>
         <Header className="map-key-header">
           <Label className="map-key-label">
-            {isTempMap ? datasetUnit.replace("°C", tempUnit) : datasetUnit}
+            {isTempMap
+              ? datasetUnit.replace("°C", tempUnit)
+              : isPrecipitationMap
+              ? datasetUnit.replace("mm", precipitationUnit)
+              : datasetUnit}
           </Label>
           {!isTablet && !useTabletViewOnLaptop && renderSwitch()}
         </Header>
