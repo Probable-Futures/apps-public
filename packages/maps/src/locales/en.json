@@ -99,8 +99,11 @@
     "noData": "No data here",
     "expectedRangeOfOutcomes": "Expected range of outcomes",
     "expectedOutcome": "Expected outcome",
+    "pastRangeBeforeChange": "Past range before change",
     "showBaselineDetails": "Show baseline details",
     "hideBaselineDetails": "Hide baseline details",
+    "showPastRange": "Show past range",
+    "hidePastRange": "Hide past range",
     "year": {
       "10ThPercentile": "10th percentile",
       "5ThPercentile": "5th percentile",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Popup as MapPopup, PopupEvent } from "react-map-gl";
 import styled, { css } from "styled-components";
 import camelcase from "lodash.camelcase";
@@ -271,7 +271,7 @@ const Popup = ({
   onBaselineClick,
   precipitationUnit,
 }: Props): JSX.Element => {
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(degreesOfWarming === 0.5 ? true : false);
   const [showLearnWhy, setShowLearnWhy] = useState(false);
   const { isTourActive, step } = useTourData();
   const { translate } = useTranslation();
@@ -280,9 +280,9 @@ const Popup = ({
     latitude,
     longitude,
     selectedData,
-    data_baseline_low: baselineLow,
-    data_baseline_mid: baselineMid,
-    data_baseline_high: baselineHigh,
+    data_baseline_absolute_low: baselineAbsoluteLow,
+    data_baseline_absolute_mid: baselineAbsoluteMid,
+    data_baseline_absolute_high: baselineAbsoluteHigh,
   } = feature;
   const isTemp = dataset?.dataset.pfDatasetUnitByUnit.unitLong.toLowerCase().includes("temp");
   const showInF = isTemp && tempUnit === "°F";
@@ -290,7 +290,7 @@ const Popup = ({
   const isPrecipitationMap = dataset?.dataset.unit === "mm";
   const showInInch = isPrecipitationMap && precipitationUnit === "in";
 
-  const showBaselineDetails = !!dataset?.isDiff && degreesOfWarming !== 0 && !isFrequent;
+  const showBaselineDetails = !!dataset?.isDiff && !isFrequent;
 
   const isMidValid =
     selectedData.mid !== undefined &&
@@ -452,6 +452,10 @@ const Popup = ({
       return translate("mapPopover.expectedOutcome") + unit;
     }
 
+    if (dataset?.name.toLowerCase().startsWith("change") && degreesOfWarming === 0.5) {
+      return translate("mapPopover.pastRangeBeforeChange") + unit;
+    }
+
     return translate("mapPopover.expectedRangeOfOutcomes") + unit;
   };
 
@@ -482,6 +486,14 @@ const Popup = ({
     return null;
   };
 
+  useEffect(() => {
+    if (degreesOfWarming === 0.5) {
+      setShowDetails(true);
+    } else {
+      setShowDetails(false);
+    }
+  }, [degreesOfWarming]);
+
   const renderNoDataDescription = () => {
     if (selectedData.mid === consts.ERROR_VALUE) {
       return (
@@ -511,6 +523,18 @@ const Popup = ({
           </DetailsContent>
         </DetailsContainer>
       );
+    }
+  };
+
+  const baselineTitle = () => {
+    if (showDetails) {
+      return degreesOfWarming === 0.5
+        ? translate("mapPopover.hidePastRange")
+        : translate("mapPopover.hideBaselineDetails");
+    } else {
+      return degreesOfWarming === 0.5
+        ? translate("mapPopover.showPastRange")
+        : translate("mapPopover.showBaselineDetails");
     }
   };
 
@@ -545,13 +569,16 @@ const Popup = ({
           {showBaselineDetails && (
             <DetailsContainer>
               <ToggleDetailsButton onClick={() => setShowDetails(!showDetails)}>
-                {showDetails
-                  ? translate("mapPopover.hideBaselineDetails")
-                  : translate("mapPopover.showBaselineDetails")}
+                {baselineTitle()}
                 <ArrowIcon expanded={showDetails} defaultDirection="bottom" />
               </ToggleDetailsButton>
               <DetailsContent expanded={showDetails}>
-                {renderValues(false, baselineLow, baselineMid, baselineHigh)}
+                {renderValues(
+                  false,
+                  baselineAbsoluteLow,
+                  baselineAbsoluteMid,
+                  baselineAbsoluteHigh,
+                )}
               </DetailsContent>
             </DetailsContainer>
           )}

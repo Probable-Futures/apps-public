@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 import Tippy from "@tippyjs/react/headless";
 import WebMercatorViewport from "viewport-mercator-project";
@@ -265,7 +265,7 @@ const FeaturePopup = ({
   onReadMoreClick,
   onBaselineClick,
 }: Props) => {
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(degreesOfWarming === 0.5 ? true : false);
   const [showLearnWhy, setShowLearnWhy] = useState(false);
 
   const container = document.body;
@@ -273,12 +273,12 @@ const FeaturePopup = ({
     latitude,
     longitude,
     selectedData,
-    data_baseline_low: baselineLow,
-    data_baseline_mid: baselineMid,
-    data_baseline_high: baselineHigh,
+    data_baseline_absolute_low: baselineAbsoluteLow,
+    data_baseline_absolute_mid: baselineAbsoluteMid,
+    data_baseline_absolute_high: baselineAbsoluteHigh,
   } = feature;
   const isFrequent = dataset?.dataset.unit === "x as frequent";
-  const showBaselineDetails = !!dataset?.isDiff && degreesOfWarming !== 0 && !isFrequent;
+  const showBaselineDetails = !!dataset?.isDiff && !isFrequent;
   const isTemp = dataset?.dataset.pfDatasetUnitByUnit.unitLong.toLowerCase().includes("temp");
   const showInF = isTemp && tempUnit === "°F";
   const isPrecipitationMap = dataset?.dataset.unit === "mm";
@@ -422,6 +422,10 @@ const FeaturePopup = ({
       return "Expected outcome" + unit;
     }
 
+    if (dataset?.name.toLowerCase().startsWith("change") && degreesOfWarming === 0.5) {
+      return "Past range before change" + unit;
+    }
+
     return "Expected range of outcomes" + unit;
   };
 
@@ -434,6 +438,14 @@ const FeaturePopup = ({
       ""
     );
   };
+
+  useEffect(() => {
+    if (degreesOfWarming === 0.5) {
+      setShowDetails(true);
+    } else {
+      setShowDetails(false);
+    }
+  }, [degreesOfWarming]);
 
   const renderNoDataDescription = () => {
     if (selectedData.mid === consts.ERROR_VALUE) {
@@ -469,6 +481,14 @@ const FeaturePopup = ({
           </DetailsContent>
         </DetailsContainer>
       );
+    }
+  };
+
+  const baselineTitle = () => {
+    if (showDetails) {
+      return degreesOfWarming === 0.5 ? "Hide past range" : "Hide baseline details";
+    } else {
+      return degreesOfWarming === 0.5 ? "Show past range" : "Show baseline details";
     }
   };
 
@@ -519,11 +539,16 @@ const FeaturePopup = ({
               {showBaselineDetails && (
                 <DetailsContainer>
                   <ToggleDetailsButton onClick={() => setShowDetails(!showDetails)}>
-                    {showDetails ? "hide" : "show"} baseline details
+                    {baselineTitle()}
                     <ArrowIcon expanded={showDetails} defaultDirection="bottom" />
                   </ToggleDetailsButton>
                   <DetailsContent expanded={showDetails}>
-                    {renderValues(false, baselineLow, baselineMid, baselineHigh)}
+                    {renderValues(
+                      false,
+                      baselineAbsoluteLow,
+                      baselineAbsoluteMid,
+                      baselineAbsoluteHigh,
+                    )}
                   </DetailsContent>
                 </DetailsContainer>
               )}
