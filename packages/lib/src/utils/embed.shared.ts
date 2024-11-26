@@ -5,7 +5,7 @@ export const headerStyles = `
 `;
 
 export const keyStyles = `
-  .embeddable-key-container {position: absolute;min-width: 280px;top: unset;right: 20px;left: 20px;bottom: 20px;z-index: 1;width: auto;font-family: LinearSans, Arial, Helvetica, sans-serif; max-width: 520px;}
+  .embeddable-key-container {position: absolute;min-width: 280px;top: unset;right: 20px;left: 20px;bottom: 20px;z-index: 1;width: auto;font-family: LinearSans, Arial, Helvetica, sans-serif;}
   .map-key-container {border: 1px solid #2a172d;padding: 12px 18px 9px;background-color: #fdfdfd;border-bottom: 1px solid #2a172d;}
   .embeddable-key-content {display: inline-block;width: 100%;}
   .map-key-header {display: flex;flex-direction: row;justify-content: space-between;align-items: center;margin-bottom: 10px;}
@@ -82,7 +82,7 @@ export const displayKeyFunction = `
     mapKeyContainer.appendChild(keyContent);
     embeddableKeyContainer.appendChild(mapKeyContainer);
     document.body.appendChild(embeddableKeyContainer);
-    
+
     if(isTempMap || isPrecipitationMap) {
       keyHeader.appendChild(displayKeyToggle());
     }
@@ -91,7 +91,7 @@ export const displayKeyFunction = `
     const binsContainerDiv = document.createElement("div");
     binsContainerDiv.className = "map-key-bins-container";
     dataset.binHexColors.map(function(color, index) {
-      const [from, to] = getBinLabel(dataset.stops, index, dataset.dataset.pfDatasetUnitByUnit.unitLong, dataset.dataset.minValue, 
+      const [from, to] = getBinLabel(dataset.stops, index, dataset.dataset.pfDatasetUnitByUnit.unitLong, dataset.dataset.minValue,
         dataset.dataset.maxValue, dataset.dataset.unit === "mm" && precipitationUnit === "in" ? 0.1 : dataset.step,
         tempUnit, dataset.isDiff, isFrequent, precipitationUnit, isPrecipitationMap);
       const binContainerDiv = document.createElement("div");
@@ -140,14 +140,14 @@ export const displayKeyToggleFunction = `
 
     const isChecked = isTempMap ? tempUnit === "°F" : precipitationUnit === "in";
     toggleContainer.className = "embeddable-toggle-container";
-    
+
     const toggleInput = document.createElement("input");
     toggleInput.className = "embeddable-toggle-input";
     toggleInput.id = "toggle";
     toggleInput.type = "checkbox";
     toggleInput.checked = isChecked;
     toggleInput.addEventListener('change', handleToggleChange);
-    
+
     const toggleLabel = document.createElement("label");
     toggleLabel.htmlFor = "toggle";
     toggleLabel.className = "embeddable-toggle-label";
@@ -158,20 +158,20 @@ export const displayKeyToggleFunction = `
     const toggleOptionLeft = document.createElement("span");
     toggleOptionLeft.className = "embeddable-toggle-option";
     toggleOptionLeft.id = "toggle-option1";
-    if(isChecked) {toggleOptionLeft.style.color = "#2a172d"} 
+    if(isChecked) {toggleOptionLeft.style.color = "#2a172d"}
     else {toggleOptionLeft.style.color = "#fdfdfd"}
     toggleOptionLeft.textContent = leftToggleLabel;
 
     const toggleOptionRight = document.createElement("span");
     toggleOptionRight.className = "embeddable-toggle-option";
     toggleOptionRight.id = "toggle-option2";
-    if(isChecked) {toggleOptionRight.style.color = "#fdfdfd"} 
+    if(isChecked) {toggleOptionRight.style.color = "#fdfdfd"}
     else {toggleOptionRight.style.color = "#2a172d"}
     toggleOptionRight.textContent = rightToggleLabel;
 
     const toggleSpan = document.createElement("span");
     toggleSpan.className = "toggle-span";
-    
+
     toggle.appendChild(toggleOptionLeft);
     toggle.appendChild(toggleOptionRight);
     toggle.appendChild(toggleSpan);
