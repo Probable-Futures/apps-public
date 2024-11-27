@@ -15,3 +15,4 @@ export { default as TourBox } from "./TourBox";
 export { default as MapOverlay } from "./MapOverlay";
 export { default as DatasetSelector } from "./header/DatasetSelector";
 export { default as InputRadio } from "./InputRadio";
+export { default as PopupContent } from "./PopupContent";

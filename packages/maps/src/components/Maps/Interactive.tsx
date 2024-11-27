@@ -10,7 +10,6 @@ import { useMapData } from "../../contexts/DataContext";
 import { useTourData } from "../../contexts/TourContext";
 import MapControls from "../MapControls";
 import Header from "../Header";
-import Popup from "../common/Popup";
 import Story from "../Story";
 import StoryMarker from "../StoryMarker";
 import { POPUP_DEFAULT_LOCATION } from "../../consts/mapConsts";
@@ -33,6 +32,7 @@ import { components, contexts } from "@probable-futures/components-lib";
 import { Feature } from "@probable-futures/components-lib/src/hooks/useGeocoder";
 import useClimateZoneHighlighter from "../../utils/useClimateZoneHighlighter";
 import { customTabletSizeForHeader } from "@probable-futures/lib/src/consts";
+import Popup from "../common/Popup";
 
 type MapStyles = {
   stops?: number[];
@@ -923,18 +923,21 @@ const InteractiveMap = () => {
             }}
           >
             {popupVisible && datasetDescriptionResponse && (
-              <Popup
-                feature={feature}
-                dataset={selectedDataset}
-                degreesOfWarming={degrees}
-                tempUnit={tempUnit}
-                onClose={() => setPopupVisible(false)}
-                onReadMoreClick={() => setShowDescriptionModal((show: boolean) => !show)}
-                onBaselineClick={() => setShowDescriptionModal((show: boolean) => !show)}
-                showInspector={false}
-                datasetDescriptionResponse={datasetDescriptionResponse}
-                precipitationUnit={precipitationUnit}
-              />
+              <Popup feature={feature} onClose={() => setPopupVisible(false)}>
+                <components.PopupContent
+                  feature={feature}
+                  dataset={selectedDataset}
+                  degreesOfWarming={degrees}
+                  tempUnit={tempUnit}
+                  onReadMoreClick={() => setShowDescriptionModal((show: boolean) => !show)}
+                  onBaselineClick={() => setShowDescriptionModal((show: boolean) => !show)}
+                  showInspector={false}
+                  datasetDescriptionResponse={datasetDescriptionResponse}
+                  precipitationUnit={precipitationUnit}
+                  mapPopoverText={translate("mapPopover")}
+                  keyText={translate("key")}
+                />
+              </Popup>
             )}
             <components.Geocoder
               searchInputHeight={consts.SEARCH_INPUT_HEIGHT}

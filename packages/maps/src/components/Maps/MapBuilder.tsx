@@ -333,16 +333,17 @@ const InteractiveMap = () => {
         >
           <NavigationControl showZoom showCompass={false} />
           {popupVisible && (
-            <Popup
-              feature={feature}
-              dataset={selectedDataset}
-              degreesOfWarming={degrees}
-              onClose={() => setPopupVisible(false)}
-              showInspector={showInspector}
-              tempUnit={tempUnit}
-              datasetDescriptionResponse={datasetDescriptionResponse}
-              precipitationUnit={precipitationUnit}
-            />
+            <Popup feature={feature} onClose={() => setPopupVisible(false)}>
+              <components.PopupContent
+                feature={feature}
+                dataset={selectedDataset}
+                degreesOfWarming={degrees}
+                showInspector={showInspector}
+                tempUnit={tempUnit}
+                datasetDescriptionResponse={datasetDescriptionResponse}
+                precipitationUnit={precipitationUnit}
+              />
+            </Popup>
           )}
         </MapGL>
       )}
