@@ -4,12 +4,12 @@ import {
   colors,
   BUTTON_CONTENT_TRANSITION_DURATION,
   GAP_BETWEEN_LABEL_AND_INFO,
-} from "@probable-futures/lib/src/consts";
-import { Theme } from "@probable-futures/lib/src/types";
+  Theme,
+} from "@probable-futures/lib";
 
 import InfoIcon from "../assets/icons/info.svg";
 import CancelIcon from "../assets/icons/cancel.svg";
-import { whiteFilter } from ".";
+import { whiteFilter } from "./commonStyles";
 
 export type ButtonContainerProps = {
   showDegreeDescription: boolean;
@@ -64,7 +64,7 @@ export const PopoverContainer = styled.div`
   overflow: hidden;
   transition: max-height 0.2s ease-in-out;
   left: 0;
-  
+
   ${({ isOpen }: { isOpen: boolean }) =>
     isOpen &&
     `
@@ -199,7 +199,7 @@ export const ButtonContainer = styled.div`
     `
     border-color: ${colors.darkPurple};
     min-width: 100px;
-    
+
     &::after,
     &::before {
       content: "";
@@ -210,7 +210,7 @@ export const ButtonContainer = styled.div`
       border-style: solid;
       rotate: 270deg;
     }
-    
+
     &::before {
       top: -28px;
       border-color: transparent transparent transparent ${colors.darkPurple};

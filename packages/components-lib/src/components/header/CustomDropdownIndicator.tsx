@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { types } from "@probable-futures/lib";
 
 import TriangleIcon from "../../assets/icons/triangle.svg";
-import { whiteFilter } from "../../styles";
+import { whiteFilter } from "../../styles/commonStyles";
 
 type ArrowIconProps = {
   menuIsOpen: boolean;

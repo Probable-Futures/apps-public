@@ -1,7 +1,7 @@
 import { memo } from "react";
 import styled from "styled-components";
 
-import { DatasetDescriptionResponse, Map } from "@probable-futures/lib/src/types";
+import { DatasetDescriptionResponse, Map } from "@probable-futures/lib";
 
 type Props = {
   datasetDescriptionResponse: DatasetDescriptionResponse;

@@ -2,10 +2,14 @@ import { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import camelcase from "lodash.camelcase";
 
-import { DatasetDescriptionResponse } from "@probable-futures/lib/src/types";
-import { types, utils, consts } from "@probable-futures/lib";
+import {
+  types,
+  utils,
+  consts,
+  DatasetDescriptionResponse,
+  getClimateZoneByValue,
+} from "@probable-futures/lib";
 import ArrowDown from "../assets/icons/arrow-down.svg";
-import { getClimateZoneByValue } from "@probable-futures/lib/src/utils";
 
 type Props = {
   feature: types.PopupFeature;
@@ -198,7 +202,7 @@ const Description = styled.div`
   padding: 4px 0px;
 `;
 
-const Popup = ({
+const PopupContent = ({
   feature,
   dataset,
   degreesOfWarming,
@@ -530,4 +534,4 @@ const Popup = ({
   );
 };
 
-export default Popup;
+export default PopupContent;

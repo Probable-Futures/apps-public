@@ -10,8 +10,9 @@ import {
   HEADER_DROPDOWN_PADDING_MOBILE,
   HEADER_DROPDOWN_PADDING_TABLET,
   size,
-} from "@probable-futures/lib/src/consts";
-import { GroupedOptions, Theme } from "@probable-futures/lib/src/types";
+  GroupedOptions,
+  Theme,
+} from "@probable-futures/lib";
 
 const ControlContainer = styled.div`
   display: flex;

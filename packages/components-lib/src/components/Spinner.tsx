@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { colors, size } from "@probable-futures/lib/src/consts";
+import { colors, size } from "@probable-futures/lib";
 
 const StyledSpinner = styled.div`
   border: 2px solid ${colors.whiteOriginal};

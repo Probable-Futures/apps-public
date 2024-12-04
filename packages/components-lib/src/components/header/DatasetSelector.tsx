@@ -10,15 +10,17 @@ import {
   colors,
   HEADER_HEIGHT,
   customTabletSizeForHeader,
-} from "@probable-futures/lib/src/consts";
-import { Option, TourProps, Map } from "@probable-futures/lib/src/types";
+  Option,
+  TourProps,
+  Map,
+  groupByfield,
+} from "@probable-futures/lib";
 
 import { DropdownIndicator } from "./CustomDropdownIndicator";
 import { Control } from "./CustomSelectControl";
 import { GroupHeading } from "./CustomSelectGroupHeading";
 import { CustomOption } from "./CustomSelectOption";
 import { useTheme } from "../../contexts";
-import { groupByfield } from "@probable-futures/lib/src/utils";
 
 type Props = {
   value: Option;

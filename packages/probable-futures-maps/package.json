@@ -36,7 +36,7 @@
     "eslint": "^8.48.0"
   },
   "dependencies": {
-    "@probable-futures/lib": "^1.0.24",
+    "@probable-futures/lib": "^1.0.25",
     "recharts": "^2.12.6"
   },
   "publishConfig": {

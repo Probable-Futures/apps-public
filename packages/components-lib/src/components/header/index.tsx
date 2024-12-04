@@ -1,8 +1,15 @@
 import MediaQuery from "react-responsive";
 import styled from "styled-components";
 import camelcase from "lodash.camelcase";
-import { size, colors, HEADER_HEIGHT } from "@probable-futures/lib/src/consts";
-import { Option, TourProps, Map, WarmingScenarioDescs } from "@probable-futures/lib/src/types";
+import {
+  size,
+  colors,
+  HEADER_HEIGHT,
+  Option,
+  TourProps,
+  Map,
+  WarmingScenarioDescs,
+} from "@probable-futures/lib";
 
 import DatasetSelector from "./DatasetSelector";
 import Degrees from "./Degrees";

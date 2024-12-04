@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { colors } from "@probable-futures/lib/src/consts";
+import { colors } from "@probable-futures/lib";
 
 type ControlButtonProps = {
   first?: boolean;
@@ -32,7 +32,7 @@ export const ControlButton = styled.button`
     last
       ? "border-bottom-left-radius: 6px;border-bottom-right-radius: 6px;"
       : "border-bottom: 1px solid rgba(151, 151, 151, 0.5);"}
-  
+
   ${({ disabled }) =>
     disabled &&
     `
@@ -48,7 +48,7 @@ export const ControlButton = styled.button`
       : ` path {
     fill: ${colors.darkPurple};
   }`}
-    
+
   &:hover {
     ${({ mode }: ControlButtonProps) =>
       mode === "dark"

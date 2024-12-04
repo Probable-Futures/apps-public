@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { colors } from "@probable-futures/lib/src/consts";
+import { colors } from "@probable-futures/lib";
 
 type RadioButtonProps = {
   checked: boolean;

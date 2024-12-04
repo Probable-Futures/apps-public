@@ -1,7 +1,7 @@
 import { PropsWithChildren, ReactElement } from "react";
 import { Popover, ArrowContainer } from "react-tiny-popover";
 import styled from "styled-components";
-import { colors } from "@probable-futures/lib/src/consts";
+import { colors } from "@probable-futures/lib";
 
 type TooltipProps = {
   show: boolean;

@@ -1,8 +1,6 @@
 import styled, { css } from "styled-components";
 import InputColor, { Color } from "react-input-color";
-import { Map } from "@probable-futures/lib/src/types";
-import { colors } from "@probable-futures/lib/src/consts";
-import { getBinLabelArray, getLabelByValue } from "@probable-futures/lib/src/utils";
+import { getBinLabelArray, getLabelByValue, colors, Map } from "@probable-futures/lib";
 
 import { useTheme } from "../contexts";
 

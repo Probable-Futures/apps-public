@@ -6,8 +6,9 @@ import {
   HEADER_HEIGHT,
   degreesOptions,
   DescKeys,
-} from "@probable-futures/lib/src/consts";
-import { TourProps, WarmingScenarioDescs } from "@probable-futures/lib/src/types";
+  TourProps,
+  WarmingScenarioDescs,
+} from "@probable-futures/lib";
 
 import TourBox from "../TourBox";
 import {

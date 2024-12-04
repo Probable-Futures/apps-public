@@ -1,9 +1,8 @@
 import styled, { css } from "styled-components";
-import { size, HEADER_HEIGHT } from "@probable-futures/lib/src/consts";
-import { Theme } from "@probable-futures/lib/src/types";
+import { size, HEADER_HEIGHT, Theme } from "@probable-futures/lib";
 
 import InfoIcon from "../../assets/icons/info.svg";
-import { whiteFilter } from "../../styles";
+import { whiteFilter } from "../../styles/commonStyles";
 import { useTheme } from "../../contexts";
 
 type InfoButtonProps = {

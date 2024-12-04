@@ -1,6 +1,6 @@
 import { ChangeEventHandler } from "react";
 import styled from "styled-components";
-import { colors, size } from "@probable-futures/lib/src/consts";
+import { colors, size } from "@probable-futures/lib";
 
 type Props = {
   isChecked: boolean;

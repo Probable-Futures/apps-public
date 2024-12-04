@@ -3,9 +3,7 @@ import styled from "styled-components";
 import { Popover, ArrowContainer, PopoverAlign, PopoverPosition } from "react-tiny-popover";
 import { useMediaQuery } from "react-responsive";
 
-import { consts } from "@probable-futures/lib";
-import { DatasetDescriptionResponse, Map } from "@probable-futures/lib/src/types";
-import { colors, size } from "@probable-futures/lib/src/consts";
+import { DatasetDescriptionResponse, Map, consts, colors, size } from "@probable-futures/lib";
 import { ReactComponent as CloseIcon } from "../assets/icons/close.svg";
 
 type Props = {

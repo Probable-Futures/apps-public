@@ -1,7 +1,6 @@
 import { Popover, ArrowContainer, PopoverPosition } from "react-tiny-popover";
 import styled from "styled-components";
-import { colors } from "@probable-futures/lib/src/consts";
-import { types } from "@probable-futures/lib";
+import { types, colors } from "@probable-futures/lib";
 
 import QuizIcon from "../assets/icons/quiz.svg";
 

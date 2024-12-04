@@ -1,6 +1,5 @@
 import { createContext, useState, useContext, PropsWithChildren, useEffect } from "react";
-import { types } from "@probable-futures/lib";
-import { colors } from "@probable-futures/lib/src/consts";
+import { types, colors } from "@probable-futures/lib";
 
 type State = {
   theme: types.Theme;

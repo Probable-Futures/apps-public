@@ -1,17 +1,17 @@
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
 import { components } from "react-select";
-import { Theme } from "@probable-futures/lib/src/types";
 import {
   HEADER_DROPDOWN_PADDING_DESKTOP,
   HEADER_DROPDOWN_PADDING_LAPTOP,
   HEADER_DROPDOWN_PADDING_MOBILE,
   HEADER_DROPDOWN_PADDING_TABLET,
   size,
-} from "@probable-futures/lib/src/consts";
+  Theme,
+} from "@probable-futures/lib";
 
 import TriangleIcon from "../../assets/icons/triangle.svg";
-import { whiteFilter } from "../../styles";
+import { whiteFilter } from "../../styles/commonStyles";
 
 type ArrowIconProps = {
   menuIsOpen: boolean;

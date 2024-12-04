@@ -2,14 +2,15 @@ import { PropsWithChildren } from "react";
 import styled from "styled-components";
 import { useMediaQuery } from "react-responsive";
 import camelcase from "lodash.camelcase";
-import { colors, size } from "@probable-futures/lib/src/consts";
-import { getBinLabel } from "@probable-futures/lib/src/utils";
 import {
   DatasetDescriptionResponse,
   Map,
   TempUnit,
   PrecipitationUnit,
-} from "@probable-futures/lib/src/types";
+  colors,
+  size,
+  getBinLabel,
+} from "@probable-futures/lib";
 
 import Switch from "./Switch";
 import ClimateZonesKey from "./ClimateZonesKey";

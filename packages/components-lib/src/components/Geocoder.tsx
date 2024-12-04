@@ -1,12 +1,12 @@
 import { RefObject } from "react";
 import { MapRef } from "react-map-gl";
 import styled, { css } from "styled-components";
-import { size, colors, RecentlySearchedItemsKey } from "@probable-futures/lib/src/consts";
+import { size, colors, RecentlySearchedItemsKey } from "@probable-futures/lib";
 
 import { ReactComponent as CancelIcon } from "../assets/icons/cancel.svg";
 import useGeocoder, { Feature } from "../hooks/useGeocoder";
 import Spinner from "./Spinner";
-import { ItemHoverStyles } from "../styles";
+import { ItemHoverStyles } from "../styles/commonStyles";
 
 export type GeocoderProps = {
   mapRef: RefObject<MapRef>;

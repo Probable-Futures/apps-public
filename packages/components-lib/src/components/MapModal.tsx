@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
-import { colors, size } from "@probable-futures/lib/src/consts";
+import { colors, size } from "@probable-futures/lib";
 
 import { ReactComponent as CloseIcon } from "../assets/icons/close.svg";
 import MapOverlay from "./MapOverlay";

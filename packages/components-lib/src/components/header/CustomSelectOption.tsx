@@ -6,12 +6,13 @@ import {
   HEADER_DROPDOWN_PADDING_MOBILE,
   HEADER_DROPDOWN_PADDING_TABLET,
   size,
-} from "@probable-futures/lib/src/consts";
-import { Option, Theme } from "@probable-futures/lib/src/types";
+  Option,
+  Theme,
+} from "@probable-futures/lib";
 
 import ExpandIcon from "../../assets/icons/expand.svg";
 import CollapseIcon from "../../assets/icons/collapse.svg";
-import { whiteFilter } from "../../styles";
+import { whiteFilter } from "../../styles/commonStyles";
 
 type OptionHeaderProps = {
   isOpen: boolean;

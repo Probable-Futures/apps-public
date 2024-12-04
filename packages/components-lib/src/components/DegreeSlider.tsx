@@ -2,8 +2,7 @@ import styled from "styled-components";
 import { Slider } from "@mui/material";
 import { SyntheticEvent } from "react";
 
-import { colors } from "@probable-futures/lib/src/consts";
-import { degreesOptions } from "@probable-futures/lib/src/consts";
+import { colors, degreesOptions } from "@probable-futures/lib";
 
 type Props = {
   degrees: number;
