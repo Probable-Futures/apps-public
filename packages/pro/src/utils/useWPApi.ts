@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import { useMapData } from "../contexts/DataContext";
-import { DatasetDescriptionResponse } from "@probable-futures/lib/src/types";
+import { DatasetDescriptionResponse } from "@probable-futures/lib";
 
 type Object = {
   [key: string]: string;

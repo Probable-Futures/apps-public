@@ -6,13 +6,11 @@ import { mapStyleChange, updateMap, toggleModal, fitBounds } from "kepler.gl/act
 //@ts-ignore
 import { EXPORT_IMAGE_ID } from "kepler.gl";
 import { useLocation } from "react-router-dom";
-import { utils, consts } from "@probable-futures/lib";
+import { utils, consts, HEADER_HEIGHT } from "@probable-futures/lib";
 import { components, contexts } from "@probable-futures/components-lib";
 import { Helmet } from "react-helmet";
-import { FlyToInterpolator } from "react-map-gl";
 import { Feature } from "@probable-futures/components-lib/src/hooks/useGeocoder";
 import MediaQuery, { useMediaQuery } from "react-responsive";
-import { HEADER_HEIGHT } from "@probable-futures/lib/src/consts";
 
 import { KeplerGl } from "./KeplerDI";
 import { DEFAULT_PF_DATASET_ID, MAP_ID } from "../../consts/MapConsts";
@@ -479,7 +477,6 @@ const InteractiveMap = (props: PropsFromRedux) => {
           longitude: feature.geometry.coordinates[0],
           latitude: feature.geometry.coordinates[1],
           transitionDuration: 1500,
-          transitionInterpolator: new FlyToInterpolator(),
           transitionEasing: easeCubic,
         }),
       );

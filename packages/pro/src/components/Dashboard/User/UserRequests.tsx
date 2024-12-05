@@ -11,7 +11,7 @@ import {
 } from "../../../graphql/queries/userRequests";
 import { GqlResponse } from "../../../shared/types";
 import UserRequestTable from "./UserRequestTable";
-import { colors } from "@probable-futures/lib/src/consts";
+import { colors } from "@probable-futures/lib";
 import { isProd } from "../../../consts/env";
 
 export type RequestField = {

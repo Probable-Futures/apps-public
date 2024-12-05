@@ -4,8 +4,7 @@ import styled from "styled-components";
 import { SidePanelSection, Button, FilterManagerFactory } from "kepler.gl/components";
 import { styles } from "@probable-futures/components-lib";
 import SearchIcon from "@probable-futures/components-lib/src/assets/icons/search.svg";
-import { MAP_VERSION_URL } from "@probable-futures/lib/src/consts";
-import { BinningType } from "@probable-futures/lib/src/utils";
+import { BinningType, MAP_VERSION_URL } from "@probable-futures/lib";
 
 import TrashIcon from "../../../assets/icons/map/trash.svg";
 import DatasetTitle from "../Common/DatasetTitle";

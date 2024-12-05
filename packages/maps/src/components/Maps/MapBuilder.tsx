@@ -363,7 +363,7 @@ const InteractiveMap = () => {
         )}
         <components.DegreeSlider
           degrees={degrees}
-          min={0}
+          min={0.5}
           max={3}
           title={translate("slider.title")}
           onChangeCommitted={(e, value) => {

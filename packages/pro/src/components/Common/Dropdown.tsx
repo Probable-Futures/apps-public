@@ -2,7 +2,7 @@ import { useState } from "react";
 import Select, { components, FormatOptionLabelMeta } from "react-select";
 import styled from "styled-components";
 import DarkArrow from "@probable-futures/components-lib/src/assets/icons/triangle.svg";
-import { GroupedOptions } from "@probable-futures/lib/src/types";
+import { GroupedOptions } from "@probable-futures/lib";
 
 import LightArrow from "../../assets/icons/map/arrow-down-white.svg";
 import { Option } from "../../shared/types";

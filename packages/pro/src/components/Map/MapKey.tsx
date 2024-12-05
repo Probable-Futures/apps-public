@@ -1,13 +1,12 @@
 import { useMemo } from "react";
 import styled from "styled-components";
 import { components } from "@probable-futures/components-lib";
-import { HEADER_HEIGHT } from "@probable-futures/lib/src/consts";
 import { useMediaQuery } from "react-responsive";
 
 import { useMapData } from "../../contexts/DataContext";
 import { colors, size } from "../../consts";
 import MapKeyExtension from "./MapKeyExtension";
-import { types } from "@probable-futures/lib";
+import { types, HEADER_HEIGHT } from "@probable-futures/lib";
 
 type Props = {
   activeSidePanel: boolean;

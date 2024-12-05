@@ -6,9 +6,13 @@ import WebMercatorViewport from "viewport-mercator-project";
 import { colors } from "../../consts";
 import { ReactComponent as CloseIcon } from "../../assets/icons/dashboard/close.svg";
 import ArrowDown from "../../assets/icons/map/arrow-down.svg";
-import { DatasetDescriptionResponse } from "@probable-futures/lib/src/types";
-import { consts, utils, types } from "@probable-futures/lib";
-import { getClimateZoneByValue } from "@probable-futures/lib/src/utils";
+import {
+  consts,
+  utils,
+  types,
+  DatasetDescriptionResponse,
+  getClimateZoneByValue,
+} from "@probable-futures/lib";
 
 type Props = {
   feature: types.PopupFeature;

@@ -1,5 +1,4 @@
-import { consts, types } from "@probable-futures/lib";
-import { DatasetDescriptionResponse } from "@probable-futures/lib/src/types";
+import { consts, types, DatasetDescriptionResponse } from "@probable-futures/lib";
 import {
   displayBottomLinkFunction,
   displayClimateZonesKey,
@@ -165,7 +164,7 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
             }
             function getBinLabel(bins, index, unit, minValue, maxValue, step, tempUnit, isDiff=false, isFrequent=false, precipitationUnit, isPrecipitationMap){
               const isTempMap = unit.toLowerCase().includes("temp");
-  
+
               let finalBins = bins;
               let finalMinValue = minValue;
               let finalMaxValue = maxValue;
@@ -181,11 +180,11 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
               const plusSign = isDiff && !isFrequent ? "+" : "";
               const prevBin = finalBins[index - 1];
               const curBin = finalBins[index];
-  
+
               if (index > bins.length) {
                 return [];
               }
-  
+
               if (index === 0) {
                 if (finalMinValue === 0 && finalMinValue === finalBins[index] - 1 && !isDiff) {
                   return [finalMinValue.toString()];
@@ -195,11 +194,11 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
                   return [curBin > 0 ? "< " + plusSign.concat(curBin.toString()) : "< " + curBin];
                 }
               }
-  
+
               if (!isDiff) {
                 const firstBin = prevBin.toString();
                 let secondBin = "";
-  
+
                 if (index === finalBins.length) {
                   secondBin = finalMaxValue.toString();
                 } else {
@@ -219,7 +218,7 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
                   } else {
                     return [
                       prevBin > 0 ? plusSign.concat(prevBin.toString()) : prevBin.toString(),
-                      curBin - step > 0 
+                      curBin - step > 0
                         ? plusSign.concat(parseFloat((curBin - step).toFixed(1)).toString())
                         : parseFloat((curBin - step).toFixed(1)).toString(),
                     ];
@@ -256,7 +255,7 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
                 return binningLabels[labelIdx];
               }
             }
-            
+
             function getClimateZoneByValue(datasetDescriptionResponse, midValue) {
               let climateZoneSubGroup;
               datasetDescriptionResponse.climate_zones?.forEach((climateZonesDescription) => {
@@ -328,7 +327,7 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
                 return returnValue;
               };
             }
-            
+
             let middleWares = (function createMiddlewares(keplerGl) {
               return keplerGl.enhanceReduxMiddleware([interceptKeplerActionsMiddlware]);
             }(KeplerGl));
@@ -364,14 +363,14 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
                 let tippyInstanceRef = react.useRef(null);
                 let clickedMapInfo = ReactRedux.useSelector(function(state){return state.project.clickedMapInfo});
                 let mapState = ReactRedux.useSelector(function(state){return state.keplerGl["pf-map"]?.mapState});
-                
+
                 const tippyCoordinate = react.useMemo(function(){
                   if (window.viewportMercatorProject && feature) {
                     const viewport = new window.viewportMercatorProject(mapState);
                     return getCoordinate(viewport, [feature.longitude, feature.latitude]);
                   }
                 }, [feature, mapState, window.viewportMercatorProject]);
-                
+
                 const checkEdgeCaseForPrecipitationBinsAfterConvertingToInch = (value) => {
                   if (value === -51 || value === -26) {
                     return convertmmToin(value) - 0.1;
@@ -427,7 +426,7 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
                     if (isChecked) toggleOptionLeft.style.color = "#2a172d";
                     else toggleOptionLeft.style.color = "#fdfdfd";
                   }
-    
+
                   const toggleOptionRight =
                     document.getElementById("toggle-option2");
                   if(toggleOptionRight) {
@@ -443,7 +442,7 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
                     setPrecipitationUnit(precipitationUnit => precipitationUnit === "mm" ? "in" : "mm");
                   }
                 }, [setTempUnit, setPrecipitationUnit]);
-    
+
                 react.useEffect(() => {
                   ${displayBottomLinkFunction}
                   ${displayClimateZonesKey}
@@ -453,7 +452,7 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
                   else displayKey();
                   displayBottomLink();
                 }, [tempUnit, precipitationUnit]);
-                
+
                 react.useEffect(function(){
                   if(mapRef?.current && feature) {
                     let map = mapRef.current.getMap();
@@ -649,13 +648,13 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
                   if (zoom + 1 <= 10) store.dispatch(KeplerGl.updateMap({ zoom: zoom + 1 }));
                   else store.dispatch(KeplerGl.updateMap({ zoom: 10 }));
                 }
-    
+
                 function handleZoomOutClick () {
                   let zoom = store.getState()?.keplerGl['pf-map']?.mapState?.zoom || 2.2;
                   if (zoom - 1 >= 2.2) store.dispatch(KeplerGl.updateMap({ zoom: zoom - 1 }));
                   else store.dispatch(KeplerGl.updateMap({ zoom: 2.2 }));
                 }
-    
+
                 return React.createElement(
                     'div',
                     { className: 'zoom-button-container' },
