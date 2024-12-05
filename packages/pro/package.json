@@ -18,7 +18,7 @@
     "@emotion/styled": "^11.11.5",
     "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.20",
-    "@probable-futures/components-lib": "^1.0.1",
+    "@probable-futures/components-lib": "^1.0.6",
     "@probable-futures/lib": "^1.0.25",
     "@reduxjs/toolkit": "^1.6.1",
     "@sentry/react": "^6.9.0",

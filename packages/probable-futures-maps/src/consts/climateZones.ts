@@ -1,4 +1,4 @@
-import { DatasetDescriptionResponse } from "@probable-futures/lib/src/types";
+import { DatasetDescriptionResponse } from "@probable-futures/lib";
 
 export const climateZonesDescriptions: DatasetDescriptionResponse = {
   dataset_id: "40901",

@@ -160,6 +160,77 @@ const [selectedChartDegree, setSelectedChartDegree] = useState(0.5);
 />;
 ```
 
+### `SimpleMap`
+
+This component displays a single map given a dataset id and a warming scenario.
+
+**Props:**
+
+- **datasetId** (Number): The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps/#all-maps)
+- **dataset** (Map): Alternatively, you can provide the whole dataset object.
+- **tempUnit** (`°C` or `°F`): If the map unit is a temperature unit, eg. "Average Tempareture" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key
+- **precipitationUnit** (`mm` or `in`): If the map unit is a mm, eg. "Change in total annual percipication" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key
+- **showBorders** (Boolean): Show/hide the geopolitical boundaries of the countries over the map
+- **showPopupOnFirstLoad** (Boolean): Whether to show the map popup or not when the map initially loads
+- **scenario** (Number): The warming scenario
+- **viewState** (Object): This is an object which defines the initial view port of the map. The object includes `longitude`, `latitude`, and `zoom`
+- **hideControls** (Boolean) - default false: Hide the map controls, such as zoom buttons
+- **hideMapLegend** (Boolean) - default false: Hide the map key
+- **hideTitle** (Boolean) - default false: Hide the title containing the map name
+- **hideResetMapButton** (Boolean) - default true: Hide the reset button. This button could be used to reset the map to its original view given the initial long, lat and zoom.
+- **mapboxAccessToken** (String, required) - provide the mapbox access token
+- **usePfFonts** (Boolean) - default true. Decides whether to load PF fonts in the page or not.
+
+Example:
+
+```jsx
+import { SimpleMap } from "@probable-futures/probable-futures-maps";
+
+<div className="relative h-[500px]">
+  <SimpleMap
+    viewState={{ zoom: 4, longitude: long, latitude: lat }}
+    datasetId={40104}
+    mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
+  />
+</div>;
+```
+
+### `CompareMap`
+
+This component provides maps comparison between two different warming scenarios
+
+**Props:**
+
+- **datasetId** (Number): The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps/#all-maps)
+- **dataset** (Map): Alternatively, you can provide the whole dataset object.
+- **tempUnit** (`°C` or `°F`): If the map unit is a temperature unit, eg. "Average Tempareture" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key
+- **precipitationUnit** (`mm` or `in`): If the map unit is a mm, eg. "Change in total annual percipication" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key
+- **showBorders** (Boolean): Show/hide the geopolitical boundaries of the countries over the map
+- **showPopupOnFirstLoad** (Boolean): Whether to show the map popup or not when the map initially loads
+- **viewState** (Object): This is an object which defines the initial view port of the map. The object includes `longitude`, `latitude`, and `zoom`
+- **hideControls** (Boolean) - default false: Hide the map controls, such as zoom buttons
+- **hideMapLegend** (Boolean) - default false: Hide the map key
+- **hideTitle** (Boolean) - default false: Hide the title containing the map name
+- **hideResetMapButton** (Boolean) - default true: Hide the reset button. This button could be used to reset the map to its original view given the initial long, lat and zoom.
+- **mapboxAccessToken** (String, required) - provide the mapbox access token
+- **usePfFonts** (Boolean) - default true. Decides whether to load PF fonts in the page or not.
+- **compare** (Object): This object can be specified in case the user wants to generate a comparison embeddable map. The object fields are `scenarioBefore` and `scenarioAfter`
+
+Example:
+
+```jsx
+import { CompareMap } from "@probable-futures/probable-futures-maps";
+
+<div className="relative h-[500px]">
+  <CompareMap
+    viewState={{ zoom: 4, longitude: long, latitude: lat }}
+    datasetId={40104}
+    compare={{ scenarioBefore: 1, scenarioAfter: 3 }}
+    mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
+  />
+</div>;
+```
+
 #### Version history
 
 For details about updates and changes in each version of this package, check the version history at this [link](https://github.com/Probable-Futures/apps-public/blob/main/packages/probable-futures-maps/CHANGELOG.md).

@@ -5,7 +5,7 @@ import CustomTooltip from "./CustomTooltip";
 import YLabel from "./YLabel";
 import XLabel from "./XLabel";
 import CustomDot from "./CustomDot";
-import { StatisticsData } from "@probable-futures/lib/src/types";
+import { StatisticsData } from "@probable-futures/lib";
 import { getMapObject } from "../..";
 
 type ChartProps = {

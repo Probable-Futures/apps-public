@@ -16,6 +16,7 @@ packages/api/dist/
 packages/worker/dist/
 packages/probable-futures-maps/dist/
 packages/lib/dist/
+packages/components-lib/dist/
 
 # Dependencies
 node_modules/

@@ -1,5 +1,4 @@
-import { consts, types, utils } from "@probable-futures/lib";
-import { DatasetDescriptionResponse } from "@probable-futures/lib/src/types";
+import { consts, types, utils, DatasetDescriptionResponse } from "@probable-futures/lib";
 import { climateZonesDescriptions } from "./consts";
 import { datasets } from "./consts/datasets";
 

@@ -1,29 +1,18 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "declaration": true,
-    "rootDir": "src",
     "outDir": "dist",
-    "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "types": ["node"],
-    "lib": ["es2021", "DOM"],
-    "skipLibCheck": true,
-    "noEmit": false,
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
-    "declarationDir": "dist",
-    "composite": true,
-    "noEmitOnError": true,
-    "allowSyntheticDefaultImports": true,
-    "noFallthroughCasesInSwitch": true,
-    "preserveWatchOutput": true,
-    "noUnusedParameters": false,
+    "declaration": true,
     "declarationMap": true,
-    "jsx": "react"
+    "emitDeclarationOnly": false,
+    "target": "ES5",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "strict": true,
+    "lib": ["dom", "dom.iterable", "ES2021"]
   },
-  "include": ["src"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

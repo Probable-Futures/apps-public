@@ -31,3 +31,5 @@ export {
 };
 
 export { default as Chart } from "./react-components/chart/Chart";
+export { default as CompareMap } from "./react-components/map/CompareMaps";
+export { default as SimpleMap } from "./react-components/map/SimpleMap";
