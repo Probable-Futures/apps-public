@@ -385,10 +385,6 @@ const PopupContent = ({
       return (mapPopoverText?.expectedOutcome || "Expected outcome") + unit;
     }
 
-    if (dataset?.name.toLowerCase().startsWith("change") && degreesOfWarming === 0.5) {
-      return (mapPopoverText?.pastRangeBeforeChange || "Past range before change") + unit;
-    }
-
     return (mapPopoverText?.expectedRangeOfOutcomes || "Expected range of outcomes") + unit;
   };
 
@@ -467,13 +463,9 @@ const PopupContent = ({
 
   const baselineTitle = () => {
     if (showDetails) {
-      return degreesOfWarming === 0.5
-        ? mapPopoverText?.hidePastRange || "Hide past range"
-        : mapPopoverText?.hideBaselineDetails || "Hide baseline details";
+      return mapPopoverText?.hideBaselineDetails || "Hide baseline details";
     } else {
-      return degreesOfWarming === 0.5
-        ? mapPopoverText?.showPastRange || "Show past range"
-        : mapPopoverText?.showBaselineDetails || "Show baseline details";
+      return mapPopoverText?.showBaselineDetails || "Show baseline details";
     }
   };
 

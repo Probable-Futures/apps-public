@@ -99,11 +99,8 @@
     "noData": "Pas de données ici",
     "expectedRangeOfOutcomes": "Plage attendue de résultats",
     "expectedOutcome": "Résultat attendu",
-    "pastRangeBeforeChange": "Plage passée avant le changement",
     "showBaselineDetails": "Afficher les détails de la ligne de base",
     "hideBaselineDetails": "Masquer les détails de la ligne de base",
-    "showPastRange": "Afficher la plage passée",
-    "hidePastRange": "Masquer la plage passée",
     "year": {
       "10ThPercentile": "10ème percentile",
       "5ThPercentile": "5ème percentile",

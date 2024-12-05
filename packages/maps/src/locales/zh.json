@@ -99,11 +99,8 @@
     "noData": "这里没有数据",
     "expectedRangeOfOutcomes": "预期结果范围",
     "expectedOutcome": "预期结果",
-    "pastRangeBeforeChange": "更改前的过去范围",
     "showBaselineDetails": "显示基线细节",
     "hideBaselineDetails": "隐藏基线细节",
-    "showPastRange": "显示过去范围",
-    "hidePastRange": "隐藏过去范围",
     "year": {
       "10ThPercentile": "第10百分位数",
       "5ThPercentile": "第5百分位数",
