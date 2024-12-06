@@ -18,8 +18,6 @@
     "@apollo/client": "^3.6.9",
     "@auth0/auth0-react": "^1.6.0",
     "@mapbox/mapbox-sdk": "^0.15.0",
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.5",
     "@probable-futures/components-lib": "^1.0.6",
     "@probable-futures/lib": "^1.0.25",
     "@probable-futures/probable-futures-maps": "^1.0.40",

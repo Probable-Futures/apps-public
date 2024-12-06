@@ -21,8 +21,6 @@
     "publish": "yarn publish --access=public --force"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.5",
     "@mapbox/mapbox-sdk": "^0.15.0",
     "@probable-futures/lib": "^1.0.25",
     "html-react-parser": "^1.2.6",
