@@ -422,7 +422,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
     }
     const { projectId, pfDatasetId } = finalEnrichmentDataset;
     if (projectId && pfDatasetId) {
-      callInit(projectId, pfDatasetId, false);
+      callInit(projectId, pfDatasetId, false, true);
     }
     setFinalEnrichmentDataset(undefined);
   };

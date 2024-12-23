@@ -160,6 +160,10 @@ export const mergeLayers = (
           ...originalLayers[layerIdx],
           ...savedLayers[uniqueNewLayerIdxsByDataId[index]],
         });
+      } else {
+        result.push({
+          ...originalLayers[layerIdx],
+        });
       }
     });
 

@@ -78,12 +78,23 @@ const useProjectInit = () => {
 
   // this where we sign datasetUrls, fetch them from s3 and load them in kepler
   const initProject = useCallback(
-    (pfDatasetId: number, projectDatasets: ProjectDatasetNode[], addingNewDataset: boolean) => {
+    (
+      pfDatasetId: number,
+      projectDatasets: ProjectDatasetNode[],
+      addingNewDataset: boolean,
+      hardReload?: boolean,
+    ) => {
       if (projectDatasets) {
         const filteredProjectDatasets = filterDatasetsWithMultipleEnrichments(
           projectDatasets,
           pfDatasetId,
         );
+        // TODO: do not reload whole page
+        if (!addingNewDataset && hardReload && filteredProjectDatasets.length > 1) {
+          window.location.reload();
+          return;
+        }
+
         if (addingNewDataset && filteredProjectDatasets.length > 1) {
           dispatch({
             type: SET_ADDING_NEW_DATASET,
@@ -137,7 +148,12 @@ const useProjectInit = () => {
   );
 
   const callInit = useCallback(
-    async (projectId: string, pfDatasetId: number, addingNewDataset: boolean) => {
+    async (
+      projectId: string,
+      pfDatasetId: number,
+      addingNewDataset: boolean,
+      hardReload?: boolean,
+    ) => {
       dispatch({ type: SET_INITIALIZING_PROJECT, payload: { initializingProject: true } });
       dispatch({ type: SET_ADDED_DATA_TO_MAP, payload: { addedDataToMap: false } });
       const { data } = await apolloClient.query<PfPartnerProjectDatasets>({
@@ -148,6 +164,7 @@ const useProjectInit = () => {
         fetchPolicy: "no-cache",
       });
       const projectDatasets = data?.viewPartnerProjectDatasets.nodes;
+
       if (projectDatasets) {
         if (projectDatasets.length === 0) {
           dispatch({ type: SET_ADDED_DATA_TO_MAP, payload: { addedDataToMap: true } });
@@ -156,7 +173,7 @@ const useProjectInit = () => {
           type: SET_PROJECT_DATASETS,
           payload: { projectDatasets },
         });
-        initProject(pfDatasetId, projectDatasets, addingNewDataset);
+        initProject(pfDatasetId, projectDatasets, addingNewDataset, hardReload);
       } else {
         dispatch({ type: SET_INITIALIZING_PROJECT, payload: { initializingProject: false } });
       }
