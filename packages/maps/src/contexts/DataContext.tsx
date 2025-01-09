@@ -73,7 +73,7 @@ const initialState = {
   warmingScenarioDescs: {},
   storySubmission: undefined,
   tempUnit: "°C" as types.TempUnit,
-  showMarkers: true,
+  showMarkers: false,
   activeStoryTooltip: undefined,
   showBaselineModal: false,
   showDescriptionModal: false,
@@ -126,7 +126,7 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
   const [warmingScenarioDescs, setWarmingScenarioDescs] = useState({});
   const [storySubmission, setStorySubmission] = useState();
   const [tempUnit, setTempUnit] = useState("°C" as types.TempUnit);
-  const [showMarkers, setShowMarkers] = useState(true);
+  const [showMarkers, setShowMarkers] = useState(false);
   const [activeStoryTooltip, setActiveStoryTooltip] = useState<number>();
   const [showBaselineModal, setShowBaselineModal] = useState(false);
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
