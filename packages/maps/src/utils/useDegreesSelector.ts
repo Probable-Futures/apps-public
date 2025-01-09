@@ -71,8 +71,15 @@ const useDegreesSelector = () => {
       }
       setShowDegreeDescription(!showDegreeDescription);
     } else {
-      setDegrees(value);
-      setQueryParam({ warmingScenario: value });
+      if (
+        value === 0.5 &&
+        (selectedDataset?.isDiff || selectedDataset?.name.toLowerCase().startsWith("change"))
+      ) {
+        setShowBaselineModal(true);
+      } else {
+        setDegrees(value);
+        setQueryParam({ warmingScenario: value });
+      }
       trackEvent("Warming tab clicked", eventProps);
     }
   };

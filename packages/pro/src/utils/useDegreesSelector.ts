@@ -71,18 +71,26 @@ const useDegreesSelector = () => {
     } else if (degrees === value && hasDescription) {
       setShowDegreeDescription(!showDegreeDescription);
     } else {
-      if (slugId) {
-        dispatch({
-          type: SET_MAP_CONFIG,
-          payload: {
-            mapConfig: {
-              ...mapConfig,
-              pfMapConfig: { ...mapConfig.pfMapConfig, warmingScenario: value },
-            },
-          },
-        });
+      if (
+        value === 0.5 &&
+        (selectedClimateData?.isDiff ||
+          selectedClimateData?.name.toLowerCase().startsWith("change"))
+      ) {
+        setShowBaselineModal(true);
       } else {
-        updateProject({ mapStyleConfig: { key: "warmingScenario", value } });
+        if (slugId) {
+          dispatch({
+            type: SET_MAP_CONFIG,
+            payload: {
+              mapConfig: {
+                ...mapConfig,
+                pfMapConfig: { ...mapConfig.pfMapConfig, warmingScenario: value },
+              },
+            },
+          });
+        } else {
+          updateProject({ mapStyleConfig: { key: "warmingScenario", value } });
+        }
       }
     }
   };

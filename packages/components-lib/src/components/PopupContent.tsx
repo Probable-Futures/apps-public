@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styled, { css } from "styled-components";
 import camelcase from "lodash.camelcase";
 
@@ -220,9 +220,9 @@ const PopupContent = ({
 
   const {
     selectedData,
-    data_baseline_absolute_low: baselineAbsoluteLow,
-    data_baseline_absolute_mid: baselineAbsoluteMid,
-    data_baseline_absolute_high: baselineAbsoluteHigh,
+    data_baseline_low: baselineLow,
+    data_baseline_mid: baselineMid,
+    data_baseline_high: baselineHigh,
   } = feature;
   const isTemp = dataset?.dataset.pfDatasetUnitByUnit.unitLong.toLowerCase().includes("temp");
   const showInF = isTemp && tempUnit === "°F";
@@ -415,14 +415,6 @@ const PopupContent = ({
     return null;
   };
 
-  useEffect(() => {
-    if (degreesOfWarming === 0.5) {
-      setShowDetails(true);
-    } else {
-      setShowDetails(false);
-    }
-  }, [degreesOfWarming]);
-
   const renderNoDataDescription = () => {
     if (selectedData.mid === consts.ERROR_VALUE) {
       return (
@@ -495,12 +487,7 @@ const PopupContent = ({
                 <ArrowIcon expanded={showDetails} defaultDirection="bottom" />
               </ToggleDetailsButton>
               <DetailsContent expanded={showDetails}>
-                {renderValues(
-                  false,
-                  baselineAbsoluteLow,
-                  baselineAbsoluteMid,
-                  baselineAbsoluteHigh,
-                )}
+                {renderValues(false, baselineLow, baselineMid, baselineHigh)}
               </DetailsContent>
             </DetailsContainer>
           )}

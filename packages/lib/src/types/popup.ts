@@ -20,9 +20,6 @@ export type PopupFeature = {
   data_baseline_mid?: number;
   data_baseline_low?: number;
   data_baseline_high?: number;
-  data_baseline_absolute_mid?: number;
-  data_baseline_absolute_low?: number;
-  data_baseline_absolute_high?: number;
   data_1c_mid?: number;
   data_1c_low?: number;
   data_1c_high?: number;

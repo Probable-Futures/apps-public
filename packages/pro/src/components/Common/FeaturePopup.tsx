@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 import Tippy from "@tippyjs/react/headless";
 import WebMercatorViewport from "viewport-mercator-project";
@@ -269,7 +269,7 @@ const FeaturePopup = ({
   onReadMoreClick,
   onBaselineClick,
 }: Props) => {
-  const [showDetails, setShowDetails] = useState(degreesOfWarming === 0.5 ? true : false);
+  const [showDetails, setShowDetails] = useState(false);
   const [showLearnWhy, setShowLearnWhy] = useState(false);
 
   const container = document.body;
@@ -277,9 +277,9 @@ const FeaturePopup = ({
     latitude,
     longitude,
     selectedData,
-    data_baseline_absolute_low: baselineAbsoluteLow,
-    data_baseline_absolute_mid: baselineAbsoluteMid,
-    data_baseline_absolute_high: baselineAbsoluteHigh,
+    data_baseline_low: baselineLow,
+    data_baseline_mid: baselineMid,
+    data_baseline_high: baselineHigh,
   } = feature;
   const isFrequent = dataset?.dataset.unit === "x as frequent";
   const showBaselineDetails = !!dataset?.isDiff && !isFrequent;
@@ -425,11 +425,6 @@ const FeaturePopup = ({
     if (consts.datasetsWithMidValuesOnly.includes(dataset.dataset.id)) {
       return "Expected outcome" + unit;
     }
-
-    if (dataset?.name.toLowerCase().startsWith("change") && degreesOfWarming === 0.5) {
-      return "Past range before change" + unit;
-    }
-
     return "Expected range of outcomes" + unit;
   };
 
@@ -442,14 +437,6 @@ const FeaturePopup = ({
       ""
     );
   };
-
-  useEffect(() => {
-    if (degreesOfWarming === 0.5) {
-      setShowDetails(true);
-    } else {
-      setShowDetails(false);
-    }
-  }, [degreesOfWarming]);
 
   const renderNoDataDescription = () => {
     if (selectedData.mid === consts.ERROR_VALUE) {
@@ -547,12 +534,7 @@ const FeaturePopup = ({
                     <ArrowIcon expanded={showDetails} defaultDirection="bottom" />
                   </ToggleDetailsButton>
                   <DetailsContent expanded={showDetails}>
-                    {renderValues(
-                      false,
-                      baselineAbsoluteLow,
-                      baselineAbsoluteMid,
-                      baselineAbsoluteHigh,
-                    )}
+                    {renderValues(false, baselineLow, baselineMid, baselineHigh)}
                   </DetailsContent>
                 </DetailsContainer>
               )}
