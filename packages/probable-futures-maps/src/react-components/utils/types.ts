@@ -16,6 +16,8 @@ type MapProps = {
   hideResetMapButton?: boolean;
   mapboxAccessToken: string;
   usePfFonts?: boolean;
+  // mapbox://styles/{username}/{mapStyleId}
+  mapStyleUrl: string;
 };
 
 export type SimpleMapProps = MapProps & { scenario?: number };

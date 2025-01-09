@@ -167,6 +167,7 @@ This component displays a single map given a dataset id and a warming scenario.
 **Props:**
 
 - **datasetId** (Number): The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps/#all-maps)
+- **mapStyleUrl** (String): The base url of the map style you have in your account. The format should be `mapbox://styles/{username}/{mapStyleId}`
 - **dataset** (Map): Alternatively, you can provide the whole dataset object.
 - **tempUnit** (`°C` or `°F`): If the map unit is a temperature unit, eg. "Average Tempareture" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key
 - **precipitationUnit** (`mm` or `in`): If the map unit is a mm, eg. "Change in total annual percipication" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key
@@ -191,6 +192,7 @@ import { SimpleMap } from "@probable-futures/probable-futures-maps";
     viewState={{ zoom: 4, longitude: long, latitude: lat }}
     datasetId={40104}
     mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
+    mapStyleUrl="mapbox://styles/{username}/{mapStyleId}"
   />
 </div>;
 ```
@@ -227,6 +229,7 @@ import { CompareMap } from "@probable-futures/probable-futures-maps";
     datasetId={40104}
     compare={{ scenarioBefore: 1, scenarioAfter: 3 }}
     mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
+    mapStyleUrl="mapbox://styles/{username}/{mapStyleId}"
   />
 </div>;
 ```

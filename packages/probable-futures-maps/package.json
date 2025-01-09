@@ -1,6 +1,6 @@
 {
   "name": "@probable-futures/probable-futures-maps",
-  "version": "1.0.40",
+  "version": "1.0.41",
   "description": "This package empowers developers to seamlessly integrate dynamic and interactive climate maps into their web applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

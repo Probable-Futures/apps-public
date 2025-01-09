@@ -109,6 +109,7 @@ const SimpleMap = ({
   showPopupOnFirstLoad,
   mapboxAccessToken,
   usePfFonts = true,
+  mapStyleUrl,
 }: SimpleMapProps) => {
   const selectedDataset =
     dataset ??
@@ -122,6 +123,7 @@ const SimpleMap = ({
   if (!mapboxAccessToken) {
     throw Error("Missing mapbox access token.");
   }
+
   const [viewState, setViewState] = useState<Partial<ViewState>>(
     () => viewStateFromProps || defaultViewState,
   );
@@ -221,6 +223,9 @@ const SimpleMap = ({
 
   const mapStyleLink = useMemo(() => {
     if (selectedDataset) {
+      if (mapStyleUrl) {
+        return mapStyleUrl;
+      }
       const styleBaseURL = `mapbox://styles/probablefutures`;
       return `${styleBaseURL}/${selectedDataset.mapStyleId}`;
     }

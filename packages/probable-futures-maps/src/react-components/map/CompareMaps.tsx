@@ -133,6 +133,7 @@ export default function CompareMaps({
   showPopupOnFirstLoad,
   mapboxAccessToken,
   usePfFonts = true,
+  mapStyleUrl,
 }: CompareMapProps): JSX.Element {
   const selectedDataset =
     dataset ??
@@ -188,6 +189,14 @@ export default function CompareMaps({
     precipitationUnitStateRef.current = precipitationUnitState;
   }, [precipitationUnitState]);
 
+  const dataKeyBeforeRef = useRef(dataKeyBefore);
+  const dataKeyAfterRef = useRef(dataKeyAfter);
+
+  useEffect(() => {
+    dataKeyBeforeRef.current = dataKeyBefore;
+    dataKeyAfterRef.current = dataKeyAfter;
+  }, [dataKeyBefore, dataKeyAfter]);
+
   const getPopupFeature = ({
     features,
     lngLat,
@@ -212,6 +221,9 @@ export default function CompareMaps({
 
   const mapStyleLink = useMemo(() => {
     if (selectedDataset) {
+      if (mapStyleUrl) {
+        return mapStyleUrl;
+      }
       const styleBaseURL = `mapbox://styles/probablefutures`;
       return `${styleBaseURL}/${selectedDataset.mapStyleId}`;
     }
@@ -348,6 +360,86 @@ export default function CompareMaps({
   }, [addStylesheet]);
 
   useEffect(() => {
+    if (beforeMapRef.current) {
+      if (beforeMapRef.current.isStyleLoaded()) {
+        onStyleLoad(
+          beforeMapRef.current,
+          utils.getMapLayerColors(
+            selectedDataset?.binHexColors || [],
+            selectedDataset?.stops || [],
+            compare?.scenarioBefore || 1,
+          ),
+        );
+      }
+    }
+  }, [compare?.scenarioBefore, onStyleLoad]);
+
+  useEffect(() => {
+    if (afterMapRef.current) {
+      if (afterMapRef.current.isStyleLoaded()) {
+        onStyleLoad(
+          afterMapRef.current,
+          utils.getMapLayerColors(
+            selectedDataset?.binHexColors || [],
+            selectedDataset?.stops || [],
+            compare?.scenarioAfter || 1,
+          ),
+        );
+      }
+    }
+  }, [compare?.scenarioAfter, onStyleLoad]);
+
+  useEffect(() => {
+    const handleStyleLoadBefore = () => {
+      onStyleLoad(
+        beforeMapRef.current,
+        utils.getMapLayerColors(
+          selectedDataset?.binHexColors || [],
+          selectedDataset?.stops || [],
+          compare?.scenarioBefore || 1,
+        ),
+      );
+    };
+
+    const handleStyleLoadAfter = () => {
+      onStyleLoad(
+        afterMapRef.current,
+        utils.getMapLayerColors(
+          selectedDataset?.binHexColors || [],
+          selectedDataset?.stops || [],
+          compare?.scenarioAfter || 2,
+        ),
+      );
+    };
+
+    const beforeMapClickHandler = (e: mapboxgl.MapLayerMouseEvent) => {
+      setViewState((prev) => ({ ...prev, latitude: e.lngLat.lat, longitude: e.lngLat.lng }));
+      const afterMapFeatures = afterMapRef.current?.queryRenderedFeatures([e.point.x, e.point.y]);
+      setFeaturesBefore(e.features);
+      setFeaturesAfter(afterMapFeatures);
+      handleMapClick([e.lngLat.lng, e.lngLat.lat], dataKeyBefore, beforeMapRef.current, e.features);
+      handleMapClick(
+        [e.lngLat.lng, e.lngLat.lat],
+        dataKeyAfter,
+        afterMapRef.current,
+        afterMapFeatures,
+      );
+    };
+
+    const afterMapClickHandler = (e: mapboxgl.MapLayerMouseEvent) => {
+      setViewState((prev) => ({ ...prev, latitude: e.lngLat.lat, longitude: e.lngLat.lng }));
+      const beforeMapFeatures = afterMapRef.current?.queryRenderedFeatures([e.point.x, e.point.y]);
+      setFeaturesAfter(e.features);
+      setFeaturesBefore(beforeMapFeatures);
+      handleMapClick([e.lngLat.lng, e.lngLat.lat], dataKeyAfter, afterMapRef.current, e.features);
+      handleMapClick(
+        [e.lngLat.lng, e.lngLat.lat],
+        dataKeyBefore,
+        beforeMapRef.current,
+        beforeMapFeatures,
+      );
+    };
+
     const init = () => {
       beforeMapRef.current = new mapboxgl.Map({
         container: beforeContainer.current || "",
@@ -371,72 +463,21 @@ export default function CompareMaps({
         scrollZoom: false,
       });
 
-      beforeMapRef.current.on("style.load", function () {
-        onStyleLoad(
-          beforeMapRef.current,
-          utils.getMapLayerColors(
-            selectedDataset?.binHexColors || [],
-            selectedDataset?.stops || [],
-            compare?.scenarioBefore || 1,
-          ),
-        );
-      });
+      beforeMapRef.current.on("style.load", handleStyleLoadBefore);
 
       beforeMapRef.current.on("idle", function () {
         setBeforeMapIsIdle(true);
       });
 
-      afterMapRef.current.on("style.load", function () {
-        onStyleLoad(
-          afterMapRef.current,
-          utils.getMapLayerColors(
-            selectedDataset?.binHexColors || [],
-            selectedDataset?.stops || [],
-            compare?.scenarioAfter || 2,
-          ),
-        );
-      });
+      afterMapRef.current.on("style.load", handleStyleLoadAfter);
 
       afterMapRef.current.on("idle", function () {
         setAfterMapIsIdle(true);
       });
 
-      beforeMapRef.current.on("click", pfLayerIds, (e) => {
-        setViewState((prev) => ({ ...prev, latitude: e.lngLat.lat, longitude: e.lngLat.lng }));
-        const afterMapFeatures = afterMapRef.current?.queryRenderedFeatures([e.point.x, e.point.y]);
-        setFeaturesBefore(e.features);
-        setFeaturesAfter(afterMapFeatures);
+      beforeMapRef.current.on("click", pfLayerIds, beforeMapClickHandler);
 
-        handleMapClick(
-          [e.lngLat.lng, e.lngLat.lat],
-          dataKeyBefore,
-          beforeMapRef.current,
-          e.features,
-        );
-        handleMapClick(
-          [e.lngLat.lng, e.lngLat.lat],
-          dataKeyAfter,
-          afterMapRef.current,
-          afterMapFeatures,
-        );
-      });
-
-      afterMapRef.current.on("click", pfLayerIds, function (e) {
-        setViewState((prev) => ({ ...prev, latitude: e.lngLat.lat, longitude: e.lngLat.lng }));
-        const beforeMapFeatures = afterMapRef.current?.queryRenderedFeatures([
-          e.point.x,
-          e.point.y,
-        ]);
-        setFeaturesAfter(e.features);
-        setFeaturesBefore(beforeMapFeatures);
-        handleMapClick([e.lngLat.lng, e.lngLat.lat], dataKeyAfter, afterMapRef.current, e.features);
-        handleMapClick(
-          [e.lngLat.lng, e.lngLat.lat],
-          dataKeyBefore,
-          beforeMapRef.current,
-          beforeMapFeatures,
-        );
-      });
+      afterMapRef.current.on("click", pfLayerIds, afterMapClickHandler);
 
       new Compare(beforeMapRef.current, afterMapRef.current, mapContainer.current);
     };
@@ -444,6 +485,24 @@ export default function CompareMaps({
     if (!beforeMapRef.current || !afterMapRef.current) {
       init();
     }
+    if (beforeMapRef.current) {
+      beforeMapRef.current.on("style.load", handleStyleLoadBefore);
+      beforeMapRef.current?.on("click", pfLayerIds, beforeMapClickHandler);
+    }
+
+    if (afterMapRef.current) {
+      afterMapRef.current.on("style.load", handleStyleLoadAfter);
+      afterMapRef.current?.on("click", pfLayerIds, afterMapClickHandler);
+    }
+
+    return () => {
+      if (beforeMapRef.current) {
+        beforeMapRef.current.off("style.load", handleStyleLoadBefore);
+      }
+      if (afterMapRef.current) {
+        afterMapRef.current.off("style.load", handleStyleLoadAfter);
+      }
+    };
   }, [
     compare?.scenarioAfter,
     compare?.scenarioBefore,

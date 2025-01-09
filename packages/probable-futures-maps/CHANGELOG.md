@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+## 1.0.41 (breaking change if you are using any of SimpleMap or CompareMap components)
+
+> 07 Jan 2025
+
+- feat: Introduce mapStyleUrl as a prop to the SimpleMap and CompareMap components.
+
 ## 1.0.40
 
 > 05 Dec 2024
