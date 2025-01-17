@@ -117,21 +117,23 @@ const InteractiveMap = () => {
       setDegrees,
       precipitationUnit,
       setPrecipitationUnit,
+      setMidValueShown,
     },
     mapStyle: {
-      binHexColors,
-      bins,
       landColor,
       oceanColor,
       showBoundaries,
       showLabels,
       mapProjection,
+      dynamicStyleVariables,
+      setDynamicStyleVariables,
     },
   } = useMenu();
+
   const { popupVisible, setPopupVisible, feature, setPopupFeature } = useFeaturePopup(degrees);
   const mapGeneralStyles = useRef({
-    bins,
-    binHexColors,
+    bins: dynamicStyleVariables?.bins,
+    binHexColors: dynamicStyleVariables?.binHexColors,
     degrees,
     landColor,
     oceanColor,
@@ -171,29 +173,23 @@ const InteractiveMap = () => {
   }, []);
 
   useEffect(() => {
-    if (mapRef.current) {
-      const map = mapRef.current.getMap();
-      map.on("style.load", () => updateMapStyles(map));
-    }
-  }, [updateMapStyles]);
-
-  useEffect(() => {
     mapGeneralStyles.current = {
-      bins,
-      binHexColors,
+      bins: dynamicStyleVariables?.bins,
+      binHexColors: dynamicStyleVariables?.binHexColors,
       degrees,
       landColor,
       oceanColor,
       showBoundaries,
       showLabels,
     };
-    if (mapRef.current && binHexColors && bins) {
+
+    if (mapRef.current && dynamicStyleVariables?.binHexColors && dynamicStyleVariables?.bins) {
       const map = mapRef.current.getMap();
-      updateMapStyles(map);
+      if (map.isStyleLoaded()) {
+        updateMapStyles(map);
+      }
     }
   }, [
-    bins,
-    binHexColors,
     degrees,
     landColor,
     oceanColor,
@@ -201,6 +197,9 @@ const InteractiveMap = () => {
     showBoundaries,
     showLabels,
     updateMapStyles,
+    selectedDataset,
+    dynamicStyleVariables?.bins,
+    dynamicStyleVariables?.binHexColors,
   ]);
 
   useEffect(() => {
@@ -260,6 +259,17 @@ const InteractiveMap = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (selectedDataset) {
+      setDynamicStyleVariables({
+        binHexColors: selectedDataset.binHexColors,
+        bins: selectedDataset.stops,
+      });
+      setQueryParam({ mapSlug: selectedDataset.slug });
+      setMidValueShown(selectedDataset.methodUsedForMid);
+    }
+  }, [selectedDataset, setDynamicStyleVariables, setMidValueShown]);
+
   const onMapClick = useCallback(
     (e: MapLayerMouseEvent) => {
       // @ts-ignore
@@ -293,6 +303,7 @@ const InteractiveMap = () => {
       if (mapProjection.name === "globe") {
         drawGlobeLines();
       }
+      e.target.on("style.load", () => updateMapStyles(e.target));
     },
     [mapProjection, updateMapStyles, drawGlobeLines],
   );
@@ -352,8 +363,8 @@ const InteractiveMap = () => {
           <components.MapKey
             selectedDataset={selectedDataset}
             tempUnit={tempUnit}
-            stops={bins}
-            binHexColors={binHexColors}
+            stops={dynamicStyleVariables?.bins}
+            binHexColors={dynamicStyleVariables?.binHexColors}
             setTempUnit={setTempUnit}
             mapKeyText={{ ...translate("key"), ...{ datasets: translate("header.datasets") } }}
             datasetDescriptionResponse={datasetDescriptionResponse}
@@ -367,6 +378,10 @@ const InteractiveMap = () => {
           max={3}
           title={translate("slider.title")}
           onChangeCommitted={(e, value) => {
+            setDegrees(value);
+            setQueryParam({ warmingScenario: value as number });
+          }}
+          onChange={(e, value) => {
             setDegrees(value);
             setQueryParam({ warmingScenario: value as number });
           }}

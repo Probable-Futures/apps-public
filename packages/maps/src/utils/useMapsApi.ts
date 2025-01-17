@@ -81,7 +81,7 @@ export default function useMapsApi({
         let selectedMap: types.Map | undefined;
 
         if (mapQueryParam) {
-          /** 
+          /**
             MAP_QUERY_PARAM used to point to map_style_id,
             so check if users are still assiging map_style_id
             instead of the map slug
@@ -131,8 +131,6 @@ export default function useMapsApi({
 
         setDatasets(maps);
         setSelectedDataset(selectedDataset);
-        setColorScheme?.(selectedDataset.binHexColors);
-        setBins?.(selectedDataset.stops);
         setQueryParam({
           mapSlug: selectedDataset.slug,
           warmingScenario: warmingScenarioValue,
@@ -140,7 +138,6 @@ export default function useMapsApi({
           mapProjection,
         });
         setDegrees(warmingScenarioValue);
-        setMidValueShown?.(selectedDataset.methodUsedForMid);
       }
     }
   }, [

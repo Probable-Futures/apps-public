@@ -84,8 +84,8 @@ const BinContainer = styled.div`
   flex-direction: column;
   margin-right: 2px;
   min-width: 48px;
+  max-width: 140px;
   flex: 1;
-  max-width: 120px;
 
   @media (orientation: landscape) {
     min-width: 48px;
@@ -98,6 +98,7 @@ const BinContainer = styled.div`
   @media (min-width: ${size.laptop}) {
     margin-right: 3px;
     min-width: 80px;
+    flex: unset;
   }
 `;
 

@@ -106,7 +106,7 @@ const DegreeSlider = ({ degrees, title, onChange, onChangeCommitted, min, max }:
       <SliderContainer>
         <StyledInput
           type="range"
-          defaultValue={degrees}
+          value={degrees}
           min={min}
           step={0.5}
           max={max}

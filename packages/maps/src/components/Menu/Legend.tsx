@@ -59,27 +59,31 @@ const ListItem = styled(Container)`
 export default function Legend(): JSX.Element | null {
   const {
     data: { selectedDataset },
-    mapStyle: { binHexColors, setColorScheme, bins, setBins, binsType, setBinsType },
+    mapStyle: { dynamicStyleVariables, setDynamicStyleVariables, binsType, setBinsType },
   } = useMenu();
   const [startColor, setStartColor] = useState<Color>();
   const [endColor, setEndColor] = useState<Color>();
-  const [mapBins, setMapBins] = useState(bins);
+  const [mapBins, setMapBins] = useState(dynamicStyleVariables?.bins);
   const { translate } = useTranslation();
 
   // Update bins on dataset change
   useEffect(() => {
-    if (bins) {
-      setMapBins(bins);
+    if (dynamicStyleVariables?.bins) {
+      setMapBins(dynamicStyleVariables?.bins);
     }
-  }, [bins]);
+  }, [dynamicStyleVariables?.bins]);
 
   useEffect(() => {
-    if (binHexColors && startColor && endColor) {
+    if (dynamicStyleVariables?.binHexColors && startColor && endColor) {
       if (
-        startColor.hex !== binHexColors[0] ||
-        endColor.hex !== binHexColors[binHexColors.length - 1]
+        startColor.hex !== dynamicStyleVariables?.binHexColors[0] ||
+        endColor.hex !==
+          dynamicStyleVariables?.binHexColors[dynamicStyleVariables?.binHexColors.length - 1]
       ) {
-        setColorScheme(utils.interpolateColors(startColor, endColor));
+        setDynamicStyleVariables({
+          ...dynamicStyleVariables,
+          binHexColors: utils.interpolateColors(startColor, endColor),
+        });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -88,11 +92,14 @@ export default function Legend(): JSX.Element | null {
   const updateColorScheme = (currentScheme: string[], color: Color, index: number) => {
     const newColorScheme = [...currentScheme];
     newColorScheme[index] = color.hex;
-    setColorScheme(newColorScheme);
+    setDynamicStyleVariables({ ...dynamicStyleVariables, binHexColors: newColorScheme });
   };
 
   const resetColorScheme = () => {
-    setColorScheme(selectedDataset?.binHexColors);
+    setDynamicStyleVariables({
+      ...dynamicStyleVariables,
+      binHexColors: selectedDataset?.binHexColors,
+    });
   };
 
   const updateBins = (e: any) => {
@@ -112,7 +119,8 @@ export default function Legend(): JSX.Element | null {
         incrementFunction,
         selectedDataset.dataset.maxValue,
       );
-      setBins(newBins);
+      setDynamicStyleVariables({ ...dynamicStyleVariables, bins: newBins });
+
       setMapBins(newBins);
       setBinsType(e.currentTarget.value);
     }
@@ -135,11 +143,12 @@ export default function Legend(): JSX.Element | null {
     return newBins;
   };
 
-  if (!binHexColors || !bins) {
+  if (!dynamicStyleVariables?.binHexColors || !dynamicStyleVariables.bins) {
     return null;
   }
 
-  const onCommitChange = (bins: any) => setBins(bins);
+  const onCommitChange = (bins: any) =>
+    setDynamicStyleVariables({ ...dynamicStyleVariables, bins });
 
   return (
     <Container>
@@ -149,7 +158,7 @@ export default function Legend(): JSX.Element | null {
           <components.Binning
             mapBins={mapBins}
             bins={selectedDataset?.stops}
-            binHexColors={binHexColors}
+            binHexColors={dynamicStyleVariables.binHexColors}
             selectedDataset={selectedDataset}
             isPro={false}
             updateColorScheme={updateColorScheme}
@@ -190,14 +199,19 @@ export default function Legend(): JSX.Element | null {
         <EditColorsContent>
           <Container flexDirection="row">
             <ColorPicker>
-              <InputColor initialValue={binHexColors[0]} onChange={setStartColor} />
+              <InputColor
+                initialValue={dynamicStyleVariables.binHexColors[0]}
+                onChange={setStartColor}
+              />
             </ColorPicker>
             <Subtitle>{translate("menu.legend.colors.firstColor")}</Subtitle>
           </Container>
           <Container flexDirection="row">
             <ColorPicker>
               <InputColor
-                initialValue={binHexColors[binHexColors.length - 1]}
+                initialValue={
+                  dynamicStyleVariables.binHexColors[dynamicStyleVariables.binHexColors.length - 1]
+                }
                 onChange={setEndColor}
               />
             </ColorPicker>

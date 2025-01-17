@@ -7,7 +7,6 @@ import Dropdown from "../common/Dropdown";
 import CustomSwitch from "../common/CustomSwitch";
 import { useMenu } from "../../components/Menu";
 import { Title } from "./Menu.styled";
-import { setQueryParam } from "../../utils";
 import useMapsApi from "../../utils/useMapsApi";
 import { colors } from "../../consts";
 import { useTranslation } from "../../contexts/TranslationContext";
@@ -56,10 +55,18 @@ export default function Data(): JSX.Element {
       setDegrees,
       setWpDatasetDescriptionResponse,
     },
-    mapStyle: { setColorScheme, setBins },
+    mapStyle: { dynamicStyleVariables, setDynamicStyleVariables },
   } = useMenu();
 
   const { translate, locale } = useTranslation();
+
+  const setColorScheme = (binHexColors: any) => {
+    setDynamicStyleVariables({ ...dynamicStyleVariables, binHexColors });
+  };
+  const setBins = (bins: any) => {
+    setDynamicStyleVariables({ ...dynamicStyleVariables, bins });
+  };
+
   useMapsApi({
     datasets,
     fetchAllMaps: true,
@@ -131,10 +138,6 @@ export default function Data(): JSX.Element {
     }
     if (finalDataset) {
       setSelectedDataset(finalDataset);
-      setColorScheme(finalDataset.binHexColors);
-      setBins(finalDataset.stops);
-      setQueryParam({ mapSlug: finalDataset.slug });
-      setMidValueShown(finalDataset.methodUsedForMid);
     }
   };
 

@@ -43,11 +43,12 @@ interface SidebarState {
   isVisible: boolean;
   setIsVisible(isVisible: boolean): void;
 }
-interface MapStyleState {
+
+interface DynamicStyleVariables {
   binHexColors?: string[];
-  setColorScheme(binHexColors: any): void;
   bins?: number[];
-  setBins(bins: any): void;
+}
+interface MapStyleState {
   binsType: string;
   setBinsType(binType: string): void;
   landColor: string;
@@ -60,6 +61,8 @@ interface MapStyleState {
   setShowLabels(show: boolean): void;
   mapProjection: Projection;
   setMapProjection(projection: Projection): void;
+  dynamicStyleVariables?: DynamicStyleVariables;
+  setDynamicStyleVariables(dynamicStyleVariables: DynamicStyleVariables): void;
 }
 
 interface DataState {
@@ -145,7 +148,7 @@ export function MenuProvider(props: PropsWithChildren<{}>): JSX.Element {
           >
             <MapStyle />
           </DrawerItem>
-          {mapStyle.binHexColors && mapStyle.bins && (
+          {mapStyle.dynamicStyleVariables?.binHexColors && mapStyle.dynamicStyleVariables.bins && (
             <DrawerItem
               open={sidebar.isVisible}
               title={translate("menu.legend.title")}
@@ -183,10 +186,6 @@ function getInitialState(): MenuState {
       setIsVisible: () => {},
     },
     mapStyle: {
-      binHexColors: undefined,
-      setColorScheme: () => {},
-      bins: undefined,
-      setBins: () => {},
       binsType: "",
       setBinsType: () => {},
       landColor: indexForMap.landColor,
@@ -199,6 +198,8 @@ function getInitialState(): MenuState {
       setShowLabels: () => {},
       mapProjection: { name: "mercator" },
       setMapProjection: () => {},
+      dynamicStyleVariables: undefined,
+      setDynamicStyleVariables: () => {},
     },
     data: {
       datasets: [],
@@ -233,8 +234,7 @@ function useSidebar(): SidebarState {
 }
 
 function useMapStyle(): MapStyleState {
-  const [binHexColors, setColorScheme] = useState();
-  const [bins, setBins] = useState();
+  const [dynamicStyleVariables, setDynamicStyleVariables] = useState<DynamicStyleVariables>();
   const [binsType, setBinsType] = useState("");
   const [landColor, setLandColor] = useState(indexForMap.landColor);
   const [oceanColor, setOceanColor] = useState(indexForMap.oceanColor);
@@ -244,10 +244,8 @@ function useMapStyle(): MapStyleState {
 
   return useMemo(
     () => ({
-      binHexColors,
-      setColorScheme,
-      bins,
-      setBins,
+      dynamicStyleVariables,
+      setDynamicStyleVariables,
       binsType,
       setBinsType,
       landColor,
@@ -262,8 +260,7 @@ function useMapStyle(): MapStyleState {
       setMapProjection,
     }),
     [
-      binHexColors,
-      bins,
+      dynamicStyleVariables,
       binsType,
       landColor,
       oceanColor,
