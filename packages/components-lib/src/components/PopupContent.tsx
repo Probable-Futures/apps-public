@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import camelcase from "lodash.camelcase";
 
@@ -20,6 +20,7 @@ type Props = {
   datasetDescriptionResponse?: DatasetDescriptionResponse;
   mapPopoverText?: any;
   keyText?: any;
+  isExperiment?: boolean;
   onReadMoreClick?: () => void;
   onBaselineClick?: () => void;
   precipitationUnit?: types.PrecipitationUnit;
@@ -213,6 +214,7 @@ const PopupContent = ({
   onBaselineClick,
   precipitationUnit,
   mapPopoverText,
+  isExperiment,
   keyText,
 }: Props): JSX.Element => {
   const [showDetails, setShowDetails] = useState(degreesOfWarming === 0.5 ? true : false);
@@ -223,6 +225,9 @@ const PopupContent = ({
     data_baseline_low: baselineLow,
     data_baseline_mid: baselineMid,
     data_baseline_high: baselineHigh,
+    data_baseline_absolute_low: baselineAbsoluteLow,
+    data_baseline_absolute_mid: baselineAbsoluteMid,
+    data_baseline_absolute_high: baselineAbsoluteHigh,
   } = feature;
   const isTemp = dataset?.dataset.pfDatasetUnitByUnit.unitLong.toLowerCase().includes("temp");
   const showInF = isTemp && tempUnit === "°F";
@@ -461,6 +466,16 @@ const PopupContent = ({
     }
   };
 
+  useEffect(() => {
+    if (isExperiment) {
+      if (degreesOfWarming === 0.5) {
+        setShowDetails(true);
+      } else {
+        setShowDetails(false);
+      }
+    }
+  }, [degreesOfWarming, isExperiment]);
+
   return (
     <div>
       {dataset && (
@@ -479,15 +494,25 @@ const PopupContent = ({
         </>
       ) : (
         <>
-          {renderValues(showBaselineDetails, selectedData.low, selectedData.mid, selectedData.high)}
-          {showBaselineDetails && (
+          {renderValues(
+            showBaselineDetails && (isExperiment ? dataset.mapVersion !== 5 : true),
+            selectedData.low,
+            selectedData.mid,
+            selectedData.high,
+          )}
+          {showBaselineDetails && (isExperiment ? dataset.mapVersion !== 5 : true) && (
             <DetailsContainer>
               <ToggleDetailsButton onClick={() => setShowDetails(!showDetails)}>
                 {baselineTitle()}
                 <ArrowIcon expanded={showDetails} defaultDirection="bottom" />
               </ToggleDetailsButton>
               <DetailsContent expanded={showDetails}>
-                {renderValues(false, baselineLow, baselineMid, baselineHigh)}
+                {renderValues(
+                  false,
+                  isExperiment && dataset.mapVersion === 4 ? baselineAbsoluteLow : baselineLow,
+                  isExperiment && dataset.mapVersion === 4 ? baselineAbsoluteMid : baselineMid,
+                  isExperiment && dataset.mapVersion === 4 ? baselineAbsoluteHigh : baselineHigh,
+                )}
               </DetailsContent>
             </DetailsContainer>
           )}

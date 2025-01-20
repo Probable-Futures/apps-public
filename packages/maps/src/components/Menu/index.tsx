@@ -48,6 +48,9 @@ interface DynamicStyleVariables {
   binHexColors?: string[];
   bins?: number[];
 }
+
+export type ChangeMapDisplayOptionType = "original" | "withBaseline" | "allAbsolute";
+
 interface MapStyleState {
   binsType: string;
   setBinsType(binType: string): void;
@@ -72,6 +75,7 @@ interface DataState {
   filterByStatus: string;
   filterByCategory: string;
   showInspector: boolean;
+  changeMapDisplayOption: ChangeMapDisplayOptionType;
   tempUnit: types.TempUnit;
   midValueShown: string;
   datasetDescriptionResponse?: types.DatasetDescriptionResponse;
@@ -82,6 +86,7 @@ interface DataState {
   setFilterByStatus(filter: any): void;
   setFilterByCategory(filter: any): void;
   setShowInspector(show: boolean): void;
+  setChangeMapDisplayOption(option: ChangeMapDisplayOptionType): void;
   setTempUnit(arg: any): void;
   setMidValueShown(arg: any): void;
   setWpDatasetDescriptionResponse(
@@ -208,6 +213,7 @@ function getInitialState(): MenuState {
       filterByStatus: "published",
       filterByCategory: "all",
       showInspector: false,
+      changeMapDisplayOption: "original",
       midValueShown: "",
       tempUnit: "°C",
       datasetDescriptionResponse: undefined,
@@ -218,6 +224,7 @@ function getInitialState(): MenuState {
       setFilterByStatus: () => {},
       setFilterByCategory: () => {},
       setShowInspector: () => {},
+      setChangeMapDisplayOption: () => {},
       setTempUnit: () => {},
       setMidValueShown: () => {},
       setWpDatasetDescriptionResponse: () => {},
@@ -282,6 +289,8 @@ function useData(): DataState {
   const [filterByStatus, setFilterByStatus] = useState("published");
   const [filterByCategory, setFilterByCategory] = useState("all");
   const [showInspector, setShowInspector] = useState(false);
+  const [changeMapDisplayOption, setChangeMapDisplayOption] =
+    useState<ChangeMapDisplayOptionType>("original");
   const [tempUnit, setTempUnit] = useState("°C" as types.TempUnit);
   const [midValueShown, setMidValueShown] = useState("");
   const [datasetDescriptionResponse, setWpDatasetDescriptionResponse] =
@@ -310,6 +319,8 @@ function useData(): DataState {
       setWpDatasetDescriptionResponse,
       precipitationUnit,
       setPrecipitationUnit,
+      changeMapDisplayOption,
+      setChangeMapDisplayOption,
     }),
     [
       datasets,
@@ -322,6 +333,7 @@ function useData(): DataState {
       midValueShown,
       datasetDescriptionResponse,
       precipitationUnit,
+      changeMapDisplayOption,
     ],
   );
 }

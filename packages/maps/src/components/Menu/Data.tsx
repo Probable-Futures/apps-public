@@ -5,7 +5,7 @@ import camelcase from "lodash.camelcase";
 
 import Dropdown from "../common/Dropdown";
 import CustomSwitch from "../common/CustomSwitch";
-import { useMenu } from "../../components/Menu";
+import { ChangeMapDisplayOptionType, useMenu } from "../../components/Menu";
 import { Title } from "./Menu.styled";
 import useMapsApi from "../../utils/useMapsApi";
 import { colors } from "../../consts";
@@ -45,11 +45,13 @@ export default function Data(): JSX.Element {
       filterByStatus,
       filterByCategory,
       showInspector,
+      changeMapDisplayOption,
       midValueShown,
       setSelectedDataset,
       setFilterByStatus,
       setFilterByCategory,
       setShowInspector,
+      setChangeMapDisplayOption,
       setMidValueShown,
       setDatasets,
       setDegrees,
@@ -103,6 +105,13 @@ export default function Data(): JSX.Element {
     { label: translate("menu.data.filterOptions.archive"), value: "archive" },
   ];
 
+  const optionsForChangeMaps = [
+    { label: "Original", value: "original" },
+    { label: "With Baseline", value: "withBaseline" },
+    { label: "All absolute", value: "allAbsolute" },
+  ];
+  const defaultValueForChangeMapsOptions = optionsForChangeMaps[0];
+
   const midValueOptions = useMemo(() => {
     const allDatasets = datasets.filter(
       (data) =>
@@ -139,6 +148,7 @@ export default function Data(): JSX.Element {
     if (finalDataset) {
       setSelectedDataset(finalDataset);
     }
+    setChangeMapDisplayOption("original");
   };
 
   const onFilterChange = (option: { label: String; value: String }) => {
@@ -161,6 +171,30 @@ export default function Data(): JSX.Element {
         onDatasetChange(undefined, dataset);
       }
     }
+  };
+
+  const onChangeAbsoluteClicked = (option: { label: string; value: string }) => {
+    if (!selectedDataset) {
+      return;
+    }
+    let newDataset: types.Map | undefined;
+    if (option.value === "allAbsolute") {
+      newDataset = datasets.find(
+        (dataset) => dataset.mapVersion === 5 && dataset.dataset.id === selectedDataset.dataset.id,
+      );
+    } else if (option.value === "withBaseline") {
+      newDataset = datasets.find(
+        (dataset) => dataset.mapVersion === 4 && dataset.dataset.id === selectedDataset.dataset.id,
+      );
+    } else {
+      newDataset = datasets.find(
+        (dataset) => dataset.mapVersion === 3 && dataset.dataset.id === selectedDataset.dataset.id,
+      );
+    }
+    if (newDataset) {
+      setSelectedDataset(newDataset);
+    }
+    setChangeMapDisplayOption(option.value as ChangeMapDisplayOptionType);
   };
 
   return (
@@ -210,6 +244,19 @@ export default function Data(): JSX.Element {
           />
         </Option>
       </Section>
+      {(selectedDataset?.name.toLowerCase().startsWith("change") || selectedDataset?.isDiff) && (
+        <Section showBorder={false}>
+          <Title>Change map display option </Title>
+          <Dropdown
+            value={
+              optionsForChangeMaps.find((option) => option.value === changeMapDisplayOption) ||
+              defaultValueForChangeMapsOptions
+            }
+            options={optionsForChangeMaps}
+            onChange={onChangeAbsoluteClicked}
+          />
+        </Section>
+      )}
       <Section>
         <Title>{translate("menu.data.midValueShown")}</Title>
         <Dropdown

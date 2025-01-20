@@ -80,6 +80,7 @@ const useDegreesSelector = () => {
         setDegrees(value);
         setQueryParam({ warmingScenario: value });
       }
+
       trackEvent("Warming tab clicked", eventProps);
     }
   };

@@ -353,6 +353,7 @@ const InteractiveMap = () => {
                 tempUnit={tempUnit}
                 datasetDescriptionResponse={datasetDescriptionResponse}
                 precipitationUnit={precipitationUnit}
+                isExperiment
               />
             </Popup>
           )}

@@ -67,7 +67,7 @@ export default function Dropdown({
       display: "flex",
       outlineColor: colors.purple,
       border: `1px solid ${colors.black}`,
-      borderWidth: isOpen ? "1px 1px 0 1px" : "1px",
+      borderBottomColor: !isOpen ? colors.black : "transparent",
       backgroundColor: colors.white,
       padding: "0",
       fontSize: "14px",
