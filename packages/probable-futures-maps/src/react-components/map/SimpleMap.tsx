@@ -5,8 +5,17 @@ import { MapboxEvent, Map as MapBoxMap } from "mapbox-gl";
 
 import Popup from "./Popup";
 import useFeaturePopup from "../utils/useFeaturePopup";
-import { size, colors, MIN_ZOOM, MAX_ZOOM, consts, types, utils } from "@probable-futures/lib";
-import { climateZonesDescriptions, datasets } from "../../consts";
+import {
+  size,
+  colors,
+  MIN_ZOOM,
+  MAX_ZOOM,
+  consts,
+  types,
+  utils,
+  datasets,
+  climateZonesDescriptions,
+} from "@probable-futures/lib";
 import Header from "./Header";
 import { components } from "@probable-futures/components-lib";
 import ResetMap from "./ResetButton";

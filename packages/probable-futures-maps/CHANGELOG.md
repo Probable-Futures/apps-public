@@ -24,4 +24,4 @@ All notable changes to this project will be documented in this file. Dates are d
 
 > 11 Sept 2023
 
-- feat: implement all funcitonalities for generating embeddable maps
+- feat: implement all functionalities for generating embeddable maps

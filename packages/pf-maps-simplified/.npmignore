@@ -1,0 +1,5 @@
+src/
+templates/
+
+*.test.ts
+*.test.js

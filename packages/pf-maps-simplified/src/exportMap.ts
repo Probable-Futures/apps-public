@@ -1,5 +1,4 @@
 import { consts, types, utils, DatasetDescriptionResponse } from "@probable-futures/lib";
-import { climateZonesDescriptions, datasets } from "@probable-futures/lib";
 
 export type ExportProps = {
   datasetId?: number;
@@ -32,7 +31,7 @@ export const exportMapAsHTML = async ({
   viewState,
   compare,
   scenario = 1,
-  datasetDescriptionResponse = climateZonesDescriptions,
+  datasetDescriptionResponse = consts.climateZonesDescriptions,
   precipitationUnit = "mm",
   showBorders,
   showPopupOnFirstLoad,
@@ -44,7 +43,7 @@ export const exportMapAsHTML = async ({
 }: ExportProps) => {
   const selectedDataset =
     dataset ??
-    (datasets.find((dataset) => dataset.dataset.id === datasetId && dataset.isLatest) as
+    (consts.datasets.find((dataset) => dataset.dataset.id === datasetId && dataset.isLatest) as
       | types.Map
       | undefined);
   if (!selectedDataset) {

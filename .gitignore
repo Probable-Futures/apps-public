@@ -15,6 +15,7 @@ packages/pulumi/bin/
 packages/api/dist/
 packages/worker/dist/
 packages/probable-futures-maps/dist/
+packages/pf-maps-simplified/dist/
 packages/lib/dist/
 packages/components-lib/dist/
 

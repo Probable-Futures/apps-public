@@ -8,6 +8,7 @@ build/
 data/
 packages/pro/types
 packages/probable-futures-maps/templates/*
+packages/pf-maps-simplified/templates/*
 storybook-static/
 
 *.hbs.yaml

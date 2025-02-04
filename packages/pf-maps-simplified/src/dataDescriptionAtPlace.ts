@@ -1,5 +1,5 @@
 import { getMapObject } from ".";
-import { daysAboveMaps } from "@probable-futures/lib";
+import { consts } from "@probable-futures/lib/";
 
 const parseToInt = (value: number | string) =>
   typeof value === "string" ? parseInt(value) : parseInt(value.toString());
@@ -40,7 +40,7 @@ const daysAboveFunc = ({ place, valueLow, valueMid, valueHigh, degree, datasetId
 };
 
 export const dataDescriptionAtPlaceMappingByDatasetId = (function () {
-  const result = daysAboveMaps.reduce<Record<number, DataDescriptionAtPlaceFuncType>>(
+  const result = consts.daysAboveMaps.reduce<Record<number, DataDescriptionAtPlaceFuncType>>(
     (prev, cur) => {
       prev[cur] = daysAboveFunc;
       return prev;

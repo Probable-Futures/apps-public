@@ -18,7 +18,7 @@ import { ViewState } from "react-map-gl";
 
 import { components } from "@probable-futures/components-lib";
 import { CompareMapProps } from "../utils/types";
-import { climateZonesDescriptions, datasets } from "../../consts";
+import { climateZonesDescriptions, datasets } from "@probable-futures/lib";
 import Header from "./Header";
 import { MapKeyContainer, PopupContainerCss } from "../../consts/styles";
 import ResetMap from "./ResetButton";

@@ -4,6 +4,9 @@ export * from "./mapConsts";
 export * from "./styles";
 export * from "./export-simple-map-html";
 export * from "./export-compare-map-html";
+export * from "./climateZones";
+export * from "./datasets";
+export * from "./dataDescriptionAtPlace";
 
 export const colors = {
   cream: "#f0f1e8",
