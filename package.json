@@ -58,7 +58,7 @@
       "@probable-futures/infra/**",
       "kinsta-logs-lambda/**",
       "slack-notifier/**",
-      "@probable-futures/pf-maps-simplified/**"
+      "@probable-futures/probable-futures-maps-html-generator/**"
     ]
   },
   "dependencies": {},
