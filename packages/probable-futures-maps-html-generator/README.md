@@ -22,7 +22,7 @@ Easily embed any Probable Futures map in a website without touching a single lin
 
 **Params:**
 
-- `datasetId` (Number): The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps/#all-maps)
+- `datasetId` (Number): The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps-inventory/#maps-inventory)
 - `tempUnit` (`°C` or `°F`): If the map unit is a temperature unit, eg. "Average Tempareture" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key
 - `scenario` (Number): The warming scenario
 - `viewState` (Object): This is an object which defines the initial view port of the map. The object includes `longitude`, `latitude`, and `zoom`
@@ -153,7 +153,7 @@ Get the full object of a spcific Map. eg. `getMapObject(40104)`
 
 ### `getDatasetIds`
 
-Get all the available dataset Ids. Find each map and its associated datasetId [here](https://docs.probablefutures.org/maps/)
+Get all the available dataset Ids. Find each map and its associated datasetId [here](https://docs.probablefutures.org/maps-inventory/#maps-inventory)
 
 ### `getDataDescriptionAtPlaceGenerator`
 

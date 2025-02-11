@@ -18,7 +18,7 @@ Easily embed any Probable Futures map in a website without touching a single lin
 
 **Params:**
 
-- `datasetId` (Number): The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps/#all-maps)
+- `datasetId` (Number): The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps-inventory/#maps-inventory)
 - `tempUnit` (`°C` or `°F`): If the map unit is a temperature unit, eg. "Average Tempareture" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key
 - `scenario` (Number): The warming scenario
 - `viewState` (Object): This is an object which defines the initial view port of the map. The object includes `longitude`, `latitude`, and `zoom`
@@ -90,7 +90,7 @@ Get the full object of a spcific Map. eg. `getMapObject(40104)`
 
 ### `getDatasetIds`
 
-Get all the available dataset Ids. Find each map and its associated datasetId [here](https://docs.probablefutures.org/maps/)
+Get all the available dataset Ids. Find each map and its associated datasetId [here](https://docs.probablefutures.org/maps-inventory/#maps-inventory)
 
 ### `getDataDescriptionAtPlaceGenerator`
 
@@ -135,7 +135,7 @@ Rather than calling the API and creating your own charts, we've provided a Chart
 
 - **width** (number, required)
 - **height** (number, required)
-- **datasetStats** (StatisticsData[], required): the stats that you receive after calling the PF API to get the climate data of a specific location ([learn more about calling the api](https://docs.probablefutures.org/calling-the-api/)).
+- **datasetStats** (StatisticsData[], required): the stats that you receive after calling the PF API to get the climate data of a specific location ([learn more about calling the api](https://docs.probablefutures.org/data-api-calls/)).
   Note that you can import that StatisticsData from `@probable-futures/lib`
 - **datasetId** (number, required)
 - **warmingScenario** (number, required) - supported values: `0.5 | 1 | 1.5 | 2 | 2.5 | 3`
@@ -166,7 +166,7 @@ This component displays a single map given a dataset id and a warming scenario.
 
 **Props:**
 
-- **datasetId** (Number): The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps/#all-maps)
+- **datasetId** (Number): The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps-inventory/#maps-inventory)
 - **mapStyleUrl** (String): The base url of the map style you have in your account. The format should be `mapbox://styles/{username}/{mapStyleId}`
 - **dataset** (Map): Alternatively, you can provide the whole dataset object.
 - **tempUnit** (`°C` or `°F`): If the map unit is a temperature unit, eg. "Average Tempareture" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key
@@ -203,7 +203,7 @@ This component provides maps comparison between two different warming scenarios
 
 **Props:**
 
-- **datasetId** (Number): The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps/#all-maps)
+- **datasetId** (Number): The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps-inventory/#maps-inventory)
 - **dataset** (Map): Alternatively, you can provide the whole dataset object.
 - **tempUnit** (`°C` or `°F`): If the map unit is a temperature unit, eg. "Average Tempareture" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key
 - **precipitationUnit** (`mm` or `in`): If the map unit is a mm, eg. "Change in total annual percipication" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key

@@ -71,11 +71,11 @@ const Datasets = () => {
           . Here, the datasets are available to download in various formats. To understand the data
           contained in these datasets, please read{" "}
           <a
-            href="https://docs.probablefutures.org/about-the-data/"
+            href="https://docs.probablefutures.org/background-data-and-maps/"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Documentation: About the data
+            Documentation: The data and maps
           </a>
           .
         </Description>

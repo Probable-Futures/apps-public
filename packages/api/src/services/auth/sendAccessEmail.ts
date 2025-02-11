@@ -5,7 +5,7 @@ const emailStartOfTheList = `Here are the resources:
   <ol>`;
 
 const customizableMapsPart = `<li>
-  Customizable climate maps. If you would like to create custom climate maps, you have a few options. Learn more in the <a href="https://docs.probablefutures.org/use-the-maps/">Use the maps</a> section of our docs.
+  Customizable climate maps. If you would like to create custom climate maps, you have a few options. Learn more in the <a href="https://docs.probablefutures.org/maps/">Maps</a> section of our docs.
 </li>`;
 
 const emailSignature = `
@@ -90,7 +90,7 @@ export const composeEmail = ({
   if (authClient) {
     resourcesList += `
         <li>
-          API. Your client ID and client secret to access the API are below. Instructions for API access are on the <a href="https://docs.probablefutures.org/api-access/">API access</a> and <a href="https://docs.probablefutures.org/calling-the-api/">calling the API</a> pages in the docs.
+          API. Your client ID and client secret to access the API are below. Instructions for API access are on the <a href="https://docs.probablefutures.org/data-api-access/">API access</a> and <a href="https://docs.probablefutures.org/data-api-calls/">calling the API</a> pages in the docs.
           <br />
           <br />
           <b>Client ID:</b> ${authClient.client_id}

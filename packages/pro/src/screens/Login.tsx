@@ -34,11 +34,21 @@ const Button = styled.button`
   cursor: pointer;
   border: none;
   background-color: ${colors.secondaryBlack};
-  margin-top: 60px;
+  margin-top: 20px;
 
   :hover {
-    color: ${colors.primaryWhite};
     background-color: ${colors.skyBlue};
+  }
+`;
+
+const SignupLink = styled.a`
+  margin-top: 20px;
+  font-size: 14px;
+  color: ${colors.secondaryBlack};
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
   }
 `;
 
@@ -89,12 +99,12 @@ const StyledLogo = styled.div`
   width: 160px;
   background-image: url(${LogoIcon});
   background-repeat: no-repeat;
-  background-repeat: no-repeat;
   background-size: 100% 100%;
   background-position: center;
+  margin-bottom: 20px;
 `;
 
-export default function Login(): JSX.Element {
+export default function Login() {
   const { isAuthenticated, loginWithRedirect, error } = useAuth0();
   const { search } = useLocation();
 
@@ -111,6 +121,13 @@ export default function Login(): JSX.Element {
         >
           Sign In
         </Button>
+        <SignupLink
+          href="https://probablefutures.org/pro"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Don't have an account? Sign up here.
+        </SignupLink>
         {search.includes("error=") && (
           <ErrorBox>
             <Error />
