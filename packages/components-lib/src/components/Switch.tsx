@@ -95,21 +95,21 @@ const Option = styled.span`
     isChecked ? colors.white : colors.darkPurple};
 `;
 
-const Switch = ({ isChecked, left, right, onChange }: Props) => (
-  <Container>
-    <Input checked={isChecked} onChange={onChange} id="toggle" type="checkbox" />
-    <Label htmlFor="toggle">
-      <Toggle>
-        <Option isChecked={!isChecked} id="toggle-option1">
-          {left}
-        </Option>
-        <Option isChecked={isChecked} id="toggle-option2">
-          {right}
-        </Option>
-        <span className="toggle-span" />
-      </Toggle>
-    </Label>
-  </Container>
-);
+const Switch = ({ isChecked, left, right, onChange }: Props) => {
+  const toggleId = `togle_${Math.floor(Math.random() * 10000)}`;
+
+  return (
+    <Container>
+      <Input checked={isChecked} onChange={onChange} id={toggleId} type="checkbox" />
+      <Label htmlFor={toggleId}>
+        <Toggle>
+          <Option isChecked={!isChecked}>{left}</Option>
+          <Option isChecked={isChecked}>{right}</Option>
+          <span className="toggle-span" />
+        </Toggle>
+      </Label>
+    </Container>
+  );
+};
 
 export default Switch;

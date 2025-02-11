@@ -1,6 +1,6 @@
 {
   "name": "@probable-futures/probable-futures-maps",
-  "version": "1.0.41",
+  "version": "1.0.44",
   "description": "This package empowers developers to seamlessly integrate dynamic and interactive climate maps into their web applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,7 +8,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "yarn workspace @probable-futures/lib build && yarn workspace @probable-futures/components-lib build && tsc -b",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "dev": "yarn run build && node dist/index.js",
     "clean": "rm -rf dist",
@@ -38,8 +38,8 @@
     "@types/react-dom": "^18.0.6"
   },
   "dependencies": {
-    "@probable-futures/components-lib": "^1.0.6",
-    "@probable-futures/lib": "^1.0.25",
+    "@probable-futures/components-lib": "^1.0.7",
+    "@probable-futures/lib": "^1.0.26",
     "recharts": "^2.12.6",
     "styled-components": "^5.3.1",
     "mapbox-gl-compare": "^0.4.0",

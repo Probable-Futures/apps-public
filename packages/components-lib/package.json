@@ -1,6 +1,6 @@
 {
   "name": "@probable-futures/components-lib",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "private": false,
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@mapbox/mapbox-sdk": "^0.15.0",
-    "@probable-futures/lib": "^1.0.25",
+    "@probable-futures/lib": "^1.0.26",
     "html-react-parser": "^1.2.6",
     "lodash.camelcase": "^4.3.0",
     "lodash.debounce": "^4.0.8",

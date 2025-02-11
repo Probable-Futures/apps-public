@@ -114,6 +114,7 @@ const AvgValue = styled.span`
   display: block;
   ${textStyles};
   font-size: ${({ fontSize }: { fontSize?: number }) => fontSize}px;
+  line-height: 1.2;
 `;
 
 const MeanFrequencyText = styled.span`
