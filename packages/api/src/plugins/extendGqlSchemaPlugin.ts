@@ -1,7 +1,8 @@
 import { makeExtendSchemaPlugin, gql } from "graphile-utils";
 
 import { datasetSignedUrls, projectSharedData } from "../services/graphql/project";
-import acceptInvitation from "../services/auth/acceptInvitation";
+import approveOpenDataAccess from "../services/auth/approveOpenDataAccess";
+import sendCustomOnboardingEmail from "../services/auth/sendCustomOnboardingEmail";
 
 export const ExtendGqlSchemaPlugin = makeExtendSchemaPlugin((build) => {
   return {
@@ -27,19 +28,30 @@ export const ExtendGqlSchemaPlugin = makeExtendSchemaPlugin((build) => {
         files: [File]
         pfDatasetId: Int
       }
-      type AcceptInvitationResponse {
+      input ApproveOpenDataAccessInput {
+        formName: String
+        email: String
+        formFields: JSON
+      }
+      type ApproveOpenDataAccessResponse {
         userId: String
         clientId: String
         error: String
+        userAlreadyExists: Boolean
       }
-      input AcceptInvitationInput {
+      input SendCustomOnboardingEmailInput {
+        emailBody: String!
         requestId: UUID!
-        note: String
-        closing: String
+      }
+      type SendCustomOnboardingEmailResponse {
+        success: Boolean
       }
       extend type Mutation {
         datasetSignedUrls(input: FileInput!): [String]!
-        acceptInvitation(input: AcceptInvitationInput!): AcceptInvitationResponse
+        approveOpenDataAccess(input: ApproveOpenDataAccessInput!): ApproveOpenDataAccessResponse
+        sendCustomOnboardingEmail(
+          input: SendCustomOnboardingEmailInput!
+        ): SendCustomOnboardingEmailResponse
       }
       extend type Query {
         projectSharedData(slugId: UUID!): ShareData!
@@ -48,7 +60,8 @@ export const ExtendGqlSchemaPlugin = makeExtendSchemaPlugin((build) => {
     resolvers: {
       Mutation: {
         datasetSignedUrls,
-        acceptInvitation,
+        approveOpenDataAccess,
+        sendCustomOnboardingEmail,
       },
       Query: {
         projectSharedData,

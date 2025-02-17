@@ -3,11 +3,12 @@
 --
 
 -- Dumped from database version 13.1
--- Dumped by pg_dump version 16.2
+-- Dumped by pg_dump version 17.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -1116,22 +1117,28 @@ $$;
 
 
 --
--- Name: pf_update_user_access_request(uuid, boolean, text, text, boolean, text); Type: FUNCTION; Schema: pf_public; Owner: -
+-- Name: pf_update_user_access_request(uuid, boolean, text, text, boolean, text, text, boolean); Type: FUNCTION; Schema: pf_public; Owner: -
 --
 
-CREATE FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text) RETURNS boolean
-    LANGUAGE plpgsql STRICT SECURITY DEFINER
+CREATE FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean DEFAULT NULL::boolean, note text DEFAULT NULL::text, closing text DEFAULT NULL::text, rejected boolean DEFAULT NULL::boolean, final_email text DEFAULT NULL::text, custom_email text DEFAULT NULL::text, custom_email_discarded boolean DEFAULT NULL::boolean) RETURNS boolean
+    LANGUAGE plpgsql SECURITY DEFINER
     AS $$
 begin
-  if not exists (select 1 from pf_private.pf_user_access_requests where pf_private.pf_user_access_requests.id = pf_update_user_access_request.id) then
-    raise exception 'user % not found', pf_update_user_access_request.id;
+  if not exists (select 1 from pf_private.pf_user_access_requests where pf_user_access_requests.id = pf_update_user_access_request.id) then
+    raise exception 'User % not found', pf_update_user_access_request.id;
   end if;
-  update pf_private.pf_user_access_requests 
-    set access_granted = pf_update_user_access_request.access_granted, note = pf_update_user_access_request.note,
-        closing = pf_update_user_access_request.closing,
-        rejected = pf_update_user_access_request.rejected,
-        final_email = pf_update_user_access_request.final_email
-        where pf_private.pf_user_access_requests.id = pf_update_user_access_request.id;
+
+  update pf_private.pf_user_access_requests
+  set
+    access_granted = case when pf_update_user_access_request.access_granted is not null then pf_update_user_access_request.access_granted else pf_user_access_requests.access_granted end,
+    note = case when pf_update_user_access_request.note is not null then pf_update_user_access_request.note else pf_user_access_requests.note end,
+    closing = case when pf_update_user_access_request.closing is not null then pf_update_user_access_request.closing else pf_user_access_requests.closing end,
+    rejected = case when pf_update_user_access_request.rejected is not null then pf_update_user_access_request.rejected else pf_user_access_requests.rejected end,
+    final_email = case when pf_update_user_access_request.final_email is not null then pf_update_user_access_request.final_email else pf_user_access_requests.final_email end,
+    custom_email = case when pf_update_user_access_request.custom_email is not null then pf_update_user_access_request.custom_email else pf_user_access_requests.custom_email end,
+    custom_email_discarded = case when pf_update_user_access_request.custom_email_discarded is not null then pf_update_user_access_request.custom_email_discarded else pf_user_access_requests.custom_email_discarded end
+  where pf_user_access_requests.id = pf_update_user_access_request.id;
+
   return true;
 end;
 $$;
@@ -1458,7 +1465,9 @@ CREATE TABLE pf_private.pf_user_access_requests (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     closing text,
-    final_email text
+    final_email text,
+    custom_email text,
+    custom_email_discarded boolean
 );
 
 
@@ -1906,7 +1915,9 @@ CREATE VIEW pf_public.view_user_access_request AS
     pf_user_access_requests.rejected,
     pf_user_access_requests.note,
     pf_user_access_requests.closing,
-    pf_user_access_requests.final_email
+    pf_user_access_requests.final_email,
+    pf_user_access_requests.custom_email,
+    pf_user_access_requests.custom_email_discarded
    FROM pf_private.pf_user_access_requests;
 
 
@@ -2918,7 +2929,7 @@ GRANT ALL ON FUNCTION pf_private.tg__timestamps() TO pf_root;
 -- Name: TABLE pf_users; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_users TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_users TO pf_root;
 GRANT SELECT,INSERT,UPDATE ON TABLE pf_private.pf_users TO pf_authenticated;
 
 
@@ -2943,8 +2954,8 @@ GRANT ALL ON FUNCTION pf_public.add_partner_example_dataset(name text, descripti
 -- Name: TABLE pf_partner_project_datasets; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_partner_project_datasets TO pf_root;
-GRANT ALL ON TABLE pf_private.pf_partner_project_datasets TO pf_authenticated;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_project_datasets TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_project_datasets TO pf_authenticated;
 
 
 --
@@ -2979,8 +2990,8 @@ GRANT ALL ON FUNCTION pf_public.create_audit(action_type text, payload jsonb, us
 -- Name: TABLE pf_partner_datasets; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_partner_datasets TO pf_root;
-GRANT ALL ON TABLE pf_private.pf_partner_datasets TO pf_authenticated;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_datasets TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_datasets TO pf_authenticated;
 
 
 --
@@ -2996,8 +3007,8 @@ GRANT ALL ON FUNCTION pf_public.create_partner_dataset(name text, description te
 -- Name: TABLE pf_partner_dataset_enrichments; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_partner_dataset_enrichments TO pf_root;
-GRANT ALL ON TABLE pf_private.pf_partner_dataset_enrichments TO pf_authenticated;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_dataset_enrichments TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_dataset_enrichments TO pf_authenticated;
 
 
 --
@@ -3013,8 +3024,8 @@ GRANT ALL ON FUNCTION pf_public.create_partner_dataset_enrichment(pf_dataset_id 
 -- Name: TABLE pf_partner_dataset_uploads; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_partner_dataset_uploads TO pf_root;
-GRANT ALL ON TABLE pf_private.pf_partner_dataset_uploads TO pf_authenticated;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_dataset_uploads TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_dataset_uploads TO pf_authenticated;
 
 
 --
@@ -3030,8 +3041,8 @@ GRANT ALL ON FUNCTION pf_public.create_partner_dataset_upload(file_url text, dat
 -- Name: TABLE pf_partner_projects; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_partner_projects TO pf_root;
-GRANT ALL ON TABLE pf_private.pf_partner_projects TO pf_authenticated;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_projects TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_projects TO pf_authenticated;
 
 
 --
@@ -3047,7 +3058,7 @@ GRANT ALL ON FUNCTION pf_public.create_partner_project(name text, description te
 -- Name: TABLE pf_partner_project_shares; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_partner_project_shares TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_project_shares TO pf_root;
 GRANT SELECT,INSERT ON TABLE pf_private.pf_partner_project_shares TO pf_authenticated;
 
 
@@ -3064,7 +3075,7 @@ GRANT ALL ON FUNCTION pf_public.create_partner_project_share(project_id uuid) TO
 -- Name: TABLE pf_geo_place_statistics; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_geo_place_statistics TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_geo_place_statistics TO pf_root;
 
 
 --
@@ -3182,13 +3193,13 @@ GRANT ALL ON FUNCTION pf_public.pf_audit_table_delete_old_rows() TO pf_partner;
 
 
 --
--- Name: FUNCTION pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text); Type: ACL; Schema: pf_public; Owner: -
+-- Name: FUNCTION pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text, custom_email text, custom_email_discarded boolean); Type: ACL; Schema: pf_public; Owner: -
 --
 
-REVOKE ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text) FROM PUBLIC;
-GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text) TO pf_root;
-GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text) TO pf_anonymous;
-GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text) TO pf_admin;
+REVOKE ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text, custom_email text, custom_email_discarded boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text, custom_email text, custom_email_discarded boolean) TO pf_root;
+GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text, custom_email text, custom_email_discarded boolean) TO pf_anonymous;
+GRANT ALL ON FUNCTION pf_public.pf_update_user_access_request(id uuid, access_granted boolean, note text, closing text, rejected boolean, final_email text, custom_email text, custom_email_discarded boolean) TO pf_admin;
 
 
 --
@@ -3223,7 +3234,7 @@ GRANT ALL ON FUNCTION pf_public.update_partner_project(project_id uuid, map_conf
 -- Name: TABLE pf_dataset_statistics; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.pf_dataset_statistics TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.pf_dataset_statistics TO pf_root;
 GRANT SELECT ON TABLE pf_public.pf_dataset_statistics TO pf_authenticated;
 
 
@@ -3231,14 +3242,14 @@ GRANT SELECT ON TABLE pf_public.pf_dataset_statistics TO pf_authenticated;
 -- Name: TABLE aggregate_pf_dataset_statistics; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.aggregate_pf_dataset_statistics TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_dataset_statistics TO pf_root;
 
 
 --
 -- Name: TABLE pf_grid_coordinates; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.pf_grid_coordinates TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.pf_grid_coordinates TO pf_root;
 GRANT SELECT ON TABLE pf_public.pf_grid_coordinates TO pf_anonymous;
 GRANT SELECT ON TABLE pf_public.pf_grid_coordinates TO pf_authenticated;
 
@@ -3247,21 +3258,21 @@ GRANT SELECT ON TABLE pf_public.pf_grid_coordinates TO pf_authenticated;
 -- Name: TABLE aggregate_pf_dataset_statistic_cells; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.aggregate_pf_dataset_statistic_cells TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_dataset_statistic_cells TO pf_root;
 
 
 --
 -- Name: TABLE connect_pg_simple_sessions; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.connect_pg_simple_sessions TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.connect_pg_simple_sessions TO pf_root;
 
 
 --
 -- Name: TABLE pf_audit; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_audit TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_audit TO pf_root;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE pf_private.pf_audit TO pf_partner;
 
 
@@ -3269,21 +3280,21 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE pf_private.pf_audit TO pf_partner;
 -- Name: TABLE pf_partner_dataset_coordinates; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_partner_dataset_coordinates TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_dataset_coordinates TO pf_root;
 
 
 --
 -- Name: TABLE pf_partner_enrichment_statuses; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_partner_enrichment_statuses TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_partner_enrichment_statuses TO pf_root;
 
 
 --
 -- Name: TABLE pf_user_access_requests; Type: ACL; Schema: pf_private; Owner: -
 --
 
-GRANT ALL ON TABLE pf_private.pf_user_access_requests TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.pf_user_access_requests TO pf_root;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE pf_private.pf_user_access_requests TO pf_admin;
 
 
@@ -3291,7 +3302,7 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE pf_private.pf_user_access_requests TO
 -- Name: TABLE geo_places; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.geo_places TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.geo_places TO pf_root;
 GRANT SELECT ON TABLE pf_public.geo_places TO pf_anonymous;
 GRANT SELECT ON TABLE pf_public.geo_places TO pf_authenticated;
 
@@ -3300,7 +3311,7 @@ GRANT SELECT ON TABLE pf_public.geo_places TO pf_authenticated;
 -- Name: TABLE pf_dataset_model_grids; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.pf_dataset_model_grids TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.pf_dataset_model_grids TO pf_root;
 GRANT SELECT ON TABLE pf_public.pf_dataset_model_grids TO pf_anonymous;
 GRANT SELECT ON TABLE pf_public.pf_dataset_model_grids TO pf_authenticated;
 
@@ -3309,7 +3320,7 @@ GRANT SELECT ON TABLE pf_public.pf_dataset_model_grids TO pf_authenticated;
 -- Name: TABLE pf_dataset_model_sources; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.pf_dataset_model_sources TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.pf_dataset_model_sources TO pf_root;
 GRANT SELECT ON TABLE pf_public.pf_dataset_model_sources TO pf_anonymous;
 GRANT SELECT ON TABLE pf_public.pf_dataset_model_sources TO pf_authenticated;
 
@@ -3318,7 +3329,7 @@ GRANT SELECT ON TABLE pf_public.pf_dataset_model_sources TO pf_authenticated;
 -- Name: TABLE pf_dataset_parent_categories; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.pf_dataset_parent_categories TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.pf_dataset_parent_categories TO pf_root;
 GRANT SELECT ON TABLE pf_public.pf_dataset_parent_categories TO pf_anonymous;
 GRANT SELECT ON TABLE pf_public.pf_dataset_parent_categories TO pf_authenticated;
 
@@ -3327,7 +3338,7 @@ GRANT SELECT ON TABLE pf_public.pf_dataset_parent_categories TO pf_authenticated
 -- Name: TABLE pf_dataset_sub_categories; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.pf_dataset_sub_categories TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.pf_dataset_sub_categories TO pf_root;
 GRANT SELECT ON TABLE pf_public.pf_dataset_sub_categories TO pf_anonymous;
 GRANT SELECT ON TABLE pf_public.pf_dataset_sub_categories TO pf_authenticated;
 
@@ -3336,7 +3347,7 @@ GRANT SELECT ON TABLE pf_public.pf_dataset_sub_categories TO pf_authenticated;
 -- Name: TABLE pf_dataset_units; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.pf_dataset_units TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.pf_dataset_units TO pf_root;
 GRANT SELECT ON TABLE pf_public.pf_dataset_units TO pf_anonymous;
 GRANT SELECT ON TABLE pf_public.pf_dataset_units TO pf_authenticated;
 
@@ -3345,7 +3356,7 @@ GRANT SELECT ON TABLE pf_public.pf_dataset_units TO pf_authenticated;
 -- Name: TABLE pf_datasets; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.pf_datasets TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.pf_datasets TO pf_root;
 GRANT SELECT ON TABLE pf_public.pf_datasets TO pf_anonymous;
 GRANT SELECT ON TABLE pf_public.pf_datasets TO pf_authenticated;
 
@@ -3354,7 +3365,7 @@ GRANT SELECT ON TABLE pf_public.pf_datasets TO pf_authenticated;
 -- Name: TABLE pf_map_statuses; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.pf_map_statuses TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.pf_map_statuses TO pf_root;
 GRANT SELECT ON TABLE pf_public.pf_map_statuses TO pf_anonymous;
 GRANT SELECT ON TABLE pf_public.pf_map_statuses TO pf_authenticated;
 
@@ -3363,7 +3374,7 @@ GRANT SELECT ON TABLE pf_public.pf_map_statuses TO pf_authenticated;
 -- Name: TABLE pf_maps; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.pf_maps TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.pf_maps TO pf_root;
 GRANT SELECT ON TABLE pf_public.pf_maps TO pf_anonymous;
 GRANT SELECT ON TABLE pf_public.pf_maps TO pf_authenticated;
 
@@ -3372,7 +3383,7 @@ GRANT SELECT ON TABLE pf_public.pf_maps TO pf_authenticated;
 -- Name: TABLE pf_statistical_variable_names; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.pf_statistical_variable_names TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.pf_statistical_variable_names TO pf_root;
 GRANT SELECT ON TABLE pf_public.pf_statistical_variable_names TO pf_authenticated;
 
 
@@ -3380,7 +3391,7 @@ GRANT SELECT ON TABLE pf_public.pf_statistical_variable_names TO pf_authenticate
 -- Name: TABLE pf_warming_scenarios; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.pf_warming_scenarios TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.pf_warming_scenarios TO pf_root;
 GRANT SELECT ON TABLE pf_public.pf_warming_scenarios TO pf_anonymous;
 GRANT SELECT ON TABLE pf_public.pf_warming_scenarios TO pf_authenticated;
 
@@ -3389,7 +3400,7 @@ GRANT SELECT ON TABLE pf_public.pf_warming_scenarios TO pf_authenticated;
 -- Name: TABLE view_partner_dataset_enrichments; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.view_partner_dataset_enrichments TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.view_partner_dataset_enrichments TO pf_root;
 GRANT SELECT ON TABLE pf_public.view_partner_dataset_enrichments TO pf_authenticated;
 
 
@@ -3397,7 +3408,7 @@ GRANT SELECT ON TABLE pf_public.view_partner_dataset_enrichments TO pf_authentic
 -- Name: TABLE view_partner_dataset_uploads; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.view_partner_dataset_uploads TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.view_partner_dataset_uploads TO pf_root;
 GRANT SELECT ON TABLE pf_public.view_partner_dataset_uploads TO pf_authenticated;
 
 
@@ -3405,7 +3416,7 @@ GRANT SELECT ON TABLE pf_public.view_partner_dataset_uploads TO pf_authenticated
 -- Name: TABLE view_partner_datasets; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.view_partner_datasets TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.view_partner_datasets TO pf_root;
 GRANT SELECT ON TABLE pf_public.view_partner_datasets TO pf_authenticated;
 
 
@@ -3413,7 +3424,7 @@ GRANT SELECT ON TABLE pf_public.view_partner_datasets TO pf_authenticated;
 -- Name: TABLE view_partner_project_datasets; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.view_partner_project_datasets TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.view_partner_project_datasets TO pf_root;
 GRANT SELECT ON TABLE pf_public.view_partner_project_datasets TO pf_authenticated;
 
 
@@ -3421,7 +3432,7 @@ GRANT SELECT ON TABLE pf_public.view_partner_project_datasets TO pf_authenticate
 -- Name: TABLE view_partner_projects; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.view_partner_projects TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.view_partner_projects TO pf_root;
 GRANT SELECT ON TABLE pf_public.view_partner_projects TO pf_authenticated;
 
 
@@ -3429,7 +3440,7 @@ GRANT SELECT ON TABLE pf_public.view_partner_projects TO pf_authenticated;
 -- Name: TABLE view_pf_geo_place_statistics; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.view_pf_geo_place_statistics TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.view_pf_geo_place_statistics TO pf_root;
 GRANT SELECT ON TABLE pf_public.view_pf_geo_place_statistics TO pf_authenticated;
 
 
@@ -3437,7 +3448,7 @@ GRANT SELECT ON TABLE pf_public.view_pf_geo_place_statistics TO pf_authenticated
 -- Name: TABLE view_user_access_request; Type: ACL; Schema: pf_public; Owner: -
 --
 
-GRANT ALL ON TABLE pf_public.view_user_access_request TO pf_root;
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_public.view_user_access_request TO pf_root;
 GRANT SELECT ON TABLE pf_public.view_user_access_request TO pf_admin;
 
 
@@ -3468,7 +3479,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE pf_owner IN SCHEMA pf_hidden GRANT ALL ON FUNC
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: pf_hidden; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE pf_owner IN SCHEMA pf_hidden GRANT ALL ON TABLES TO pf_root;
+ALTER DEFAULT PRIVILEGES FOR ROLE pf_owner IN SCHEMA pf_hidden GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLES TO pf_root;
 
 
 --
@@ -3496,7 +3507,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE pf_owner IN SCHEMA pf_private GRANT ALL ON FUN
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: pf_private; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE pf_owner IN SCHEMA pf_private GRANT ALL ON TABLES TO pf_root;
+ALTER DEFAULT PRIVILEGES FOR ROLE pf_owner IN SCHEMA pf_private GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLES TO pf_root;
 
 
 --
@@ -3526,7 +3537,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE pf_owner IN SCHEMA pf_public GRANT ALL ON FUNC
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: pf_public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE pf_owner IN SCHEMA pf_public GRANT ALL ON TABLES TO pf_root;
+ALTER DEFAULT PRIVILEGES FOR ROLE pf_owner IN SCHEMA pf_public GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLES TO pf_root;
 
 
 --
@@ -3556,7 +3567,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE pf_owner IN SCHEMA public GRANT ALL ON FUNCTIO
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE pf_owner IN SCHEMA public GRANT ALL ON TABLES TO pf_root;
+ALTER DEFAULT PRIVILEGES FOR ROLE pf_owner IN SCHEMA public GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLES TO pf_root;
 
 
 --

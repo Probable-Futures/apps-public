@@ -7,7 +7,7 @@ import DashboardTitle from "../../Common/DashboardTitle";
 import {
   UPDATE_USER_ACCESS_REQUEST,
   GET_PF_USER_ACCESS_REQUESTS,
-  APPROVE_USER_ACCESS_REQUEST,
+  SEND_CUSTOM_ONBOARDING_EMAIL,
 } from "../../../graphql/queries/userRequests";
 import { GqlResponse } from "../../../shared/types";
 import UserRequestTable from "./UserRequestTable";
@@ -29,6 +29,8 @@ export type UserRequestNode = {
   note: string;
   closing: string;
   finalEmail: string;
+  customEmail?: string;
+  customEmailDiscarded?: boolean;
 };
 
 export type UserAccessRequestResponse = {
@@ -50,12 +52,11 @@ const UserRequests = () => {
     notifyOnNetworkStatusChange: true,
   });
 
-  const [rejectRequest, { loading: isRejecting }] = useMutation(UPDATE_USER_ACCESS_REQUEST, {
+  const [updateUserAccessRequest] = useMutation(UPDATE_USER_ACCESS_REQUEST, {
     onCompleted: () => refetchUserRequests(),
   });
-  const [approveRequest, { loading: isAccepting, error, data: dataFromAccept }] = useMutation<{
-    acceptInvitation: { clientId: string; error: string; userId: string };
-  }>(APPROVE_USER_ACCESS_REQUEST, {
+
+  const [sendCustomOnboardingEmail] = useMutation(SEND_CUSTOM_ONBOARDING_EMAIL, {
     onCompleted: () => refetchUserRequests(),
   });
 
@@ -67,25 +68,20 @@ const UserRequests = () => {
     }
   }, [apiError]);
 
-  const onReject = (userRequest: UserRequestNode, note: string, closing: string) => {
-    rejectRequest({
+  const onDiscard = (userRequest: UserRequestNode, note: string) => {
+    updateUserAccessRequest({
       variables: {
         id: userRequest.id,
-        accessGranted: false,
-        rejected: true,
-        note,
-        closing,
-        finalEmail: "",
+        customEmailDiscarded: true,
       },
     });
   };
 
-  const onAccept = (userRequest: UserRequestNode, note: string, closing: string) => {
-    approveRequest({
+  const onSend = (userRequest: UserRequestNode, note: string) => {
+    sendCustomOnboardingEmail({
       variables: {
         requestId: userRequest.id,
-        note,
-        closing,
+        emailBody: note,
       },
     });
   };
@@ -98,22 +94,6 @@ const UserRequests = () => {
     }
   }, [loadingUserAccessRequests, toggleLoading]);
 
-  useEffect(() => {
-    if (error) {
-      if (error.message) {
-        setApiError(error.message);
-      } else {
-        setApiError("Something went wrong!");
-      }
-    }
-  }, [error]);
-
-  useEffect(() => {
-    if (dataFromAccept?.acceptInvitation.error) {
-      setApiError(dataFromAccept.acceptInvitation.error);
-    }
-  }, [dataFromAccept]);
-
   return (
     <>
       <Snackbar open={!!apiError} autoHideDuration={6000}>
@@ -123,15 +103,9 @@ const UserRequests = () => {
         <DashboardTitle title="User Requests" />
       </div>
       {!loadingUserAccessRequests && data && (
-        <UserRequestTable
-          data={data}
-          onReject={onReject}
-          onAccept={onAccept}
-          isAccepting={isAccepting}
-          isRejecting={isRejecting}
-        />
+        <UserRequestTable data={data} onDiscard={onDiscard} onSend={onSend} />
       )}
-      <div style={{ marginTop: 10 }}>
+      <div style={{ marginTop: 10, marginBottom: 20 }}>
         <Link
           href={
             isProd

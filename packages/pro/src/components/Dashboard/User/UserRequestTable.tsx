@@ -36,22 +36,44 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 type Props = {
   data: UserAccessRequestResponse;
-  onReject: (userRequest: UserRequestNode, note: string, closing: string) => void;
-  onAccept: (userRequest: UserRequestNode, note: string, closing: string) => void;
-  isAccepting: boolean;
-  isRejecting: boolean;
+  onDiscard: (userRequest: UserRequestNode, note: string) => void;
+  onSend: (userRequest: UserRequestNode, note: string) => void;
 };
 
-const defaultNoteValue = `<p> Thanks for reaching out. If you'd like, I would be happy to meet on a call to give you a guided demo and answer any
-      questions. You can <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2TEZX3fp1ty-JZr8iIVE5K8tmEE8AAyDLXvAm8Iqn1bo4xEWDtuw1rC_AAt7maw6iiybODG3mH">schedule a time on my calendar here</a>.
-      If you would like to join a Slack group where you can message with the Probable Futures team and others using our maps and data, please <a href="https://join.slack.com/t/probablefuturesdata/shared_invite/zt-1id97wfdw-49padl_S6Dt6mi5HiRbbYg">join using this link</a>.</p>
+const defaultNoteValue = `<p> I noticed you signed up to use our data and maps. I know it can be helpful to get a walkthrough when learning how they work. If you'd like, I would be happy to meet on a call to give you a guided demo or answer any questions. You can <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2TEZX3fp1ty-JZr8iIVE5K8tmEE8AAyDLXvAm8Iqn1bo4xEWDtuw1rC_AAt7maw6iiybODG3mH">schedule a time on my calendar here</a>.</p>
     <p>
-      If you haven't already done so, I would recommend you read (or listen to) the
-      <a href="https://probablefutures.org/stability/">climate handbook</a> on the Probable Futures website. It provides essential context for interpreting the maps and data you will find in the resources below.
-      You may also be aware of our <a href="https://probablefutures.org/maps">climate maps</a>, which are publicly available. The resources below are simply other ways of accessing or analyzing the data in these same climate maps.
-    </p>`;
+      Happy to answer any questions. Thanks for your interest in exploring the risks and consequences of climate change.
+    </p>
+    <br/>
+    <p>
+      Peter
+    </p>
+    `;
 
-const defaultClosingValue = `<p>Let me know if you have questions. Thanks for joining us in our efforts to help people explore the risks and consequences of climate change.</p>`;
+const emailSignature = `
+  <br />
+  <div style="margin:0in;line-height:19.2px;font-size:12pt;font-family:Calibri,sans-serif;color:rgb(0,0,0)">
+    <span style="font-family:Helvetica;color:rgb(42,23,45)">—</span>
+    <span style="font-family:Helvetica;color:rgb(133,31,255)">—</span>
+    <span style="font-family:Helvetica;color:rgb(241,128,60)">—</span>
+  </div>
+  <div style="margin:0in;line-height:19.2px;font-size:12pt;font-family:Calibri,sans-serif;color:rgb(0,0,0)">
+    <b style="font-family:Calibri,sans-serif">
+      <span style="font-size:7.5pt;line-height:12px;font-family:Helvetica;color:rgb(42,23,45)">
+        <a href="https://probablefutures.org/" style="font-family:Helvetica;color:rgb(17,85,204)" target="_blank">
+          Probable Futures
+        </a>
+      </span>
+    </b>
+  </div>
+  <div style="margin:0in;line-height:19.2px;font-size:12pt;font-family:Calibri,sans-serif;color:rgb(0,0,0)">
+    <span style="font-size:x-small;font-family:Calibri,sans-serif">Peter Croce, Product Lead</span>
+  </div>
+  <div style="margin:0in;line-height:19.2px;font-family:Calibri,sans-serif;color:rgb(0,0,0)">
+    <span style="font-size:x-small;font-family:Calibri,sans-serif">he/him</span>
+    <font size="1" style="font-family:Calibri,sans-serif;color:rgb(0,0,0)"><br></font>
+  </div>
+`;
 
 const getFormFieldValueByName = (name: string, formFields: Record<string, RequestField>) => {
   for (const key in formFields) {
@@ -64,10 +86,8 @@ const getFormFieldValueByName = (name: string, formFields: Record<string, Reques
   }
 };
 
-const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }: Props) => {
+const UserRequestTable = ({ data, onDiscard, onSend }: Props) => {
   const [notes, setNotes] = useState<{ [nodeId: string]: string }>({});
-  const [closings, setClosings] = useState<{ [nodeId: string]: string }>({});
-  const [rowIdOfClickedAction, setRowIdOfClickedAction] = useState<string>();
 
   const cellValue = (value: any) => {
     if (typeof value === "string") {
@@ -90,35 +110,33 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
   const filteredData = useMemo(
     () =>
       data.viewUserAccessRequests.nodes
-        .filter((node) => !node.accessGranted && !node.rejected)
+        .filter((node) => !node.rejected && !node.customEmailDiscarded && !node.customEmail)
         .map((node) => {
-          const note = notes[node.id] || defaultNoteValue;
-          const closing = closings[node.id] || defaultClosingValue;
-          return { ...node, note, closing };
+          const note =
+            notes[node.id] ??
+            `<p>Hi ${cellValue(getFormFieldValueByName("First name", node.formFields))},</p>` +
+              defaultNoteValue +
+              emailSignature;
+          return { ...node, note };
         }),
-    [closings, data.viewUserAccessRequests.nodes, notes],
+    [data.viewUserAccessRequests.nodes, notes],
   );
 
   useEffect(() => {
     const defaultNotes: { [nodeId: string]: string } = {};
-    const defaultClosings: { [nodeId: string]: string } = {};
     data.viewUserAccessRequests.nodes.forEach((node) => {
-      defaultNotes[node.id] = defaultNoteValue;
-      defaultClosings[node.id] = defaultClosingValue;
+      defaultNotes[node.id] =
+        `<p>Hi ${cellValue(getFormFieldValueByName("First name", node.formFields))},</p>` +
+        defaultNoteValue +
+        emailSignature;
     });
 
     setNotes(defaultNotes);
-    setClosings(defaultClosings);
   }, [data.viewUserAccessRequests.nodes]);
 
   const handleNoteChange = (event: ContentEditableEvent, userRequest: UserRequestNode) => {
     const newNotes = { ...notes, [userRequest.id]: event.target.value };
     setNotes(newNotes);
-  };
-
-  const handleClosingChange = (event: ContentEditableEvent, userRequest: UserRequestNode) => {
-    const newClosings = { ...closings, [userRequest.id]: event.target.value };
-    setClosings(newClosings);
   };
 
   return (
@@ -136,8 +154,9 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
                 {field.name}
               </StyledTableCell>
             ))}
-            <StyledTableCell sx={{ minWidth: 80 }}>Email intro</StyledTableCell>
-            <StyledTableCell sx={{ minWidth: 90 }}>Email closing</StyledTableCell>
+            <StyledTableCell sx={{ minWidth: 80 }}>Access granted</StyledTableCell>
+            <StyledTableCell sx={{ minWidth: 80 }}>Received access email</StyledTableCell>
+            <StyledTableCell sx={{ minWidth: 80 }}>Custom email</StyledTableCell>
             <StyledTableCell>Action</StyledTableCell>
           </TableRow>
         </TableHead>
@@ -151,18 +170,32 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
           )}
           {filteredData.map((row) => (
             <StyledTableRow key={row.id}>
-              {requestUserAccessFormFields.map((field) => {
-                return (
-                  <StyledTableCell
-                    align="left"
-                    key={field.id}
-                    width={field.width}
-                    sx={{ minWidth: field.width }}
-                  >
-                    {cellValue(getFormFieldValueByName(field.name, row.formFields))}
-                  </StyledTableCell>
-                );
-              })}
+              {requestUserAccessFormFields.map((field) => (
+                <StyledTableCell
+                  align="left"
+                  key={field.id}
+                  width={field.width}
+                  sx={{ minWidth: field.width }}
+                >
+                  {cellValue(getFormFieldValueByName(field.name, row.formFields))}
+                </StyledTableCell>
+              ))}
+              <StyledTableCell align="left" width={80} sx={{ verticalAlign: "top" }}>
+                {row.accessGranted ? "True" : "False"}
+              </StyledTableCell>
+              <StyledTableCell sx={{ maxWidth: 400, maxHeight: 200, verticalAlign: "top" }}>
+                <Editor
+                  value={row.finalEmail}
+                  style={{
+                    paddingLeft: 20,
+                    paddingRight: 20,
+                    maxHeight: 200,
+                    overflowY: "auto",
+                    background: "lightgrey",
+                  }}
+                  disabled
+                />
+              </StyledTableCell>
               <StyledTableCell sx={{ maxWidth: 400, maxHeight: 200, verticalAlign: "top" }}>
                 <Editor
                   value={notes[row.id]}
@@ -171,40 +204,34 @@ const UserRequestTable = ({ data, onReject, onAccept, isAccepting, isRejecting }
                 />
               </StyledTableCell>
               <StyledTableCell
-                sx={{ maxWidth: 400, maxHeight: 200, display: "flex", verticalAlign: "top" }}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
               >
-                <Editor
-                  value={closings[row.id]}
-                  style={{ paddingLeft: 20, paddingRight: 20, maxHeight: 200, overflowY: "auto" }}
-                  onChange={(e) => handleClosingChange(e, row)}
-                />
-              </StyledTableCell>
-              <StyledTableCell>
                 <LoadingButton
-                  loading={isAccepting && rowIdOfClickedAction === row.id}
                   color="success"
                   variant="contained"
                   onClick={() => {
-                    setRowIdOfClickedAction(row.id);
-                    onAccept(row, notes[row.id], closings[row.id]);
+                    onSend(row, notes[row.id]);
                   }}
-                  sx={{ marginBottom: 2, width: 150 }}
-                  loadingIndicator="Accepting…"
+                  sx={{ marginBottom: 2, width: 200, paddingX: "4px", paddingY: "3px" }}
+                  loadingIndicator="Sending…"
                 >
-                  Accept
+                  Send custom email
                 </LoadingButton>
                 <LoadingButton
-                  loading={isRejecting && rowIdOfClickedAction === row.id}
                   color="error"
                   variant="contained"
                   onClick={() => {
-                    setRowIdOfClickedAction(row.id);
-                    onReject(row, notes[row.id], closings[row.id]);
+                    onDiscard(row, notes[row.id]);
                   }}
-                  sx={{ marginBottom: 2, width: 150 }}
-                  loadingIndicator="Rejecting…"
+                  sx={{ marginBottom: 2, width: 150, paddingX: "5px", paddingY: "3px" }}
+                  loadingIndicator="Discarding…"
                 >
-                  Reject
+                  Discard draft
                 </LoadingButton>
               </StyledTableCell>
             </StyledTableRow>
