@@ -99,11 +99,16 @@ const MapKeyWrapper = styled.div`
 
   .map-key-bins-container {
     margin-right: 13px !important;
+    flex: 1;
   }
 
   .map-key-bin-container {
     margin-right: 2px !important;
-    min-width: 47px !important;
+    max-width: 65px !important;
+  }
+
+  .map-key-switch-container {
+    flex: 1;
   }
 
   .map-key-bin {

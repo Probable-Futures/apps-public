@@ -99,7 +99,7 @@ const Switch = ({ isChecked, left, right, onChange }: Props) => {
   const toggleId = `togle_${Math.floor(Math.random() * 10000)}`;
 
   return (
-    <Container>
+    <Container className="map-key-switch-container">
       <Input checked={isChecked} onChange={onChange} id={toggleId} type="checkbox" />
       <Label htmlFor={toggleId}>
         <Toggle>
