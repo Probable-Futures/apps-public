@@ -8,6 +8,7 @@
     "build:production": "tsc -p tsconfig.production.json",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --files --exit-child --inspect=0.0.0.0 -- src/main.ts",
     "start": "node dist/main.js",
+    "delete-inactive-auth-applications": "ts-node-dev src/routes/auth/deleteInactiveAuth0Clients.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

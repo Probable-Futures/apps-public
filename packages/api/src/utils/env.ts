@@ -100,12 +100,23 @@ export const AUTH_PRO_CLIENT_USER_DB_CONNECTION_NAME = env
 export const AUTH_FULL_USER_ROLE_ID = env.get("AUTH_FULL_USER_ROLE_ID").required().asString();
 
 export const AIRTABLE_ACCESS_TOKEN = env.get("AIRTABLE_ACCESS_TOKEN").required().asString();
+export const AIRTABLE_ACCESS_TOKEN_FOR_DATA_OFFERRINGS = env
+  .get("AIRTABLE_ACCESS_TOKEN_FOR_DATA_OFFERRINGS")
+  .asString();
 
 export const AIRTABLE_DONATION_BASE_ID = env.get("AIRTABLE_DONATION_BASE_ID").required().asString();
 export const AIRTABLE_DONATION_TABLE_ID = env
   .get("AIRTABLE_DONATION_TABLE_ID")
   .required()
   .asString();
+
+export const AIRTABLE_DATA_OFFERINGS_BASE_ID = env
+  .get("AIRTABLE_DATA_OFFERINGS_BASE_ID")
+  .asString();
+export const AIRTABLE_DATA_OFFERINGS_TABLE_ID = env
+  .get("AIRTABLE_DATA_OFFERINGS_TABLE_ID")
+  .asString();
+
 export const EVERY_DOT_ORG_ACCESS_TOKEN = env
   .get("EVERY_DOT_ORG_ACCESS_TOKEN")
   .required()
