@@ -1,10 +1,14 @@
 import { verify } from "../../services/auth/token";
 import createClient, { AuthClient } from "../../services/auth/client";
 import sendAccessEmail, { composeEmail } from "./sendAccessEmail";
-import { env } from "../../utils";
+import { env, logger } from "../../utils";
 import { formFieldsNameIdMap } from "../../utils/form";
 import grantPfProAccess from "./grantPfProAccess";
 import { defaultClosingValue, defaultNoteValue } from "../../utils/emailConsts";
+import { getSubscriber } from "../../services/mailchimp/member";
+import { NewContact } from "../../services/mailchimp/mailchimp.types";
+import { MergeField } from "../../routes/contact";
+import { createContact } from "../../services/mailchimp/mailchimp";
 
 type AnyArg = { [arg: string]: any };
 
@@ -61,6 +65,7 @@ const approveOpenDataAccess = async (
 
   const firstName = getFormFieldValueById(formFieldsNameIdMap["firstName"], formFields);
   const lastName = getFormFieldValueById(formFieldsNameIdMap["lastName"], formFields);
+  const emailList = getFormFieldValueById(formFieldsNameIdMap["emailList"], formFields);
   const fullName = `${firstName} ${lastName}`;
 
   try {
@@ -139,6 +144,29 @@ const approveOpenDataAccess = async (
       );
     } catch (error) {
       console.error(error);
+    }
+
+    try {
+      if (emailList === "Yes, please sign me up.") {
+        const user = await getSubscriber(email);
+        const statusToSend = user?.status === "subscribed" ? "subscribed" : "pending";
+
+        const newContact: NewContact = {
+          emailAddress: email,
+          mergeFields: {
+            [MergeField.FName]: firstName,
+            [MergeField.LName]: lastName,
+          },
+          status: statusToSend,
+        };
+
+        const { contactId, status, emailAddress } = await createContact(newContact);
+        logger.info(
+          `Contact created in Mailchimp: ${contactId}, status: ${status}, email: ${emailAddress}`,
+        );
+      }
+    } catch (e) {
+      console.error(e);
     }
 
     return response;

@@ -51,8 +51,11 @@ export async function verify(
     redisClient.HSET(KEY, redisKey, JSON.stringify(results));
   } else {
     results = JSON.parse(cache[redisKey]) as types.ApiUser;
-
-    if (new Date(results.expires_at) < new Date()) {
+    if (
+      !results.access_token ||
+      results.expires_at === null ||
+      new Date(results.expires_at) < new Date()
+    ) {
       results = await getToken(clientId, clientSecret, audience);
       redisClient.HSET(KEY, redisKey, JSON.stringify(results));
     }

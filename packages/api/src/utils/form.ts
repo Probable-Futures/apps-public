@@ -15,6 +15,7 @@ enum FormFields {
   PfApi = "pfApi",
   PfRawData = "pfRawData",
   CustomizableMaps = "customizableMaps",
+  EmailList = "emailList",
 }
 
 const formFieldsNameIdMapDev: Record<FormFields, string> = {
@@ -32,6 +33,7 @@ const formFieldsNameIdMapDev: Record<FormFields, string> = {
   [FormFields.PfApi]: "selHB9fHgC4AQz2Lj",
   [FormFields.PfRawData]: "selkpsGFYsWDKIm8Z",
   [FormFields.CustomizableMaps]: "sel9Em7tUgvjWQ8fk",
+  [FormFields.EmailList]: "fldxQbeUjmdlU93Lc",
 };
 
 const formFieldsNameIdMapProd: Record<FormFields, string> = {
@@ -49,6 +51,7 @@ const formFieldsNameIdMapProd: Record<FormFields, string> = {
   [FormFields.PfApi]: "selHB9fHgC4AQz2Lj",
   [FormFields.PfRawData]: "selkpsGFYsWDKIm8Z",
   [FormFields.CustomizableMaps]: "sel9Em7tUgvjWQ8fk",
+  [FormFields.EmailList]: "fldwJPd59RqClp6dC",
 };
 
 export const formFieldsNameIdMap = isProd ? formFieldsNameIdMapProd : formFieldsNameIdMapDev;
