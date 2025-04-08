@@ -24,6 +24,7 @@ const activeClients = [
   "sO35tshUgLPTIcuSGjQbPmuhVlNyrTEi", //(API Access for Matheus Patrício Monteiro)
   "R7mCeXncliAqshicUGVEPV4NSR3Hfrq1", //(API Access for Alexander Liss)
   "tTAbahVkAaYqB8sonDP8cVWAP00tgGiS", //(API Access for Peter Croce)
+  "0W2dINdF3IyDBXGcQHICftxNmsfzs9yA", //For Airtable
 ];
 
 // Function to get the Management API token

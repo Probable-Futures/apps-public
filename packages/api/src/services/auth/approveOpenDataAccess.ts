@@ -25,7 +25,7 @@ type Response = {
 };
 
 const getFormFieldValueById = (id: string, formFields: Record<string, RequestField>) =>
-  formFields[id].value;
+  formFields[id]?.value;
 
 const approveOpenDataAccess = async (
   _query: AnyArg,
@@ -58,10 +58,8 @@ const approveOpenDataAccess = async (
 
   const requestId = createUserAccessRequestResponse.rows[0]?.create_user_access_request;
 
-  const whatWouldYouLikeToUse: { id: string; name: string }[] = getFormFieldValueById(
-    formFieldsNameIdMap["whatWouldYouLikeToUse"],
-    formFields,
-  );
+  const whatWouldYouLikeToUse: { id: string; name: string }[] =
+    getFormFieldValueById(formFieldsNameIdMap["whatWouldYouLikeToUse"], formFields) || [];
 
   const firstName = getFormFieldValueById(formFieldsNameIdMap["firstName"], formFields);
   const lastName = getFormFieldValueById(formFieldsNameIdMap["lastName"], formFields);
@@ -147,7 +145,10 @@ const approveOpenDataAccess = async (
     }
 
     try {
-      if (emailList === "Yes, please sign me up.") {
+      if (
+        emailList === "Yes, please sign me up." ||
+        emailList?.name === "Yes, please sign me up."
+      ) {
         const user = await getSubscriber(email);
         const statusToSend = user?.status === "subscribed" ? "subscribed" : "pending";
 
