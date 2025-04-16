@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.1
--- Dumped by pg_dump version 17.2
+-- Dumped from database version 16.8
+-- Dumped by pg_dump version 17.4
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -16,6 +16,13 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: knowledge; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA knowledge;
+
 
 --
 -- Name: pf_hidden; Type: SCHEMA; Schema: -; Owner: -
@@ -57,13 +64,6 @@ CREATE SCHEMA pf_public;
 --
 
 COMMENT ON SCHEMA pf_public IS 'Namespace for tables and functions exposed to GraphQL';
-
-
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
--- *not* creating schema, since initdb creates it
 
 
 --
@@ -147,7 +147,7 @@ CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
 -- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: -
 --
 
-COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial types and functions';
+COMMENT ON EXTENSION postgis IS 'PostGIS geometry and geography spatial types and functions';
 
 
 --
@@ -162,6 +162,31 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 --
 
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+
+
+--
+-- Name: vector; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION vector; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION vector IS 'vector data type and ivfflat and hnsw access methods';
+
+
+--
+-- Name: post_type; Type: TYPE; Schema: knowledge; Owner: -
+--
+
+CREATE TYPE knowledge.post_type AS ENUM (
+    'perspectives',
+    'volumes',
+    'pages'
+);
 
 
 --
@@ -1253,6 +1278,74 @@ $$;
 
 
 --
+-- Name: posts; Type: TABLE; Schema: knowledge; Owner: -
+--
+
+CREATE TABLE knowledge.posts (
+    id integer NOT NULL,
+    title text NOT NULL,
+    modified_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    content text NOT NULL,
+    content_type knowledge.post_type NOT NULL,
+    json_content jsonb
+);
+
+
+--
+-- Name: posts_embeddings; Type: TABLE; Schema: knowledge; Owner: -
+--
+
+CREATE TABLE knowledge.posts_embeddings (
+    id integer NOT NULL,
+    post_id integer,
+    content_order integer NOT NULL,
+    content_tokens integer NOT NULL,
+    content text NOT NULL,
+    embedding public.vector(1536)
+);
+
+
+--
+-- Name: posts_embeddings_id_seq; Type: SEQUENCE; Schema: knowledge; Owner: -
+--
+
+CREATE SEQUENCE knowledge.posts_embeddings_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: posts_embeddings_id_seq; Type: SEQUENCE OWNED BY; Schema: knowledge; Owner: -
+--
+
+ALTER SEQUENCE knowledge.posts_embeddings_id_seq OWNED BY knowledge.posts_embeddings.id;
+
+
+--
+-- Name: posts_id_seq; Type: SEQUENCE; Schema: knowledge; Owner: -
+--
+
+CREATE SEQUENCE knowledge.posts_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: posts_id_seq; Type: SEQUENCE OWNED BY; Schema: knowledge; Owner: -
+--
+
+ALTER SEQUENCE knowledge.posts_id_seq OWNED BY knowledge.posts.id;
+
+
+--
 -- Name: pf_dataset_statistics; Type: TABLE; Schema: pf_public; Owner: -
 --
 
@@ -1290,28 +1383,28 @@ COMMENT ON COLUMN pf_public.pf_dataset_statistics.coordinate_hash IS 'Md5 hash o
 --
 
 CREATE VIEW pf_private.aggregate_pf_dataset_statistics AS
- SELECT pf_dataset_statistics.coordinate_hash,
-    pf_dataset_statistics.dataset_id,
-    unnest(array_agg(pf_dataset_statistics.low_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '0.5'::text))) AS data_baseline_low,
-    unnest(array_agg(pf_dataset_statistics.mid_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '0.5'::text))) AS data_baseline_mid,
-    unnest(array_agg(pf_dataset_statistics.high_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '0.5'::text))) AS data_baseline_high,
-    unnest(array_agg(pf_dataset_statistics.low_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '1.0'::text))) AS data_1c_low,
-    unnest(array_agg(pf_dataset_statistics.mid_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '1.0'::text))) AS data_1c_mid,
-    unnest(array_agg(pf_dataset_statistics.high_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '1.0'::text))) AS data_1c_high,
-    unnest(array_agg(pf_dataset_statistics.low_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '1.5'::text))) AS data_1_5c_low,
-    unnest(array_agg(pf_dataset_statistics.mid_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '1.5'::text))) AS data_1_5c_mid,
-    unnest(array_agg(pf_dataset_statistics.high_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '1.5'::text))) AS data_1_5c_high,
-    unnest(array_agg(pf_dataset_statistics.low_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '2.0'::text))) AS data_2c_low,
-    unnest(array_agg(pf_dataset_statistics.mid_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '2.0'::text))) AS data_2c_mid,
-    unnest(array_agg(pf_dataset_statistics.high_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '2.0'::text))) AS data_2c_high,
-    unnest(array_agg(pf_dataset_statistics.low_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '2.5'::text))) AS data_2_5c_low,
-    unnest(array_agg(pf_dataset_statistics.mid_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '2.5'::text))) AS data_2_5c_mid,
-    unnest(array_agg(pf_dataset_statistics.high_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '2.5'::text))) AS data_2_5c_high,
-    unnest(array_agg(pf_dataset_statistics.low_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '3.0'::text))) AS data_3c_low,
-    unnest(array_agg(pf_dataset_statistics.mid_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '3.0'::text))) AS data_3c_mid,
-    unnest(array_agg(pf_dataset_statistics.high_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '3.0'::text))) AS data_3c_high
+ SELECT coordinate_hash,
+    dataset_id,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_mid,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_mid,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_mid,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_mid,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_mid,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_mid,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_high
    FROM pf_public.pf_dataset_statistics
-  GROUP BY pf_dataset_statistics.coordinate_hash, pf_dataset_statistics.dataset_id;
+  GROUP BY coordinate_hash, dataset_id;
 
 
 --
@@ -1690,16 +1783,16 @@ COMMENT ON TABLE pf_public.pf_warming_scenarios IS 'Warming scenarios forecasted
 --
 
 CREATE VIEW pf_public.view_partner_dataset_enrichments AS
- SELECT pf_partner_dataset_enrichments.id,
-    pf_partner_dataset_enrichments.status,
-    pf_partner_dataset_enrichments.upload_id,
-    pf_partner_dataset_enrichments.enrichment_errors,
-    pf_partner_dataset_enrichments.enrichment_time_ms AS enriched_row_count,
-    pf_partner_dataset_enrichments.enriched_dataset_file,
-    pf_partner_dataset_enrichments.pf_dataset_id,
-    pf_partner_dataset_enrichments.project_id
+ SELECT id,
+    status,
+    upload_id,
+    enrichment_errors,
+    enrichment_time_ms AS enriched_row_count,
+    enriched_dataset_file,
+    pf_dataset_id,
+    project_id
    FROM pf_private.pf_partner_dataset_enrichments
-  WHERE (pf_partner_dataset_enrichments.partner_id = (pf_public."current_user"()).id);
+  WHERE (partner_id = (pf_public."current_user"()).id);
 
 
 --
@@ -1856,16 +1949,16 @@ COMMENT ON COLUMN pf_public.view_partner_project_datasets.dataset_name IS '@notN
 --
 
 CREATE VIEW pf_public.view_partner_projects AS
- SELECT pf_partner_projects.id,
-    pf_partner_projects.name,
-    pf_partner_projects.description,
-    pf_partner_projects.map_config,
-    pf_partner_projects.created_at,
-    pf_partner_projects.updated_at,
-    pf_partner_projects.image_url,
-    pf_partner_projects.pf_dataset_id
+ SELECT id,
+    name,
+    description,
+    map_config,
+    created_at,
+    updated_at,
+    image_url,
+    pf_dataset_id
    FROM pf_private.pf_partner_projects
-  WHERE (pf_partner_projects.partner_id = (pf_public."current_user"()).id);
+  WHERE (partner_id = (pf_public."current_user"()).id);
 
 
 --
@@ -1894,11 +1987,11 @@ COMMENT ON COLUMN pf_public.view_partner_projects.created_at IS '@notNull';
 --
 
 CREATE VIEW pf_public.view_pf_geo_place_statistics AS
- SELECT pf_geo_place_statistics.id,
-    pf_geo_place_statistics.dataset_id,
-    pf_geo_place_statistics.geo_place_id,
-    pf_geo_place_statistics.file_url,
-    pf_geo_place_statistics.status
+ SELECT id,
+    dataset_id,
+    geo_place_id,
+    file_url,
+    status
    FROM pf_private.pf_geo_place_statistics;
 
 
@@ -1907,18 +2000,48 @@ CREATE VIEW pf_public.view_pf_geo_place_statistics AS
 --
 
 CREATE VIEW pf_public.view_user_access_request AS
- SELECT pf_user_access_requests.id,
-    pf_user_access_requests.form_name,
-    pf_user_access_requests.email,
-    pf_user_access_requests.form_fields,
-    pf_user_access_requests.access_granted,
-    pf_user_access_requests.rejected,
-    pf_user_access_requests.note,
-    pf_user_access_requests.closing,
-    pf_user_access_requests.final_email,
-    pf_user_access_requests.custom_email,
-    pf_user_access_requests.custom_email_discarded
+ SELECT id,
+    form_name,
+    email,
+    form_fields,
+    access_granted,
+    rejected,
+    note,
+    closing,
+    final_email,
+    custom_email,
+    custom_email_discarded
    FROM pf_private.pf_user_access_requests;
+
+
+--
+-- Name: posts id; Type: DEFAULT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.posts ALTER COLUMN id SET DEFAULT nextval('knowledge.posts_id_seq'::regclass);
+
+
+--
+-- Name: posts_embeddings id; Type: DEFAULT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.posts_embeddings ALTER COLUMN id SET DEFAULT nextval('knowledge.posts_embeddings_id_seq'::regclass);
+
+
+--
+-- Name: posts_embeddings posts_embeddings_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.posts_embeddings
+    ADD CONSTRAINT posts_embeddings_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: posts posts_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.posts
+    ADD CONSTRAINT posts_pkey PRIMARY KEY (id);
 
 
 --
@@ -2159,6 +2282,13 @@ ALTER TABLE ONLY pf_public.pf_statistical_variable_names
 
 ALTER TABLE ONLY pf_public.pf_warming_scenarios
     ADD CONSTRAINT pf_warming_scenarios_pkey PRIMARY KEY (slug);
+
+
+--
+-- Name: posts_embeddings_embedding_idx; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX posts_embeddings_embedding_idx ON knowledge.posts_embeddings USING ivfflat (embedding);
 
 
 --
@@ -2495,6 +2625,14 @@ CREATE TRIGGER _200_set_cell BEFORE INSERT OR UPDATE ON pf_public.pf_grid_coordi
 --
 
 COMMENT ON TRIGGER _200_set_cell ON pf_public.pf_grid_coordinates IS 'Set cell from point and based on the model';
+
+
+--
+-- Name: posts_embeddings posts_embeddings_post_id_fkey; Type: FK CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.posts_embeddings
+    ADD CONSTRAINT posts_embeddings_post_id_fkey FOREIGN KEY (post_id) REFERENCES knowledge.posts(id) ON DELETE CASCADE;
 
 
 --
@@ -2870,6 +3008,112 @@ GRANT ALL ON TYPE pf_public.project_share_response TO pf_root;
 
 
 --
+-- Name: FUNCTION vector_in(cstring, oid, integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_in(cstring, oid, integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_in(cstring, oid, integer) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_in(cstring, oid, integer) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_out(public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_out(public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_out(public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_out(public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_recv(internal, oid, integer); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_recv(internal, oid, integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_recv(internal, oid, integer) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_recv(internal, oid, integer) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_send(public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_send(public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_send(public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_send(public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_typmod_in(cstring[]); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_typmod_in(cstring[]) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_typmod_in(cstring[]) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_typmod_in(cstring[]) TO pf_anonymous;
+
+
+--
+-- Name: TYPE vector; Type: ACL; Schema: public; Owner: -
+--
+
+GRANT ALL ON TYPE public.vector TO pf_root;
+
+
+--
+-- Name: FUNCTION array_to_vector(real[], integer, boolean); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.array_to_vector(real[], integer, boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.array_to_vector(real[], integer, boolean) TO pf_root;
+GRANT ALL ON FUNCTION public.array_to_vector(real[], integer, boolean) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION array_to_vector(double precision[], integer, boolean); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.array_to_vector(double precision[], integer, boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.array_to_vector(double precision[], integer, boolean) TO pf_root;
+GRANT ALL ON FUNCTION public.array_to_vector(double precision[], integer, boolean) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION array_to_vector(integer[], integer, boolean); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.array_to_vector(integer[], integer, boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.array_to_vector(integer[], integer, boolean) TO pf_root;
+GRANT ALL ON FUNCTION public.array_to_vector(integer[], integer, boolean) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION array_to_vector(numeric[], integer, boolean); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.array_to_vector(numeric[], integer, boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.array_to_vector(numeric[], integer, boolean) TO pf_root;
+GRANT ALL ON FUNCTION public.array_to_vector(numeric[], integer, boolean) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_to_float4(public.vector, integer, boolean); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_to_float4(public.vector, integer, boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_to_float4(public.vector, integer, boolean) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_to_float4(public.vector, integer, boolean) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector(public.vector, integer, boolean); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector(public.vector, integer, boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector(public.vector, integer, boolean) TO pf_root;
+GRANT ALL ON FUNCTION public.vector(public.vector, integer, boolean) TO pf_anonymous;
+
+
+--
 -- Name: FUNCTION create_statistics_file(); Type: ACL; Schema: pf_private; Owner: -
 --
 
@@ -3228,6 +3472,240 @@ GRANT ALL ON FUNCTION pf_public.update_partner_dataset(dataset_name text, datase
 REVOKE ALL ON FUNCTION pf_public.update_partner_project(project_id uuid, map_config jsonb, image_url text, pf_dataset_id integer, project_name text) FROM PUBLIC;
 GRANT ALL ON FUNCTION pf_public.update_partner_project(project_id uuid, map_config jsonb, image_url text, pf_dataset_id integer, project_name text) TO pf_root;
 GRANT ALL ON FUNCTION pf_public.update_partner_project(project_id uuid, map_config jsonb, image_url text, pf_dataset_id integer, project_name text) TO pf_authenticated;
+
+
+--
+-- Name: FUNCTION cosine_distance(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.cosine_distance(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.cosine_distance(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.cosine_distance(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION hnswhandler(internal); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.hnswhandler(internal) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.hnswhandler(internal) TO pf_root;
+GRANT ALL ON FUNCTION public.hnswhandler(internal) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION inner_product(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.inner_product(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.inner_product(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.inner_product(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION ivfflathandler(internal); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.ivfflathandler(internal) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.ivfflathandler(internal) TO pf_root;
+GRANT ALL ON FUNCTION public.ivfflathandler(internal) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION l1_distance(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.l1_distance(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.l1_distance(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.l1_distance(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION l2_distance(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.l2_distance(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.l2_distance(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.l2_distance(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_accum(double precision[], public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_accum(double precision[], public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_accum(double precision[], public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_accum(double precision[], public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_add(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_add(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_add(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_add(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_avg(double precision[]); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_avg(double precision[]) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_avg(double precision[]) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_avg(double precision[]) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_cmp(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_cmp(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_cmp(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_cmp(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_combine(double precision[], double precision[]); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_combine(double precision[], double precision[]) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_combine(double precision[], double precision[]) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_combine(double precision[], double precision[]) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_dims(public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_dims(public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_dims(public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_dims(public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_eq(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_eq(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_eq(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_eq(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_ge(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_ge(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_ge(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_ge(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_gt(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_gt(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_gt(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_gt(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_l2_squared_distance(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_l2_squared_distance(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_l2_squared_distance(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_l2_squared_distance(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_le(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_le(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_le(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_le(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_lt(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_lt(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_lt(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_lt(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_mul(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_mul(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_mul(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_mul(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_ne(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_ne(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_ne(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_ne(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_negative_inner_product(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_negative_inner_product(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_negative_inner_product(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_negative_inner_product(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_norm(public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_norm(public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_norm(public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_norm(public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_spherical_distance(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_spherical_distance(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_spherical_distance(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_spherical_distance(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION vector_sub(public.vector, public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.vector_sub(public.vector, public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.vector_sub(public.vector, public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.vector_sub(public.vector, public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION avg(public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.avg(public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.avg(public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.avg(public.vector) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION sum(public.vector); Type: ACL; Schema: public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION public.sum(public.vector) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.sum(public.vector) TO pf_root;
+GRANT ALL ON FUNCTION public.sum(public.vector) TO pf_anonymous;
 
 
 --

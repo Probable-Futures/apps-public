@@ -44,10 +44,11 @@ services:
       - 9230:9229 # debugging port
     volumes:
       - .:/home/node/probable-futures
-
   db:
     container_name: db
-    image: postgis/postgis:13-3.0-alpine
+    build:
+      context: .
+      dockerfile: docker/db.Dockerfile
     env_file: ./packages/db/.env
     restart: unless-stopped
     user: postgres
@@ -56,7 +57,6 @@ services:
     volumes:
       - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./docker/postgres/data:/var/lib/postgresql/data
-
   migrate:
     env_file: ./packages/db/.env
     container_name: migrate
