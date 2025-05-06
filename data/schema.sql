@@ -179,6 +179,16 @@ COMMENT ON EXTENSION vector IS 'vector data type and ivfflat and hnsw access met
 
 
 --
+-- Name: conversation_state; Type: TYPE; Schema: knowledge; Owner: -
+--
+
+CREATE TYPE knowledge.conversation_state AS ENUM (
+    'AWAITING_QUERY',
+    'AWAITING_CLIMATE_CONDITION'
+);
+
+
+--
 -- Name: post_type; Type: TYPE; Schema: knowledge; Owner: -
 --
 
@@ -233,6 +243,56 @@ CREATE TYPE pf_public.project_share_response AS (
 	map_config jsonb,
 	project_datasets jsonb
 );
+
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: users; Type: TABLE; Schema: knowledge; Owner: -
+--
+
+CREATE TABLE knowledge.users (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    sub text NOT NULL,
+    name text,
+    email public.citext NOT NULL,
+    last_seen_at timestamp with time zone DEFAULT now() NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: upsert_user_and_log_last_active_at(text, public.citext, text); Type: FUNCTION; Schema: knowledge; Owner: -
+--
+
+CREATE FUNCTION knowledge.upsert_user_and_log_last_active_at(sub text, email public.citext, name text) RETURNS knowledge.users
+    LANGUAGE plpgsql STRICT SECURITY DEFINER
+    AS $$
+  declare
+    _user knowledge.users;
+  begin
+    if not exists (select * from knowledge.users
+        where knowledge.users.sub = upsert_user_and_log_last_active_at.sub)
+      then
+      insert into knowledge.users
+        (sub, email, name)
+      values
+        (upsert_user_and_log_last_active_at.sub,
+         upsert_user_and_log_last_active_at.email,
+         upsert_user_and_log_last_active_at.name);
+    end if;
+    update knowledge.users set last_seen_at = now()
+    where knowledge.users.sub = upsert_user_and_log_last_active_at.sub
+      and last_seen_at < now() - interval '5 minutes';
+    select * from knowledge.users
+      where knowledge.users.sub = upsert_user_and_log_last_active_at.sub
+      into _user;
+    return _user;
+  end;
+  $$;
 
 
 --
@@ -408,10 +468,6 @@ $$;
 
 COMMENT ON FUNCTION pf_private.tg__timestamps() IS 'This function should be called by an admin to add an example dataset after uploading it.';
 
-
-SET default_tablespace = '';
-
-SET default_table_access_method = heap;
 
 --
 -- Name: pf_users; Type: TABLE; Schema: pf_private; Owner: -
@@ -1278,6 +1334,48 @@ $$;
 
 
 --
+-- Name: context_summaries; Type: TABLE; Schema: knowledge; Owner: -
+--
+
+CREATE TABLE knowledge.context_summaries (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    conversation_id uuid NOT NULL,
+    raw_context text NOT NULL,
+    summary text NOT NULL,
+    "timestamp" timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: conversations; Type: TABLE; Schema: knowledge; Owner: -
+--
+
+CREATE TABLE knowledge.conversations (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    anon_session_id text,
+    user_id uuid,
+    summary text DEFAULT ''::text,
+    last_active timestamp with time zone DEFAULT now() NOT NULL,
+    state knowledge.conversation_state DEFAULT 'AWAITING_QUERY'::knowledge.conversation_state NOT NULL,
+    extracted_locations jsonb
+);
+
+
+--
+-- Name: messages; Type: TABLE; Schema: knowledge; Owner: -
+--
+
+CREATE TABLE knowledge.messages (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    conversation_id uuid NOT NULL,
+    type text NOT NULL,
+    content text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    order_index integer NOT NULL
+);
+
+
+--
 -- Name: posts; Type: TABLE; Schema: knowledge; Owner: -
 --
 
@@ -2029,6 +2127,38 @@ ALTER TABLE ONLY knowledge.posts_embeddings ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
+-- Name: context_summaries context_summaries_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.context_summaries
+    ADD CONSTRAINT context_summaries_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: conversations conversations_anon_session_id_key; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.conversations
+    ADD CONSTRAINT conversations_anon_session_id_key UNIQUE (anon_session_id);
+
+
+--
+-- Name: conversations conversations_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.conversations
+    ADD CONSTRAINT conversations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: messages messages_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.messages
+    ADD CONSTRAINT messages_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: posts_embeddings posts_embeddings_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
 --
 
@@ -2042,6 +2172,22 @@ ALTER TABLE ONLY knowledge.posts_embeddings
 
 ALTER TABLE ONLY knowledge.posts
     ADD CONSTRAINT posts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_sub_key; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.users
+    ADD CONSTRAINT users_sub_key UNIQUE (sub);
 
 
 --
@@ -2282,6 +2428,41 @@ ALTER TABLE ONLY pf_public.pf_statistical_variable_names
 
 ALTER TABLE ONLY pf_public.pf_warming_scenarios
     ADD CONSTRAINT pf_warming_scenarios_pkey PRIMARY KEY (slug);
+
+
+--
+-- Name: idx_context_summaries_conversation_id; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX idx_context_summaries_conversation_id ON knowledge.context_summaries USING btree (conversation_id);
+
+
+--
+-- Name: idx_conversations_anon_session_id; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX idx_conversations_anon_session_id ON knowledge.conversations USING btree (anon_session_id);
+
+
+--
+-- Name: idx_conversations_user_id; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX idx_conversations_user_id ON knowledge.conversations USING btree (user_id);
+
+
+--
+-- Name: idx_messages_conversation_id; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX idx_messages_conversation_id ON knowledge.messages USING btree (conversation_id);
+
+
+--
+-- Name: idx_messages_conversation_id_order; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX idx_messages_conversation_id_order ON knowledge.messages USING btree (conversation_id, order_index);
 
 
 --
@@ -2625,6 +2806,30 @@ CREATE TRIGGER _200_set_cell BEFORE INSERT OR UPDATE ON pf_public.pf_grid_coordi
 --
 
 COMMENT ON TRIGGER _200_set_cell ON pf_public.pf_grid_coordinates IS 'Set cell from point and based on the model';
+
+
+--
+-- Name: context_summaries context_summaries_conversation_id_fkey; Type: FK CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.context_summaries
+    ADD CONSTRAINT context_summaries_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES knowledge.conversations(id) ON DELETE CASCADE;
+
+
+--
+-- Name: conversations conversations_user_id_fkey; Type: FK CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.conversations
+    ADD CONSTRAINT conversations_user_id_fkey FOREIGN KEY (user_id) REFERENCES knowledge.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: messages messages_conversation_id_fkey; Type: FK CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.messages
+    ADD CONSTRAINT messages_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES knowledge.conversations(id) ON DELETE CASCADE;
 
 
 --
@@ -3111,6 +3316,13 @@ GRANT ALL ON FUNCTION public.vector_to_float4(public.vector, integer, boolean) T
 REVOKE ALL ON FUNCTION public.vector(public.vector, integer, boolean) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.vector(public.vector, integer, boolean) TO pf_root;
 GRANT ALL ON FUNCTION public.vector(public.vector, integer, boolean) TO pf_anonymous;
+
+
+--
+-- Name: FUNCTION upsert_user_and_log_last_active_at(sub text, email public.citext, name text); Type: ACL; Schema: knowledge; Owner: -
+--
+
+REVOKE ALL ON FUNCTION knowledge.upsert_user_and_log_last_active_at(sub text, email public.citext, name text) FROM PUBLIC;
 
 
 --
