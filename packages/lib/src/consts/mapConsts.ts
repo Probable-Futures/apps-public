@@ -64,7 +64,7 @@ export const degreesOptions: Degrees[] = [
     label: "1.5°C",
     dataKey: "data_1_5c",
     descKey: "description_15c",
-    year: "Impending",
+    year: "Current",
   },
   {
     value: 2,
