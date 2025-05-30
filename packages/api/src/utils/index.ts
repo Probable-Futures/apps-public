@@ -6,6 +6,7 @@ import * as env from "./env";
 import * as constants from "./constants";
 import * as fileUtils from "./file";
 import { errorHandler } from "./errorHandler";
+import * as slackUtils from "./slack";
 
 export {
   constants,
@@ -18,4 +19,5 @@ export {
   shutdown,
   fileUtils,
   errorHandler,
+  slackUtils,
 };

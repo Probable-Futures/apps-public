@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 
 import { createContact } from "../../services/mailchimp/mailchimp";
 import { validateFormData } from "./parameters";
-import { serialize } from "../../utils/error";
+import { error as errorUtils, slackUtils } from "../../utils";
 import { NewContact, Status } from "../../services/mailchimp/mailchimp.types";
 import { getGroups } from "../../services/mailchimp/groups";
 import { getTags } from "../../services/mailchimp/tags";
@@ -15,6 +15,8 @@ export const enum MergeField {
   FName = "FNAME",
   LName = "LNAME",
 }
+
+const errorPrefix = "Create Contact Error";
 
 const handleCreateContact = async (req: Request, res: Response) => {
   try {
@@ -55,8 +57,13 @@ const handleCreateContact = async (req: Request, res: Response) => {
     const { contactId, status, emailAddress } = await createContact(newContact);
     res.status(201).send({ data: { contactId, status, emailAddress } });
   } catch (error: any) {
+    const serializedError = errorUtils.serialize(error);
     const status = "status" in error && typeof error.status === "number" ? error.status : 500;
-    res.status(status).send(serialize(error));
+    await slackUtils.sendErrorToSlack(
+      serializedError || "An unexpected error occurred.",
+      errorPrefix,
+    );
+    res.status(status).send(serializedError);
   }
 };
 
@@ -70,7 +77,7 @@ router.get("/tags", async (_, res) => {
     res.status(201).send({ data: { tags } });
   } catch (error: any) {
     const status = "status" in error && typeof error.status === "number" ? error.status : 500;
-    res.status(status).send(serialize(error));
+    res.status(status).send(errorUtils.serialize(error));
   }
 });
 
@@ -80,7 +87,7 @@ router.get("/groups", async (_, res) => {
     res.status(201).send({ data: { groups } });
   } catch (error: any) {
     const status = "status" in error && typeof error.status === "number" ? error.status : 500;
-    res.status(status).send(serialize(error));
+    res.status(status).send(errorUtils.serialize(error));
   }
 });
 

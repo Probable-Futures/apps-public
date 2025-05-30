@@ -1,7 +1,7 @@
 import { verify } from "../../services/auth/token";
 import createClient, { AuthClient } from "../../services/auth/client";
 import sendAccessEmail, { composeEmail } from "./sendAccessEmail";
-import { env, logger } from "../../utils";
+import { env, logger, slackUtils } from "../../utils";
 import { formFieldsNameIdMap } from "../../utils/form";
 import grantPfProAccess from "./grantPfProAccess";
 import { defaultClosingValue, defaultNoteValue } from "../../utils/emailConsts";
@@ -23,6 +23,8 @@ type Response = {
   error?: string;
   userAlreadyExists?: boolean;
 };
+
+const errorPrefix = "Approve Open Data Request Error";
 
 const getFormFieldValueById = (id: string, formFields: Record<string, RequestField>) =>
   formFields[id]?.value;
@@ -89,7 +91,9 @@ const approveOpenDataAccess = async (
           clientResponse.client.statusCode !== 201 &&
           clientResponse.client.error
         ) {
-          response.error = clientResponse.client.message;
+          response.error = [response.error, clientResponse.client.message]
+            .filter(Boolean)
+            .join("\n");
         } else {
           auth0Client = clientResponse.client;
           response.clientId = clientResponse.client.client_id;
@@ -110,7 +114,9 @@ const approveOpenDataAccess = async (
           pfProAccessResponse.user.statusCode !== 201 &&
           pfProAccessResponse.user.error
         ) {
-          response.error = pfProAccessResponse.user.message;
+          response.error = [response.error, pfProAccessResponse.user.message]
+            .filter(Boolean)
+            .join("\n");
         } else {
           response.userId = pfProAccessResponse.user.user_id;
           response.userAlreadyExists = pfProAccessResponse.alreadyExists;
@@ -170,9 +176,17 @@ const approveOpenDataAccess = async (
       console.error(e);
     }
 
+    if (response.error) {
+      await slackUtils.sendErrorToSlack(response.error, errorPrefix);
+    }
     return response;
   } catch (e) {
     console.error(e);
+    if (e instanceof Error) {
+      await slackUtils.sendErrorToSlack(e.message, errorPrefix);
+    } else {
+      await slackUtils.sendErrorToSlack("An unexpected error occurred.", errorPrefix);
+    }
     throw e;
   }
 };
