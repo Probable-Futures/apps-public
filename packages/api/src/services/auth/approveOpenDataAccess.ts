@@ -67,6 +67,7 @@ const approveOpenDataAccess = async (
   const lastName = getFormFieldValueById(formFieldsNameIdMap["lastName"], formFields);
   const emailList = getFormFieldValueById(formFieldsNameIdMap["emailList"], formFields);
   const fullName = `${firstName} ${lastName}`;
+  const errorRelevantData = `Email: ${email}`;
 
   try {
     const auth0ManagementToken = await verify(
@@ -177,15 +178,19 @@ const approveOpenDataAccess = async (
     }
 
     if (response.error) {
-      await slackUtils.sendErrorToSlack(response.error, errorPrefix);
+      await slackUtils.sendErrorToSlack(response.error, errorPrefix, errorRelevantData);
     }
     return response;
   } catch (e) {
     console.error(e);
     if (e instanceof Error) {
-      await slackUtils.sendErrorToSlack(e.message, errorPrefix);
+      await slackUtils.sendErrorToSlack(e.message, errorPrefix, errorRelevantData);
     } else {
-      await slackUtils.sendErrorToSlack("An unexpected error occurred.", errorPrefix);
+      await slackUtils.sendErrorToSlack(
+        "An unexpected error occurred.",
+        errorPrefix,
+        errorRelevantData,
+      );
     }
     throw e;
   }

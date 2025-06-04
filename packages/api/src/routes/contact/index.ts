@@ -57,11 +57,15 @@ const handleCreateContact = async (req: Request, res: Response) => {
     const { contactId, status, emailAddress } = await createContact(newContact);
     res.status(201).send({ data: { contactId, status, emailAddress } });
   } catch (error: any) {
+    const relevantData = req?.body?.data?.emailAddress
+      ? `Email: ${req.body.data.emailAddress}`
+      : "";
     const serializedError = errorUtils.serialize(error);
     const status = "status" in error && typeof error.status === "number" ? error.status : 500;
     await slackUtils.sendErrorToSlack(
       serializedError || "An unexpected error occurred.",
       errorPrefix,
+      relevantData,
     );
     res.status(status).send(serializedError);
   }
