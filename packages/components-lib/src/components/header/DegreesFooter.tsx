@@ -181,7 +181,7 @@ const DegreesFooter = ({
     descKey: DescKeys,
   ) => {
     const showInfo = isSelected && !showBaselineModal;
-    const showYearLabel = !showBaselineModal && index !== 3 && index !== 5;
+    const showYearLabel = !showBaselineModal;
     return (
       <StyledButton
         disabled={showBaselineModal && value === 0.5}
@@ -243,7 +243,7 @@ const DegreesFooter = ({
                     renderButton(value, index, year, label, isSelected, descKey)
                   )}
                 </StyledButtonContainer>
-                {index < 3 && <DegreesSeparator />}
+                <DegreesSeparator />
               </ButtonAndSeparator>
             );
           })}
