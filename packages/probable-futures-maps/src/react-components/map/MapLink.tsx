@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Map } from "@probable-futures/lib";
 
 type LinkProps = {
-  showDegreeDescription?: boolean;
   bottom?: string;
 };
 
@@ -16,10 +15,9 @@ const Link = styled.a`
   font-family: Helvetica Neue, Arial, Helvetica, sans-serif;
   line-height: 20px;
   color: rgba(0, 0, 0, 0.75);
-  z-index: ${({ showDegreeDescription }: LinkProps) =>
-    showDegreeDescription
-      ? "z-index: 2; transition: z-index 0s step-end;"
-      : "z-index: 3; transition: z-index 0.2s step-end;"};
+  z-index: 3;
+  transition: z-index 0.2s step-end;
+
   cursor: pointer;
   text-decoration: none;
   bottom: ${({ bottom }: LinkProps) => bottom ?? 0};

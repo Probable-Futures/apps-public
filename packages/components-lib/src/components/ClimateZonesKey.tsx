@@ -5,6 +5,7 @@ import { useMediaQuery } from "react-responsive";
 
 import { DatasetDescriptionResponse, Map, consts, colors, size } from "@probable-futures/lib";
 import { ReactComponent as CloseIcon } from "../assets/icons/close.svg";
+import { purpleFilter } from "../styles/commonStyles";
 
 type Props = {
   selectedDataset?: Map;
@@ -21,8 +22,8 @@ type ColorProps = {
 
 const Container = styled.div`
   background-color: ${consts.colors.white};
-  border-bottom: 1px solid ${consts.colors.darkPurple};
-  border: 1px solid ${consts.colors.darkPurple};
+  border: 1px solid ${consts.colors.grey};
+  border-radius: 6px;
   display: flex;
   align-items: center;
 `;
@@ -110,7 +111,8 @@ const TooltipContentWrapper = styled.div`
   color: ${colors.black};
   background-color: ${colors.white};
   padding: 10px;
-  border: 1px solid ${colors.darkPurple};
+  border: 1px solid ${colors.grey};
+  border-radius: 6px;
   font-size: 13px;
   letter-spacing: 0;
   line-height: 18px;
@@ -121,16 +123,17 @@ const TooltipContentWrapper = styled.div`
   box-shadow: rgba(56, 22, 63, 0.23) 0px 3px 5px 0px;
 `;
 
-const StyledCloseIcon = styled(CloseIcon)`
-  transform: scale(0.7);
-`;
-
 const StyledCloseIconWrapper = styled.div`
   cursor: pointer;
   text-align: center;
   display: flex;
   align-items: center;
-  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+
+  &:hover {
+    ${purpleFilter}
+  }
 `;
 
 type TooltipProps = {
@@ -166,7 +169,7 @@ const ZoneTooltip = ({
         position={position}
         childRect={childRect}
         popoverRect={popoverRect}
-        arrowColor={colors.darkPurple}
+        arrowColor={colors.grey}
         arrowSize={10}
         arrowStyle={tooltipBlackArrowStyles}
       >
@@ -182,7 +185,7 @@ const ZoneTooltip = ({
           <TooltipContentWrapper>
             <TooltipContent>{tooltipContent}</TooltipContent>
             <StyledCloseIconWrapper onClick={onClose}>
-              <StyledCloseIcon />
+              <CloseIcon />
             </StyledCloseIconWrapper>
           </TooltipContentWrapper>
         </ArrowContainer>

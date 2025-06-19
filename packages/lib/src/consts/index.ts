@@ -29,6 +29,8 @@ export const colors = {
   secondaryWhite: "#fefffc",
   primaryGray: "#a2a2a2",
   lightGrey2: "#787279",
+  lightPurple: "#d6b4ff",
+  lightPurpleWithOpacity: "rgba(214, 180, 255, 0.2)", // 20% opacity
 };
 
 export const size = {

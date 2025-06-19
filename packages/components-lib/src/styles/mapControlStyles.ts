@@ -64,7 +64,13 @@ export const ControlButton = styled.button`
           }`}
   }
 
-  ${({ active }: ControlButtonProps) => active && `background-color: ${colors.cream};`}
+  ${({ active }: ControlButtonProps) =>
+    active &&
+    ` background-color: ${colors.darkPurple};
+      color: ${colors.white};
+      path {
+        fill: ${colors.white};
+      }`}
 `;
 
 export const Group = styled.div`

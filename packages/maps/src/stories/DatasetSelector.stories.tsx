@@ -43,7 +43,6 @@ export const Primary: Story = {
       value: datasets[0].slug || "",
       label: datasets[0].name,
     },
-    datasets: datasets,
   },
   loaders: [
     async () => ({

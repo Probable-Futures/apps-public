@@ -1,24 +1,12 @@
 import styled from "styled-components";
-import {
-  size,
-  colors,
-  BUTTON_CONTENT_TRANSITION_DURATION,
-  GAP_BETWEEN_LABEL_AND_INFO,
-  Theme,
-} from "@probable-futures/lib";
+import { size, colors, BUTTON_CONTENT_TRANSITION_DURATION, Theme } from "@probable-futures/lib";
 
 import InfoIcon from "../assets/icons/info.svg";
 import CancelIcon from "../assets/icons/cancel.svg";
 import { whiteFilter } from "./commonStyles";
 
 export type ButtonContainerProps = {
-  showDegreeDescription: boolean;
   isActive: boolean;
-};
-
-type ButtonProps = {
-  theme: Theme;
-  showInfo: boolean;
 };
 
 type InfoProps = {
@@ -31,6 +19,8 @@ export const DegreesSeparator = styled.div`
   border-left: 1px solid ${colors.grey};
   height: 29px;
   margin-top: 6px;
+  margin-left: -1px;
+  margin-right: -1px;
 
   @media (min-width: ${size.tablet}) {
     height: 32px;
@@ -70,16 +60,6 @@ export const PopoverContainer = styled.div`
     `
     max-height: 500px;
   `}}
-`;
-
-export const YearLabel = styled.span`
-  color: ${colors.lightGrey2};
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: 11px;
-  pointer-events: none;
-  min-height: 11px;
 `;
 
 export const Info = styled.div`
@@ -125,15 +105,6 @@ export const LabelAndInfoContainer = styled.div`
   transition: transform ${BUTTON_CONTENT_TRANSITION_DURATION}s ease-in-out;
   border: 1px solid transparent;
   box-sizing: border-box;
-  ${({ showInfo }: { showInfo: boolean }) =>
-    showInfo && `transform: translateX(${parseInt(GAP_BETWEEN_LABEL_AND_INFO) / 2}px);`}
-`;
-
-export const ButtonLabel = styled.span`
-  transition: transform ${BUTTON_CONTENT_TRANSITION_DURATION}s ease-in-out;
-  transform: translateX(${GAP_BETWEEN_LABEL_AND_INFO});
-  ${({ showInfo }: { showInfo: boolean }) =>
-    showInfo && `transform: translateX(-${GAP_BETWEEN_LABEL_AND_INFO});`}
 `;
 
 export const BorderVisibleOnFocus = styled.div`
@@ -159,25 +130,10 @@ export const Button = styled.button`
   flex-direction: column;
   align-items: center;
   padding: 0;
+  justify-content: center;
 
   &:disabled {
     opacity: 0.5;
-  }
-
-  &:focus-visible {
-    .label-and-info-container {
-      color: ${colors.purple};
-    }
-    ${({ showInfo }: ButtonProps) =>
-      showInfo
-        ? `
-          .button-focus-border {
-            display: block;
-          }
-          `
-        : `.label-and-info-container {
-            border: 1px solid ${colors.purple};
-          }`}
   }
 `;
 
@@ -186,13 +142,6 @@ export const ButtonContainer = styled.div`
   height: 100%;
   border: none;
   box-sizing: border-box;
-
-  ${({ showDegreeDescription }: ButtonContainerProps) =>
-    showDegreeDescription &&
-    `${Info} {
-    filter: invert(21%) sepia(89%) saturate(4669%) hue-rotate(263deg) brightness(99%)
-      contrast(104%);
-  }`};
 
   ${({ isActive }: ButtonContainerProps) =>
     isActive &&
@@ -213,28 +162,18 @@ export const ButtonContainer = styled.div`
 
     &::before {
       top: -28px;
-      border-color: transparent transparent transparent ${colors.darkPurple};
+      border-color: transparent transparent transparent ${colors.grey};
       border-width: 11px;
       left: calc(50% - 10px);
     }
 
     &::after {
-      top: -26px;
-      border-color: transparent transparent transparent ${colors.purple};
+      top: -25px;
+      border-color: transparent transparent transparent ${colors.lightPurple};
       border-width: 10px;
       left: calc(50% - 9px);
     }
   `};
-
-  &:hover {
-    button {
-      color: ${colors.purple};
-    }
-    ${Info} {
-      filter: invert(21%) sepia(89%) saturate(4669%) hue-rotate(263deg) brightness(99%)
-        contrast(104%);
-    }
-  }
 `;
 
 export const ButtonAndSeparator = styled.div`

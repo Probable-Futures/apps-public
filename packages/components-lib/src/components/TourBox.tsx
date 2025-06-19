@@ -101,12 +101,15 @@ const TourBox = ({
     bottom: {
       top: 1,
       borderBottom: `10px solid ${colors.lightCream}`,
-      zIndex: 1,
+      zIndex: 6,
     },
     left: {
       right: 1,
       borderLeft: `10px solid ${colors.lightCream}`,
       zIndex: 1,
+    },
+    right: {
+      left: 1,
     },
   };
 
@@ -145,7 +148,7 @@ const TourBox = ({
     <TourContent />
   ) : (
     <Popover
-      containerStyle={{ zIndex: "1" }}
+      containerStyle={{ zIndex: "6" }}
       isOpen={show}
       positions={[position]}
       align="center"

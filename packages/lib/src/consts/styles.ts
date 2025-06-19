@@ -7,6 +7,5 @@ export const HEADER_DROPDOWN_PADDING_LAPTOP = "32px";
 export const HEADER_DROPDOWN_PADDING_DESKTOP = "55px";
 
 export const BUTTON_CONTENT_TRANSITION_DURATION = 0.2;
-export const GAP_BETWEEN_LABEL_AND_INFO = "8px";
 
-export const SEARCH_INPUT_HEIGHT = "35px";
+export const SEARCH_INPUT_HEIGHT = "40px";

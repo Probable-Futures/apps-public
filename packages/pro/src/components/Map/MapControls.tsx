@@ -1,16 +1,13 @@
 import { MouseEventHandler, useState } from "react";
 import { components, styles } from "@probable-futures/components-lib";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { ReactComponent as DownloadIcon } from "@probable-futures/components-lib/src/assets/icons/download.svg";
 import { ReactComponent as ZoomInIcon } from "@probable-futures/components-lib/src/assets/icons/zoom-in.svg";
 import { ReactComponent as ZoomOutIcon } from "@probable-futures/components-lib/src/assets/icons/zoom-out.svg";
-import { ReactComponent as SearchIcon } from "@probable-futures/components-lib/src/assets/icons/search.svg";
 import { ReactComponent as IFrameIcon } from "@probable-futures/components-lib/src/assets/icons/iframe.svg";
 
-import { ReactComponent as DownloadOffliceIcon } from "../../assets/icons/map/download-offline.svg";
 import { ReactComponent as ShareIcon } from "../../assets/icons/map/share.svg";
-import { useMapData } from "../../contexts/DataContext";
-import { colors } from "../../consts";
+import { colors, size } from "../../consts";
 
 type Props = {
   zoom: number;
@@ -24,11 +21,50 @@ type Props = {
   onExportClick: MouseEventHandler<HTMLButtonElement>;
 };
 
+type GroupProps = {
+  position: "top" | "middle" | "bottom";
+};
+
+const topStyledGroupCss = css`
+  top: 165px;
+`;
+
+const middleStyledGroupsCss = css`
+  bottom: 215px;
+
+  @media (min-width: ${size.laptop}) {
+    bottom: 155px;
+  }
+`;
+
+const bottomStyledGroupsCss = css`
+  bottom: 135px;
+
+  @media (min-width: ${size.laptop}) {
+    bottom: 75px;
+  }
+`;
+
 const StyledGroup = styled(styles.Group)`
   background-color: ${colors.darkPurple};
   z-index: 1;
   right: 29px;
-  top: ${({ top }: { top: string }) => top};
+  ${({ position }: GroupProps) =>
+    position === "top"
+      ? topStyledGroupCss
+      : position === "bottom"
+      ? bottomStyledGroupsCss
+      : middleStyledGroupsCss}
+
+  @media (min-width: ${size.tablet}) {
+    display: flex;
+    position: absolute;
+    right: 18px;
+  }
+
+  @media (min-width: ${size.laptop}) {
+    right: 29px;
+  }
 `;
 
 export default function MapControls({
@@ -41,18 +77,12 @@ export default function MapControls({
   onExportClick,
 }: Props): JSX.Element {
   const [showZoomTooltip, setShowZoomTooltip] = useState(false);
-  const [showSearchTooltip, setShowSearchTooltip] = useState(false);
   const [showScreenshotTooltip, setShowScreenshotTooltip] = useState(false);
   const [showShareTooltip, setShowShareTooltip] = useState(false);
-  const [showDownloadTooltip, setShowDownloadTooltip] = useState(false);
   const [showExportTooltip, setShowExportTooltip] = useState(false);
 
-  const { searchIsOpen, setSearchIsOpen } = useMapData();
-
-  const searchTitle = "Find a location";
   const screenShotTitle = "Save and download current view";
   const shareTitle = "Share a link to your project";
-  const downloadTitle = "Download your data";
   const exportTitle = "Export embeddable map";
 
   const onZoomIn = () => {
@@ -68,28 +98,9 @@ export default function MapControls({
     }
   };
 
-  const onSearchClick = () => setSearchIsOpen((isOpen: boolean) => !isOpen);
-
   return (
     <>
-      <StyledGroup top="calc(50% - 220px)">
-        {/* Search */}
-        <components.ControlsTooltip
-          tooltipContent={searchTitle}
-          show={showSearchTooltip && !searchIsOpen}
-          onClickOutside={() => setShowSearchTooltip(false)}
-        >
-          <styles.ControlButton
-            title={searchTitle}
-            onClick={onSearchClick}
-            onMouseEnter={() => setShowSearchTooltip(true)}
-            onMouseLeave={() => setShowSearchTooltip(false)}
-            first
-            mode="dark"
-          >
-            <SearchIcon />
-          </styles.ControlButton>
-        </components.ControlsTooltip>
+      <StyledGroup position="middle">
         {/* take screenshot */}
         <components.ControlsTooltip
           tooltipContent={screenShotTitle}
@@ -101,6 +112,7 @@ export default function MapControls({
             onClick={onScreenshot}
             onMouseEnter={() => setShowScreenshotTooltip(true)}
             onMouseLeave={() => setShowScreenshotTooltip(false)}
+            first
             mode="dark"
           >
             <DownloadIcon />
@@ -122,22 +134,7 @@ export default function MapControls({
             <ShareIcon />
           </styles.ControlButton>
         </components.ControlsTooltip>
-        {/* download */}
-        <components.ControlsTooltip
-          tooltipContent={downloadTitle}
-          show={showDownloadTooltip}
-          onClickOutside={() => setShowDownloadTooltip(false)}
-        >
-          <styles.ControlButton
-            title={downloadTitle}
-            onClick={onDownloadClick}
-            onMouseEnter={() => setShowDownloadTooltip(true)}
-            onMouseLeave={() => setShowDownloadTooltip(false)}
-            mode="dark"
-          >
-            <DownloadOffliceIcon />
-          </styles.ControlButton>
-        </components.ControlsTooltip>
+
         {/* export map as html */}
         <components.ControlsTooltip
           tooltipContent={exportTitle}
@@ -156,7 +153,7 @@ export default function MapControls({
           </styles.ControlButton>
         </components.ControlsTooltip>
       </StyledGroup>
-      <StyledGroup top="calc(50% + 50px)">
+      <StyledGroup position="bottom">
         <components.ControlsTooltip
           tooltipContent="This is the closest zoom level"
           show={showZoomTooltip}

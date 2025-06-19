@@ -14,10 +14,11 @@ const TooltipContent = styled.button`
   color: ${colors.black};
   background-color: ${colors.white};
   padding: 6px 14px;
-  border: 1px solid ${colors.darkPurple};
-  font-size: 13px;
+  border: 1px solid ${colors.grey};
+  border-radius: 6px;
+  font-size: 10px;
   letter-spacing: 0;
-  line-height: 18px;
+  line-height: normal;
   width: 125px;
   box-sizing: content-box;
 `;
@@ -37,19 +38,22 @@ const Tooltip = ({
         position={position}
         childRect={childRect}
         popoverRect={popoverRect}
-        arrowColor={colors.darkPurple}
-        arrowSize={10}
+        arrowColor={colors.grey}
+        arrowSize={7}
+        arrowStyle={{
+          zIndex: 1,
+        }}
       >
         <ArrowContainer
           position={position}
           childRect={childRect}
           popoverRect={popoverRect}
           arrowColor={colors.white}
-          arrowSize={11}
+          arrowSize={8}
           style={{ padding: 0 }}
           arrowStyle={{
             right: 2,
-            borderLeft: `10px solid ${colors.white}`,
+            borderLeft: `7px solid ${colors.white}`,
             zIndex: 1,
           }}
         >

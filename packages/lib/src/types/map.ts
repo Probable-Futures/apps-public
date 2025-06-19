@@ -79,11 +79,6 @@ export type Option = {
   options?: Option[];
 };
 
-export type GroupedOptions = {
-  label: string;
-  options: Option[];
-};
-
 export type Steps = {
   [key: string]: string | any;
 };

@@ -3,10 +3,10 @@ import styled from "styled-components";
 import { Projection } from "mapbox-gl";
 
 import { styles } from "@probable-futures/components-lib";
-import { ReactComponent as QuizIcon } from "@probable-futures/components-lib/src/assets/icons/quiz.svg";
 import { ReactComponent as SearchIcon } from "@probable-futures/components-lib/src/assets/icons/search.svg";
 import { ReactComponent as PublicOnIcon } from "@probable-futures/components-lib/src/assets/icons/public-on.svg";
 import { ReactComponent as PublicOffIcon } from "@probable-futures/components-lib/src/assets/icons/public-off.svg";
+import { ReactComponent as InfoIcon } from "@probable-futures/components-lib/src/assets/icons/info.svg";
 
 import { ReactComponent as LocationOnIcon } from "../assets/icons/location-on.svg";
 import { ReactComponent as LocationOffIcon } from "../assets/icons/location-off.svg";
@@ -22,7 +22,7 @@ type Props = {
   showCountryBorders: boolean;
   closeSheet: MouseEventHandler<HTMLDivElement>;
   onSearchClick: MouseEventHandler<HTMLElement>;
-  onBehindMapsClick: MouseEventHandler<HTMLElement>;
+  onAboutThisMapClick: MouseEventHandler<HTMLElement>;
   onMarkerClick: MouseEventHandler<HTMLElement>;
   onProjectionChange: MouseEventHandler<HTMLElement>;
   onBordersClick: MouseEventHandler<HTMLElement>;
@@ -36,7 +36,7 @@ const Container = styled.div`
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 3;
+  z-index: 5;
   pointer-events: none;
 
   ${({ show }: { show: boolean }) => show && "opacity: 1; pointer-events: all;"}
@@ -82,7 +82,7 @@ const ActionsSheet = ({
   mapProjection,
   showCountryBorders,
   closeSheet,
-  onBehindMapsClick,
+  onAboutThisMapClick,
   onMarkerClick,
   onSearchClick,
   onProjectionChange,
@@ -110,6 +110,14 @@ const ActionsSheet = ({
               : translate("mapControl.showMarkerTitle")}
           </span>
         </ActionSheetItem>
+        <ActionSheetItem className="projection-toggle" onClick={onProjectionChange}>
+          {mapProjection.name === "globe" ? <MapIcon /> : <GlobeIcon />}
+          <span>
+            {mapProjection.name === "globe"
+              ? translate("mapControl.showMap")
+              : translate("mapControl.showGlobe")}
+          </span>
+        </ActionSheetItem>
         <ActionSheetItem onClick={onBordersClick}>
           {showCountryBorders ? <PublicOffIcon /> : <PublicOnIcon />}
           <span>
@@ -118,17 +126,9 @@ const ActionsSheet = ({
               : translate("mapControl.showCountryBorders")}
           </span>
         </ActionSheetItem>
-        <ActionSheetItem className="about-maps-toggle" onClick={onBehindMapsClick}>
-          <QuizIcon />
-          <span>{translate("actionSheet.behindTheMaps")}</span>
-        </ActionSheetItem>
-        <ActionSheetItem className="projection-toggle" onClick={onProjectionChange}>
-          {mapProjection.name === "globe" ? <MapIcon /> : <GlobeIcon />}
-          <span>
-            {mapProjection.name === "globe"
-              ? translate("mapControl.showMap")
-              : translate("mapControl.showGlobe")}
-          </span>
+        <ActionSheetItem className="about-maps-toggle" onClick={onAboutThisMapClick}>
+          <InfoIcon />
+          <span>{translate("actionSheet.aboutThisMap")}</span>
         </ActionSheetItem>
       </ActionSheet>
     </Container>

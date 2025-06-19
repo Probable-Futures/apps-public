@@ -10,11 +10,10 @@ type Props = {
 };
 
 const Container = styled.div`
-  margin-top: -6px;
+  margin-top: -5px;
 
   @media (min-width: ${size.laptop}) {
     margin-top: 0px;
-    margin-bottom: 14px;
   }
 `;
 
@@ -48,7 +47,7 @@ const Toggle = styled.div`
   }
 
   @media (min-width: ${size.laptop}) {
-    margin: 0 7px 0 9px;
+    margin: 0;
   }
 `;
 

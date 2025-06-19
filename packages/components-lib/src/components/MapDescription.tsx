@@ -9,6 +9,9 @@ type Props = {
 };
 
 const Container = styled.div`
+  margin-top: 25px;
+  padding: 0px 40px 15px;
+
   a {
     text-decoration: underline;
     cursor: pointer;

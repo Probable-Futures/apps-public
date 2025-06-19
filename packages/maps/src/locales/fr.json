@@ -133,6 +133,7 @@
   },
   "header": {
     "warmingScenariosTitle": "Scénarios de réchauffement",
+    "aboutThisMap": "À propos de cette carte",
     "yearLabel0": "Passé",
     "yearLabel1": "Récent",
     "yearLabel2": "Imminent",
@@ -185,6 +186,7 @@
     "hideMarkerTitle": "Masquer les marqueurs de vignette",
     "showMarkerTitle": "Afficher les marqueurs de vignette",
     "downloadTitle": "Télécharger en tant qu'intégration ou code QR",
+    "adjustViewTitle": "Adjust view",
     "behindMapsTitle": "En savoir plus sur les cartes",
     "takeQuickTour": "Faire une visite rapide",
     "closeTheTour": "Fermer la visite",
@@ -212,13 +214,19 @@
   },
   "downloadMap": {
     "title": "Télécharger la vue de la carte actuelle",
-    "qrCodeOptionLabel": "Télécharger le code QR",
-    "simpleMapOptionLabel": "Télécharger la carte intégrable de la vue actuelle",
-    "compareMapOptionLabel": "Télécharger la carte de comparaison intégrable",
+    "qrCodeOptionLabel": "Code QR",
+    "simpleMapOptionLabel": "Carte intégrable",
+    "compareMapOptionLabel": "Carte de comparaison intégrable",
     "compareSectionHeader": "Sélectionnez deux scénarios de réchauffement à inclure dans la carte de comparaison intégrable",
     "step": "Étape",
     "of": "de",
     "selectScenarios": "Sélectionner les scénarios",
     "download": "Télécharger"
+  },
+  "allMapsModal": {
+    "title": "Tous les cartes"
+  },
+  "close": {
+    "text": "Fermer"
   }
 }

@@ -133,6 +133,7 @@
   },
   "header": {
     "warmingScenariosTitle": "Escenarios de calentamiento",
+    "aboutThisMap": "Sobre este mapa",
     "yearLabel0": "Pasado",
     "yearLabel1": "Reciente",
     "yearLabel2": "Inminente",
@@ -185,6 +186,7 @@
     "hideMarkerTitle": "Ocultar marcadores de viñetas",
     "showMarkerTitle": "Mostrar marcadores de viñetas",
     "downloadTitle": "Descargar como incrustación o código QR",
+    "adjustViewTitle": "Adjust view",
     "behindMapsTitle": "Obtener más información sobre los mapas",
     "takeQuickTour": "Realizar un recorrido rápido",
     "closeTheTour": "Cerrar el recorrido",
@@ -212,13 +214,19 @@
   },
   "downloadMap": {
     "title": "Descargar vista de mapa actual",
-    "qrCodeOptionLabel": "Descargar código QR",
-    "simpleMapOptionLabel": "Descargar mapa incrustable de la vista actual",
-    "compareMapOptionLabel": "Descargar mapa de comparación incrustable",
+    "qrCodeOptionLabel": "Código QR",
+    "simpleMapOptionLabel": "Mapa integrable",
+    "compareMapOptionLabel": "Mapa de comparación integrable",
     "compareSectionHeader": "Seleccionar dos escenarios de calentamiento para incluir en el mapa de comparación incrustable",
     "step": "Paso",
     "of": "de",
     "selectScenarios": "Seleccionar escenarios",
     "download": "Descargar"
+  },
+  "allMapsModal": {
+    "title": "Todos los mapas"
+  },
+  "close": {
+    "text": "Cerrar"
   }
 }

@@ -1,4 +1,4 @@
-/* 
+/*
 * Override default map-popover styles
 */
 .map-popover {
@@ -42,5 +42,5 @@
 }
 
 .mapbox-attribution-container {
-  bottom: 70px !important;
+  bottom: 2px !important;
 }

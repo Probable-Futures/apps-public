@@ -128,11 +128,12 @@
     "clear": "clear",
     "noResult": "No results found",
     "serverError": "There was an error reaching the server",
-    "placeholder": "Search for a location",
-    "recentlySearched": "recently searched"
+    "placeholder": "Find a location",
+    "recentlySearched": "Recently searched"
   },
   "header": {
-    "warmingScenariosTitle": "Warming scenarios",
+    "warmingScenariosTitle": "Select a warming scenario",
+    "aboutThisMap": "About this map",
     "yearLabel0": "Past",
     "yearLabel1": "Recent",
     "yearLabel2": "Current",
@@ -182,9 +183,9 @@
         "otherMaps": "Other maps"
       },
       "subCategories": {
-        "increasingHeat": "Increasing Heat",
-        "decreasingCold": "decreasing cold",
-        "heatAndHumidity": "heat and humidity"
+        "increasingHeat": "Increasing heat",
+        "decreasingCold": "Decreasing cold",
+        "heatAndHumidity": "Heat and humidity"
       }
     }
   },
@@ -193,6 +194,7 @@
     "hideMarkerTitle": "Hide vignette markers",
     "showMarkerTitle": "Show vignette markers",
     "downloadTitle": "Download QR code or embeddable map",
+    "adjustViewTitle": "Adjust view",
     "behindMapsTitle": "Learn more about the maps",
     "takeQuickTour": "Take a quick tour",
     "closeTheTour": "Close the tour",
@@ -214,19 +216,26 @@
     "reset": "Reset"
   },
   "actionSheet": {
-    "search": "Search",
+    "search": "Find a location",
     "marker": "Locations on/off",
-    "behindTheMaps": "Learn more about the maps"
+    "behindTheMaps": "Learn more about the maps",
+    "aboutThisMap": "About this map"
   },
   "downloadMap": {
     "title": "Download current map view",
-    "qrCodeOptionLabel": "Download QR code",
-    "simpleMapOptionLabel": "Download embeddable map",
-    "compareMapOptionLabel": "Download embeddable comparison map",
+    "qrCodeOptionLabel": "QR code",
+    "simpleMapOptionLabel": "Embeddable map",
+    "compareMapOptionLabel": "Embeddable comparison map",
     "compareSectionHeader": "Select two warming scenarios to include in the embeddable comparison map",
     "step": "Step",
     "of": "of",
     "selectScenarios": "Select scenarios",
     "download": "Download"
+  },
+  "allMapsModal": {
+    "title": "All maps"
+  },
+  "close": {
+    "text": "Close"
   }
 }

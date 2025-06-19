@@ -1,9 +1,7 @@
-import React from "react";
 import styled from "styled-components";
 import {
   size,
   colors,
-  HEADER_HEIGHT,
   degreesOptions,
   DescKeys,
   TourProps,
@@ -17,66 +15,70 @@ import {
   ButtonAndSeparator,
   ButtonContainer,
   ButtonContainerProps,
-  ButtonLabel,
-  DegreesSeparator,
-  Info,
-  LabelAndInfoContainer,
-  PopoverContainer,
-  PopoverContent,
-  StyledCancelICon,
-  YearLabel,
 } from "../../styles/warmingScenarioStyles";
 import { useTheme } from "../../contexts";
+import { ReactComponent as InfoIcon } from "../../assets/icons/info.svg";
 
 type Props = {
   degrees: number;
   warmingScenarioDescs: WarmingScenarioDescs;
-  showDegreeDescription: boolean;
   showBaselineModal: boolean;
   tourProps?: TourProps;
-  headerText?: any;
-  onWarmingScenarioDescriptionCancel?: () => void;
+  translatedHeader?: any;
+  onAboutMapClick?: () => void;
   onWarmingScenarioClick?: (value: number, hasDescription: boolean) => void;
 };
 
 const Container = styled.div`
   display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid ${colors.grey};
+  border-radius: 6px;
+  gap: 5px;
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
   flex: 1;
   align-items: center;
-  padding-left: 16px;
-  height: 100%;
-
-  @media (min-width: ${size.desktop}) {
-    padding-left: 24px;
-  }
 `;
 
 const Label = styled.span`
   font-size: 10px;
-  font-weight: 600;
-  max-width: 82px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-right: 16px;
-
-  @media (min-width: ${size.desktop}) {
-    width: 90px;
-    margin-right: 4px;
-  }
+  font-weight: 400;
+  color: ${colors.dimBlack};
+  opacity: 0.8;
 `;
 
 const StyledButton = styled(Button)`
   gap: 4px;
+  border-right: 1px solid ${colors.grey};
+  position: relative;
+  height: 50px;
+  ${({ partialBorder }: { partialBorder: boolean }) =>
+    partialBorder
+      ? `
+        &::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: ${colors.grey};
+          z-index: 0;
+        }`
+      : `border-top: 1px solid ${colors.grey};`}
 `;
 
 const StyledButtonContainer = styled(ButtonContainer)`
   flex: 1;
-  border-bottom: 6px solid transparent;
 
   ${({ isActive }: ButtonContainerProps) =>
     isActive &&
     `
-    border-bottom: 6px solid ${colors.purple};
+    background-color: ${colors.lightPurple};
   `};
 
   &::after,
@@ -88,44 +90,81 @@ const StyledButtonContainer = styled(ButtonContainer)`
 
   &::before {
     @media (min-width: ${size.tabletMax}) {
-      top: ${HEADER_HEIGHT};
+      top: 50px;
     }
   }
 
   &::after {
     @media (min-width: ${size.tabletMax}) {
-      top: ${HEADER_HEIGHT};
+      top: 50px;
     }
   }
 `;
 
-const StyledYearLabel = styled(YearLabel)`
-  margin-top: 8px;
+const AboutThisMap = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 400;
+  font-size: 10px;
+  gap: 10px;
+  letter-spacing: 0.8px;
+  line-height: 12px;
+
+  svg {
+    width: 21px;
+    height: 20px;
+    scale: 0.75;
+  }
+
+  &:hover {
+    color: ${colors.purple};
+    svg {
+      path {
+        fill: ${colors.purple};
+      }
+    }
+  }
+
+  span {
+    text-decoration: underline;
+  }
 `;
 
-const StyledPopoverContainer = styled(PopoverContainer)`
-  z-index: -1;
-  top: ${HEADER_HEIGHT};
+const DegreesHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
 `;
 
-const StyledPopoverContent = styled(PopoverContent)`
-  max-width: 787px;
-  padding: 25px 0px 41px 0px;
+const YearLabel = styled.span`
+  color: ${colors.lightGrey2};
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 11px;
+  pointer-events: none;
+  min-height: 11px;
+  position: absolute;
+  z-index: 1;
+  background: white;
+  padding: 0 8px;
+  border-radius: 3px;
+  top: -5px;
 `;
 
 const Degrees = ({
   degrees,
   warmingScenarioDescs,
-  showDegreeDescription,
   showBaselineModal,
   tourProps,
-  headerText,
+  translatedHeader,
   onWarmingScenarioClick,
-  onWarmingScenarioDescriptionCancel,
+  onAboutMapClick,
 }: Props) => {
-  const currentDescKey =
-    degreesOptions.find((deg) => deg.value === degrees)?.descKey || "description_1c";
-  const { theme, color } = useTheme();
+  const { color, backgroundColor } = useTheme();
 
   const renderButton = (
     value: number,
@@ -135,7 +174,6 @@ const Degrees = ({
     isSelected: boolean,
     descKey: DescKeys,
   ) => {
-    const showInfo = isSelected && !showBaselineModal;
     const showYearLabel = !showBaselineModal;
     return (
       <StyledButton
@@ -143,61 +181,54 @@ const Degrees = ({
         onClick={() =>
           onWarmingScenarioClick && onWarmingScenarioClick(value, !!warmingScenarioDescs[descKey])
         }
-        showInfo={showInfo}
         style={{ color }}
+        partialBorder={false}
       >
-        <StyledYearLabel>
-          {showYearLabel ? (headerText ? headerText["yearLabel" + index] : year) : ""}
-        </StyledYearLabel>
+        {showYearLabel && (
+          <YearLabel>{translatedHeader ? translatedHeader["yearLabel" + index] : year}</YearLabel>
+        )}
         <BorderVisibleOnFocus
           className="button-focus-border"
           width={index % 2 === 0 ? "80px" : "65px"}
         />
-        <LabelAndInfoContainer showInfo={showInfo} className="label-and-info-container">
-          <ButtonLabel showInfo={showInfo}>{label}</ButtonLabel>
-          <Info show={showInfo} theme={theme} />
-        </LabelAndInfoContainer>
+        <span>{label}</span>
       </StyledButton>
     );
   };
 
   return (
-    <Container>
-      <Label>{headerText ? headerText.warmingScenariosTitle : "warming scenarios"}:</Label>
-      {warmingScenarioDescs[currentDescKey] && (
-        <StyledPopoverContainer isOpen={showDegreeDescription}>
-          <StyledCancelICon onClick={onWarmingScenarioDescriptionCancel} />
-          <StyledPopoverContent
-            dangerouslySetInnerHTML={{
-              __html: warmingScenarioDescs[currentDescKey] || "",
-            }}
-          />
-        </StyledPopoverContainer>
-      )}
-      {degreesOptions.map(({ label, value, descKey, year }, index) => {
-        const isSelected = showBaselineModal ? value === 0.5 : degrees === value;
-        return (
-          <ButtonAndSeparator key={label}>
-            <StyledButtonContainer
-              isActive={isSelected}
-              showDegreeDescription={showDegreeDescription}
-            >
-              {value === 1.5 && tourProps ? (
-                <TourBox
-                  show={tourProps.isTourActive && tourProps.step === 3}
-                  position="bottom"
-                  {...tourProps}
-                >
-                  {renderButton(value, index, year, label, isSelected, descKey)}
-                </TourBox>
-              ) : (
-                renderButton(value, index, year, label, isSelected, descKey)
-              )}
-            </StyledButtonContainer>
-            <DegreesSeparator />
-          </ButtonAndSeparator>
-        );
-      })}
+    <Container style={{ color, backgroundColor }}>
+      <DegreesHeader>
+        <Label>
+          {translatedHeader ? translatedHeader.warmingScenariosTitle : "Select a warming scenario"}
+        </Label>
+        <AboutThisMap onClick={onAboutMapClick}>
+          <span>{translatedHeader?.aboutThisMap || "About this map"} </span>
+          <InfoIcon />
+        </AboutThisMap>
+      </DegreesHeader>
+      <ButtonWrapper>
+        {degreesOptions.map(({ label, value, descKey, year }, index) => {
+          const isSelected = showBaselineModal ? value === 0.5 : degrees === value;
+          return (
+            <ButtonAndSeparator key={label}>
+              <StyledButtonContainer isActive={isSelected}>
+                {value === 1.5 && tourProps ? (
+                  <TourBox
+                    show={tourProps.isTourActive && tourProps.step === 3}
+                    position="bottom"
+                    {...tourProps}
+                  >
+                    {renderButton(value, index, year, label, isSelected, descKey)}
+                  </TourBox>
+                ) : (
+                  renderButton(value, index, year, label, isSelected, descKey)
+                )}
+              </StyledButtonContainer>
+            </ButtonAndSeparator>
+          );
+        })}
+      </ButtonWrapper>
     </Container>
   );
 };

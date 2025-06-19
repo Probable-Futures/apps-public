@@ -4,7 +4,7 @@ import Tippy from "@tippyjs/react/headless";
 import WebMercatorViewport from "viewport-mercator-project";
 
 import { colors } from "../../consts";
-import { ReactComponent as CloseIcon } from "../../assets/icons/dashboard/close.svg";
+import { ReactComponent as CloseIcon } from "@probable-futures/components-lib/src/assets/icons/cancel-circle.svg";
 import ArrowDown from "../../assets/icons/map/arrow-down.svg";
 import {
   consts,
@@ -45,7 +45,8 @@ const StyledMapPopover = styled.div`
   background-color: ${colors.white};
   color: ${colors.secondaryBlack};
   box-sizing: border-box;
-  border: 1px solid #39273b;
+  border: 1px solid ${colors.grey};
+  border-radius: 6px;
   box-shadow: 0 3px 5px 0 rgba(56, 22, 63, 0.23);
   overflow-x: hidden;
 
@@ -55,7 +56,7 @@ const StyledMapPopover = styled.div`
     height: 14px;
     position: absolute;
     transform: rotate(45deg);
-    background-color: ${colors.darkPurple};
+    background-color: ${colors.grey};
     top: -7px;
     right: calc(50% - 8px);
     pointer-events: none;

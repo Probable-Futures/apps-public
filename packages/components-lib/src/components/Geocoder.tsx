@@ -1,4 +1,4 @@
-import { RefObject } from "react";
+import { RefObject, useEffect } from "react";
 import { MapRef } from "react-map-gl";
 import styled, { css } from "styled-components";
 import { size, colors, RecentlySearchedItemsKey } from "@probable-futures/lib";
@@ -6,6 +6,7 @@ import { size, colors, RecentlySearchedItemsKey } from "@probable-futures/lib";
 import { ReactComponent as CancelIcon } from "../assets/icons/cancel.svg";
 import useGeocoder, { Feature } from "../hooks/useGeocoder";
 import Spinner from "./Spinner";
+import { ReactComponent as SearchIcon } from "@probable-futures/components-lib/src/assets/icons/search.svg";
 import { ItemHoverStyles } from "../styles/commonStyles";
 
 export type GeocoderProps = {
@@ -18,6 +19,7 @@ export type GeocoderProps = {
   clearText: string;
   recentlySearchedText: string;
   searchIsOpen: boolean;
+  autoFocus: boolean;
   localStorageRecentlySearchedIemskey: RecentlySearchedItemsKey;
   top: string;
   language?: string;
@@ -32,7 +34,7 @@ const textStyles = css`
   overflow: hidden;
   white-space: nowrap;
   box-sizing: border-box;
-  line-height: 20px;
+  line-height: 16px;
 `;
 
 const Container = styled.div`
@@ -41,41 +43,18 @@ const Container = styled.div`
   width: 100%;
   font-size: 18px;
   z-index: 5;
-  background: ${colors.secondaryWhite};
   height: 100%;
   animation: fade 0.2s ease-out;
+  background: ${colors.white};
 
   @media (min-width: ${size.laptop}) {
     animation: slide-right-left 0.2s forwards;
     top: ${({ top }: { top: string }) => top};
-    width: 0;
     overflow: hidden;
     height: unset;
-    right: 80px;
-
-    &::after,
-    &::before {
-      content: "";
-      display: block;
-      position: absolute;
-      width: 0;
-      height: 0;
-      border-style: solid;
-      top: 2.5px;
-      border-width: 15px;
-    }
-
-    &::before {
-      border-color: transparent transparent transparent ${colors.darkPurple};
-      right: -25px;
-      z-index: -1;
-    }
-
-    &::after {
-      border-color: transparent transparent transparent ${colors.whiteOriginal};
-      right: -24px;
-      z-index: 1;
-    }
+    right: 10px;
+    max-width: 296px;
+    background: transparent;
   }
 
   @keyframes fade {
@@ -103,11 +82,12 @@ const CancelIconWrapper = styled.div`
   display: flex;
 
   svg {
-    width: 25px;
-    height: 25px;
+    width: 20px;
+    height: 20px;
 
     path {
-      fill: ${colors.darkPurple};
+      fill: ${colors.dimBlack};
+      opacity: 0.7;
     }
   }
 
@@ -123,11 +103,11 @@ const InputFieldButtons = styled.div`
   position: absolute;
   display: flex;
   z-index: 2;
-  gap: 10px;
+  gap: 5px;
   align-items: center;
   height: ${({ searchInputHeight }: { searchInputHeight: string }) => searchInputHeight};
   right: 50px;
-  top: 25px;
+  top: 16px;
 
   @media (min-width: ${size.laptop}) {
     right: 10px;
@@ -136,42 +116,30 @@ const InputFieldButtons = styled.div`
 `;
 
 const Clear = styled.div`
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 12px;
-  text-transform: uppercase;
-  color: ${colors.primaryGray};
+  font-size: 12px;
+  font-family: LinearSans;
+  line-height: normal;
+  font-weight: 400;
+  text-transform: capitalize;
   cursor: pointer;
+  color: ${colors.dimBlack};
+  opacity: 0.8;
 `;
 
-const Separator = styled.div`
-  width: 1px;
-  height: 50%;
-  background: ${colors.grey};
-`;
-
-const RecentlySearched = styled.div`
-  background: ${colors.secondaryWhite};
+const RecentlySearched = styled.div<{ hasSuggestions: boolean }>`
   margin: 0;
   box-sizing: border-box;
   width: 100%;
   border: none;
-  padding: 0px 26px 14px;
-
-  @media (min-width: ${size.laptop}) {
-    border: 1px solid ${colors.dimBlack};
-    border-top: none;
-    padding: 0;
-  }
 `;
 
 const RecentlySearchedTitle = styled.div`
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 12px;
-  text-transform: uppercase;
-  color: ${colors.primaryGray};
-  padding: 10px 14px 7px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: normal;
+  color: ${colors.dimBlack};
+  opacity: 0.8;
+  padding: 10px 13px 10px;
 
   @media (min-width: ${size.laptop}) {
     padding-top: 14px;
@@ -182,6 +150,7 @@ const RecentlySearchedTitle = styled.div`
 const RecentlySearchedItem = styled.div`
   font-weight: 400;
   font-size: 16px;
+  line-height: 16px;
   text-transform: capitalize;
   color: ${colors.dimBlack};
   padding: 12px 14px;
@@ -196,7 +165,8 @@ const RecentlySearchedItem = styled.div`
   }
 
   @media (min-width: ${size.laptop}) {
-    padding: 7px 16px;
+    padding: 7px 13px;
+    font-size: 12px;
 
     &:last-child {
       padding-bottom: 14px;
@@ -214,11 +184,16 @@ const MapboxGeocoder = styled.div`
 `;
 
 const Input = styled.input`
-  height: 56px;
-  padding: 7px 90px 7px 16px;
-  border: 1px solid ${colors.dimBlack};
+  height: 40px;
+  padding: 7px 90px 7px 13px;
+  border: 1px solid ${colors.grey};
+  border-radius: 6px;
   font-size: 16px;
-  background: ${colors.secondaryWhite};
+  font-style: normal;
+  line-height: 18px;
+  font-weight: 400;
+  background: ${colors.white};
+  color: ${colors.dimBlack};
   font-family: LinearSans;
   width: 100%;
   margin: 0;
@@ -228,18 +203,17 @@ const Input = styled.input`
     outline: none;
   }
 
+  ::placeholder {
+    color: #1c101e66;
+  }
+
   @media (min-width: ${size.laptop}) {
+    font-size: 12px;
     height: ${({ searchInputHeight }: { searchInputHeight: string }) => searchInputHeight};
   }
 `;
 
 const Suggestions = styled.div`
-  font-size: 16px;
-  box-shadow: none;
-  background: ${colors.secondaryWhite};
-  position: relative;
-  border: none;
-  padding-top: 10px;
   ${({ hasRecentItems }: { hasRecentItems: boolean }) =>
     hasRecentItems &&
     ` &:after {
@@ -249,13 +223,21 @@ const Suggestions = styled.div`
         margin-left: 14px;
         margin-top: 7px;
     }`}
+`;
+
+const DataSection = styled.div`
+  font-size: 16px;
+  box-shadow: none;
+  background: ${colors.white};
+  position: relative;
+  border: none;
+  padding-top: 10px;
 
   @media (min-width: ${size.laptop}) {
-    border: 1px solid ${colors.dimBlack};
-    border-top: none;
-    border-radius: unset;
+    border: 1px solid ${colors.grey};
+    margin-top: 5px;
+    border-radius: 6px;
     padding-top: unset;
-    ${({ hasRecentItems }: { hasRecentItems: boolean }) => hasRecentItems && "border-bottom: none;"}
   }
 `;
 
@@ -267,16 +249,44 @@ const Suggestion = styled.div`
   &:hover {
     ${ItemHoverStyles}
   }
+
+  @media (min-width: ${size.laptop}) {
+    &:first-child {
+      padding-top: 12px;
+    }
+
+    &:last-child {
+      padding-bottom: 10px;
+    }
+  }
 `;
 
 const SuggestionTitle = styled.div`
   ${textStyles};
-  font-weight: 700;
+  font-weight: 400;
+  color: ${colors.dimBlack};
+  font-size: 16px;
+  line-height: 22px;
+
+  @media (min-width: ${size.laptop}) {
+    font-size: 12px;
+    line-height: 16px;
+  }
 `;
 
 const SuggestionAddress = styled.div`
   ${textStyles};
-  color: #404040;
+  color: ${colors.dimBlack};
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px;
+  opacity: 0.5;
+
+  @media (min-width: ${size.laptop}) {
+    font-size: 12px;
+    line-height: 16px;
+  }
 `;
 
 const NoDataMessage = styled.div`
@@ -284,8 +294,16 @@ const NoDataMessage = styled.div`
   padding: 6px 12px;
   font-size: 16px;
   text-align: center;
-  border: 1px solid ${colors.dimBlack};
-  border-top: none;
+
+  &:after {
+    content: " ";
+    display: block;
+    border-bottom: 0.5px solid ${colors.secondaryGray};
+    margin-top: 7px;
+    width: 90%;
+    margin: 0 auto;
+    padding-top: 10px;
+  }
 `;
 
 const Geocoder = (props: GeocoderProps) => {
@@ -296,17 +314,14 @@ const Geocoder = (props: GeocoderProps) => {
     showNoResultsMessage,
     error,
     inputRef,
+    isInputFocused,
     onRecentlySearchedItemClick,
     onFeatureSelected,
     onInputChange,
     onClear,
-    close,
     onKeyDown,
+    setIsInputFocused,
   } = useGeocoder(props);
-
-  if (!props.searchIsOpen) {
-    return null;
-  }
 
   const recentlySearchedItems: RecentlySearchedItemType[] = JSON.parse(
     localStorage.getItem(
@@ -324,7 +339,10 @@ const Geocoder = (props: GeocoderProps) => {
       <Suggestion
         isActive={index === 0}
         key={feature.place_name}
-        onClick={() => onFeatureSelected(feature, recentlySearchedItems)}
+        onClick={() => {
+          onFeatureSelected(feature, recentlySearchedItems);
+          props.setSearchIsOpen(false);
+        }}
       >
         <SuggestionTitle>{title}</SuggestionTitle>
         <SuggestionAddress>{address}</SuggestionAddress>
@@ -341,6 +359,33 @@ const Geocoder = (props: GeocoderProps) => {
     return null;
   };
 
+  const onInputIconClicked = () => {
+    if (isInputFocused) {
+      onClear(true);
+    } else {
+      inputRef.current?.focus();
+    }
+  };
+
+  // add shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check if Command (Mac) or Ctrl (Windows/Linux) key is pressed along with "K" key
+      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
+        inputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [inputRef, setIsInputFocused]);
+
+  if (!props.searchIsOpen) {
+    return null;
+  }
+
   return (
     <Container top={props.top}>
       <MapboxGeocoder>
@@ -349,49 +394,75 @@ const Geocoder = (props: GeocoderProps) => {
             ref={inputRef}
             value={inputValue}
             placeholder={props.placeholderText}
-            autoFocus
+            autoFocus={props.autoFocus}
+            onFocus={() => setIsInputFocused(true)}
             onChange={onInputChange}
             onKeyDown={(e) => onKeyDown(e, recentlySearchedItems)}
             searchInputHeight={props.searchInputHeight}
           />
           <InputFieldButtons searchInputHeight={props.searchInputHeight}>
-            {inputValue.length > 0 && <Clear onClick={onClear}>{props.clearText}</Clear>}
-            <Separator></Separator>
-            <CancelIconWrapper onClick={close}>
-              <CancelIcon />
-            </CancelIconWrapper>
-            {isLoading && <Spinner />}
+            {isLoading ? (
+              <Spinner />
+            ) : (
+              <>
+                <CancelIconWrapper
+                  onClick={() => {
+                    onInputIconClicked();
+                    props.setSearchIsOpen(false);
+                  }}
+                >
+                  {isInputFocused ? <CancelIcon /> : <SearchIcon />}
+                </CancelIconWrapper>
+                {inputValue.length > 0 && (
+                  <Clear onClick={() => onClear()}>{props.clearText}</Clear>
+                )}
+              </>
+            )}
           </InputFieldButtons>
         </div>
-        {renderNoDataMessage()}
-        {suggestionList.length > 0 && (
-          <Suggestions hasRecentItems={recentlySearchedItems.length > 0}>
-            {suggestionList.map((feature, index) => renderItem(feature, index))}
-          </Suggestions>
-        )}
-      </MapboxGeocoder>
-      {recentlySearchedItems.length > 0 && (
-        <RecentlySearched>
-          <RecentlySearchedTitle>{props.recentlySearchedText}</RecentlySearchedTitle>
-          {recentlySearchedItems.map((item, index) =>
-            typeof item === "string" ? (
-              <RecentlySearchedItem
-                key={`${item}_${index}`}
-                onClick={() => onRecentlySearchedItemClick(recentlySearchedItems, index)}
-              >
-                {item}
-              </RecentlySearchedItem>
-            ) : (
-              <RecentlySearchedItem
-                key={`${item.id || item.place_name}_${index}`}
-                onClick={() => onRecentlySearchedItemClick(recentlySearchedItems, index)}
-              >
-                {item.place_name}
-              </RecentlySearchedItem>
-            ),
+        {isInputFocused &&
+          (error ||
+            showNoResultsMessage ||
+            suggestionList.length > 0 ||
+            recentlySearchedItems.length > 0) && (
+            <DataSection>
+              {renderNoDataMessage()}
+              {suggestionList.length > 0 && (
+                <Suggestions hasRecentItems={recentlySearchedItems.length > 0}>
+                  {suggestionList.map((feature, index) => renderItem(feature, index))}
+                </Suggestions>
+              )}
+              {recentlySearchedItems.length > 0 && isInputFocused && (
+                <RecentlySearched hasSuggestions={suggestionList.length > 0}>
+                  <RecentlySearchedTitle>{props.recentlySearchedText}</RecentlySearchedTitle>
+                  {recentlySearchedItems.map((item, index) =>
+                    typeof item === "string" ? (
+                      <RecentlySearchedItem
+                        key={`${item}_${index}`}
+                        onClick={() => {
+                          onRecentlySearchedItemClick(recentlySearchedItems, index);
+                          props.setSearchIsOpen(false);
+                        }}
+                      >
+                        {item}
+                      </RecentlySearchedItem>
+                    ) : (
+                      <RecentlySearchedItem
+                        key={`${item.id || item.place_name}_${index}`}
+                        onClick={() => {
+                          onRecentlySearchedItemClick(recentlySearchedItems, index);
+                          props.setSearchIsOpen(false);
+                        }}
+                      >
+                        {item.place_name}
+                      </RecentlySearchedItem>
+                    ),
+                  )}
+                </RecentlySearched>
+              )}
+            </DataSection>
           )}
-        </RecentlySearched>
-      )}
+      </MapboxGeocoder>
     </Container>
   );
 };

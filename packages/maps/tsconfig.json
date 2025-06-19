@@ -3,5 +3,5 @@
   "compilerOptions": {
     "baseUrl": "src"
   },
-  "include": ["src"]
+  "include": ["src", "../components-lib/src/components/AboutMap.tsx"]
 }

@@ -10,7 +10,7 @@ import { utils, consts, HEADER_HEIGHT } from "@probable-futures/lib";
 import { components, contexts } from "@probable-futures/components-lib";
 import { Helmet } from "react-helmet";
 import { Feature } from "@probable-futures/components-lib/src/hooks/useGeocoder";
-import MediaQuery, { useMediaQuery } from "react-responsive";
+import { useMediaQuery } from "react-responsive";
 
 import { KeplerGl } from "./KeplerDI";
 import { DEFAULT_PF_DATASET_ID, MAP_ID } from "../../consts/MapConsts";
@@ -37,8 +37,9 @@ import { UPDATE_CLICKED_MAP_INFO } from "../../store/actions";
 import ConfirmationModal from "../Common/ConfirmationModal";
 import { colors, size } from "../../consts";
 import useDegreesSelector from "../../utils/useDegreesSelector";
-import Header from "./Header";
 import useExportMapAsHTML from "../../utils/useExportMapAsHTML";
+import MapSelection from "./MapSelection";
+import { useDatasetChangeHandler } from "../../utils/useDatasetChangeHandler";
 
 const mapStateToProps = (state: RootState) => state;
 const dispatchToProps = (dispatch: AppDispatch) => ({ dispatch });
@@ -46,11 +47,6 @@ const dispatchToProps = (dispatch: AppDispatch) => ({ dispatch });
 const connector = connect(mapStateToProps, dispatchToProps);
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
-
-type DegreesWrapperProps = {
-  headerWidth: string;
-  activeSidePanel: boolean;
-};
 
 const localeMessages = {
   en: {
@@ -98,21 +94,15 @@ const SharedProjectDescription = styled.p`
 `;
 
 const DegreesWrapper = styled.div`
-  width: ${({ headerWidth }: DegreesWrapperProps) => headerWidth};
-  display: block;
   position: absolute;
-  bottom: 0;
-  right: 0;
-  z-index: 2;
-  ${({ activeSidePanel }: DegreesWrapperProps) => !activeSidePanel && "transition: width 250ms;"}
-
-  @media (min-width: ${size.laptop}) {
-    z-index: 3;
-  }
+  top: 10px;
+  right: 10px;
+  box-sizing: content-box;
+  z-index: 3;
+  width: 600px;
 `;
 
 type LinkProps = {
-  showDegreeDescription?: boolean;
   bottom?: string;
   activeSidePanel: boolean;
 };
@@ -127,13 +117,20 @@ const Link = styled.a`
   font-family: Helvetica Neue, Arial, Helvetica, sans-serif;
   line-height: 20px;
   color: rgba(0, 0, 0, 0.75);
-  z-index: ${({ showDegreeDescription }: LinkProps) =>
-    showDegreeDescription
-      ? "z-index: 2; transition: z-index 0s step-end;"
-      : "z-index: 3; transition: z-index 0.2s step-end;"};
+  z-index: 3;
+  transition: z-index 0.2s step-end;
   cursor: pointer;
   text-decoration: none;
   bottom: ${({ bottom }: LinkProps) => bottom ?? 0};
+`;
+
+const DegreesMobileContainer = styled.div`
+  position: absolute;
+  bottom: 0;
+  box-sizing: content-box;
+  z-index: 4;
+  width: 100%;
+  left: 40px;
 `;
 
 function easeCubic(t: any) {
@@ -158,6 +155,8 @@ const InteractiveMap = (props: PropsFromRedux) => {
 
   useEnrichSingleDataset({ onEnrichmentFinish: setFinalEnrichmentDataset });
 
+  const onDatasetChange = useDatasetChangeHandler();
+
   const { setDefaultColorField } = useMapActions({
     dispatch,
     keplerGl,
@@ -168,6 +167,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
     selectedClimateData,
     isClimateDataVisible,
     mapRef,
+    climateData,
     showMergeDataModal,
     importReviewProps,
     setShowMergeDataModal,
@@ -181,16 +181,22 @@ const InteractiveMap = (props: PropsFromRedux) => {
     warmingScenarioDescs,
     datasetDescriptionResponse,
     tempUnit,
-    searchIsOpen,
-    setSearchIsOpen,
-    showDegreeDescription,
     precipitationUnit,
+    searchIsOpen,
+    showAboutMap,
+    setSearchIsOpen,
+    setShowAboutMap,
   } = useMapData();
-
-  const { onCancel, onButtonClick } = useDegreesSelector();
   const isLaptop = useMediaQuery({
     query: `(min-width: ${size.laptop})`,
   });
+
+  const isTablet = useMediaQuery({
+    query: `(max-width: ${size.tabletMax})`,
+  });
+
+  const { onButtonClick } = useDegreesSelector();
+
   const degrees = project.mapConfig.pfMapConfig.warmingScenario;
   const percentileValue = project.mapConfig.pfMapConfig.percentileValue;
   const bins = project.mapConfig.pfMapConfig.bins || selectedClimateData?.stops;
@@ -322,21 +328,6 @@ const InteractiveMap = (props: PropsFromRedux) => {
     updateMapStyles,
   ]);
 
-  // add shortcut for search
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Check if Command (Mac) or Ctrl (Windows/Linux) key is pressed along with "K" key
-      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
-        setSearchIsOpen((isOpen: boolean) => !isOpen);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    // Clean up the event listener when the component unmounts
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [setSearchIsOpen]);
-
   const { callInit } = useProjectInit();
 
   useMapsApi();
@@ -446,8 +437,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
     }
     return (
       <Link
-        bottom={`${parseInt(consts.HEADER_HEIGHT_MOBILE) + 2}px`}
-        showDegreeDescription={showDegreeDescription}
+        bottom={"2px"}
         target="_blank"
         rel="noopener noreferrer"
         href={consts.MAP_VERSION_URL}
@@ -508,42 +498,47 @@ const InteractiveMap = (props: PropsFromRedux) => {
     return showLoader || isEnrichingInProgress || isFetchingDatasets;
   }, [project.datasetEnrichment, project.addedDataToMap, project.isFetchingDatasets, showLoader]);
 
-  const headerWidth = useMemo(() => {
-    if (isLaptop) {
-      if (!!project.slugId) {
-        return "calc(100vw);";
-      } else if (!activeSidePanel) {
-        return "calc(100vw - 40px);";
-      } else {
-        return "calc(100vw - 300px);";
-      }
-    } else {
-      if (!!project.slugId) {
-        return "calc(100vw);";
-      } else {
-        return "calc(100vw - 40px);";
-      }
-    }
-  }, [activeSidePanel, project.slugId, isLaptop]);
-
   return (
     <>
       {renderHelmetComponent()}
       <Container>
         <components.Loader show={isMapOrDataLoading} />
-        <Header headerWidth={headerWidth} activeSidePanel={activeSidePanel} />
+        <MapSelection activeSidePanel={activeSidePanel} />
         {selectedClimateData && (
           <contexts.ThemeProvider theme="light">
-            <DegreesWrapper headerWidth={headerWidth} activeSidePanel={activeSidePanel}>
-              <components.DegreesFooter
+            {isTablet ? (
+              <DegreesMobileContainer>
+                <components.DegreesFooter
+                  degrees={degrees}
+                  warmingScenarioDescs={warmingScenarioDescs}
+                  showBaselineModal={showBaselineModal}
+                  onWarmingScenarioClick={onButtonClick}
+                />
+              </DegreesMobileContainer>
+            ) : (
+              <DegreesWrapper>
+                <components.Degrees
+                  degrees={degrees}
+                  warmingScenarioDescs={warmingScenarioDescs}
+                  showBaselineModal={showBaselineModal}
+                  onWarmingScenarioClick={onButtonClick}
+                  onAboutMapClick={() => {
+                    setShowAboutMap(true);
+                  }}
+                />
+              </DegreesWrapper>
+            )}
+            {/* <DegreesWrapper>
+              <components.Degrees
                 degrees={degrees}
                 warmingScenarioDescs={warmingScenarioDescs}
-                showDegreeDescription={showDegreeDescription}
                 showBaselineModal={showBaselineModal}
-                onWarmingScenarioDescriptionCancel={onCancel}
                 onWarmingScenarioClick={onButtonClick}
+                onAboutMapClick={() => {
+                  setShowAboutMap(true);
+                }}
               />
-            </DegreesWrapper>
+            </DegreesWrapper> */}
           </contexts.ThemeProvider>
         )}
         <KeplerGl
@@ -614,11 +609,18 @@ const InteractiveMap = (props: PropsFromRedux) => {
           isVisible={showBaselineModal}
           onToggle={() => setShowBaselineModal((show: boolean) => !show)}
         >
-          <p
-            dangerouslySetInnerHTML={{
-              __html: warmingScenarioDescs.description_baseline_change_maps || "",
+          <div
+            style={{
+              marginTop: "25px",
+              padding: "0px 40px 15px",
             }}
-          ></p>
+          >
+            <p
+              dangerouslySetInnerHTML={{
+                __html: warmingScenarioDescs.description_baseline_change_maps || "",
+              }}
+            ></p>
+          </div>
         </components.MapModal>
         <ConfirmationModal
           isOpen={!!finalEnrichmentDataset}
@@ -638,18 +640,25 @@ const InteractiveMap = (props: PropsFromRedux) => {
           placeholderText="Search for a location"
           clearText="clear"
           recentlySearchedText="recently searched"
-          searchIsOpen={searchIsOpen}
           localStorageRecentlySearchedIemskey={consts.LOCAL_STORAGE_RECENTLY_SEARCHED_ITEMS_KEY}
-          setSearchIsOpen={setSearchIsOpen}
           mapRef={mapRef}
+          searchIsOpen={searchIsOpen}
           mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
           onFly={handleOnFly}
-          top="calc(50% - 220px)"
+          setSearchIsOpen={setSearchIsOpen}
+          top="120px"
+          autoFocus
+        />
+        <components.AboutMap
+          isOpen={showAboutMap}
+          datasetDescriptionResponse={datasetDescriptionResponse}
+          warmingScenarioDescs={warmingScenarioDescs}
+          onClose={() => setShowAboutMap(false)}
+          datasets={climateData}
+          selectedDataset={selectedClimateData}
+          onDatasetChange={onDatasetChange}
         />
         {renderBottomLinks()}
-        <MediaQuery minWidth={size.laptop}>
-          {searchIsOpen && <components.MapOverlay onClick={() => setSearchIsOpen(false)} />}
-        </MediaQuery>
       </Container>
     </>
   );

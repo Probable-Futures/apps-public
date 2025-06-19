@@ -39,8 +39,9 @@ const useGeocoder = (props: GeocoderProps) => {
   const [inputValue, setInputValue] = useState("");
   const [geocodeSerice, setGeocodeService] = useState<any>();
   const [showNoResultsMessage, setShowNoResultsMessage] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { onFly, mapRef, setSearchIsOpen } = props;
+  const { onFly, mapRef } = props;
 
   const onSearch = useCallback(
     async (query: string) => {
@@ -135,13 +136,15 @@ const useGeocoder = (props: GeocoderProps) => {
     [mapRef, onFly],
   );
 
-  const onClear = useCallback(() => {
+  const onClear = useCallback((close = false) => {
     setInputValue("");
     setSuggestionList([]);
     setError("");
     setShowNoResultsMessage(false);
-    if (inputRef.current) {
+    if (inputRef.current && !close) {
       inputRef.current.focus();
+    } else {
+      setIsInputFocused(false);
     }
   }, []);
 
@@ -164,12 +167,6 @@ const useGeocoder = (props: GeocoderProps) => {
     }
   }, [geocodeSerice, props.mapboxAccessToken]);
 
-  useEffect(() => {
-    if (!props.searchIsOpen) {
-      onClear();
-    }
-  }, [props.searchIsOpen, onClear]);
-
   const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setInputValue(event.target.value);
@@ -180,10 +177,6 @@ const useGeocoder = (props: GeocoderProps) => {
       debouncedSearch(event.target.value);
     }
   };
-
-  const close = useCallback(() => {
-    setSearchIsOpen(false);
-  }, [setSearchIsOpen]);
 
   const onFeatureSelected = useCallback(
     (feature: Feature, recentlySearchedItems: RecentlySearchedItemType[]) => {
@@ -217,9 +210,9 @@ const useGeocoder = (props: GeocoderProps) => {
 
       fly(feature);
 
-      close();
+      onClear(false);
     },
-    [props.localStorageRecentlySearchedIemskey, props.language, fly, close],
+    [props.localStorageRecentlySearchedIemskey, props.language, fly, onClear],
   );
 
   const onRecentlySearchedItemClick = async (
@@ -255,12 +248,13 @@ const useGeocoder = (props: GeocoderProps) => {
     showNoResultsMessage,
     error,
     inputRef,
+    isInputFocused,
     onRecentlySearchedItemClick,
     onFeatureSelected,
     onInputChange,
     onClear,
-    close,
     onKeyDown,
+    setIsInputFocused,
   };
 };
 

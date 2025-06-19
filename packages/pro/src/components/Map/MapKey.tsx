@@ -1,12 +1,10 @@
-import { useMemo } from "react";
 import styled from "styled-components";
 import { components } from "@probable-futures/components-lib";
-import { useMediaQuery } from "react-responsive";
 
 import { useMapData } from "../../contexts/DataContext";
 import { colors, size } from "../../consts";
 import MapKeyExtension from "./MapKeyExtension";
-import { types, HEADER_HEIGHT } from "@probable-futures/lib";
+import { consts, types } from "@probable-futures/lib";
 
 type Props = {
   activeSidePanel: boolean;
@@ -19,103 +17,92 @@ type Props = {
 };
 
 type MapKeyWrapperProps = {
-  width: string;
   activeSidePanel: boolean;
 };
 
-const MapKeyWrapper = styled.div`
+const MapKeyWrapper = styled.div<MapKeyWrapperProps>`
   position: absolute;
-  ${({ activeSidePanel }: MapKeyWrapperProps) => !activeSidePanel && "transition: width 250ms;"}
-  min-width: 280px;
-  top: ${HEADER_HEIGHT};
+  ${({ activeSidePanel }: MapKeyWrapperProps) => !activeSidePanel && "transition: left 250ms;"}
+  left: 40px;
+  top: ${consts.HEADER_HEIGHT};
   right: 0;
-  z-index: 2;
-  width: ${({ width }: MapKeyWrapperProps) => width};
+  z-index: 1;
+  min-width: 280px;
+
+  @media (min-width: ${size.tablet}) and (max-width: ${size.tabletMax}) {
+    top: 0;
+    z-index: 3;
+    right: unset
+    width: auto;
+  }
 
   @media (min-width: ${size.laptop}) {
-    top: 0;
-    left: unset;
-    z-index: 5;
-    height: ${HEADER_HEIGHT};
+    left: ${({ activeSidePanel }: MapKeyWrapperProps) => (activeSidePanel ? "340px" : "75px")};
+    top: unset;
+    right: unset;
+    bottom: 36px;
+    z-index: 2;
+    width: auto;
   }
 
   .map-key-container {
     border-top: 1px solid ${colors.darkPurple};
-    padding: 10px;
     overflow-x: auto;
+
+    @media (min-width: ${size.tablet}) and (max-width: ${size.tabletMax}) {
+      padding: 0px 18px;
+      border-bottom: 1px solid ${colors.grey};
+      border-top: none;
+      height: 62px;
+      overflow: hidden !important;
+    }
+
+    @media (min-width: ${size.laptop}) {
+      border: 1px solid ${colors.grey};
+      border-radius: 6px;
+      padding: 12px 18px 9px;
+      overflow: hidden !important;
+    }
 
     ::-webkit-scrollbar {
       display: none !important;
     }
-
-    @media (min-width: ${size.laptop}) {
-      padding: 0;
-      border-bottom: none;
-      border-top: none;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
-    }
   }
 
   .climate-zones-key-container {
+    width: 100vw;
     overflow-x: scroll; /* Add the ability to scroll */
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
     overflow-y: hidden;
     white-space: nowrap;
     padding: 10px;
+    padding-left: 15px;
     border: none;
     box-sizing: content-box;
     border-top: 1px solid ${colors.darkPurple};
     border-bottom: 1px solid ${colors.darkPurple};
 
-    .climate-zones-bin-container {
-      gap: 15px;
-      margin-top: 2px;
+    @media (min-width: ${size.tablet}) and (max-width: ${size.tabletMax}) {
+      border: 1px solid ${colors.grey};
+      padding: 0px;
+      padding-left: 16px;
+      width: auto;
+      height: 80px;
+      overflow-x: hidden;
     }
 
     @media (min-width: ${size.laptop}) {
-      box-sizing: content-box;
-      border: none;
-      white-space: nowrap;
-      padding: 0;
-      padding-top: 5px;
+      border: 1px solid ${colors.grey};
+      padding: 0px;
+      padding-left: 16px;
+      width: auto;
+      height: 80px;
+      overflow-x: hidden;
     }
 
     ::-webkit-scrollbar {
       display: none;
-    }
-  }
-
-  .map-key-header {
-    margin-bottom: 0px !important;
-  }
-
-  .map-key-label {
-    margin-bottom: 5px !important;
-  }
-
-  .map-key-bins-container {
-    margin-right: 13px !important;
-    flex: 1;
-  }
-
-  .map-key-bin-container {
-    margin-right: 2px !important;
-    max-width: 65px !important;
-  }
-
-  .map-key-switch-container {
-    flex: 1;
-  }
-
-  .map-key-bin {
-    font-size: 9px !important;
-
-    .dash {
-      font-size: 13px !important;
     }
   }
 `;
@@ -129,41 +116,14 @@ const MapKey = ({
   setTempUnit,
   setPrecipitationUnit,
 }: Props) => {
-  const { selectedClimateData, datasetDropdownRef, datasetDescriptionResponse } = useMapData();
-  const isLaptop = useMediaQuery({
-    query: `(min-width: ${size.laptop})`,
-  });
-  const datasetDropdownWidth = datasetDropdownRef.current?.firstElementChild?.clientWidth ?? 0;
-
-  const keyWidth = useMemo(() => {
-    if (isLaptop) {
-      if (slugId) {
-        return `calc(100% - ${datasetDropdownWidth + 10}px)`;
-      } else {
-        if (activeSidePanel) {
-          return `calc(100% - ${datasetDropdownWidth + 307}px)`;
-        } else {
-          return `calc(100% - ${datasetDropdownWidth + 50}px)`;
-        }
-      }
-    } else {
-      if (slugId) {
-        return "100vw";
-      } else {
-        return "calc(100vw - 40px)";
-      }
-    }
-  }, [activeSidePanel, isLaptop, slugId, datasetDropdownWidth]);
+  const { selectedClimateData, datasetDescriptionResponse } = useMapData();
 
   if (!selectedClimateData) {
     return null;
   }
 
   return (
-    <MapKeyWrapper
-      width={datasetDropdownWidth ? keyWidth : "auto"}
-      activeSidePanel={activeSidePanel}
-    >
+    <MapKeyWrapper activeSidePanel={activeSidePanel}>
       {datasetDescriptionResponse && (
         <components.MapKey
           stops={bins}
@@ -171,7 +131,6 @@ const MapKey = ({
           setTempUnit={setTempUnit}
           selectedDataset={selectedClimateData}
           binHexColors={selectedClimateData.binHexColors}
-          useTabletViewOnLaptop={true}
           datasetDescriptionResponse={datasetDescriptionResponse}
           precipitationUnit={precipitationUnit}
           setPrecipitationUnit={setPrecipitationUnit}

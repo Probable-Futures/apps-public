@@ -20,7 +20,6 @@ type Props = {
   tempUnit: TempUnit;
   stops?: number[];
   binHexColors?: string[];
-  useTabletViewOnLaptop?: boolean;
   mapKeyText?: any;
   datasetDescriptionResponse?: DatasetDescriptionResponse;
   setTempUnit: (arg: TempUnit) => void;
@@ -32,7 +31,7 @@ type Props = {
 
 const Container = styled.div`
   background-color: ${colors.white};
-  border-bottom: 1px solid ${colors.darkPurple};
+  border-bottom: 1px solid ${colors.grey};
   padding: 12px 18px 9px;
   box-sizing: initial;
 `;
@@ -51,26 +50,36 @@ const Header = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0px;
+  margin-bottom: 11px;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  line-height: normal;
 
   @media (min-width: ${size.laptop}) {
-    margin-bottom: 10px;
+    margin-bottom: 14px;
+    gap: 0px;
   }
+
+  @media (min-width: ${size.tablet}) and (max-width: ${size.tabletMax}) {
+    margin-top: 6px;
+  }
+`;
+
+const LabelAndSwitch = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 0px;
+  gap: 10px;
 `;
 
 const Label = styled.span`
   display: block;
-  font-size: 10px;
   color: ${colors.darkPurple};
-  font-weight: 600;
-  letter-spacing: 0.8px;
-  line-height: 11px;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-
-  @media (min-width: ${size.laptop}) {
-    margin-bottom: 8px;
-  }
+  min-width: 92px;
+  font-family: LinearSans;
+  font-size: 10px;
 `;
 
 const Row = styled.div`
@@ -106,6 +115,7 @@ const BinsContainer = styled.div`
   display: flex;
   align-items: flex-start;
   width: 100%;
+  gap: 7px;
 
   @media (min-width: ${size.tablet}) {
     margin-right: 13px;
@@ -117,7 +127,7 @@ const BinsContainer = styled.div`
 `;
 
 const Color = styled.div`
-  height: 12px;
+  height: 8px;
   background-color: ${({ value }: { value: string }) => value};
 
   @media (min-width: ${size.laptop}) {
@@ -135,6 +145,7 @@ const Bin = styled.span`
   margin-top: 2px;
   display: flex;
   justify-content: space-evenly;
+  font-weight: 400;
 
   .dash {
     font-size: 13px;
@@ -156,6 +167,7 @@ const Bin = styled.span`
 
 const LabelWrapper = styled.span`
   display: flex;
+  margin-top: 4px;
 
   @media (min-width: ${size.laptop}) {
     gap: 5px;
@@ -169,7 +181,6 @@ const MapKey = ({
   binHexColors,
   setTempUnit,
   children,
-  useTabletViewOnLaptop = false,
   mapKeyText,
   datasetDescriptionResponse,
   activeClimateZoneLayers,
@@ -229,22 +240,30 @@ const MapKey = ({
         </LabelWrapper>
       );
     }
-    return <span>{from}</span>;
+    return (
+      <LabelWrapper>
+        <span>{from}</span>
+      </LabelWrapper>
+    );
   };
 
   const renderSwitch = () => {
     if (isTempMap) {
       return (
-        <Switch isChecked={tempUnit === "°F"} left="°C" right="°F" onChange={onTempUnitChange} />
+        <>
+          <Switch isChecked={tempUnit === "°F"} left="°C" right="°F" onChange={onTempUnitChange} />
+        </>
       );
     } else if (isPrecipitationMap) {
       return (
-        <Switch
-          isChecked={precipitationUnit === "in"}
-          left="mm"
-          right="in"
-          onChange={onPrecipitationUnitChange}
-        />
+        <>
+          <Switch
+            isChecked={precipitationUnit === "in"}
+            left="mm"
+            right="in"
+            onChange={onPrecipitationUnitChange}
+          />
+        </>
       );
     }
     return null;
@@ -254,14 +273,16 @@ const MapKey = ({
     <Container className="map-key-container">
       <Content>
         <Header className="map-key-header">
-          <Label className="map-key-label">
-            {isTempMap
-              ? datasetUnit.replace("°C", tempUnit)
-              : isPrecipitationMap
-              ? datasetUnit.replace("mm", precipitationUnit)
-              : datasetUnit}
-          </Label>
-          {!isTablet && !useTabletViewOnLaptop && renderSwitch()}
+          <LabelAndSwitch>
+            <Label className="map-key-label">
+              {isTempMap
+                ? datasetUnit.replace("°C", tempUnit)
+                : isPrecipitationMap
+                ? datasetUnit.replace("mm", precipitationUnit)
+                : datasetUnit}
+            </Label>
+          </LabelAndSwitch>
+          {!isTablet && renderSwitch()}
         </Header>
         <Row>
           <BinsContainer className="map-key-bins-container">
@@ -286,8 +307,8 @@ const MapKey = ({
                 </BinContainer>
               );
             })}
+            {isTablet && renderSwitch()}
           </BinsContainer>
-          {(isTablet || useTabletViewOnLaptop) && renderSwitch()}
         </Row>
         {children}
       </Content>

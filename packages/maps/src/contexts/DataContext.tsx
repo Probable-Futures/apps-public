@@ -27,12 +27,15 @@ type State = {
   datasetDescriptionResponse?: types.DatasetDescriptionResponse;
   searchIsOpen: boolean;
   moreIsOpen: boolean;
-  showDegreeDescription: boolean;
   mapProjection: Projection;
   activeClimateZoneLayers?: string[];
   precipitationUnit: types.PrecipitationUnit;
   showCountryBorders: boolean;
   temporaryShowMarkers: boolean;
+  showAboutMap: boolean;
+  showAllMapsModal: boolean;
+  setShowAllMapsModal: (arg: boolean) => void;
+  setShowAboutMap: (arg: boolean) => void;
   setDatasets(arg: any): void;
   setSelectedDataset(arg: any): void;
   setDegrees(arg: any): void;
@@ -53,7 +56,6 @@ type State = {
   ): void;
   setSearchIsOpen(arg: any): void;
   setMoreIsOpen(arg: any): void;
-  setShowDegreeDescription(arg: any): void;
   setMapProjection(projection: Projection): void;
   setActiveClimateZoneLayers(arg?: string[]): void;
   setPrecipitationUnit(arg: types.PrecipitationUnit): void;
@@ -80,12 +82,15 @@ const initialState = {
   datasetDescriptionResponse: undefined,
   searchIsOpen: false,
   moreIsOpen: false,
-  showDegreeDescription: false,
   mapProjection: { name: "mercator" } as Projection,
   activeClimateZoneLayers: undefined,
   precipitationUnit: "mm" as types.PrecipitationUnit,
   showCountryBorders: true,
   temporaryShowMarkers: false,
+  showAboutMap: false,
+  showAllMapsModal: false,
+  setShowAllMapsModal: () => {},
+  setShowAboutMap: () => {},
   setDatasets: () => {},
   setSelectedDataset: () => {},
   setDegrees: () => {},
@@ -104,7 +109,6 @@ const initialState = {
   setWpDatasetDescriptionResponse: () => {},
   setSearchIsOpen: () => {},
   setMoreIsOpen: () => {},
-  setShowDegreeDescription: () => {},
   setMapProjection: () => {},
   setActiveClimateZoneLayers: () => {},
   setPrecipitationUnit: () => {},
@@ -134,12 +138,13 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
     useState<types.DatasetDescriptionResponse>();
   const [searchIsOpen, setSearchIsOpen] = useState(false);
   const [moreIsOpen, setMoreIsOpen] = useState(false);
-  const [showDegreeDescription, setShowDegreeDescription] = useState(false);
   const [mapProjection, setMapProjection] = useState<Projection>({ name: "mercator" });
   const [activeClimateZoneLayers, setActiveClimateZoneLayers] = useState<string[]>();
   const [precipitationUnit, setPrecipitationUnit] = useState("mm" as types.PrecipitationUnit);
   const [showCountryBorders, setShowCountryBorders] = useState(true);
   const [temporaryShowMarkers, setTemporaryShowMarkers] = useState(false);
+  const [showAboutMap, setShowAboutMap] = useState(false);
+  const [showAllMapsModal, setShowAllMapsModal] = useState(false);
 
   const value = useMemo(
     () => ({
@@ -179,8 +184,6 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       setSearchIsOpen,
       moreIsOpen,
       setMoreIsOpen,
-      showDegreeDescription,
-      setShowDegreeDescription,
       mapProjection,
       setMapProjection,
       activeClimateZoneLayers,
@@ -191,6 +194,10 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       setShowCountryBorders,
       temporaryShowMarkers,
       setTemporaryShowMarkers,
+      showAboutMap,
+      setShowAboutMap,
+      showAllMapsModal,
+      setShowAllMapsModal,
     }),
     [
       datasets,
@@ -211,12 +218,13 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       datasetDescriptionResponse,
       searchIsOpen,
       moreIsOpen,
-      showDegreeDescription,
       mapProjection,
       activeClimateZoneLayers,
       precipitationUnit,
       showCountryBorders,
       temporaryShowMarkers,
+      showAboutMap,
+      showAllMapsModal,
     ],
   );
 

@@ -1,15 +1,16 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import MapGL, { MapLayerMouseEvent, MapRef, ViewState, ViewStateChangeEvent } from "react-map-gl";
-import MediaQuery, { useMediaQuery } from "react-responsive";
+import { useMediaQuery } from "react-responsive";
 import styled from "styled-components";
 import { MapboxEvent, Map as MapBoxMap, MapSourceDataEvent } from "mapbox-gl";
 import qrCode from "qrcode";
 import debounce from "lodash.debounce";
+import camelcase from "lodash.camelcase";
 
 import { useMapData } from "../../contexts/DataContext";
 import { useTourData } from "../../contexts/TourContext";
 import MapControls from "../MapControls";
-import Header from "../Header";
+import MapSelection from "../MapSelection";
 import Story from "../Story";
 import StoryMarker from "../StoryMarker";
 import { POPUP_DEFAULT_LOCATION } from "../../consts/mapConsts";
@@ -20,7 +21,6 @@ import { useWindowHeight } from "../../utils/useWindowHeight";
 import { trackEvent } from "../../utils/analytics";
 import { downloadFile, exportComponentAsPNG } from "../../utils/export";
 import { size, colors } from "../../consts";
-import useDegreesSelector from "../../utils/useDegreesSelector";
 import SearchPopup from "../common/SearchPopup";
 import { useTranslation } from "../../contexts/TranslationContext";
 import DownloadMapModal from "../DownloadMapModal";
@@ -31,8 +31,9 @@ import { consts, utils, types } from "@probable-futures/lib";
 import { components, contexts } from "@probable-futures/components-lib";
 import { Feature } from "@probable-futures/components-lib/src/hooks/useGeocoder";
 import useClimateZoneHighlighter from "../../utils/useClimateZoneHighlighter";
-import { customTabletSizeForHeader } from "@probable-futures/lib/src/consts";
+import WarmingScenarioSelection from "../WarmingScenarioSelection";
 import Popup from "../common/Popup";
+import { useDatasetChangeHandler } from "../../utils/useDatasetChangeHandler";
 
 type MapStyles = {
   stops?: number[];
@@ -41,7 +42,6 @@ type MapStyles = {
 };
 
 type LinkProps = {
-  showDegreeDescription?: boolean;
   bottom?: string;
 };
 
@@ -139,10 +139,9 @@ const Link = styled.a`
   font-family: Helvetica Neue, Arial, Helvetica, sans-serif;
   line-height: 20px;
   color: rgba(0, 0, 0, 0.75);
-  z-index: ${({ showDegreeDescription }: LinkProps) =>
-    showDegreeDescription
-      ? "z-index: 2; transition: z-index 0s step-end;"
-      : "z-index: 3; transition: z-index 0.2s step-end;"};
+
+  z-index: 1;
+  transition: z-index 0.2s step-end;
   cursor: pointer;
   text-decoration: none;
   bottom: ${({ bottom }: LinkProps) => bottom ?? 0};
@@ -156,14 +155,12 @@ const MapKeyContainer = styled.div`
   z-index: 1;
   min-width: 280px;
 
-  @media (min-width: ${customTabletSizeForHeader}) {
+  @media (min-width: ${size.tablet}) and (max-width: ${size.tabletMax}) {
     top: 0;
-    z-index: 2;
-    right: unset;
-    ${({ datasetDropdownWidth }: { datasetDropdownWidth?: number }) =>
-      ` width: ${datasetDropdownWidth ? `calc(100% - ${datasetDropdownWidth + 10}px)` : "auto"};
-        left: ${datasetDropdownWidth ? `${datasetDropdownWidth + 10}px` : "371px"};
-    `};
+    z-index: 3;
+    right: unset
+    width: auto;
+    left: 406px;
   }
 
   @media (min-width: ${size.laptop}) {
@@ -179,15 +176,17 @@ const MapKeyContainer = styled.div`
     border-top: 1px solid ${colors.darkPurple};
     overflow-x: auto;
 
-    @media (min-width: ${customTabletSizeForHeader}) {
-      padding: 9px 0 0;
-      border-bottom: none;
+    @media (min-width: ${size.tablet}) and (max-width: ${size.tabletMax}) {
+      padding: 0px 18px;
+      border-bottom: 1px solid ${colors.grey};
       border-top: none;
+      height: 62px;
       overflow: hidden !important;
     }
 
     @media (min-width: ${size.laptop}) {
-      border: 1px solid ${colors.darkPurple};
+      border: 1px solid ${colors.grey};
+      border-radius: 6px;
       padding: 12px 18px 9px;
       overflow: hidden !important;
     }
@@ -211,16 +210,17 @@ const MapKeyContainer = styled.div`
     border-top: 1px solid ${colors.darkPurple};
     border-bottom: 1px solid ${colors.darkPurple};
 
-    @media (min-width: ${customTabletSizeForHeader}) {
-      padding: 6px 0 0;
-      border: none;
-      ${({ datasetDropdownWidth }: { datasetDropdownWidth?: number }) =>
-        `width: ${datasetDropdownWidth ? `calc(100vw - ${datasetDropdownWidth + 10}px)` : "auto"};`}
-      white-space: nowrap;
+    @media (min-width: ${size.tablet}) and (max-width: ${size.tabletMax}) {
+      border: 1px solid ${colors.grey};
+      padding: 0px;
+      padding-left: 16px;
+      width: auto;
+      height: 80px;
+      overflow-x: hidden;
     }
 
     @media (min-width: ${size.laptop}) {
-      border: 1px solid ${colors.darkPurple};
+      border: 1px solid ${colors.grey};
       padding: 0px;
       padding-left: 16px;
       width: auto;
@@ -249,6 +249,7 @@ const InteractiveMap = () => {
   const [isScreenshot, setIsScreenshot] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const [showDownloadMapModal, setShowDownloadMapModal] = useState(false);
+
   const mapRef = useRef<MapRef>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const {
@@ -272,13 +273,15 @@ const InteractiveMap = () => {
     warmingScenarioDescs,
     datasetDescriptionResponse,
     searchIsOpen,
-    showDegreeDescription,
     mapProjection,
     setSearchIsOpen,
     setActiveClimateZoneLayers,
     activeClimateZoneLayers,
     precipitationUnit,
     showCountryBorders,
+    showAboutMap,
+    showAllMapsModal,
+    setShowAboutMap,
     setPrecipitationUnit,
     setDatasets,
     setSelectedDataset,
@@ -288,6 +291,7 @@ const InteractiveMap = () => {
     setWarmingScenarioDescs,
     setStorySubmission,
     setWpDatasetDescriptionResponse,
+    setShowAllMapsModal,
   } = useMapData();
   const {
     isTourActive,
@@ -307,9 +311,7 @@ const InteractiveMap = () => {
   const isLaptop = useMediaQuery({
     query: `(min-width: ${size.laptop})`,
   });
-  const { onCancel, onButtonClick } = useDegreesSelector();
   const [searchResult, setSearchResult] = useState<Feature>();
-  const [clientWidth, setClientWidth] = useState<number | undefined>(undefined);
   const { translate, locale } = useTranslation();
 
   useMapsApi({
@@ -343,11 +345,14 @@ const InteractiveMap = () => {
   });
 
   const { drawGlobeLines, removeGlobeLayers } = useGlobeLines(mapProjection, mapRef.current);
+  const onDatasetChange = useDatasetChangeHandler();
 
   const mapboxAccessToken =
     window.pfInteractiveMap?.mapboxAccessToken || process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
   const showHeader = showStory ? !isLaptop : true;
+
+  const translatedHeader = translate("header");
 
   const updateMapStyles = useCallback(
     (map: MapBoxMap, degrees: number, where: boolean) => {
@@ -391,11 +396,13 @@ const InteractiveMap = () => {
     if (!selectedDataset || !datasetDescriptionResponse) {
       return;
     }
+
     const template = await generateEmbedMap({
       dataset: selectedDataset,
       tempUnit,
       scenario: degrees,
-      viewState,
+      viewState:
+        consts.getInitialMapViewState(window.location.hash.replace("#", "")) || defaultViewState,
       datasetDescriptionResponse,
       precipitationUnit,
       showBorders: showCountryBorders,
@@ -430,21 +437,6 @@ const InteractiveMap = () => {
       )}°C and ${degreeToString(selectedDegrees[1])}°C`,
     );
   };
-
-  // add shortcut for search
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Check if Command (Mac) or Ctrl (Windows/Linux) key is pressed along with "K" key
-      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
-        setSearchIsOpen((isOpen: boolean) => !isOpen);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    // Clean up the event listener when the component unmounts
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [setSearchIsOpen]);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -521,23 +513,6 @@ const InteractiveMap = () => {
       };
     }
   }, [selectedDataset, mapProjection, removeGlobeLayers, drawGlobeLines]);
-
-  const onDatasetDropdownRefChange = useCallback(
-    (datasetDropdownRef: HTMLDivElement) => {
-      if (datasetDropdownRef !== null) {
-        const observer = new ResizeObserver((entries) => {
-          const newWidth = entries[0].target.clientWidth;
-          if (newWidth !== clientWidth) {
-            setClientWidth(newWidth);
-          }
-        });
-        if (datasetDropdownRef) {
-          observer.observe(datasetDropdownRef.firstElementChild as HTMLElement);
-        }
-      }
-    },
-    [clientWidth],
-  );
 
   const onMapClick = useCallback(
     (e: MapLayerMouseEvent) => {
@@ -812,7 +787,6 @@ const InteractiveMap = () => {
     return (
       <Link
         bottom={isLaptop ? "0" : `${parseInt(consts.HEADER_HEIGHT_MOBILE) + 2}px`}
-        showDegreeDescription={showDegreeDescription}
         target="_blank"
         rel="noopener noreferrer"
         href={consts.MAP_VERSION_URL}
@@ -820,10 +794,9 @@ const InteractiveMap = () => {
     );
   };
 
-  const onFly = useCallback(
-    (feature: Feature) => setTimeout(() => setSearchResult(feature), 1000),
-    [],
-  );
+  const onFly = useCallback((feature: Feature) => {
+    setTimeout(() => setSearchResult(feature), 1000);
+  }, []);
 
   const activateClimateZoneLayer = useCallback(
     (layers: string[] | undefined) => {
@@ -847,174 +820,188 @@ const InteractiveMap = () => {
       : !!datasetDescriptionResponse);
 
   return (
-    <Container
-      isScreenshot={isScreenshot}
-      style={{
-        backgroundColor: mapProjection.name === "globe" ? "rgb(176, 176, 176)" : "initial",
-      }}
-    >
-      <div ref={mapContainerRef}>
-        <components.Loader show={showLoader} />
-        {showHeader && <Header onDatasetDropdownRefChange={onDatasetDropdownRefChange} />}
-        <MapKeyContainer id="map-key" datasetDropdownWidth={clientWidth}>
-          {showKey && (
-            <components.MapKey
-              selectedDataset={selectedDataset}
-              tempUnit={tempUnit}
-              setTempUnit={setTempUnit}
-              mapKeyText={{ ...translate("key"), ...{ datasets: translate("header.datasets") } }}
-              datasetDescriptionResponse={datasetDescriptionResponse!}
-              activateClimateZoneLayer={debounceActivateClimateZoneLayer}
-              activeClimateZoneLayers={activeClimateZoneLayers}
-              precipitationUnit={precipitationUnit}
-              setPrecipitationUnit={setPrecipitationUnit}
-            />
-          )}
-        </MapKeyContainer>
-        <MediaQuery maxWidth={size.tabletMax}>
-          {!showStory && (
-            <contexts.ThemeProvider theme="light">
-              <components.DegreesFooter
-                degrees={degrees}
-                warmingScenarioDescs={warmingScenarioDescs}
-                showDegreeDescription={showDegreeDescription}
-                showBaselineModal={showBaselineModal}
-                tourProps={{
-                  step,
-                  isTourActive,
-                  steps,
-                  stories,
-                  showMarkers,
-                  onNext: onNext,
-                  onClose: onClose,
-                }}
-                onWarmingScenarioDescriptionCancel={onCancel}
-                onWarmingScenarioClick={onButtonClick}
-                degreesFooterText={translate("header")}
-              />
-            </contexts.ThemeProvider>
-          )}
-        </MediaQuery>
-        {selectedDataset && (
-          <MapGL
-            {...viewState}
-            mapboxAccessToken={mapboxAccessToken}
-            style={{ width: "100vw", height: mapHeight }}
-            minZoom={consts.MIN_ZOOM}
-            maxZoom={consts.MAX_ZOOM}
-            preserveDrawingBuffer={true}
-            hash={true}
-            onClick={onMapClick}
-            ref={mapRef}
-            interactiveLayerIds={consts.interactiveClimateLayerIds}
-            onMove={onMove}
-            mapStyle={mapStyleLink}
-            onLoad={onLoad}
-            onSourceData={onSourceData}
-            onIdle={onIdle}
-            projection={mapProjection}
-            fog={{
-              color: "rgb(176, 176, 176)",
-              //@ts-ignore
-              "high-color": "rgb(176, 176, 176)", // Upper atmosphere
-              "horizon-blend": 0.02, // Atmosphere thickness (default 0.2 at low zooms)
-              "space-color": "rgb(176, 176, 176)", // Background color
-              "star-intensity": 0, // Background star brightness (default 0.35 at low zoooms )
-            }}
-          >
-            {popupVisible && datasetDescriptionResponse && (
-              <Popup feature={feature} onClose={() => setPopupVisible(false)}>
-                <components.PopupContent
-                  feature={feature}
-                  dataset={selectedDataset}
-                  degreesOfWarming={degrees}
-                  tempUnit={tempUnit}
-                  onReadMoreClick={() => setShowDescriptionModal((show: boolean) => !show)}
-                  onBaselineClick={() => setShowDescriptionModal((show: boolean) => !show)}
-                  showInspector={false}
-                  datasetDescriptionResponse={datasetDescriptionResponse}
-                  precipitationUnit={precipitationUnit}
-                  mapPopoverText={translate("mapPopover")}
-                  keyText={translate("key")}
-                />
-              </Popup>
-            )}
-            <components.Geocoder
-              searchInputHeight={consts.SEARCH_INPUT_HEIGHT}
-              serverErrorText={translate("geocoder.serverError")}
-              noResultText={translate("geocoder.noResult")}
-              placeholderText={translate("geocoder.placeholder")}
-              clearText={translate("geocoder.clear")}
-              recentlySearchedText={translate("geocoder.recentlySearched")}
-              searchIsOpen={searchIsOpen}
-              localStorageRecentlySearchedIemskey={consts.LOCAL_STORAGE_RECENTLY_SEARCHED_ITEMS_KEY}
-              setSearchIsOpen={setSearchIsOpen}
-              mapRef={mapRef}
-              mapboxAccessToken={mapboxAccessToken}
-              top="100px"
-              onFly={onFly}
-              language={locale}
-            />
-            {!isScreenshot && showMarkers && storyMarkers}
-            {renderBottomLinks()}
-            {searchPopup}
-          </MapGL>
-        )}
-      </div>
-      <MapControls
-        zoom={viewState.zoom || consts.MIN_ZOOM}
-        maxZoom={consts.MAX_ZOOM}
-        onZoom={changeZoom}
-        onDownloadClick={() => setShowDownloadMapModal(true)}
-        onTakeScreenshot={takeScreenshot}
-        selectedDataset={selectedDataset}
-      />
-      {story}
-      {isTourActive && step === 1 && (
-        <components.TourBox
-          showContentOnly={true}
-          onClose={onClose}
-          onNext={onNext}
-          step={step}
-          steps={steps}
-          stories={stories}
-          isTourActive={isTourActive}
-          showMarkers={showMarkers}
-        />
-      )}
-      <components.MapModal
-        isVisible={showDescriptionModal}
-        onToggle={() => setShowDescriptionModal((show: boolean) => !show)}
+    <contexts.ThemeProvider theme="light">
+      <Container
+        isScreenshot={isScreenshot}
+        style={{
+          backgroundColor: mapProjection.name === "globe" ? "rgb(176, 176, 176)" : "initial",
+        }}
       >
-        {datasetDescriptionResponse && (
-          <components.MapDescription
-            datasetDescriptionResponse={datasetDescriptionResponse}
-            selectedDataset={selectedDataset}
+        <div ref={mapContainerRef}>
+          <components.Loader show={showLoader} />
+          {showHeader && <MapSelection />}
+          {showHeader && <WarmingScenarioSelection />}
+          <MapKeyContainer id="map-key">
+            {showKey && (
+              <components.MapKey
+                selectedDataset={selectedDataset}
+                tempUnit={tempUnit}
+                setTempUnit={setTempUnit}
+                mapKeyText={{ ...translate("key"), ...{ datasets: translatedHeader?.datasets } }}
+                datasetDescriptionResponse={datasetDescriptionResponse!}
+                activateClimateZoneLayer={debounceActivateClimateZoneLayer}
+                activeClimateZoneLayers={activeClimateZoneLayers}
+                precipitationUnit={precipitationUnit}
+                setPrecipitationUnit={setPrecipitationUnit}
+              />
+            )}
+          </MapKeyContainer>
+          {selectedDataset && (
+            <MapGL
+              {...viewState}
+              mapboxAccessToken={mapboxAccessToken}
+              style={{ width: "100vw", height: mapHeight }}
+              minZoom={consts.MIN_ZOOM}
+              maxZoom={consts.MAX_ZOOM}
+              preserveDrawingBuffer={true}
+              hash={true}
+              onClick={onMapClick}
+              ref={mapRef}
+              interactiveLayerIds={consts.interactiveClimateLayerIds}
+              onMove={onMove}
+              mapStyle={mapStyleLink}
+              onLoad={onLoad}
+              onSourceData={onSourceData}
+              onIdle={onIdle}
+              projection={mapProjection}
+              fog={{
+                color: "rgb(176, 176, 176)",
+                //@ts-ignore
+                "high-color": "rgb(176, 176, 176)", // Upper atmosphere
+                "horizon-blend": 0.02, // Atmosphere thickness (default 0.2 at low zooms)
+                "space-color": "rgb(176, 176, 176)", // Background color
+                "star-intensity": 0, // Background star brightness (default 0.35 at low zoooms )
+              }}
+            >
+              {popupVisible && datasetDescriptionResponse && (
+                <Popup feature={feature} onClose={() => setPopupVisible(false)}>
+                  <components.PopupContent
+                    feature={feature}
+                    dataset={selectedDataset}
+                    degreesOfWarming={degrees}
+                    tempUnit={tempUnit}
+                    onReadMoreClick={() => setShowDescriptionModal((show: boolean) => !show)}
+                    onBaselineClick={() => setShowDescriptionModal((show: boolean) => !show)}
+                    showInspector={false}
+                    datasetDescriptionResponse={datasetDescriptionResponse}
+                    precipitationUnit={precipitationUnit}
+                    mapPopoverText={translate("mapPopover")}
+                    keyText={translate("key")}
+                  />
+                </Popup>
+              )}
+
+              <components.Geocoder
+                searchInputHeight={consts.SEARCH_INPUT_HEIGHT}
+                serverErrorText={translate("geocoder.serverError")}
+                noResultText={translate("geocoder.noResult")}
+                placeholderText={translate("geocoder.placeholder")}
+                clearText={translate("geocoder.clear")}
+                recentlySearchedText={translate("geocoder.recentlySearched")}
+                searchIsOpen={isLaptop || searchIsOpen}
+                autoFocus={!isLaptop && searchIsOpen}
+                localStorageRecentlySearchedIemskey={
+                  consts.LOCAL_STORAGE_RECENTLY_SEARCHED_ITEMS_KEY
+                }
+                setSearchIsOpen={setSearchIsOpen}
+                mapRef={mapRef}
+                mapboxAccessToken={mapboxAccessToken}
+                top="120px"
+                onFly={onFly}
+                language={locale}
+              />
+              {!isScreenshot && showMarkers && storyMarkers}
+              {renderBottomLinks()}
+              {searchPopup}
+            </MapGL>
+          )}
+        </div>
+        <MapControls
+          zoom={viewState.zoom || consts.MIN_ZOOM}
+          maxZoom={consts.MAX_ZOOM}
+          onZoom={changeZoom}
+          onDownloadClick={() => setShowDownloadMapModal(true)}
+          onTakeScreenshot={takeScreenshot}
+          selectedDataset={selectedDataset}
+          onDownloadQRCode={onDownloadQRCode}
+          onExportSimpleMapClick={onExportSimpleMapClick}
+        />
+        {story}
+        {isTourActive && step === 1 && (
+          <components.TourBox
+            showContentOnly={true}
+            onClose={onClose}
+            onNext={onNext}
+            step={step}
+            steps={steps}
+            stories={stories}
+            isTourActive={isTourActive}
+            showMarkers={showMarkers}
           />
         )}
-      </components.MapModal>
-      <components.MapModal
-        isVisible={showBaselineModal}
-        onToggle={() => setShowBaselineModal((show: boolean) => !show)}
-      >
-        <p
-          dangerouslySetInnerHTML={{
-            __html: warmingScenarioDescs.description_baseline_change_maps || "",
-          }}
-        ></p>
-      </components.MapModal>
-      <MediaQuery minWidth={size.laptop}>
-        {searchIsOpen && <components.MapOverlay onClick={() => setSearchIsOpen(false)} />}
-      </MediaQuery>
-      <DownloadMapModal
-        isVisible={showDownloadMapModal}
-        onClose={() => setShowDownloadMapModal((show: boolean) => !show)}
-        onExportCompareMap={onExportCompareMapConfirm}
-        onExportSimpleMap={onExportSimpleMapClick}
-        selectedDataset={selectedDataset}
-        onDownloadQRCode={onDownloadQRCode}
-      />
-    </Container>
+        <components.MapModal
+          isVisible={showDescriptionModal}
+          onToggle={() => setShowDescriptionModal((show: boolean) => !show)}
+        >
+          {datasetDescriptionResponse && (
+            <components.MapDescription
+              datasetDescriptionResponse={datasetDescriptionResponse}
+              selectedDataset={selectedDataset}
+            />
+          )}
+        </components.MapModal>
+        <components.MapModal
+          isVisible={showBaselineModal}
+          onToggle={() => setShowBaselineModal((show: boolean) => !show)}
+        >
+          <div
+            style={{
+              marginTop: "25px",
+              padding: "0px 40px 15px",
+            }}
+          >
+            <p
+              dangerouslySetInnerHTML={{
+                __html: warmingScenarioDescs.description_baseline_change_maps || "",
+              }}
+            ></p>
+          </div>
+        </components.MapModal>
+        <DownloadMapModal
+          isVisible={showDownloadMapModal}
+          onClose={() => setShowDownloadMapModal((show: boolean) => !show)}
+          onExportCompareMap={onExportCompareMapConfirm}
+          selectedDataset={selectedDataset}
+        />
+        <components.AboutMap
+          isOpen={showAboutMap}
+          datasetDescriptionResponse={datasetDescriptionResponse}
+          warmingScenarioDescs={warmingScenarioDescs}
+          onClose={() => setShowAboutMap(false)}
+          datasets={datasets}
+          translatedDatasets={translatedHeader?.datasets}
+          selectedDataset={selectedDataset}
+          onDatasetChange={onDatasetChange}
+        />
+        {selectedDataset && (
+          <components.AllMapsModal
+            value={{
+              value: selectedDataset.slug || "",
+              label:
+                (translatedHeader?.datasets || {})[camelcase(selectedDataset.slug)] ||
+                selectedDataset.name,
+            }}
+            datasets={datasets}
+            translatedDatasets={translatedHeader?.datasets}
+            isVisible={showAllMapsModal}
+            onClose={() => setShowAllMapsModal(false)}
+            onChange={onDatasetChange}
+            allMapsTitle={translate("allMapsModal.title")}
+            closeText={translate("close.text")}
+          />
+        )}
+      </Container>
+    </contexts.ThemeProvider>
   );
 };
 

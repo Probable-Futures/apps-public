@@ -17,7 +17,7 @@ const StyledSideBarContainer = styled.div`
     padding-left: 0;
     background: ${colors.secondaryBlack};
     max-width: 296px;
-    z-index: 4;
+    z-index: 5;
   }
   .side-panel__content {
     background-color: ${colors.secondaryBlack};

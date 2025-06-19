@@ -143,6 +143,8 @@ const DetailsContainer = styled.div`
   background-color: ${consts.colors.lightCream};
   border-top: 1px solid ${consts.colors.dimBlack};
   margin: 0 -16px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
 `;
 
 const ToggleDetailsButton = styled.button`

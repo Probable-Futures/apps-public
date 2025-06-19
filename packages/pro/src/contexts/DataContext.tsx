@@ -10,7 +10,6 @@ type State = {
   isClimateDataVisible: boolean;
   showMergeDataModal: boolean;
   mapRef: any;
-  datasetDropdownRef: any;
   showLabels: boolean;
   showBorders: boolean;
   importReviewProps?: ImportReviewProps;
@@ -18,12 +17,12 @@ type State = {
   description955?: string;
   description9010?: string;
   showBaselineModal: boolean;
-  showDegreeDescription: boolean;
   showDescriptionModal: boolean;
   tempUnit: string;
   precipitationUnit: types.PrecipitationUnit;
-  searchIsOpen: boolean;
   datasetDescriptionResponse?: types.DatasetDescriptionResponse;
+  searchIsOpen: boolean;
+  showAboutMap: boolean;
   setClimateData(arg: any): void;
   setSelectedClimateData(arg: any): void;
   setWarmingScenarioDescs(arg: any): void;
@@ -36,14 +35,14 @@ type State = {
   setDescription955(arg: any): void;
   setDescription9010(arg: any): void;
   setShowBaselineModal(arg: any): void;
-  setShowDegreeDescription(arg: any): void;
   setShowDescriptionModal(arg: any): void;
   setTempUnit(arg: any): void;
-  setSearchIsOpen(arg: any): void;
   setWpDatasetDescriptionResponse(
     datasetDescriptionResponse: types.DatasetDescriptionResponse,
   ): void;
   setPrecipitationUnit(arg: types.PrecipitationUnit): void;
+  setSearchIsOpen(arg: any): void;
+  setShowAboutMap(arg: any): void;
 };
 
 const initialState = {
@@ -52,7 +51,6 @@ const initialState = {
   warmingScenarioDescs: {},
   isClimateDataVisible: true,
   mapRef: undefined,
-  datasetDropdownRef: undefined,
   showMergeDataModal: false,
   showLabels: false,
   showBorders: false,
@@ -61,12 +59,12 @@ const initialState = {
   description955: undefined,
   description9010: undefined,
   showBaselineModal: false,
-  showDegreeDescription: false,
   showDescriptionModal: false,
   tempUnit: "°C",
-  searchIsOpen: false,
   datasetDescriptionResponse: undefined,
   precipitationUnit: "mm" as types.PrecipitationUnit,
+  searchIsOpen: false,
+  showAboutMap: false,
   setClimateData: () => {},
   setSelectedClimateData: () => {},
   setWarmingScenarioDescs: () => {},
@@ -79,12 +77,12 @@ const initialState = {
   setDescription955: () => {},
   setDescription9010: () => {},
   setShowBaselineModal: () => {},
-  setShowDegreeDescription: () => {},
   setShowDescriptionModal: () => {},
   setTempUnit: () => {},
-  setSearchIsOpen: () => {},
   setWpDatasetDescriptionResponse: () => {},
   setPrecipitationUnit: () => {},
+  setSearchIsOpen: () => {},
+  setShowAboutMap: () => {},
 };
 
 const DataContext = React.createContext<State>(initialState);
@@ -102,16 +100,15 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
   const [description955, setDescription955] = useState();
   const [description9010, setDescription9010] = useState();
   const [showBaselineModal, setShowBaselineModal] = useState(false);
-  const [showDegreeDescription, setShowDegreeDescription] = useState(false);
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [tempUnit, setTempUnit] = useState("°C");
-  const [searchIsOpen, setSearchIsOpen] = useState(false);
   const [datasetDescriptionResponse, setWpDatasetDescriptionResponse] =
     useState<types.DatasetDescriptionResponse>();
   const [precipitationUnit, setPrecipitationUnit] = useState("mm" as types.PrecipitationUnit);
+  const [searchIsOpen, setSearchIsOpen] = useState(false);
+  const [showAboutMap, setShowAboutMap] = useState(false);
 
   const mapRef = useRef<any>(null);
-  const datasetDropdownRef = useRef<HTMLDivElement>(null);
 
   const value = React.useMemo(
     () => ({
@@ -126,7 +123,6 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       showMergeDataModal,
       setShowMergeDataModal,
       mapRef,
-      datasetDropdownRef,
       showLabels,
       setShowLabels,
       showBorders,
@@ -145,14 +141,14 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       setShowDescriptionModal,
       tempUnit,
       setTempUnit,
-      searchIsOpen,
-      setSearchIsOpen,
-      showDegreeDescription,
-      setShowDegreeDescription,
       datasetDescriptionResponse,
       setWpDatasetDescriptionResponse,
       precipitationUnit,
       setPrecipitationUnit,
+      searchIsOpen,
+      setSearchIsOpen,
+      showAboutMap,
+      setShowAboutMap,
     }),
     [
       climateData,
@@ -160,7 +156,6 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       warmingScenarioDescs,
       isClimateDataVisible,
       mapRef,
-      datasetDropdownRef,
       showMergeDataModal,
       showLabels,
       showBorders,
@@ -171,10 +166,10 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       showBaselineModal,
       showDescriptionModal,
       tempUnit,
-      searchIsOpen,
-      showDegreeDescription,
       datasetDescriptionResponse,
       precipitationUnit,
+      searchIsOpen,
+      showAboutMap,
     ],
   );
 

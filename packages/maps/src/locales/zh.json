@@ -133,6 +133,7 @@
   },
   "header": {
     "warmingScenariosTitle": "全球变暖场景",
+    "aboutThisMap": "关于这张地图",
     "yearLabel0": "过去",
     "yearLabel1": "最近",
     "yearLabel2": "即将来临",
@@ -185,6 +186,7 @@
     "hideMarkerTitle": "隐藏图钉标记",
     "showMarkerTitle": "显示图钉标记",
     "downloadTitle": "下载嵌入或二维码",
+    "adjustViewTitle": "Adjust view",
     "behindMapsTitle": "了解更多关于地图",
     "takeQuickTour": "快速浏览",
     "closeTheTour": "关闭浏览",
@@ -212,13 +214,19 @@
   },
   "downloadMap": {
     "title": "下载当前地图视图",
-    "qrCodeOptionLabel": "下载二维码",
-    "simpleMapOptionLabel": "下载当前视图的可嵌入地图",
-    "compareMapOptionLabel": "下载可嵌入比较地图",
+    "qrCodeOptionLabel": "二维码",
+    "simpleMapOptionLabel": "可嵌入地图",
+    "compareMapOptionLabel": "可嵌入的比较图",
     "compareSectionHeader": "选择两个温暖情景，包含在可嵌入比较地图中",
     "step": "步骤",
     "of": "的",
     "selectScenarios": "选择情景",
     "download": "下载"
+  },
+  "allMapsModal": {
+    "title": "所有地图"
+  },
+  "close": {
+    "text": "关闭"
   }
 }

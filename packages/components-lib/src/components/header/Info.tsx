@@ -1,18 +1,14 @@
-import styled, { css } from "styled-components";
-import { size, HEADER_HEIGHT, Theme } from "@probable-futures/lib";
+import styled from "styled-components";
 
+import { size, HEADER_HEIGHT, Theme } from "@probable-futures/lib";
 import InfoIcon from "../../assets/icons/info.svg";
-import { whiteFilter } from "../../styles/commonStyles";
+import { whiteFilter, purpleFilter } from "../../styles/commonStyles";
 import { useTheme } from "../../contexts";
 
 type InfoButtonProps = {
   isPopoverOpen: boolean;
   theme: Theme;
 };
-
-const purpleFilter = css`
-  filter: invert(21%) sepia(89%) saturate(4669%) hue-rotate(263deg) brightness(99%) contrast(104%);
-`;
 
 const InfoButton = styled.button`
   height: ${HEADER_HEIGHT};

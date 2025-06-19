@@ -1,271 +1,276 @@
-import React, { useMemo, useState } from "react";
-import Select, { StylesConfig } from "react-select";
-import camelcase from "lodash.camelcase";
-import {
-  HEADER_DROPDOWN_PADDING_DESKTOP,
-  HEADER_DROPDOWN_PADDING_LAPTOP,
-  HEADER_DROPDOWN_PADDING_MOBILE,
-  HEADER_DROPDOWN_PADDING_TABLET,
-  size,
-  colors,
-  HEADER_HEIGHT,
-  customTabletSizeForHeader,
-  Option,
-  TourProps,
-  Map,
-  groupByfield,
-} from "@probable-futures/lib";
+import { useEffect, useMemo, useState } from "react";
+import styled, { keyframes } from "styled-components";
+import { colors, Option, TourProps, Map } from "@probable-futures/lib";
 
-import { DropdownIndicator } from "./CustomDropdownIndicator";
-import { Control } from "./CustomSelectControl";
-import { GroupHeading } from "./CustomSelectGroupHeading";
-import { CustomOption } from "./CustomSelectOption";
-import { useTheme } from "../../contexts";
+import TourBox from "../TourBox";
+import { generateGroupedDatasets } from "../../utils/dataset";
 
 type Props = {
   value: Option;
-  onChange?: Function;
   tourProps?: TourProps;
-  showDescriptionModal: boolean;
   datasets: Map[];
-  headerText?: any;
-  onInfoClick?: () => void;
+  translatedDatasets?: any;
+  setShowAllMapsModal?: (show: boolean) => void;
+  onChange?: (option: Option) => void;
 };
+
+const fadeInAnimation = keyframes`
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+`;
+
+const AccordionWrapper = styled.div`
+  width: 220px;
+  border: 1px solid ${colors.grey};
+  border-radius: 6px;
+  background-color: ${colors.white};
+  max-height: 80vh;
+  overflow-y: scroll;
+  user-select: none;
+`;
+
+const AccordionTitle = styled.div<{ isCollapsed: boolean }>`
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  padding-bottom: ${({ isCollapsed }) => (isCollapsed ? "10px" : "0")};
+  align-items: center;
+  border-bottom: 1px solid;
+  border-bottom-color: ${({ isCollapsed }) => (isCollapsed ? colors.grey : "transparent")};
+  transition: border-bottom-color 0.3s ease-in-out, padding-bottom 0.3s ease-in-out;
+  opacity: 0.8;
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const AccordionContent = styled.div<{ isVisible: boolean }>`
+  max-height: ${({ isVisible }) => (isVisible ? "1000px" : "0")};
+  overflow: hidden;
+  opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+`;
+
+const MainTitle = styled.div`
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 10px;
+  border-bottom: 1px solid ${colors.grey};
+  font-size: 10px;
+  align-items: center;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: ${colors.cream};
+  }
+`;
+
+const ExpandCollapseIcon = styled.div<{ isOpen: boolean }>`
+  width: 20px;
+  height: 20px;
+  background-color: black;
+  border-radius: 50%; /* Makes it a circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(${({ isOpen }) => (isOpen ? "180deg" : "0deg")}); /* Flip when open */
+  transition: transform 0.3s ease;
+
+  &::before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid white;
+  }
+`;
+
+const SignButton = styled.span`
+  margin-left: 5px;
+  background-color: ${colors.cream};
+  border: 1px solid transparent;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 18px;
+  height: 18px;
+`;
+
+const Section = styled.div<{ isFirstChild: boolean }>`
+  padding: 10px 10px;
+  font-size: 12px;
+  border-top: ${({ isFirstChild }) => (!isFirstChild ? `1px solid ${colors.grey}` : "none")};
+`;
+
+const AllContent = styled.div<{ isVisible: boolean }>`
+  opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
+  transform: ${({ isVisible }) => (isVisible ? "translateY(0)" : "translateY(-10px)")};
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  visibility: ${({ isVisible }) => (isVisible ? "visible" : "hidden")};
+  height: ${({ isVisible }) => (isVisible ? "auto" : "0")}; /* Collapses when hidden */
+  overflow: hidden;
+`;
+
+const SelectedMapWrapper = styled.div<{ isVisible: boolean }>`
+  ${({ isVisible }) => isVisible && "padding: 16px 10px;"}
+  font-size: 12px;
+  opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
+  transform: ${({ isVisible }) => (isVisible ? "translateY(0)" : "translateY(-10px)")};
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  display: ${({ isVisible }) => (isVisible ? "visible" : "hidden")};
+  height: ${({ isVisible }) => (isVisible ? "auto" : "0")};
+  overflow: hidden;
+`;
+
+const ViewAllMaps = styled.div`
+  padding-bottom: 5px;
+  text-decoration: underline;
+  cursor: pointer;
+`;
+
+const Label = styled.div<{ isSelected: boolean }>`
+  padding: 10px 10px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background-color: ${({ isSelected }) =>
+    isSelected ? `${colors.lightPurple}!important` : "transparent"};
+
+  &:hover {
+    background-color: ${colors.lightPurpleWithOpacity};
+  }
+`;
+
+const SvgIcon = styled.svg`
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 1;
+`;
+
+const Title = styled.span<{ animate: boolean }>`
+  display: inline-block;
+  opacity: ${({ animate }) => (animate ? 0 : 1)};
+  animation: ${({ animate }) => (animate ? fadeInAnimation : "none")} 0.3s ease-out forwards;
+`;
+
+const PlusIcon = () => (
+  <SvgIcon viewBox="0 0 24 24">
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </SvgIcon>
+);
+
+const MinusIcon = () => (
+  <SvgIcon viewBox="0 0 24 24">
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </SvgIcon>
+);
 
 const DatasetSelector = ({
   value,
   onChange,
+  setShowAllMapsModal,
   tourProps,
-  showDescriptionModal,
   datasets,
-  headerText,
-  onInfoClick,
+  translatedDatasets,
 }: Props) => {
-  const [expandedMaps, setExpandedMaps] = useState<string>();
-  const [expandedCategory, setExpandedCategory] = useState<string>();
-  const { theme, color, backgroundColor } = useTheme();
-  const datasetOptions = useMemo(() => {
-    const parentCategoryNames = headerText?.parentCategories || {};
-    const datasetNames = headerText || {};
-    const subCategoryNames = headerText?.subCategories || {};
+  const [openSection, setOpenSection] = useState<string>("");
+  const [selectMode, setSelectMode] = useState(true);
+  const [animateAccordionTitle, setAnimateAccordionTitle] = useState(false);
 
-    const latestDatasets = datasets.filter(({ isLatest }) => isLatest);
-    const datasetsByCategory = Object.values(
-      groupByfield<Map>(
-        latestDatasets || [],
-        "dataset.pfDatasetParentCategoryByParentCategory.label",
-      ),
-    ).map((parentCategories) => ({
-      label: parentCategoryNames[camelcase(parentCategories.label)] || parentCategories.label,
-      options: Object.values(groupByfield<Map>(parentCategories.options, "dataset.subCategory")),
-    }));
+  const groupedDatasets = useMemo(
+    () => generateGroupedDatasets(datasets, translatedDatasets),
+    [datasets, translatedDatasets],
+  );
 
-    const groupedOptions = datasetsByCategory.map((category) => {
-      let options: Option[] = [];
-      category.options.forEach((subCategory) => {
-        const subCategoryOptions = subCategory.options.map((dataset) => ({
-          label: datasetNames[camelcase(dataset.slug)] || dataset.name,
-          value: dataset.slug,
-        }));
-        if (!subCategory.label) {
-          options = subCategoryOptions;
-        } else {
-          options.push({
-            label: subCategoryNames[camelcase(subCategory.label)] || subCategory.label,
-            value: subCategory.options[0].dataset.subCategory!,
-            options: subCategoryOptions,
-          });
-        }
-      });
-      return {
-        label: category.label,
-        options: options,
-      };
-    });
-    return groupedOptions;
-  }, [datasets, headerText]);
-
-  const customStyles: StylesConfig<Option, false> = {
-    container: () => ({
-      width: "100%",
-      height: "100%",
-      [`@media (min-width: ${customTabletSizeForHeader})`]: {
-        minWidth: "425px",
-        width: "fit-content",
-      },
-      [`@media (min-width: ${size.laptop})`]: {
-        minWidth: "543px",
-        width: "fit-content",
-      },
-      [`@media (min-width: ${size.desktop})`]: {
-        minWidth: "543px",
-      },
-    }),
-    singleValue: (provided) => ({
-      ...provided,
-      fontSize: "20px",
-      letterSpacing: 0,
-      color,
-      lineHeight: "29px",
-      marginLeft: 0,
-      marginRight: 0,
-      paddingTop: "10px",
-      maxWidth: "100%",
-      [`@media (min-width: 1099px)`]: {
-        position: "relative",
-        maxWidth: "650px",
-        paddingRight: "5px",
-      },
-      [`@media (min-width: 1441px)`]: {
-        position: "relative",
-        textOverflow: "unset",
-        maxWidth: "auto",
-        paddingRight: "40px",
-      },
-    }),
-    option: (provided, { isSelected }) => ({
-      ...provided,
-      display: "flex",
-      alignItems: "center",
-      fontSize: "20px",
-      letterSpacing: 0,
-      minHeight: "48px",
-      cursor: "pointer",
-      color: theme === "dark" && !isSelected ? colors.white : colors.textBlack,
-      paddingLeft: HEADER_DROPDOWN_PADDING_MOBILE,
-      backgroundColor: isSelected ? colors.cream : "transparent",
-      ":hover": {
-        backgroundColor: colors.cream,
-        color: colors.textBlack,
-      },
-      ":active": {
-        backgroundColor: colors.cream,
-        color: colors.textBlack,
-      },
-      [`@media (min-width: ${size.tablet})`]: {
-        paddingLeft: HEADER_DROPDOWN_PADDING_TABLET,
-      },
-      [`@media (min-width: ${size.laptop})`]: {
-        paddingLeft: HEADER_DROPDOWN_PADDING_LAPTOP,
-        minHeight: HEADER_HEIGHT,
-      },
-      [`@media (min-width: ${size.desktop})`]: {
-        paddingLeft: HEADER_DROPDOWN_PADDING_DESKTOP,
-      },
-      "&.nested-optgroup-option, &.optgroup-option": {
-        fontSize: "14px !important",
-        letterSpacing: 0,
-        lineHeight: "32px",
-        paddingTop: "0px",
-        paddingBottom: "0px",
-        minHeight: "32px",
-      },
-      "&.optgroup-option": {
-        "&:last-child": {
-          marginBottom: "15px",
-        },
-      },
-    }),
-    control: () => ({
-      flex: "1",
-      position: "relative",
-      display: "flex",
-      alignItems: "center",
-      backgroundColor,
-      height: HEADER_HEIGHT,
-      cursor: "pointer",
-      paddingLeft: HEADER_DROPDOWN_PADDING_MOBILE,
-
-      [`@media (orientation: landscape)`]: {
-        paddingLeft: "11px",
-      },
-      [`@media (min-width: ${size.tablet})`]: {
-        paddingLeft: HEADER_DROPDOWN_PADDING_TABLET,
-      },
-      [`@media (min-width: ${size.laptop})`]: {
-        paddingLeft: HEADER_DROPDOWN_PADDING_LAPTOP,
-        height: HEADER_HEIGHT,
-      },
-      [`@media (min-width: ${size.desktop})`]: {
-        paddingLeft: HEADER_DROPDOWN_PADDING_DESKTOP,
-      },
-    }),
-    valueContainer: (provided) => ({
-      ...provided,
-      height: "42px",
-      padding: 0,
-    }),
-    menu: () => ({
-      position: "absolute",
-      left: 0,
-      right: 0,
-      boxSizing: "border-box",
-      backgroundColor,
-      borderBottom: `1px solid ${colors.darkPurple}`,
-      [`@media (min-width: ${size.tablet}), (orientation: landscape)`]: {
-        position: "static",
-        borderRight: `1px solid ${colors.darkPurple}`,
-      },
-      [`@media (min-width: ${size.desktop})`]: {
-        borderLeft: `1px solid ${colors.darkPurple}`,
-      },
-    }),
-    menuList: (provided) => ({
-      ...provided,
-      maxHeight: "100vh",
-      padding: 0,
-    }),
-    dropdownIndicator: (provided) => ({
-      ...provided,
-      padding: 0,
-    }),
-    indicatorSeparator: () => ({ display: "none" }),
-    group: () => ({
-      borderTop: "1px solid #7f7f7f",
-      "&:first-of-type": {
-        borderTop: `1px solid ${colors.darkPurple}`,
-      },
-    }),
-    groupHeading: (provided) => ({
-      ...provided,
-      padding: 0,
-      marginBottom: 0,
-    }),
+  const toggleSection = (newLabel: string) => {
+    setOpenSection((label) => (label === newLabel ? "" : newLabel));
   };
 
-  return (
-    <Select
-      components={{
-        Control,
-        DropdownIndicator,
-        GroupHeading,
-        Option: CustomOption,
-      }}
-      value={value}
-      styles={customStyles}
-      options={datasetOptions}
-      onMenuClose={() => {
-        setExpandedCategory(undefined);
-        setExpandedMaps(undefined);
-      }}
-      onChange={(option) => onChange && onChange(option)}
-      isSearchable={false}
-      {...{
-        customProps: {
-          expandedCategory,
-          setExpandedCategory,
-          expandedMaps,
-          setExpandedMaps,
-          onInfoClick,
-          showDescriptionModal,
-          theme,
-          color,
-          backgroundColor,
-          ...tourProps,
-          showTour: tourProps !== undefined,
-        },
-      }}
-    />
+  const toggleAllSections = () => {
+    setSelectMode((prev) => !prev);
+  };
+
+  useEffect(() => {
+    setAnimateAccordionTitle(true);
+    const timeout = setTimeout(() => setAnimateAccordionTitle(false), 400);
+    return () => clearTimeout(timeout);
+  }, [selectMode]);
+
+  const renderContent = () => {
+    return (
+      <AccordionWrapper>
+        <MainTitle onClick={toggleAllSections}>
+          <Title animate={animateAccordionTitle}>
+            {selectMode ? "Select a map" : "Currently selected map"}
+          </Title>
+          <ExpandCollapseIcon isOpen={selectMode} />
+        </MainTitle>
+
+        <AllContent isVisible={selectMode}>
+          {groupedDatasets.map((section, index) => (
+            <Section key={section.label} isFirstChild={index === 0}>
+              <AccordionTitle
+                isCollapsed={openSection === section.label}
+                onClick={() => toggleSection(section.label)}
+              >
+                <span>{section.label}</span>
+                <SignButton>
+                  {openSection === section.label ? <MinusIcon /> : <PlusIcon />}
+                </SignButton>
+              </AccordionTitle>
+              <AccordionContent isVisible={openSection === section.label}>
+                {section.options?.map((option) => (
+                  <Label
+                    key={option.value}
+                    onClick={() => {
+                      setSelectMode((s) => !s);
+                      if (onChange) {
+                        onChange(option);
+                      }
+                    }}
+                    isSelected={value.value === option.value}
+                  >
+                    {option.label}
+                  </Label>
+                ))}
+              </AccordionContent>
+            </Section>
+          ))}
+          <Section isFirstChild={false}>
+            <ViewAllMaps onClick={() => setShowAllMapsModal && setShowAllMapsModal(true)}>
+              View all maps
+            </ViewAllMaps>
+          </Section>
+        </AllContent>
+        <SelectedMapWrapper isVisible={!selectMode}>{value.label}</SelectedMapWrapper>
+      </AccordionWrapper>
+    );
+  };
+
+  return tourProps !== undefined ? (
+    <TourBox
+      show={tourProps?.isTourActive && tourProps?.step === 0}
+      {...tourProps}
+      position="right"
+    >
+      {renderContent()}
+    </TourBox>
+  ) : (
+    renderContent()
   );
 };
 

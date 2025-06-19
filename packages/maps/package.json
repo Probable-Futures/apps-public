@@ -42,7 +42,7 @@
     "react-headroom": "^3.1.1",
     "react-input-color": "^3.0.0",
     "react-map-gl": "^7.0.23",
-    "react-responsive": "^8.2.0",
+    "react-responsive": "10.0.1",
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.1",
     "react-select": "^4.3.1",

@@ -1,12 +1,12 @@
 export const headerStyles = `
-  .embeddable-map-header {font-family: LinearSans, Arial, Helvetica, sans-serif;border: 1px solid #2a172d;background-color: #fdfdfd;padding: 15px 10px;position: relative;font-size: 16px;top: 20px;left: 20px;margin-right: 40px;display: inline-block;z-index: 1;}
+  .embeddable-map-header {font-family: LinearSans, Arial, Helvetica, sans-serif;border: 1px solid #b6b4b7;border-radius: 6px;background-color: #fdfdfd;padding: 15px 10px;position: relative;font-size: 16px;top: 20px;left: 20px;margin-right: 40px;display: inline-block;z-index: 1;}
   .embeddable-map-title {font-size: 10px;font-weight: 600;letter-spacing: 0.8px;line-height: 11px;text-transform: uppercase;margin-bottom: 5px;}
   .embeddable-map-header-description {margin: 0;font-size: 18px;font-weight: bold;}
 `;
 
 export const keyStyles = `
   .embeddable-key-container {position: absolute;min-width: 280px;top: unset;right: 20px;left: 20px;bottom: 20px;z-index: 1;width: auto;font-family: LinearSans, Arial, Helvetica, sans-serif;}
-  .map-key-container {border: 1px solid #2a172d;padding: 12px 18px 9px;background-color: #fdfdfd;border-bottom: 1px solid #2a172d;}
+  .map-key-container {border: 1px solid #b6b4b7;border-radius:6px;padding: 12px 18px 9px;background-color: #fdfdfd;border-bottom: 1px solid #2a172d;}
   .embeddable-key-content {display: inline-block;width: 100%;}
   .map-key-header {display: flex;flex-direction: row;justify-content: space-between;align-items: center;margin-bottom: 10px;}
   .map-key-label {display: block;font-size: 10px;color: #2a172d;font-weight: 600;letter-spacing: 0.8px;line-height: 11px;text-transform: uppercase;margin-bottom: 8px;}
@@ -45,7 +45,7 @@ export const keyStyles = `
   @media (min-width: 1200px) {.embeddable-toggle-container {margin-bottom: 14px; margin-top: 0px;}}
   @media (min-width: 1200px) {.embeddable-toggle {margin: 0 7px 0 9px;}}
   /* Climate Zones key*/
-  .climate-zones-key-container {white-space: nowrap;box-sizing: content-box;padding: 0px;padding-left: 16px;width: auto;height: 80px;overflow-x: scroll;background-color: #fdfdfd;border: 1px solid #2a172d;display: flex;align-items: center;}
+  .climate-zones-key-container {white-space: nowrap;box-sizing: content-box;padding: 0px;padding-left: 16px;width: auto;height: 80px;overflow-x: scroll;background-color: #fdfdfd;border: 1px solid #b6b4b7;border-radius: 6px;display: flex;align-items: center;}
   .cz-bins-container {display: grid;grid-template-columns: auto auto auto auto auto auto;margin-bottom: 10px;grid-column-gap: 40px;margin-right: -20px;}
   .cz-bin-container {display: flex;flex-direction: column;flex: 1;gap: 15px;position: relative;margin-top: 2px;}
   .cz-bin-container:not(:last-child):after {content: "";display: block;position: absolute;top: 20px;right: -21px;bottom: 0;width: 1px;background-color: #adadad;height: 22px;}

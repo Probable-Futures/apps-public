@@ -90,10 +90,10 @@ export const exportSimpleMapToHTML = (options: Props) => {
         .popover-label:first-letter{text-transform: lowercase;}
         .popover-mean-frequency-text {display: block;color: #000000;font-weight: 600;letter-spacing: 0;font-size: 20px;}
         .popover-avg-value {display: block;color: #000000;font-weight: 600;letter-spacing: 0;}
-        .mapboxgl-popup-content{background-color: #fdfdfd;border-radius: 0;border: 1px solid #2a172d;padding: 16px 16px 0;box-sizing: border-box;box-shadow: none;}
+        .mapboxgl-popup-content{background-color: #fdfdfd;border-radius: 6px;border: 1px solid #b6b4b7;padding: 16px 16px 0;box-sizing: border-box;box-shadow: none;}
         .mapboxgl-popup-close-button{position: absolute;top: 8px;right: 12px;font-size: 25px;width: 20px;height: 20px;}
         .mapboxgl-popup-close-button:hover{background: transparent;}
-        .mapboxgl-popup-tip{width: 12px;height: 12px;transform: rotate(45deg);background-color: #fdfdfd;border-width: 1px !important;margin-bottom: -8px;border-left: 1px solid #2a172d;border-top: 1px solid #2a172d!important;box-sizing: content-box;align-self: center;border-bottom-color: #fff;}
+        .mapboxgl-popup-tip{width: 12px;height: 12px;transform: rotate(45deg);background-color: #fdfdfd;border-width: 1px !important;margin-bottom: -8px;border-left: 1px solid #b6b4b7;border-top: 1px solid #b6b4b7!important;box-sizing: content-box;align-self: center;border-bottom-color: #fff;}
         ${headerStyles}
         ${keyStyles}
         ${miscStyles}

@@ -97,10 +97,8 @@ export const Primary: Story = (args: any) => {
 Primary.args = {
   degrees: 1,
   warmingScenarioDescs: {},
-  showDegreeDescription: false,
   showBaselineModal: false,
   tourProps: undefined,
-  onWarmingScenarioDescriptionCancel: undefined,
   onWarmingScenarioClick: undefined,
-  headerText: undefined,
+  translatedHeader: undefined,
 };

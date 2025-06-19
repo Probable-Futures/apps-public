@@ -12,7 +12,6 @@ type Props = {
 
 type GroupProps = {
   position: "top" | "middle" | "bottom";
-  showDegreeDescription?: boolean;
 };
 
 const topStyledGroupCss = css`
