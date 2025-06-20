@@ -202,6 +202,7 @@ const DownloadMapModal = ({ isVisible, selectedDataset, onClose, onExportCompare
       title={translate("downloadMap.title")}
       onToggle={onCloseClicked}
       size="sm"
+      closeText={translate("close.text")}
     >
       <ModalWrapper>
         <ModalBody>{renderStepOneForCompareMaps()}</ModalBody>

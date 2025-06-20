@@ -7,7 +7,7 @@ import styled from "styled-components";
 type Props = {
   value: Option;
   datasets: Map[];
-  translatedDatasets?: any;
+  translatedHeader?: any;
   onChange?: (option: Option) => void;
 };
 
@@ -57,7 +57,8 @@ const SelectMapText = styled.span`
   position: absolute;
 `;
 
-const DatasetSelectorForMobile = ({ value, datasets, translatedDatasets, onChange }: Props) => {
+const DatasetSelectorForMobile = ({ value, datasets, translatedHeader, onChange }: Props) => {
+  const translatedDatasets = translatedHeader?.datasets || {};
   const {
     selectMode,
     groupedDatasets,
@@ -73,7 +74,7 @@ const DatasetSelectorForMobile = ({ value, datasets, translatedDatasets, onChang
 
   return (
     <WrapperComponent isOpen={selectMode}>
-      <SelectMapText>Select a map</SelectMapText>
+      <SelectMapText>{translatedHeader?.selectMap || "Select a map"}</SelectMapText>
       <S.MainTitle isOpen={selectMode} onClick={toggleAllSections} style={{ marginTop: "2px" }}>
         <StyledTitle animate={animateAccordionTitle}>{value.label}</StyledTitle>
         <ExpandCollapseIcon isOpen={selectMode} />

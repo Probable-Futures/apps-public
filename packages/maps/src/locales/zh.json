@@ -128,11 +128,11 @@
     "clear": "清除",
     "noResult": "未找到结果",
     "serverError": "无法连接到服务器",
-    "placeholder": "搜索位置",
+    "placeholder": "查找位置",
     "recentlySearched": "最近搜索过的"
   },
   "header": {
-    "warmingScenariosTitle": "全球变暖场景",
+    "warmingScenariosTitle": "选择变暖情景",
     "aboutThisMap": "关于这张地图",
     "yearLabel0": "过去",
     "yearLabel1": "最近",
@@ -140,6 +140,18 @@
     "yearLabel3": "可能的",
     "yearLabel4": "潜在",
     "yearLabel5": "潜在",
+    "selectMap": "选择地图",
+    "currentlySelectedMap": "当前选择的地图",
+    "viewAllMaps": "查看所有地图",
+    "currentMap": "当前地图",
+    "whatDoesThisMapMeasure": "这张地图测量什么？",
+    "related": "相关内容",
+    "howDoWeMeasureClimateChange": "我们如何测量气候变化？",
+    "whatAreWarmingScenarios": "什么是变暖情景？",
+    "descriptionOfWarmingScenarios": "变暖情景告诉我们自前工业时代以来地球全球平均地表温度上升了多少。被广泛接受的前工业时代0°C基准变暖情景，是基于1850年至1900年间地球的平均温度。这些地图描绘了从0.5°C（1971年至2000年的平均温度）到3°C（可能的未来情景）的变暖情景。阅读更多关于我们如何测量气候变化的信息。",
+    "aboutEachWarmingScenario": "关于每个变暖情景",
+    "relatedResources": "相关资源",
+    "exploreTheData": "探索数据",
     "datasets": {
       "10HottestDays": "10个最热的日子",
       "10HottestWetBulbDays": "10个最热的湿球温度日子",
@@ -186,7 +198,7 @@
     "hideMarkerTitle": "隐藏图钉标记",
     "showMarkerTitle": "显示图钉标记",
     "downloadTitle": "下载嵌入或二维码",
-    "adjustViewTitle": "Adjust view",
+    "adjustViewTitle": "调整视图",
     "behindMapsTitle": "了解更多关于地图",
     "takeQuickTour": "快速浏览",
     "closeTheTour": "关闭浏览",
@@ -210,7 +222,8 @@
   "actionSheet": {
     "search": "搜索",
     "marker": "显示/隐藏位置",
-    "behindTheMaps": "地图背后"
+    "behindTheMaps": "地图背后",
+    "aboutThisMap": "关于这张地图"
   },
   "downloadMap": {
     "title": "下载当前地图视图",

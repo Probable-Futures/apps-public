@@ -128,7 +128,7 @@
     "clear": "effacer",
     "noResult": "Aucun résultat trouvé",
     "serverError": "Une erreur s'est produite lors de la communication avec le serveur",
-    "placeholder": "Rechercher un lieu",
+    "placeholder": "Trouver un emplacement",
     "recentlySearched": "recherches récentes"
   },
   "header": {
@@ -140,6 +140,18 @@
     "yearLabel3": "Probable",
     "yearLabel4": "Potentiel",
     "yearLabel5": "Potentiel",
+    "selectMap": "Sélectionner une carte",
+    "currentlySelectedMap": "Carte actuellement sélectionnée",
+    "viewAllMaps": "Voir toutes les cartes",
+    "currentMap": "Carte actuelle",
+    "whatDoesThisMapMeasure": "Que mesure cette carte ?",
+    "related": "Lié",
+    "howDoWeMeasureClimateChange": "Comment mesurons-nous le changement climatique ?",
+    "whatAreWarmingScenarios": "Quels sont les scénarios de réchauffement ?",
+    "descriptionOfWarmingScenarios": "Les scénarios de réchauffement nous indiquent de combien la température moyenne de la surface terrestre a augmenté depuis l’époque préindustrielle. Le scénario de référence à 0°C pour l’époque préindustrielle correspond à la température moyenne de la Terre entre 1850 et 1900. Ces cartes représentent des scénarios de réchauffement allant de 0,5°C (température moyenne entre 1971 et 2000) à 3°C (un scénario futur possible). En savoir plus sur la façon dont nous mesurons le changement climatique.",
+    "aboutEachWarmingScenario": "À propos de chaque scénario de réchauffement",
+    "relatedResources": "Ressources associées",
+    "exploreTheData": "Explorer les données",
     "datasets": {
       "10HottestDays": "10 jours les plus chauds",
       "10HottestWetBulbDays": "10 jours les plus chauds à bulbe humide",
@@ -186,7 +198,7 @@
     "hideMarkerTitle": "Masquer les marqueurs de vignette",
     "showMarkerTitle": "Afficher les marqueurs de vignette",
     "downloadTitle": "Télécharger en tant qu'intégration ou code QR",
-    "adjustViewTitle": "Adjust view",
+    "adjustViewTitle": "Ajuster la vue",
     "behindMapsTitle": "En savoir plus sur les cartes",
     "takeQuickTour": "Faire une visite rapide",
     "closeTheTour": "Fermer la visite",
@@ -210,7 +222,8 @@
   "actionSheet": {
     "search": "Recherche",
     "marker": "Afficher/Masquer les emplacements",
-    "behindTheMaps": "Derrière les cartes"
+    "behindTheMaps": "Derrière les cartes",
+    "aboutThisMap": "À propos de cette carte"
   },
   "downloadMap": {
     "title": "Télécharger la vue de la carte actuelle",

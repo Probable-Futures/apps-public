@@ -22,7 +22,7 @@ type Props = {
   datasetDescriptionResponse?: DatasetDescriptionResponse;
   warmingScenarioDescs: WarmingScenarioDescs;
   datasets: Map[];
-  translatedDatasets?: any;
+  translatedHeader?: any;
   selectedDataset?: Map;
   onDatasetChange: (option: Option) => void;
   onClose: MouseEventHandler<HTMLButtonElement>;
@@ -323,13 +323,14 @@ const AboutMap = ({
   datasetDescriptionResponse,
   warmingScenarioDescs,
   datasets,
-  translatedDatasets,
+  translatedHeader,
   selectedDataset,
   onDatasetChange,
   onClose,
 }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const translatedDatasets = translatedHeader?.datasets || {};
 
   useEffect(() => {
     if (containerRef.current) {
@@ -347,7 +348,8 @@ const AboutMap = ({
         <AboutMapContainer>
           <Headroom disableInlineStyles parent={() => containerRef.current}>
             <Header>
-              <HeaderTitle>About this map</HeaderTitle>
+              <HeaderTitle>{translatedHeader?.aboutThisMap || "About this map"}</HeaderTitle>
+
               <CloseButton title="Close" onClick={onClose}>
                 <CloseIcon width={30} height={30} />
               </CloseButton>
@@ -356,7 +358,7 @@ const AboutMap = ({
           <Content>
             <ContentWrapper>
               <Section>
-                <Title>Current Map</Title>
+                <Title>{translatedHeader?.aboutThisMap || "Current Map"}</Title>
                 <DatasetSelectorForAboutMap
                   datasets={datasets}
                   translatedDatasets={translatedDatasets}
@@ -371,7 +373,9 @@ const AboutMap = ({
               </Section>
 
               <Section>
-                <Title>What does this map measure?</Title>
+                <Title>
+                  {translatedHeader?.whatDoesThisMapMeasure || "What does this map measure?"}
+                </Title>
                 <Paragraph>
                   {datasetDescriptionResponse && (
                     <span
@@ -382,28 +386,27 @@ const AboutMap = ({
                   )}
                 </Paragraph>
                 <Related>
-                  <Paragraph>Related:</Paragraph>
+                  <Paragraph>{translatedHeader?.related || "Related"}:</Paragraph>
                   <RelatedItem>
-                    How do we measure climate change?
+                    {translatedHeader?.howDoWeMeasureClimateChange ||
+                      "How do we measure climate change?"}
                     <StyledArrowIcon src={ArrowRightIcon} alt="Arrow Right" />
                   </RelatedItem>
                 </Related>
               </Section>
 
               <Section>
-                <Title>What are warming scenarios?</Title>
+                <Title>
+                  {translatedHeader?.whatAreWarmingScenarios || "What are warming scenarios?"}
+                </Title>
                 <Paragraph>
-                  Warming scenarios tell us how much Earth’s global average surface temperature has
-                  increased since pre-industrial times. The widely-accepted 0°C baseline warming
-                  scenario for pre-industrial times is Earth’s average temperature from 1850 to
-                  1900. These maps depict warming scenarios from 0.5°C (Earth’s average temperature
-                  from 1971 to 2000) to 3°C (a possible future scenario.) Read more about how we
-                  measure climate change.
+                  {translatedHeader?.descriptionOfWarmingScenarios ||
+                    "Warming scenarios tell us how much Earth’s global average surface temperature has increased since pre-industrial times. The widely-accepted 0°C baseline warming scenario for pre-industrial times is Earth’s average temperature from 1850 to 1900. These maps depict warming scenarios from 0.5°C (Earth’s average temperature from 1971 to 2000) to 3°C (a possible future scenario.) Read more about how we measure climate change."}
                 </Paragraph>
 
                 <WarmingScenarioSection>
                   <WarmingScenarioTitle onClick={() => setIsExpanded(!isExpanded)}>
-                    About each warming scenario
+                    {translatedHeader?.aboutEachWarmingScenario || "About each warming scenario"}
                     <ExpandCollapseIcon isOpen={isExpanded} />
                   </WarmingScenarioTitle>
 
@@ -419,10 +422,10 @@ const AboutMap = ({
               </Section>
 
               <Section>
-                <RelatedResources />
+                <RelatedResources translatedHeader={translatedHeader} />
               </Section>
               <Section>
-                <DataResources />
+                <DataResources translatedHeader={translatedHeader} />
               </Section>
             </ContentWrapper>
           </Content>

@@ -46,6 +46,7 @@ const MapSelection = () => {
   const { step, steps, isTourActive, onClose, onNext } = useTourData();
   const { translate } = useTranslation();
   const translatedDatasets = translate("header")?.datasets;
+  const translatedHeader = translate("header");
   const onDatasetChange = useDatasetChangeHandler();
   const isTablet = useMediaQuery({
     query: `(max-width: ${size.tabletMax})`,
@@ -67,7 +68,7 @@ const MapSelection = () => {
             }}
             onChange={onDatasetChange}
             datasets={datasets}
-            translatedDatasets={translatedDatasets}
+            translatedHeader={translatedHeader}
           />
         </MobileContainer>
       ) : (
@@ -89,7 +90,7 @@ const MapSelection = () => {
               onClose,
             }}
             datasets={datasets}
-            translatedDatasets={translatedDatasets}
+            translatedHeader={translatedHeader}
             setShowAllMapsModal={setShowAllMapsModal}
           />
         </Container>

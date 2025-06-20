@@ -128,7 +128,7 @@
     "clear": "borrar",
     "noResult": "No se encontraron resultados",
     "serverError": "Hubo un error al conectarse al servidor",
-    "placeholder": "Buscar una ubicación",
+    "placeholder": "Encontrar una ubicación",
     "recentlySearched": "búsquedas recientes"
   },
   "header": {
@@ -140,6 +140,18 @@
     "yearLabel3": "Probable",
     "yearLabel4": "Potencial",
     "yearLabel5": "Potencial",
+    "selectMap": "Seleccionar un mapa",
+    "currentlySelectedMap": "Mapa seleccionado actualmente",
+    "viewAllMaps": "Ver todos los mapas",
+    "currentMap": "Mapa actual",
+    "whatDoesThisMapMeasure": "¿Qué mide este mapa?",
+    "related": "Relacionado",
+    "howDoWeMeasureClimateChange": "¿Cómo medimos el cambio climático?",
+    "whatAreWarmingScenarios": "¿Qué son los escenarios de calentamiento?",
+    "descriptionOfWarmingScenarios": "Los escenarios de calentamiento nos indican cuánto ha aumentado la temperatura media global de la superficie terrestre desde la era preindustrial. El escenario de calentamiento de referencia de 0°C para la era preindustrial se basa en la temperatura media de la Tierra entre 1850 y 1900. Estos mapas representan escenarios de calentamiento desde 0.5°C (temperatura media entre 1971 y 2000) hasta 3°C (un posible escenario futuro). Lee más sobre cómo medimos el cambio climático.",
+    "aboutEachWarmingScenario": "Acerca de cada escenario de calentamiento",
+    "relatedResources": "Recursos relacionados",
+    "exploreTheData": "Explorar los datos",
     "datasets": {
       "10HottestDays": "10 días más calurosos",
       "10HottestWetBulbDays": "10 días con temperatura de bulbo húmedo más caliente",
@@ -186,7 +198,7 @@
     "hideMarkerTitle": "Ocultar marcadores de viñetas",
     "showMarkerTitle": "Mostrar marcadores de viñetas",
     "downloadTitle": "Descargar como incrustación o código QR",
-    "adjustViewTitle": "Adjust view",
+    "adjustViewTitle": "Ajustar vista",
     "behindMapsTitle": "Obtener más información sobre los mapas",
     "takeQuickTour": "Realizar un recorrido rápido",
     "closeTheTour": "Cerrar el recorrido",
@@ -210,7 +222,8 @@
   "actionSheet": {
     "search": "Buscar",
     "marker": "Mostrar/Ocultar ubicaciones",
-    "behindTheMaps": "Detrás de los mapas"
+    "behindTheMaps": "Detrás de los mapas",
+    "aboutThisMap": "Sobre este mapa"
   },
   "downloadMap": {
     "title": "Descargar vista de mapa actual",

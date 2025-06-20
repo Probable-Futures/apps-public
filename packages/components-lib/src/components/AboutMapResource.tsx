@@ -8,6 +8,10 @@ type Props = {
   resources: Resource[];
 };
 
+type SharedProps = {
+  translatedHeader?: any;
+};
+
 type Resource = {
   title: string;
   description: string;
@@ -113,21 +117,21 @@ const AboutMapResource = ({ intro, title, resources }: Props) => {
   );
 };
 
-export const RelatedResources = () => {
+export const RelatedResources = ({ translatedHeader }: SharedProps) => {
   return (
     <AboutMapResource
       intro={relatedResourcesTitle}
-      title="Related Resources"
+      title={translatedHeader?.relatedResources || "Related Resources"}
       resources={relatedResources}
     />
   );
 };
 
-export const DataResources = () => {
+export const DataResources = ({ translatedHeader }: SharedProps) => {
   return (
     <AboutMapResource
       intro={dataResourcesTitle}
-      title="Explore the data"
+      title={translatedHeader?.exploreTheData || "Explore the data"}
       resources={dataResources}
     />
   );

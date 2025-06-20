@@ -979,7 +979,7 @@ const InteractiveMap = () => {
           warmingScenarioDescs={warmingScenarioDescs}
           onClose={() => setShowAboutMap(false)}
           datasets={datasets}
-          translatedDatasets={translatedHeader?.datasets}
+          translatedHeader={translatedHeader}
           selectedDataset={selectedDataset}
           onDatasetChange={onDatasetChange}
         />

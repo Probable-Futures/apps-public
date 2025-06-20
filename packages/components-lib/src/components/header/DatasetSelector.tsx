@@ -9,7 +9,7 @@ type Props = {
   value: Option;
   tourProps?: TourProps;
   datasets: Map[];
-  translatedDatasets?: any;
+  translatedHeader?: any;
   setShowAllMapsModal?: (show: boolean) => void;
   onChange?: (option: Option) => void;
 };
@@ -185,16 +185,16 @@ const DatasetSelector = ({
   setShowAllMapsModal,
   tourProps,
   datasets,
-  translatedDatasets,
+  translatedHeader,
 }: Props) => {
   const [openSection, setOpenSection] = useState<string>("");
   const [selectMode, setSelectMode] = useState(true);
   const [animateAccordionTitle, setAnimateAccordionTitle] = useState(false);
 
-  const groupedDatasets = useMemo(
-    () => generateGroupedDatasets(datasets, translatedDatasets),
-    [datasets, translatedDatasets],
-  );
+  const groupedDatasets = useMemo(() => {
+    const translatedDatasets = translatedHeader?.datasets || {};
+    return generateGroupedDatasets(datasets, translatedDatasets);
+  }, [datasets, translatedHeader?.datasets]);
 
   const toggleSection = (newLabel: string) => {
     setOpenSection((label) => (label === newLabel ? "" : newLabel));
@@ -215,7 +215,9 @@ const DatasetSelector = ({
       <AccordionWrapper>
         <MainTitle onClick={toggleAllSections}>
           <Title animate={animateAccordionTitle}>
-            {selectMode ? "Select a map" : "Currently selected map"}
+            {selectMode
+              ? translatedHeader?.selectMap || "Select a map"
+              : translatedHeader?.currentlySelectedMap || "Currently selected map"}
           </Title>
           <ExpandCollapseIcon isOpen={selectMode} />
         </MainTitle>
@@ -252,7 +254,7 @@ const DatasetSelector = ({
           ))}
           <Section isFirstChild={false}>
             <ViewAllMaps onClick={() => setShowAllMapsModal && setShowAllMapsModal(true)}>
-              View all maps
+              {translatedHeader?.viewAllMaps || "View all maps"}
             </ViewAllMaps>
           </Section>
         </AllContent>
