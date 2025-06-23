@@ -220,6 +220,14 @@ const RelatedItem = styled.a`
   border: 1px solid transparent;
   width: fit-content;
   cursor: pointer;
+  text-decoration: none;
+  color: ${colors.darkPurple};
+  transition: transform 0.3s ease, color 0.3s ease;
+
+  &:hover {
+    transform: translateX(25px);
+    color: ${colors.purpleLight};
+  }
 `;
 
 const StyledArrowIcon = styled.img`
@@ -385,14 +393,22 @@ const AboutMap = ({
                     />
                   )}
                 </Paragraph>
-                <Related>
-                  <Paragraph>{translatedHeader?.related || "Related"}:</Paragraph>
-                  <RelatedItem>
-                    {translatedHeader?.howDoWeMeasureClimateChange ||
-                      "How do we measure climate change?"}
-                    <StyledArrowIcon src={ArrowRightIcon} alt="Arrow Right" />
-                  </RelatedItem>
-                </Related>
+                {datasetDescriptionResponse?.related_posts &&
+                  datasetDescriptionResponse.related_posts.length > 0 && (
+                    <Related>
+                      <Paragraph>{translatedHeader?.related || "Related"}:</Paragraph>
+                      {datasetDescriptionResponse.related_posts.map((item, index) => (
+                        <RelatedItem
+                          key={index}
+                          href={item.post.url}
+                          target={item.post.target || "_self"}
+                        >
+                          <span dangerouslySetInnerHTML={{ __html: item.post.title }} />
+                          <StyledArrowIcon src={ArrowRightIcon} alt="Arrow Right" />
+                        </RelatedItem>
+                      ))}
+                    </Related>
+                  )}
               </Section>
 
               <Section>

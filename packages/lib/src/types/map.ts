@@ -60,6 +60,13 @@ export type DatasetDescriptionResponse = {
   dataset_id: string;
   vignette_title_wysiwyg: string;
   map_volume: boolean;
+  related_posts?: {
+    post: {
+      title: string;
+      url: string;
+      target: string;
+    };
+  }[];
   climate_zones?: Array<ClimateZoneGroup>;
 };
 

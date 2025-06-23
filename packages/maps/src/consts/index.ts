@@ -5,6 +5,7 @@ export const colors = {
   white: "#fdfdfd",
   secondaryWhite: "#fefffc",
   purple: "#851fff",
+  purpleLight: "#8929FF",
   primaryGray: "#a2a2a2",
   secondaryGray: "#adadad",
   grey: "#b6b4b7",
