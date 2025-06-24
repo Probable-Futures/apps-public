@@ -36,7 +36,7 @@ brew install mkcert
 brew install nss # if you use Firefox
 
 # use the absolute path here
-export CAROOT=./probable-futures/docker/nginx/certs
+export CAROOT=./docker/nginx/certs
 mkcert -install
 ```
 

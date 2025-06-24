@@ -1385,7 +1385,8 @@ CREATE TABLE knowledge.posts (
     modified_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     content text NOT NULL,
     content_type knowledge.post_type NOT NULL,
-    json_content jsonb
+    json_content jsonb,
+    link text DEFAULT ''::text NOT NULL
 );
 
 
