@@ -12,6 +12,7 @@ import {
   DatasetDescriptionResponse,
   degreesOptions,
   WarmingScenarioDescs,
+  AboutMapResources,
 } from "@probable-futures/lib";
 import DatasetSelectorForAboutMap from "./DatasetSelectorFoAboutMap";
 import MapOverlay from "./MapOverlay";
@@ -24,6 +25,7 @@ type Props = {
   datasets: Map[];
   translatedHeader?: any;
   selectedDataset?: Map;
+  aboutMapResources?: AboutMapResources;
   onDatasetChange: (option: Option) => void;
   onClose: MouseEventHandler<HTMLButtonElement>;
 };
@@ -124,13 +126,6 @@ const Content = styled.div`
 
   ${SharedLeftPadding}
 
-  // p {
-  //   font-size: 20px;
-  //   letter-spacing: 0;
-  //   line-height: 34px;
-  //   margin: 24px 0;
-  // }
-
   a {
     color: ${colors.darkPurple};
   }
@@ -201,7 +196,7 @@ const Paragraph = styled.p`
 const Related = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 20px;
   margin-top: 1rem;
   font-size: 0.9rem;
   margin-bottom: 40px;
@@ -333,6 +328,7 @@ const AboutMap = ({
   datasets,
   translatedHeader,
   selectedDataset,
+  aboutMapResources,
   onDatasetChange,
   onClose,
 }: Props) => {
@@ -438,10 +434,20 @@ const AboutMap = ({
               </Section>
 
               <Section>
-                <RelatedResources translatedHeader={translatedHeader} />
+                <RelatedResources
+                  translatedHeader={translatedHeader}
+                  resources={aboutMapResources?.resources}
+                  intro={aboutMapResources?.related_subheading}
+                  title={aboutMapResources?.related_heading}
+                />
               </Section>
               <Section>
-                <DataResources translatedHeader={translatedHeader} />
+                <DataResources
+                  translatedHeader={translatedHeader}
+                  resources={aboutMapResources?.data_resources}
+                  intro={aboutMapResources?.explore_subheading}
+                  title={aboutMapResources?.explore_heading}
+                />
               </Section>
             </ContentWrapper>
           </Content>

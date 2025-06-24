@@ -292,6 +292,8 @@ const InteractiveMap = () => {
     setStorySubmission,
     setWpDatasetDescriptionResponse,
     setShowAllMapsModal,
+    aboutMapResources,
+    setAboutMapResources,
   } = useMapData();
   const {
     isTourActive,
@@ -332,6 +334,7 @@ const InteractiveMap = () => {
     setWpDatasetDescriptionResponse,
     setInspectPromptLocation,
     setSteps,
+    setAboutMapResources,
     locale,
   });
   const { climateZoneBinHexColors } = useClimateZoneHighlighter({
@@ -981,6 +984,7 @@ const InteractiveMap = () => {
           datasets={datasets}
           translatedHeader={translatedHeader}
           selectedDataset={selectedDataset}
+          aboutMapResources={aboutMapResources}
           onDatasetChange={onDatasetChange}
         />
         {selectedDataset && (

@@ -13,3 +13,21 @@ export type StatisticsData = {
   values: number[];
   cumulativeProbability: number[];
 };
+
+export type Resource = {
+  description: string;
+  resource: {
+    title: string;
+    url: string;
+    target: string;
+  };
+};
+
+export type AboutMapResources = {
+  explore_heading: string;
+  explore_subheading: string;
+  related_heading: string;
+  related_subheading: string;
+  resources: Resource[];
+  data_resources: Resource[];
+};

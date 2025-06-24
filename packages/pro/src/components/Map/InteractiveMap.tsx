@@ -186,6 +186,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
     showAboutMap,
     setSearchIsOpen,
     setShowAboutMap,
+    aboutMapResources,
   } = useMapData();
   const isLaptop = useMediaQuery({
     query: `(min-width: ${size.laptop})`,
@@ -528,17 +529,6 @@ const InteractiveMap = (props: PropsFromRedux) => {
                 />
               </DegreesWrapper>
             )}
-            {/* <DegreesWrapper>
-              <components.Degrees
-                degrees={degrees}
-                warmingScenarioDescs={warmingScenarioDescs}
-                showBaselineModal={showBaselineModal}
-                onWarmingScenarioClick={onButtonClick}
-                onAboutMapClick={() => {
-                  setShowAboutMap(true);
-                }}
-              />
-            </DegreesWrapper> */}
           </contexts.ThemeProvider>
         )}
         <KeplerGl
@@ -657,6 +647,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
           datasets={climateData}
           selectedDataset={selectedClimateData}
           onDatasetChange={onDatasetChange}
+          aboutMapResources={aboutMapResources}
         />
         {renderBottomLinks()}
       </Container>

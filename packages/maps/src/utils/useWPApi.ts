@@ -1,4 +1,4 @@
-import { types } from "@probable-futures/lib/src";
+import { AboutMapResources, types } from "@probable-futures/lib/src";
 import { useEffect, useMemo } from "react";
 
 type Object = {
@@ -22,6 +22,7 @@ type Props = {
   setWarmingScenarioDescs?: (arg: any) => void;
   setStorySubmission?: (arg: any) => void;
   setSteps?: (arg: any) => void;
+  setAboutMapResources?: (arg: AboutMapResources) => void;
 };
 
 export default function useWPApi({
@@ -35,6 +36,7 @@ export default function useWPApi({
   setWpDatasetDescriptionResponse,
   setInspectPromptLocation,
   setSteps,
+  setAboutMapResources,
   locale,
 }: Props) {
   const urlWithLocale = useMemo(() => {
@@ -68,6 +70,16 @@ export default function useWPApi({
         setSteps?.(tourSteps);
         setStorySubmission?.(body.acf.vignette_story_submission_instructions);
         setInspectPromptLocation?.(body.acf.inspect_prompt_location);
+
+        const aboutMapResources: AboutMapResources = {
+          explore_heading: body.acf.explore_heading,
+          explore_subheading: body.acf.explore_subheading,
+          related_heading: body.acf.related_heading,
+          related_subheading: body.acf.related_subheading,
+          resources: body.acf.resources,
+          data_resources: body.acf.data_resources,
+        };
+        setAboutMapResources?.(aboutMapResources);
       }
     }
     if (warmingScenarioDescs && Object.keys(warmingScenarioDescs).length === 0) {
@@ -80,6 +92,7 @@ export default function useWPApi({
     setSteps,
     setStorySubmission,
     setInspectPromptLocation,
+    setAboutMapResources,
   ]);
 
   useEffect(() => {

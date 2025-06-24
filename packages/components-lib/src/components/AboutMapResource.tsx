@@ -1,4 +1,4 @@
-import { colors, size } from "@probable-futures/lib";
+import { colors, Resource, size } from "@probable-futures/lib";
 import styled from "styled-components";
 import { Title } from "./AboutMap";
 
@@ -10,60 +10,10 @@ type Props = {
 
 type SharedProps = {
   translatedHeader?: any;
+  resources?: Resource[];
+  intro?: string;
+  title?: string;
 };
-
-type Resource = {
-  title: string;
-  description: string;
-  url: string;
-};
-
-const relatedResources: Resource[] = [
-  {
-    title: "Explainers",
-    description: "Read explainers on key climate topics and applying our maps.",
-    url: "https://climate.nasa.gov/explainers/",
-  },
-  {
-    title: "Take a tour",
-    description: "Take a tour of our map interface.",
-    url: "https://climate.nasa.gov/explainers/",
-  },
-  {
-    title: "Science",
-    description: "Read about the science behind our maps.",
-    url: "https://climate.nasa.gov/explainers/",
-  },
-  {
-    title: "More about maps",
-    description: "See an overview of our available maps and their features.",
-    url: "https://climate.nasa.gov/explainers/",
-  },
-];
-
-const dataResources: Resource[] = [
-  {
-    title: "Open data & integrations",
-    description: "Access a suite of tools to work with the data behind our maps.",
-    url: "https://climate.nasa.gov/explainers/",
-  },
-  {
-    title: "Data documentation",
-    description: "Read our data documentation to learn more.",
-    url: "https://climate.nasa.gov/explainers/",
-  },
-  {
-    title: "Probable Futures Pro",
-    description: "Combine and visualize geospatial data in our free pro-level tool.",
-    url: "https://climate.nasa.gov/explainers/",
-  },
-];
-
-const relatedResourcesTitle =
-  "Learn more about the maps by exploring helpful guides, reviewing the science behind the maps, and taking a tour.";
-
-const dataResourcesTitle =
-  "Probable Futures maps and data are freely available and licensed for widespread use. Learn about accessing our data and integrating our maps below.";
 
 const Intro = styled.p`
   color: ${colors.darkPurple};
@@ -106,8 +56,12 @@ const AboutMapResource = ({ intro, title, resources }: Props) => {
       <ResourceGrid>
         {resources.map((resource, index) => (
           <ResourceItem key={index}>
-            <a href={resource.url} target="_blank" rel="noopener noreferrer">
-              {resource.title}
+            <a
+              href={resource.resource.url}
+              target={resource.resource.target}
+              rel="noopener noreferrer"
+            >
+              {resource.resource.title}
             </a>
             <p>{resource.description}</p>
           </ResourceItem>
@@ -117,22 +71,10 @@ const AboutMapResource = ({ intro, title, resources }: Props) => {
   );
 };
 
-export const RelatedResources = ({ translatedHeader }: SharedProps) => {
-  return (
-    <AboutMapResource
-      intro={relatedResourcesTitle}
-      title={translatedHeader?.relatedResources || "Related Resources"}
-      resources={relatedResources}
-    />
-  );
+export const RelatedResources = ({ resources = [], intro = "", title = "" }: SharedProps) => {
+  return <AboutMapResource intro={intro} title={title} resources={resources} />;
 };
 
-export const DataResources = ({ translatedHeader }: SharedProps) => {
-  return (
-    <AboutMapResource
-      intro={dataResourcesTitle}
-      title={translatedHeader?.exploreTheData || "Explore the data"}
-      resources={dataResources}
-    />
-  );
+export const DataResources = ({ resources = [], intro = "", title = "" }: SharedProps) => {
+  return <AboutMapResource intro={intro} title={title} resources={resources} />;
 };

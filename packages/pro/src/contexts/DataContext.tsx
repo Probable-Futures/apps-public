@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, useRef, useState } from "react";
-import { types } from "@probable-futures/lib";
+import { AboutMapResources, types } from "@probable-futures/lib";
 
 import { Props as ImportReviewProps } from "../components/Common/ImportReview";
 
@@ -23,6 +23,7 @@ type State = {
   datasetDescriptionResponse?: types.DatasetDescriptionResponse;
   searchIsOpen: boolean;
   showAboutMap: boolean;
+  aboutMapResources?: AboutMapResources;
   setClimateData(arg: any): void;
   setSelectedClimateData(arg: any): void;
   setWarmingScenarioDescs(arg: any): void;
@@ -43,6 +44,7 @@ type State = {
   setPrecipitationUnit(arg: types.PrecipitationUnit): void;
   setSearchIsOpen(arg: any): void;
   setShowAboutMap(arg: any): void;
+  setAboutMapResources: (arg: AboutMapResources) => void;
 };
 
 const initialState = {
@@ -65,6 +67,8 @@ const initialState = {
   precipitationUnit: "mm" as types.PrecipitationUnit,
   searchIsOpen: false,
   showAboutMap: false,
+  aboutMapResources: undefined,
+  setAboutMapResources: () => {},
   setClimateData: () => {},
   setSelectedClimateData: () => {},
   setWarmingScenarioDescs: () => {},
@@ -107,6 +111,7 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
   const [precipitationUnit, setPrecipitationUnit] = useState("mm" as types.PrecipitationUnit);
   const [searchIsOpen, setSearchIsOpen] = useState(false);
   const [showAboutMap, setShowAboutMap] = useState(false);
+  const [aboutMapResources, setAboutMapResources] = useState<AboutMapResources>();
 
   const mapRef = useRef<any>(null);
 
@@ -149,6 +154,8 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       setSearchIsOpen,
       showAboutMap,
       setShowAboutMap,
+      aboutMapResources,
+      setAboutMapResources,
     }),
     [
       climateData,
@@ -170,6 +177,7 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       precipitationUnit,
       searchIsOpen,
       showAboutMap,
+      aboutMapResources,
     ],
   );
 

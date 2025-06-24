@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import { useMapData } from "../contexts/DataContext";
-import { DatasetDescriptionResponse } from "@probable-futures/lib";
+import { AboutMapResources, DatasetDescriptionResponse } from "@probable-futures/lib";
 
 type Object = {
   [key: string]: string;
@@ -21,6 +21,7 @@ export default function useWPApi() {
     setDescription9010,
     setDescription955,
     setWpDatasetDescriptionResponse,
+    setAboutMapResources,
   } = useMapData();
 
   const filterObjectBy = (obj: Object, filter: string) => {
@@ -44,12 +45,28 @@ export default function useWPApi() {
         setDescription9010(body.acf["9010_description"]);
         setDescription955(body.acf["955_description"]);
         setWarmingScenarioDescs(warmingScenarioDescs);
+
+        const aboutMapResources: AboutMapResources = {
+          explore_heading: body.acf.explore_heading,
+          explore_subheading: body.acf.explore_subheading,
+          related_heading: body.acf.related_heading,
+          related_subheading: body.acf.related_subheading,
+          resources: body.acf.resources,
+          data_resources: body.acf.data_resources,
+        };
+        setAboutMapResources?.(aboutMapResources);
       }
     }
     if (Object.keys(warmingScenarioDescs).length === 0) {
       fetchMapSettings();
     }
-  }, [setWarmingScenarioDescs, setDescription9010, setDescription955, warmingScenarioDescs]);
+  }, [
+    setWarmingScenarioDescs,
+    setDescription9010,
+    setDescription955,
+    warmingScenarioDescs,
+    setAboutMapResources,
+  ]);
 
   useEffect(() => {
     async function fetchMapDescription() {

@@ -1,7 +1,7 @@
 import { createContext, useState, useMemo, useContext, PropsWithChildren } from "react";
 import { Projection } from "mapbox-gl";
 
-import { types } from "@probable-futures/lib";
+import { types, AboutMapResources } from "@probable-futures/lib";
 
 export type SupportedProjectionsType = Extract<Projection["name"], "mercator" | "globe">;
 export const supportedProjections: SupportedProjectionsType[] = ["mercator", "globe"];
@@ -34,8 +34,10 @@ type State = {
   temporaryShowMarkers: boolean;
   showAboutMap: boolean;
   showAllMapsModal: boolean;
+  aboutMapResources?: AboutMapResources;
   setShowAllMapsModal: (arg: boolean) => void;
   setShowAboutMap: (arg: boolean) => void;
+  setAboutMapResources: (arg: AboutMapResources) => void;
   setDatasets(arg: any): void;
   setSelectedDataset(arg: any): void;
   setDegrees(arg: any): void;
@@ -89,8 +91,10 @@ const initialState = {
   temporaryShowMarkers: false,
   showAboutMap: false,
   showAllMapsModal: false,
+  aboutMapResources: undefined,
   setShowAllMapsModal: () => {},
   setShowAboutMap: () => {},
+  setAboutMapResources: () => {},
   setDatasets: () => {},
   setSelectedDataset: () => {},
   setDegrees: () => {},
@@ -145,6 +149,7 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
   const [temporaryShowMarkers, setTemporaryShowMarkers] = useState(false);
   const [showAboutMap, setShowAboutMap] = useState(false);
   const [showAllMapsModal, setShowAllMapsModal] = useState(false);
+  const [aboutMapResources, setAboutMapResources] = useState<AboutMapResources>();
 
   const value = useMemo(
     () => ({
@@ -198,6 +203,8 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       setShowAboutMap,
       showAllMapsModal,
       setShowAllMapsModal,
+      aboutMapResources,
+      setAboutMapResources,
     }),
     [
       datasets,
@@ -225,6 +232,7 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       temporaryShowMarkers,
       showAboutMap,
       showAllMapsModal,
+      aboutMapResources,
     ],
   );
 
