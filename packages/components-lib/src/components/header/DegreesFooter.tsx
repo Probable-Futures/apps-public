@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useEffect, useRef, useState } from "react";
 import {
   colors,
   degreesOptions,
@@ -83,7 +84,7 @@ const ButtonsWrapper = styled.div`
   }
 `;
 
-const Buttons = styled.div`
+const Buttons = styled.div<{ gradientOpacity: number }>`
   display: flex;
   height: 100%;
   flex: auto;
@@ -97,16 +98,19 @@ const Buttons = styled.div`
     content: "";
     position: fixed;
     bottom: 0;
-    right: 0;
+    right: -10px;
     width: 63px;
     height: 67px;
     pointer-events: none;
     background: linear-gradient(
       to left,
-      rgba(255, 255, 255, 1) 0%,
-      rgba(255, 255, 255, 0.7) 50%,
+      rgba(255, 255, 255, ${(props) => props.gradientOpacity}) 0%,
+      rgba(255, 255, 255, ${(props) => props.gradientOpacity * 0.9}) 50%,
+      rgba(255, 255, 255, ${(props) => props.gradientOpacity * 0.5}) 70%,
       rgba(255, 255, 255, 0) 100%
     );
+    transition: opacity 0.3s ease-in-out;
+    opacity: ${(props) => props.gradientOpacity};
   }
 `;
 
@@ -160,6 +164,25 @@ const DegreesFooter = ({
   onWarmingScenarioClick,
 }: Props) => {
   const { color, backgroundColor } = useTheme();
+  const [gradientOpacity, setGradientOpacity] = useState(1);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const lastButtonRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!lastButtonRef.current || !scrollContainerRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const isFullyVisible = entry.intersectionRatio >= 0.8;
+        setGradientOpacity(isFullyVisible ? 0 : 1);
+      },
+      {
+        root: scrollContainerRef.current,
+        threshold: [0, 0.5, 0.8, 1],
+      },
+    );
+    observer.observe(lastButtonRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const renderButton = (
     value: number,
@@ -197,13 +220,17 @@ const DegreesFooter = ({
         </Label>
       </LabelWrapper>
 
-      <ButtonsWrapper>
-        <Buttons style={{ color, backgroundColor }}>
+      <ButtonsWrapper ref={scrollContainerRef}>
+        <Buttons style={{ color, backgroundColor }} gradientOpacity={gradientOpacity}>
           {degreesOptions.map(({ label, value, descKey, year }, index) => {
             const isSelected = showBaselineModal ? value === 0.5 : degrees === value;
+            const isLastButton = index === degreesOptions.length - 1;
             return (
               <ButtonAndSeparator key={label}>
-                <StyledButtonContainer isActive={isSelected}>
+                <StyledButtonContainer
+                  isActive={isSelected}
+                  ref={isLastButton ? lastButtonRef : undefined}
+                >
                   {value === 1.5 && tourProps ? (
                     <TourBoxWrapper>
                       <TourBox
