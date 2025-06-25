@@ -1,13 +1,15 @@
-import { RefObject, useEffect } from "react";
+import { RefObject, useEffect, useRef } from "react";
 import { MapRef } from "react-map-gl";
 import styled, { css } from "styled-components";
+
 import { size, colors, RecentlySearchedItemsKey } from "@probable-futures/lib";
 
+import { ReactComponent as SearchIcon } from "../assets/icons/search.svg";
 import { ReactComponent as CancelIcon } from "../assets/icons/cancel.svg";
 import useGeocoder, { Feature } from "../hooks/useGeocoder";
-import Spinner from "./Spinner";
-import { ReactComponent as SearchIcon } from "@probable-futures/components-lib/src/assets/icons/search.svg";
 import { ItemHoverStyles } from "../styles/commonStyles";
+import Spinner from "./Spinner";
+import { hooks } from "..";
 
 export type GeocoderProps = {
   mapRef: RefObject<MapRef>;
@@ -323,6 +325,8 @@ const Geocoder = (props: GeocoderProps) => {
     setIsInputFocused,
   } = useGeocoder(props);
 
+  const ref = useRef(null);
+
   const recentlySearchedItems: RecentlySearchedItemType[] = JSON.parse(
     localStorage.getItem(
       props.localStorageRecentlySearchedIemskey[
@@ -382,12 +386,14 @@ const Geocoder = (props: GeocoderProps) => {
     };
   }, [inputRef, setIsInputFocused]);
 
+  hooks.useOnClickOutside(ref, () => setIsInputFocused(false));
+
   if (!props.searchIsOpen) {
     return null;
   }
 
   return (
-    <Container top={props.top}>
+    <Container top={props.top} ref={ref}>
       <MapboxGeocoder>
         <div>
           <Input

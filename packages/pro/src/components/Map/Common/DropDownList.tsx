@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
+
 import SearchIcon from "@probable-futures/components-lib/src/assets/icons/search.svg";
-import { styles } from "@probable-futures/components-lib";
+import { styles, hooks } from "@probable-futures/components-lib";
 
 import { DatasetFields } from "../../../shared/types";
-import useOnClickOutside from "../../../utils/useOnClickOutside";
 import { colors } from "../../../consts";
 
 type Props = {
@@ -94,7 +94,7 @@ const SearchInputWrapper = styled.div`
 const DropdownList = (props: Props): JSX.Element => {
   const ref = useRef(null);
 
-  useOnClickOutside(ref, props.handleClickOutside);
+  hooks.useOnClickOutside(ref, props.handleClickOutside);
 
   return (
     <DropdownListWrapper ref={ref}>
