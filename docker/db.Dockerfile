@@ -6,7 +6,9 @@ RUN apk add --no-cache --virtual .build-deps \
     git \
     postgresql-dev \
     clang \
-    llvm
+    llvm \
+    clang19 \
+    llvm19
 
 # Clone pgvector at a specific version that doesn't require clang-19
 RUN git clone --branch v0.5.1 https://github.com/pgvector/pgvector.git && \
