@@ -74,6 +74,7 @@ export type WarmingScenarioDescs = {
   description_baseline?: string;
   description_1c?: string;
   description_15c?: string;
+  description_15c_citation?: string;
   description_2c?: string;
   description_25c?: string;
   description_3c?: string;

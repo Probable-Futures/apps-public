@@ -36,11 +36,14 @@ export type DescKeys =
   | "description_25c"
   | "description_3c";
 
+export type CitationKeys = "description_15c_citation";
+
 export type Degrees = {
   value: number;
   label: string;
   dataKey: DegreeDataKeys;
   descKey: DescKeys;
+  citationKey?: CitationKeys;
   year: string;
 };
 
@@ -64,6 +67,7 @@ export const degreesOptions: Degrees[] = [
     label: "1.5°C",
     dataKey: "data_1_5c",
     descKey: "description_15c",
+    citationKey: "description_15c_citation",
     year: "Current",
   },
   {

@@ -282,6 +282,15 @@ const WarmingScenarioContent = styled.div`
   }
 `;
 
+const WarmingScenarioCitation = styled.div`
+  text-align: right;
+
+  p {
+    font-size: 14px;
+    font-weight: 300;
+  }
+`;
+
 const CloseButton = styled.button`
   height: 30px;
   width: 30px;
@@ -423,10 +432,21 @@ const AboutMap = ({
                   </WarmingScenarioTitle>
 
                   <WarmingScenarioWrapper isExpanded={isExpanded}>
-                    {degreesOptions.map(({ label, descKey }) => (
+                    {degreesOptions.map(({ label, descKey, citationKey }) => (
                       <WarmingScenarioContent key={descKey}>
                         <h4>{label}</h4>
-                        <div dangerouslySetInnerHTML={{ __html: warmingScenarioDescs[descKey]! }} />
+                        <div>
+                          <div
+                            dangerouslySetInnerHTML={{ __html: warmingScenarioDescs[descKey]! }}
+                          />
+                          {citationKey && (
+                            <WarmingScenarioCitation
+                              dangerouslySetInnerHTML={{
+                                __html: warmingScenarioDescs[citationKey]!,
+                              }}
+                            />
+                          )}
+                        </div>
                       </WarmingScenarioContent>
                     ))}
                   </WarmingScenarioWrapper>
