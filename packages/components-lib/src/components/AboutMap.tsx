@@ -284,6 +284,7 @@ const WarmingScenarioContent = styled.div`
 
 const WarmingScenarioCitation = styled.div`
   text-align: right;
+  margin-top: 5px;
 
   p {
     font-size: 14px;
