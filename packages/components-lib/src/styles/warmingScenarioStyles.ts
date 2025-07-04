@@ -9,6 +9,11 @@ export type ButtonContainerProps = {
   isActive: boolean;
 };
 
+export type ButtonProps = {
+  selected?: boolean;
+  partialBorder?: boolean;
+};
+
 type InfoProps = {
   theme: Theme;
   show: boolean;
@@ -114,7 +119,7 @@ export const BorderVisibleOnFocus = styled.div`
   position: absolute;
   width: ${({ width }: { width: string }) => width};
   height: 30px;
-  top: 21px;
+  top: 10px;
 `;
 
 export const Button = styled.button`
@@ -134,6 +139,18 @@ export const Button = styled.button`
 
   &:disabled {
     opacity: 0.5;
+  }
+
+  &:focus-visible {
+    .label-and-info-container {
+      color: ${colors.purple};
+    }
+    .button-focus-border {
+      display: block;
+    }
+    .label-and-info-container {
+      border: 1px solid ${colors.purple};
+    }
   }
 `;
 

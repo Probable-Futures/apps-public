@@ -15,6 +15,7 @@ import {
   ButtonAndSeparator,
   ButtonContainer,
   ButtonContainerProps,
+  ButtonProps,
 } from "../../styles/warmingScenarioStyles";
 import { useTheme } from "../../contexts";
 import { ReactComponent as InfoIcon } from "../../assets/icons/info.svg";
@@ -56,7 +57,7 @@ const StyledButton = styled(Button)`
   border-right: 1px solid ${colors.grey};
   position: relative;
   height: 50px;
-  ${({ partialBorder }: { partialBorder: boolean }) =>
+  ${({ partialBorder }: ButtonProps) =>
     partialBorder
       ? `
         &::before {
@@ -152,7 +153,8 @@ const YearLabel = styled.span`
   background: white;
   padding: 0 8px;
   border-radius: 3px;
-  top: -5px;
+  padding-bottom: 2px;
+  top: -7px;
 `;
 
 const Degrees = ({
@@ -183,6 +185,7 @@ const Degrees = ({
         }
         style={{ color }}
         partialBorder={false}
+        selected={isSelected}
       >
         {showYearLabel && (
           <YearLabel>{translatedHeader ? translatedHeader["yearLabel" + index] : year}</YearLabel>
