@@ -66,11 +66,14 @@ const Container = styled.div`
   bottom: 0;
   width: 100%;
   height: 100%;
-  background-color: ${colors.whiteSmoke};
-  transition: transform 0.7s ease;
-  transform: ${({ isOpen }: { isOpen: boolean }) =>
-    isOpen ? "translateX(0); box-shadow: -1px 0 5px 0 rgba(0, 0, 0, 0.3);" : "translateX(100%);"}
   z-index: 5;
+  background-color: ${colors.whiteSmoke};
+  transition: transform 0.7s ease-in-out, visibility 0.7s ease-in-out, box-shadow 0.7s ease-in-out;
+  transform: ${({ isOpen }: { isOpen: boolean }) =>
+    isOpen ? "translateX(0)" : "translateX(100%)"};
+  visibility: ${({ isOpen }: { isOpen: boolean }) => (isOpen ? "visible" : "hidden")};
+  pointer-events: ${({ isOpen }: { isOpen: boolean }) => (isOpen ? "auto" : "none")};
+  ${({ isOpen }: { isOpen: boolean }) => isOpen && "box-shadow: -1px 0 5px 0 rgba(0, 0, 0, 0.3);"}
 
   @media (min-width: ${size.laptop}) {
     width: 650px;
@@ -534,7 +537,13 @@ export default function Story({
     );
 
   return (
-    <Container id="map-story" ref={containerRef} isOpen={isOpen}>
+    <Container
+      id="map-story"
+      ref={containerRef}
+      isOpen={isOpen}
+      aria-hidden={!isOpen}
+      tabIndex={isOpen ? 0 : -1}
+    >
       {renderContent()}
       {renderNav()}
     </Container>
