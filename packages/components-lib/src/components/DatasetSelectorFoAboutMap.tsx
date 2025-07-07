@@ -3,6 +3,7 @@ import { ExpandCollapseIcon } from "../styles";
 import * as S from "../styles/datasetSelectorStyles";
 import useDatasetSelctor from "../hooks/useDatasetSelector";
 import styled from "styled-components";
+import { MinusIcon, PlusIcon } from "./header/DatasetSelector";
 
 type Props = {
   value: Option;
@@ -11,27 +12,13 @@ type Props = {
   onChange?: (option: Option) => void;
 };
 
-const PlusIcon = () => (
-  <S.SvgIcon viewBox="0 0 24 24">
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </S.SvgIcon>
-);
-
-const MinusIcon = () => (
-  <S.SvgIcon viewBox="0 0 24 24">
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </S.SvgIcon>
-);
-
 const WrapperComponent = styled.div`
   width: 100%;
   border: 1px solid ${colors.grey};
   border-radius: 6px;
   background-color: ${colors.lightCream};
-  max-height: 80vh;
-  overflow-y: scroll;
   user-select: none;
+  overflow: auto;
 `;
 
 const DatasetSelectorForAboutMap = ({ value, datasets, translatedDatasets, onChange }: Props) => {

@@ -1,7 +1,7 @@
 import { useRef, MouseEventHandler, useEffect, useState } from "react";
 import Headroom from "react-headroom";
 import styled, { css } from "styled-components";
-import { ReactComponent as CloseIcon } from "@probable-futures/components-lib/src/assets/icons/cancel-circle.svg";
+import { ReactComponent as CloseIcon } from "@probable-futures/components-lib/src/assets/icons/cancel-circle-thin.svg";
 import ArrowRightIcon from "@probable-futures/components-lib/src/assets/icons/arrow-right.svg";
 import { Map, Option } from "@probable-futures/lib/src/types";
 import camelcase from "lodash.camelcase";
@@ -31,10 +31,10 @@ type Props = {
 };
 
 const SharedLeftPadding = css`
-  padding-left: 21px;
+  padding-left: 20px;
 
   @media (min-width: ${size.tablet}) {
-    padding-left: 79px;
+    padding-left: 80px;
   }
 `;
 
@@ -96,9 +96,8 @@ const Header = styled.div`
   flex-shrink: 0;
   border-bottom: 1px solid rgba(151, 151, 151, 0.4);
   background-color: ${colors.white};
-  // padding: 30px 20px 17px;
 
-  padding-right: 10px;
+  padding-right: 20px;
   ${SharedLeftPadding};
 
   @media (min-width: ${size.tablet}) {
@@ -303,18 +302,13 @@ const CloseButton = styled.button`
   margin: 0;
   background: transparent;
 
-  &:hover {
-    ${purpleFilter}
+  svg {
+    height: 30px;
+    width: 30px;
   }
 
-  @media (min-width: ${size.tablet}) {
-    height: 40px;
-    width: 40px;
-
-    svg {
-      height: 40px;
-      width: 40px;
-    }
+  &:hover {
+    ${purpleFilter}
   }
 `;
 
@@ -363,7 +357,6 @@ const AboutMap = ({
           <Headroom disableInlineStyles parent={() => containerRef.current}>
             <Header>
               <HeaderTitle>{translatedHeader?.aboutThisMap || "About this map"}</HeaderTitle>
-
               <CloseButton title="Close" onClick={onClose}>
                 <CloseIcon width={30} height={30} />
               </CloseButton>
@@ -372,7 +365,7 @@ const AboutMap = ({
           <Content>
             <ContentWrapper>
               <Section>
-                <Title>{translatedHeader?.aboutThisMap || "Current Map"}</Title>
+                <Title>{translatedHeader?.currentMap || "Current Map"}</Title>
                 <DatasetSelectorForAboutMap
                   datasets={datasets}
                   translatedDatasets={translatedDatasets}

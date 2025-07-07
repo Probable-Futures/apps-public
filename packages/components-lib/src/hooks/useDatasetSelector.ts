@@ -21,7 +21,7 @@ const useDatasetSelctor = ({ datasets, translatedDatasets }: Props) => {
     if (openSections.includes(newLabel)) {
       setOpenSections((prev) => prev.filter((label) => label !== newLabel));
     } else {
-      setOpenSections((prev) => [...prev, newLabel]);
+      setOpenSections([newLabel]);
     }
   };
 
