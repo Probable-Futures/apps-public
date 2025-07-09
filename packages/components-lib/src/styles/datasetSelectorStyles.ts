@@ -14,11 +14,10 @@ export const AccordionTitle = styled.div<{ isCollapsed: boolean }>`
   display: flex;
   justify-content: space-between;
   cursor: pointer;
-  padding-bottom: ${({ isCollapsed }) => (isCollapsed ? "10px" : "0")};
   align-items: center;
   border-bottom: 1px solid;
   border-bottom-color: ${({ isCollapsed }) => (isCollapsed ? colors.grey : "transparent")};
-  transition: border-bottom-color 0.3s ease-in-out, padding-bottom 0.3s ease-in-out;
+  transition: border-bottom-color 0.3s ease-in-out;
   height: 60px;
 
   &:last-child {
@@ -107,10 +106,15 @@ export const ViewAllMaps = styled.div`
 `;
 
 export const Label = styled.div<{ isSelected: boolean }>`
-  padding: 10px 10px;
+  padding: 8px 10px;
   cursor: pointer;
   border: 1px solid transparent;
   border-radius: 6px;
+  margin-top: 5px;
+
+  :last-child {
+    margin-bottom: 10px;
+  }
   background-color: ${({ isSelected }) =>
     isSelected ? `${colors.lightPurple}!important` : "transparent"};
 

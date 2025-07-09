@@ -141,10 +141,11 @@ const ViewAllMaps = styled.div`
 `;
 
 const Label = styled.div<{ isSelected: boolean }>`
-  padding: 10px 10px;
+  padding: 8px 10px;
   cursor: pointer;
   border: 1px solid transparent;
   border-radius: 6px;
+  margin-top: 5px;
   background-color: ${({ isSelected }) =>
     isSelected ? `${colors.lightPurple}!important` : "transparent"};
 
