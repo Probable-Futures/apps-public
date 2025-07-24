@@ -59,25 +59,7 @@ const DownloadProject = ({ projectId, onModalClose }: Props): JSX.Element => {
         projectId,
       },
       onCompleted: (data) => {
-        const result: ProjectDatasetNode[] = [];
-        const datasetsMap = data.viewPartnerProjectDatasets.nodes.reduce<
-          Record<string, ProjectDatasetNode>
-        >((prev, curr) => {
-          if (
-            !prev[curr.datasetId] ||
-            (prev[curr.datasetId] &&
-              !prev[curr.datasetId].enrichedDatasetFile &&
-              curr.enrichedDatasetFile &&
-              curr.pfDatasetId === selectedClimateData?.dataset.id)
-          ) {
-            prev[curr.datasetId] = curr;
-          }
-          return prev;
-        }, {});
-
-        Object.keys(datasetsMap).forEach((datasetId) => result.push(datasetsMap[datasetId]));
-
-        setProjectDatasets(result);
+        setProjectDatasets(data.viewPartnerProjectDatasets.nodes);
       },
     },
   );
@@ -91,7 +73,14 @@ const DownloadProject = ({ projectId, onModalClose }: Props): JSX.Element => {
   }, [projectId, loadProjectDatasets]);
 
   const getDatasetOptions = useCallback(() => {
-    const datasetOptions = projectDatasets.map((item) => ({
+    if (!projectDatasets?.length) {
+      return [];
+    }
+    // new Map(...) uses datasetId as the key — duplicate keys overwrite previous entries.
+    const uniqueByDatasetId = Array.from(
+      new Map(projectDatasets.map((item) => [item.datasetId, item])).values(),
+    );
+    const datasetOptions = uniqueByDatasetId.map((item) => ({
       label: item.datasetName,
       value: item.datasetId,
     }));
@@ -108,13 +97,40 @@ const DownloadProject = ({ projectId, onModalClose }: Props): JSX.Element => {
     const isAllSelected = !!selectedDatasets.find(
       (selectedDataset) => selectedDataset.value === "All",
     );
-    const fileURls: string[] = projectDatasets
-      .filter((node) =>
-        isAllSelected
-          ? true
-          : selectedDatasets.find((selectedDataset) => selectedDataset.value === node.datasetId),
-      )
-      .map((node) => node.enrichedDatasetFile ?? node.originalFile) as string[];
+    let result: ProjectDatasetNode[] = [];
+    const datasetsMap = projectDatasets.reduce<
+      Record<
+        string,
+        { enrichedAtCurrentClimate?: ProjectDatasetNode; original?: ProjectDatasetNode }
+      >
+    >((prev, curr) => {
+      const isOriginal = !curr.pfDatasetId && !!!curr.enrichedDatasetFile && !!curr.originalFile;
+      const isCurrent =
+        curr.pfDatasetId === selectedClimateData?.dataset.id && !!curr.enrichedDatasetFile;
+      prev[curr.datasetId] = prev[curr.datasetId] || {};
+      if (isOriginal) {
+        prev[curr.datasetId].original = curr;
+      } else if (isCurrent) {
+        prev[curr.datasetId].enrichedAtCurrentClimate = curr;
+      }
+      return prev;
+    }, {});
+
+    Object.keys(datasetsMap).forEach((datasetId) =>
+      result.push(
+        datasetsMap[datasetId].enrichedAtCurrentClimate ?? datasetsMap[datasetId].original!,
+      ),
+    );
+
+    if (!isAllSelected) {
+      result = result.filter((dataset) =>
+        selectedDatasets.find((selectedDataset) => selectedDataset.value === dataset.datasetId),
+      );
+    }
+
+    const fileURls: string[] = result.map(
+      (node) => node.enrichedDatasetFile ?? node.originalFile,
+    ) as string[];
 
     const filePaths: string[] = [];
     fileURls.forEach((fileUrl) => {
