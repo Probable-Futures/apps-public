@@ -10,7 +10,6 @@ type Props = {
   padding?: number;
   children?: any;
   showContentOnly?: boolean;
-  showMarkers: boolean;
 } & types.TourProps;
 
 const Container = styled.div`
@@ -88,8 +87,6 @@ const TourBox = ({
   onNext,
   step,
   steps,
-  stories,
-  showMarkers,
 }: Props) => {
   const isLastStep = step + 1 > Object.keys(steps).length - 1;
   const arrowStyles: any = {
@@ -114,9 +111,6 @@ const TourBox = ({
   };
 
   const getCurrentStep = () => {
-    if (stories.length > 0) {
-      return `${step + 1} of ${Object.keys(steps).length}`;
-    }
     // If there are no stories on the map, skip 3rd step
     return `${step === 3 ? step : step + 1} of ${Object.keys(steps).length - 1}`;
   };

@@ -14,14 +14,8 @@ type State = {
   degrees: number;
   expandedCategory?: string;
   expandedMaps?: string;
-  stories: types.Story[];
-  selectedStory?: types.Story;
-  showStory: boolean;
   warmingScenarioDescs: types.WarmingScenarioDescs;
-  storySubmission?: string;
   tempUnit: types.TempUnit;
-  showMarkers: boolean;
-  activeStoryTooltip?: number;
   showBaselineModal: boolean;
   showDescriptionModal: boolean;
   datasetDescriptionResponse?: types.DatasetDescriptionResponse;
@@ -31,7 +25,6 @@ type State = {
   activeClimateZoneLayers?: string[];
   precipitationUnit: types.PrecipitationUnit;
   showCountryBorders: boolean;
-  temporaryShowMarkers: boolean;
   showAboutMap: boolean;
   showAllMapsModal: boolean;
   aboutMapResources?: AboutMapResources;
@@ -43,14 +36,8 @@ type State = {
   setDegrees(arg: any): void;
   setExpandedCategory(arg: any): void;
   setExpandedMaps(arg: any): void;
-  setStories(arg: any): void;
-  setSelectedStory(arg: any): void;
-  setShowStory(arg: any): void;
   setWarmingScenarioDescs(arg: any): void;
-  setStorySubmission(arg: any): void;
   setTempUnit(arg: types.TempUnit): void;
-  setShowMarkers(arg: any): void;
-  setActiveStoryTooltip(arg: any): void;
   setShowBaselineModal(arg: any): void;
   setShowDescriptionModal(arg: any): void;
   setWpDatasetDescriptionResponse(
@@ -62,7 +49,6 @@ type State = {
   setActiveClimateZoneLayers(arg?: string[]): void;
   setPrecipitationUnit(arg: types.PrecipitationUnit): void;
   setShowCountryBorders(arg: any): void;
-  setTemporaryShowMarkers(arg: any): void;
 };
 
 const initialState = {
@@ -71,14 +57,8 @@ const initialState = {
   degrees: defaultDegreesForNonChangeMaps,
   expandedCategory: undefined,
   expandedMaps: undefined,
-  stories: [],
-  selectedStory: undefined,
-  showStory: false,
   warmingScenarioDescs: {},
-  storySubmission: undefined,
   tempUnit: "°C" as types.TempUnit,
-  showMarkers: false,
-  activeStoryTooltip: undefined,
   showBaselineModal: false,
   showDescriptionModal: false,
   datasetDescriptionResponse: undefined,
@@ -88,7 +68,6 @@ const initialState = {
   activeClimateZoneLayers: undefined,
   precipitationUnit: "mm" as types.PrecipitationUnit,
   showCountryBorders: true,
-  temporaryShowMarkers: false,
   showAboutMap: false,
   showAllMapsModal: false,
   aboutMapResources: undefined,
@@ -100,14 +79,8 @@ const initialState = {
   setDegrees: () => {},
   setExpandedCategory: () => {},
   setExpandedMaps: () => {},
-  setStories: () => {},
-  setSelectedStory: () => {},
-  setShowStory: () => {},
   setWarmingScenarioDescs: () => {},
-  setStorySubmission: () => {},
   setTempUnit: () => {},
-  setShowMarkers: () => {},
-  setActiveStoryTooltip: () => {},
   setShowBaselineModal: () => {},
   setShowDescriptionModal: () => {},
   setWpDatasetDescriptionResponse: () => {},
@@ -117,7 +90,6 @@ const initialState = {
   setActiveClimateZoneLayers: () => {},
   setPrecipitationUnit: () => {},
   setShowCountryBorders: () => {},
-  setTemporaryShowMarkers: () => {},
 };
 
 const DataContext = createContext<State>(initialState);
@@ -128,14 +100,8 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
   const [degrees, setDegrees] = useState(defaultDegreesForNonChangeMaps);
   const [expandedCategory, setExpandedCategory] = useState();
   const [expandedMaps, setExpandedMaps] = useState();
-  const [stories, setStories] = useState([]);
-  const [selectedStory, setSelectedStory] = useState();
-  const [showStory, setShowStory] = useState(false);
   const [warmingScenarioDescs, setWarmingScenarioDescs] = useState({});
-  const [storySubmission, setStorySubmission] = useState();
   const [tempUnit, setTempUnit] = useState("°C" as types.TempUnit);
-  const [showMarkers, setShowMarkers] = useState(false);
-  const [activeStoryTooltip, setActiveStoryTooltip] = useState<number>();
   const [showBaselineModal, setShowBaselineModal] = useState(false);
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [datasetDescriptionResponse, setWpDatasetDescriptionResponse] =
@@ -146,7 +112,6 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
   const [activeClimateZoneLayers, setActiveClimateZoneLayers] = useState<string[]>();
   const [precipitationUnit, setPrecipitationUnit] = useState("mm" as types.PrecipitationUnit);
   const [showCountryBorders, setShowCountryBorders] = useState(true);
-  const [temporaryShowMarkers, setTemporaryShowMarkers] = useState(false);
   const [showAboutMap, setShowAboutMap] = useState(false);
   const [showAllMapsModal, setShowAllMapsModal] = useState(false);
   const [aboutMapResources, setAboutMapResources] = useState<AboutMapResources>();
@@ -163,22 +128,10 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       setExpandedCategory,
       expandedMaps,
       setExpandedMaps,
-      stories,
-      setStories,
-      selectedStory,
-      setSelectedStory,
-      showStory,
-      setShowStory,
       warmingScenarioDescs,
       setWarmingScenarioDescs,
-      storySubmission,
-      setStorySubmission,
       tempUnit,
       setTempUnit,
-      showMarkers,
-      setShowMarkers,
-      activeStoryTooltip,
-      setActiveStoryTooltip,
       showBaselineModal,
       setShowBaselineModal,
       showDescriptionModal,
@@ -197,8 +150,6 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       setPrecipitationUnit,
       showCountryBorders,
       setShowCountryBorders,
-      temporaryShowMarkers,
-      setTemporaryShowMarkers,
       showAboutMap,
       setShowAboutMap,
       showAllMapsModal,
@@ -212,14 +163,8 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       degrees,
       expandedCategory,
       expandedMaps,
-      stories,
-      selectedStory,
-      showStory,
       warmingScenarioDescs,
-      storySubmission,
       tempUnit,
-      showMarkers,
-      activeStoryTooltip,
       showBaselineModal,
       showDescriptionModal,
       datasetDescriptionResponse,
@@ -229,7 +174,6 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       activeClimateZoneLayers,
       precipitationUnit,
       showCountryBorders,
-      temporaryShowMarkers,
       showAboutMap,
       showAllMapsModal,
       aboutMapResources,

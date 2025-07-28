@@ -26,15 +26,8 @@ const MobileContainer = styled.div`
 `;
 
 const WarmingScenarioSelection = () => {
-  const {
-    selectedDataset,
-    degrees,
-    stories,
-    showBaselineModal,
-    warmingScenarioDescs,
-    showMarkers,
-    setShowAboutMap,
-  } = useMapData();
+  const { selectedDataset, degrees, showBaselineModal, warmingScenarioDescs, setShowAboutMap } =
+    useMapData();
   const { step, steps, isTourActive, onClose, onNext } = useTourData();
   const { translate } = useTranslation();
   const { onButtonClick } = useDegreesSelector();
@@ -58,8 +51,6 @@ const WarmingScenarioSelection = () => {
               step,
               isTourActive,
               steps,
-              stories,
-              showMarkers,
               onNext,
               onClose,
             }}
@@ -77,8 +68,6 @@ const WarmingScenarioSelection = () => {
               step,
               isTourActive,
               steps,
-              stories,
-              showMarkers,
               onNext,
               onClose,
             }}

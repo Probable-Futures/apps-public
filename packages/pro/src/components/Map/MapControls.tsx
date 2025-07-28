@@ -5,6 +5,7 @@ import { ReactComponent as DownloadIcon } from "@probable-futures/components-lib
 import { ReactComponent as ZoomInIcon } from "@probable-futures/components-lib/src/assets/icons/zoom-in.svg";
 import { ReactComponent as ZoomOutIcon } from "@probable-futures/components-lib/src/assets/icons/zoom-out.svg";
 import { ReactComponent as IFrameIcon } from "@probable-futures/components-lib/src/assets/icons/iframe.svg";
+import { ReactComponent as DownloadOffliceIcon } from "../../assets/icons/map/download-offline.svg";
 
 import { ReactComponent as ShareIcon } from "../../assets/icons/map/share.svg";
 import { colors, size } from "../../consts";
@@ -80,10 +81,12 @@ export default function MapControls({
   const [showScreenshotTooltip, setShowScreenshotTooltip] = useState(false);
   const [showShareTooltip, setShowShareTooltip] = useState(false);
   const [showExportTooltip, setShowExportTooltip] = useState(false);
+  const [showDownloadTooltip, setShowDownloadTooltip] = useState(false);
 
   const screenShotTitle = "Save and download current view";
   const shareTitle = "Share a link to your project";
   const exportTitle = "Export embeddable map";
+  const downloadTitle = "Download your data";
 
   const onZoomIn = () => {
     if (zoom + 1 >= maxZoom) {
@@ -132,6 +135,23 @@ export default function MapControls({
             mode="dark"
           >
             <ShareIcon />
+          </styles.ControlButton>
+        </components.ControlsTooltip>
+
+        {/* download */}
+        <components.ControlsTooltip
+          tooltipContent={downloadTitle}
+          show={showDownloadTooltip}
+          onClickOutside={() => setShowDownloadTooltip(false)}
+        >
+          <styles.ControlButton
+            title={downloadTitle}
+            onClick={onDownloadClick}
+            onMouseEnter={() => setShowDownloadTooltip(true)}
+            onMouseLeave={() => setShowDownloadTooltip(false)}
+            mode="dark"
+          >
+            <DownloadOffliceIcon />
           </styles.ControlButton>
         </components.ControlsTooltip>
 

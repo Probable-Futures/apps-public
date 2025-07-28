@@ -42,7 +42,7 @@ const MobileContainer = styled.div`
 `;
 
 const MapSelection = () => {
-  const { selectedDataset, stories, datasets, showMarkers, setShowAllMapsModal } = useMapData();
+  const { selectedDataset, datasets, setShowAllMapsModal } = useMapData();
   const { step, steps, isTourActive, onClose, onNext } = useTourData();
   const { translate } = useTranslation();
   const translatedDatasets = translate("header")?.datasets;
@@ -84,8 +84,6 @@ const MapSelection = () => {
               step,
               isTourActive,
               steps,
-              stories,
-              showMarkers,
               onNext,
               onClose,
             }}

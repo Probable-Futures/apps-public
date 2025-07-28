@@ -110,40 +110,10 @@ export type StoryFeaturedMedia = {
   video: string;
 };
 
-export type Story = {
-  id: number;
-  title: {
-    rendered: string;
-  };
-  acf: {
-    vignette_title_wysiwyg: string;
-    vignette_location: {
-      latitude_longitude: {
-        lat: number;
-        lng: number;
-      };
-      pin_size: "small" | "medium" | "large";
-      pin_hover_text_wysiwyg: string;
-      name_wysiwyg: string;
-      climate_zone_wysiwyg: string;
-      population_wysiwyg: string;
-    };
-    vignette_contributor: {
-      name_wysiwyg: string;
-      title_wysiwyg: string;
-      link: string;
-    };
-    vignette_body: string;
-    vignette_featured_media: StoryFeaturedMedia;
-  };
-};
-
 export type TourProps = {
   step: number;
   isTourActive: boolean;
   steps: Steps;
-  stories: Story[];
-  showMarkers: boolean;
   onNext: () => void;
   onClose: () => void;
 };

@@ -16,8 +16,6 @@ import { Popover } from "react-tiny-popover";
 
 import { useMapData } from "../contexts/DataContext";
 import { size } from "../consts";
-import { ReactComponent as LocationOnIcon } from "../assets/icons/location-on.svg";
-import { ReactComponent as LocationOffIcon } from "../assets/icons/location-off.svg";
 import { ReactComponent as MoreIcon } from "../assets/icons/more.svg";
 import { ReactComponent as CloseIcon } from "../assets/icons/close-thick.svg";
 import { ReactComponent as PhotoCarmeraIcon } from "../assets/icons/photo-camera.svg";
@@ -221,12 +219,10 @@ const MapControls = ({
   const [showScreenshotTooltip, setShowScreenshotTooltip] = useState(false);
 
   const {
-    showMarkers,
     moreIsOpen,
     mapProjection,
     showCountryBorders,
     setMoreIsOpen,
-    setShowMarkers,
     setMapProjection,
     setShowCountryBorders,
     setShowAboutMap,
@@ -248,7 +244,6 @@ const MapControls = ({
     }
   };
 
-  const onMarkerClick = () => setShowMarkers((showMarkers: boolean) => !showMarkers);
   const onBordersClick = () =>
     setShowCountryBorders((showCountryBorders: boolean) => !showCountryBorders);
   const onProjectionChange = () => {
@@ -296,9 +291,6 @@ const MapControls = ({
     setShowDownloadTooltip(false);
   };
 
-  const markerTitle = showMarkers
-    ? translate("mapControl.hideMarkerTitle")
-    : translate("mapControl.showMarkerTitle");
   const projectionTitle =
     mapProjection.name === "globe"
       ? translate("mapControl.showMap")
@@ -324,17 +316,12 @@ const MapControls = ({
         </StyledGroup>
         <ActionsSheet
           isOpen={moreIsOpen}
-          showMarkers={showMarkers}
           mapProjection={mapProjection}
           closeSheet={() => setMoreIsOpen(false)}
           showCountryBorders={showCountryBorders}
           onSearchClick={() => {
             setMoreIsOpen(false);
             setSearchIsOpen(true);
-          }}
-          onMarkerClick={() => {
-            onMarkerClick();
-            setMoreIsOpen(false);
           }}
           onAboutThisMapClick={() => {
             setShowAboutMap(true);
@@ -421,10 +408,6 @@ const MapControls = ({
               >
                 <ArrowContainer />
                 <AdjustViewMenuList>
-                  <AdjustViewMenuListItem onClick={onMarkerClick}>
-                    {showMarkers ? <LocationOffIcon /> : <LocationOnIcon />}
-                    {markerTitle}
-                  </AdjustViewMenuListItem>
                   <AdjustViewMenuListItem onClick={onProjectionChange}>
                     {mapProjection.name === "globe" ? <MapIcon /> : <GlobeIcon />}
                     {projectionTitle}

@@ -8,8 +8,6 @@ import { ReactComponent as PublicOnIcon } from "@probable-futures/components-lib
 import { ReactComponent as PublicOffIcon } from "@probable-futures/components-lib/src/assets/icons/public-off.svg";
 import { ReactComponent as InfoIcon } from "@probable-futures/components-lib/src/assets/icons/info.svg";
 
-import { ReactComponent as LocationOnIcon } from "../assets/icons/location-on.svg";
-import { ReactComponent as LocationOffIcon } from "../assets/icons/location-off.svg";
 import { ReactComponent as GlobeIcon } from "../assets/icons/globe.svg";
 import { ReactComponent as MapIcon } from "../assets/icons/map.svg";
 import { colors } from "../consts";
@@ -17,13 +15,11 @@ import { useTranslation } from "../contexts/TranslationContext";
 
 type Props = {
   isOpen: boolean;
-  showMarkers: boolean;
   mapProjection: Projection;
   showCountryBorders: boolean;
   closeSheet: MouseEventHandler<HTMLDivElement>;
   onSearchClick: MouseEventHandler<HTMLElement>;
   onAboutThisMapClick: MouseEventHandler<HTMLElement>;
-  onMarkerClick: MouseEventHandler<HTMLElement>;
   onProjectionChange: MouseEventHandler<HTMLElement>;
   onBordersClick: MouseEventHandler<HTMLElement>;
 };
@@ -78,12 +74,10 @@ const ActionSheetItem = styled.button`
 
 const ActionsSheet = ({
   isOpen,
-  showMarkers,
   mapProjection,
   showCountryBorders,
   closeSheet,
   onAboutThisMapClick,
-  onMarkerClick,
   onSearchClick,
   onProjectionChange,
   onBordersClick,
@@ -101,14 +95,6 @@ const ActionsSheet = ({
         <ActionSheetItem onClick={onSearchClick}>
           <SearchIcon />
           <span>{translate("actionSheet.search")}</span>
-        </ActionSheetItem>
-        <ActionSheetItem onClick={onMarkerClick}>
-          {showMarkers ? <LocationOffIcon /> : <LocationOnIcon />}
-          <span>
-            {showMarkers
-              ? translate("mapControl.hideMarkerTitle")
-              : translate("mapControl.showMarkerTitle")}
-          </span>
         </ActionSheetItem>
         <ActionSheetItem className="projection-toggle" onClick={onProjectionChange}>
           {mapProjection.name === "globe" ? <MapIcon /> : <GlobeIcon />}

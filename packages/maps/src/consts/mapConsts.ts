@@ -25,9 +25,4 @@ export const WARMING_SCENARIO_QUERY_PARAM = "scenario";
 
 export const VOLUME_QUERY_PARAM = "volume"; // not used anymore, kept here in order to remove from the url if it exists.
 
-export const MARKER_SIZES = {
-  small: 30,
-  medium: 86,
-  large: 103,
-};
 export const POPUP_DEFAULT_LOCATION: [number, number] = [77.98, 32.175];

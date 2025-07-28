@@ -11,8 +11,6 @@ import { useMapData } from "../../contexts/DataContext";
 import { useTourData } from "../../contexts/TourContext";
 import MapControls from "../MapControls";
 import MapSelection from "../MapSelection";
-import Story from "../Story";
-import StoryMarker from "../StoryMarker";
 import { POPUP_DEFAULT_LOCATION } from "../../consts/mapConsts";
 import useMapsApi from "../../utils/useMapsApi";
 import useWPApi from "../../utils/useWPApi";
@@ -27,7 +25,7 @@ import DownloadMapModal from "../DownloadMapModal";
 import useGlobeLines from "../../utils/useGlobeLines";
 import { degreeToString } from "@probable-futures/lib/src/utils";
 import { generateEmbedMap } from "@probable-futures/probable-futures-maps/src";
-import { consts, utils, types } from "@probable-futures/lib";
+import { consts, utils } from "@probable-futures/lib";
 import { components, contexts } from "@probable-futures/components-lib";
 import { Feature } from "@probable-futures/components-lib/src/hooks/useGeocoder";
 import useClimateZoneHighlighter from "../../utils/useClimateZoneHighlighter";
@@ -255,16 +253,8 @@ const InteractiveMap = () => {
   const {
     selectedDataset,
     degrees,
-    stories,
-    selectedStory,
-    showStory,
     tempUnit,
     datasets,
-    setSelectedStory,
-    setShowStory,
-    showMarkers,
-    activeStoryTooltip,
-    setActiveStoryTooltip,
     setTempUnit,
     showBaselineModal,
     setShowBaselineModal,
@@ -287,9 +277,7 @@ const InteractiveMap = () => {
     setSelectedDataset,
     setDegrees,
     setMapProjection,
-    setStories,
     setWarmingScenarioDescs,
-    setStorySubmission,
     setWpDatasetDescriptionResponse,
     setShowAllMapsModal,
     aboutMapResources,
@@ -327,10 +315,7 @@ const InteractiveMap = () => {
     selectedDataset,
     warmingScenarioDescs,
     setSelectedDataset,
-    setStories,
-    setSelectedStory,
     setWarmingScenarioDescs,
-    setStorySubmission,
     setWpDatasetDescriptionResponse,
     setInspectPromptLocation,
     setSteps,
@@ -353,7 +338,7 @@ const InteractiveMap = () => {
   const mapboxAccessToken =
     window.pfInteractiveMap?.mapboxAccessToken || process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-  const showHeader = showStory ? !isLaptop : true;
+  const showHeader = true;
 
   const translatedHeader = translate("header");
 
@@ -549,19 +534,11 @@ const InteractiveMap = () => {
           zoom: 6,
           duration: 1500,
         });
-      } else if (step === 2 && stories[0]) {
-        setPopupVisible(false);
-        const { latitude_longitude } = stories[0].acf.vignette_location;
-        mapRef.current?.flyTo({
-          center: [latitude_longitude.lng, latitude_longitude.lat],
-          duration: 1500,
-          zoom: 3.5,
-        });
-      } else if (step === 3 && stories.length === 0) {
+      } else if (step === 2) {
         setPopupVisible(false);
       }
     }
-  }, [isTourActive, step, stories, setPopupVisible, tourInspectorLocation]);
+  }, [isTourActive, step, setPopupVisible, tourInspectorLocation]);
 
   useEffect(() => {
     if (closedTour) {
@@ -619,36 +596,6 @@ const InteractiveMap = () => {
     });
   };
 
-  const onStoryClick = useCallback(
-    (story: types.Story, source: string) => {
-      const { latitude_longitude } = story.acf.vignette_location;
-      setShowStory(true);
-      setSelectedStory(story);
-      trackEvent("Vignette viewed", {
-        props: {
-          vignette: story.title.rendered,
-          map: `${selectedDataset?.name}`,
-          zoom: `${viewState.zoom}`,
-          coordinates: `${viewState.latitude},${viewState.longitude}`,
-          source,
-        },
-      });
-      mapRef.current?.flyTo({
-        center: [latitude_longitude.lng + 20, latitude_longitude.lat],
-        zoom: 3.5,
-        duration: 1500,
-      });
-    },
-    [
-      selectedDataset?.name,
-      viewState.latitude,
-      viewState.longitude,
-      viewState.zoom,
-      setSelectedStory,
-      setShowStory,
-    ],
-  );
-
   const generateQRCodeDataURL = async (url: string): Promise<string> => {
     try {
       const canvas = await qrCode.toCanvas(url, { width: 400 });
@@ -673,48 +620,12 @@ const InteractiveMap = () => {
     }
   };
 
-  const getStoryById = useCallback(
-    (id: number) => {
-      return stories.findIndex((story) => story.id === id);
-    },
-    [stories],
-  );
-
   const mapHeight = useMemo(() => {
     if (windowHeight) {
       return window.pfInteractiveMap ? windowHeight - 55 : windowHeight;
     }
     return window.pfInteractiveMap ? "calc(100vh - 55px)" : "100vh";
   }, [windowHeight]);
-
-  const storyMarkers = useMemo(
-    () =>
-      stories.map((story, index: number) => {
-        const { name_wysiwyg, latitude_longitude, pin_size, pin_hover_text_wysiwyg } =
-          story.acf.vignette_location;
-        if (!latitude_longitude) {
-          return null;
-        }
-        return (
-          <StoryMarker
-            key={story.id}
-            location={name_wysiwyg}
-            lon={latitude_longitude.lng}
-            lat={latitude_longitude.lat}
-            size={pin_size}
-            hoverText={pin_hover_text_wysiwyg}
-            showTour={index === 0}
-            activeStoryTooltip={activeStoryTooltip}
-            storyId={story.id}
-            setActiveStoryTooltip={(activeStoryTooltip?: number) =>
-              setActiveStoryTooltip(activeStoryTooltip)
-            }
-            onClick={() => onStoryClick(story, "map click")}
-          />
-        );
-      }),
-    [stories, activeStoryTooltip, onStoryClick, setActiveStoryTooltip],
-  );
 
   const searchPopup = useMemo(() => {
     if (searchResult) {
@@ -732,30 +643,6 @@ const InteractiveMap = () => {
       );
     }
   }, [searchResult]);
-
-  const story = useMemo(() => {
-    return (
-      <Story
-        isOpen={showStory}
-        story={selectedStory}
-        currentStory={selectedStory ? getStoryById(selectedStory.id) + 1 : 1}
-        onClose={() => setShowStory(false)}
-        onNavButtonClick={(step: number) => {
-          if (selectedStory) {
-            const currentStoryIndex = getStoryById(selectedStory.id);
-            let nextStoryIndex = currentStoryIndex + step;
-            if (nextStoryIndex === stories.length) {
-              nextStoryIndex = 0;
-            } else if (nextStoryIndex < 0) {
-              nextStoryIndex = stories.length - 1;
-            }
-            const nextStory = stories[nextStoryIndex];
-            onStoryClick(nextStory, "vignette nav");
-          }
-        }}
-      />
-    );
-  }, [selectedStory, setShowStory, showStory, onStoryClick, stories, getStoryById]);
 
   const onMove = useCallback((evt: ViewStateChangeEvent) => setViewState(evt.viewState), []);
 
@@ -913,7 +800,6 @@ const InteractiveMap = () => {
                 onFly={onFly}
                 language={locale}
               />
-              {!isScreenshot && showMarkers && storyMarkers}
               {renderBottomLinks()}
               {searchPopup}
             </MapGL>
@@ -929,7 +815,6 @@ const InteractiveMap = () => {
           onDownloadQRCode={onDownloadQRCode}
           onExportSimpleMapClick={onExportSimpleMapClick}
         />
-        {story}
         {isTourActive && step === 1 && (
           <components.TourBox
             showContentOnly={true}
@@ -937,9 +822,7 @@ const InteractiveMap = () => {
             onNext={onNext}
             step={step}
             steps={steps}
-            stories={stories}
             isTourActive={isTourActive}
-            showMarkers={showMarkers}
           />
         )}
         <components.MapModal

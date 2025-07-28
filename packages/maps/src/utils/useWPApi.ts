@@ -17,10 +17,7 @@ type Props = {
   locale: string;
   warmingScenarioDescs?: types.WarmingScenarioDescs;
   setInspectPromptLocation?: (arg: any) => void;
-  setStories?: (arg: any) => void;
-  setSelectedStory?: (arg: any) => void;
   setWarmingScenarioDescs?: (arg: any) => void;
-  setStorySubmission?: (arg: any) => void;
   setSteps?: (arg: any) => void;
   setAboutMapResources?: (arg: AboutMapResources) => void;
 };
@@ -29,10 +26,7 @@ export default function useWPApi({
   selectedDataset,
   warmingScenarioDescs,
   setSelectedDataset,
-  setStories,
-  setSelectedStory,
   setWarmingScenarioDescs,
-  setStorySubmission,
   setWpDatasetDescriptionResponse,
   setInspectPromptLocation,
   setSteps,
@@ -68,7 +62,6 @@ export default function useWPApi({
         const tourSteps = filterObjectBy(body.acf, "tour_part_");
         setWarmingScenarioDescs?.(warmingScenarioDescs);
         setSteps?.(tourSteps);
-        setStorySubmission?.(body.acf.vignette_story_submission_instructions);
         setInspectPromptLocation?.(body.acf.inspect_prompt_location);
 
         const aboutMapResources: AboutMapResources = {
@@ -90,23 +83,11 @@ export default function useWPApi({
     urlWithLocale,
     setWarmingScenarioDescs,
     setSteps,
-    setStorySubmission,
     setInspectPromptLocation,
     setAboutMapResources,
   ]);
 
   useEffect(() => {
-    async function fetchStories() {
-      const response = await fetch(
-        `${urlWithLocale}wp/v2/maps?parent_dataset_id=${selectedDataset?.dataset.id}&_fields=id,title,acf&per_page=100`,
-        {
-          headers,
-        },
-      );
-
-      const body = await response.json();
-      setStories?.(body);
-    }
     async function fetchMapDescription() {
       const response = await fetch(
         `${urlWithLocale}wp/v2/maps?dataset_id=${selectedDataset?.dataset.id}&map_version=${selectedDataset?.mapVersion}&_fields=acf`,
@@ -121,16 +102,7 @@ export default function useWPApi({
       }
     }
     if (selectedDataset) {
-      setSelectedStory?.(undefined);
-      fetchStories();
       fetchMapDescription();
     }
-  }, [
-    selectedDataset,
-    urlWithLocale,
-    setWpDatasetDescriptionResponse,
-    setSelectedDataset,
-    setSelectedStory,
-    setStories,
-  ]);
+  }, [selectedDataset, urlWithLocale, setWpDatasetDescriptionResponse, setSelectedDataset]);
 }
