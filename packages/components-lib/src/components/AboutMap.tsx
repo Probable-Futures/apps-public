@@ -81,7 +81,7 @@ const MainContainer = styled.div`
   background-color: ${colors.whiteSmoke};
   transition: transform 0.7s ease;
   transform: ${({ isOpen }: { isOpen: boolean }) =>
-    isOpen ? "translateX(0); box-shadow: -1px 0 5px 0 rgba(0, 0, 0, 0.3);" : "translateX(-100%);"}
+    isOpen ? "translateX(100%); box-shadow: -1px 0 5px 0 rgba(0, 0, 0, 0.3);" : "translateX(200%);"}
   z-index: 7;
 
   @media (min-width: ${size.laptop}) {

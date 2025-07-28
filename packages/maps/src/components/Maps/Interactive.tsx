@@ -164,7 +164,7 @@ const MapKeyContainer = styled.div`
   @media (min-width: ${size.laptop}) {
     top: unset;
     right: unset;
-    left: 55px;
+    left: 10px;
     bottom: 36px;
     z-index: 2;
     width: auto;

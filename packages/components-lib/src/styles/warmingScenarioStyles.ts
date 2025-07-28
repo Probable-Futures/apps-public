@@ -12,6 +12,7 @@ export type ButtonContainerProps = {
 export type ButtonProps = {
   selected?: boolean;
   partialBorder?: boolean;
+  isLast: boolean;
 };
 
 type InfoProps = {
@@ -165,31 +166,6 @@ export const ButtonContainer = styled.div`
     `
     border-color: ${colors.darkPurple};
     min-width: 100px;
-
-    &::after,
-    &::before {
-      content: "";
-      display: block;
-      position: absolute;
-      width: 0;
-      height: 0;
-      border-style: solid;
-      rotate: 270deg;
-    }
-
-    &::before {
-      top: -28px;
-      border-color: transparent transparent transparent ${colors.grey};
-      border-width: 11px;
-      left: calc(50% - 10px);
-    }
-
-    &::after {
-      top: -25px;
-      border-color: transparent transparent transparent ${colors.lightPurple};
-      border-width: 10px;
-      left: calc(50% - 9px);
-    }
   `};
 `;
 

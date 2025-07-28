@@ -31,6 +31,7 @@ const AccordionWrapper = styled.div`
   max-height: 80vh;
   overflow-y: scroll;
   user-select: none;
+  color: ${colors.dimBlack};
 `;
 
 const AccordionTitle = styled.div<{ isCollapsed: boolean }>`
@@ -66,7 +67,7 @@ const MainTitle = styled.div`
   cursor: pointer;
   padding: 10px;
   border-bottom: 1px solid ${colors.grey};
-  font-size: 10px;
+  font-size: 13px;
   align-items: center;
   transition: background-color 0.3s ease;
 
@@ -110,7 +111,7 @@ const SignButton = styled.span`
 
 const Section = styled.div<{ isFirstChild: boolean }>`
   padding: 10px 10px;
-  font-size: 12px;
+  font-size: 13px;
   border-top: ${({ isFirstChild }) => (!isFirstChild ? `1px solid ${colors.grey}` : "none")};
 `;
 

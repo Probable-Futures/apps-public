@@ -88,7 +88,7 @@ const StyledGroup = styled(styles.Group)`
   }
 
   @media (min-width: ${size.laptop}) {
-    right: 29px;
+    right: 10px;
   }
 `;
 
@@ -338,7 +338,6 @@ const MapControls = ({
         />
       </MediaQuery>
       <MediaQuery minWidth={customTabletSizeForHeader}>
-        <StyledGroup position="top"></StyledGroup>
         <StyledGroup position="middle">
           {/* Screenshot */}
           <components.ControlsTooltip

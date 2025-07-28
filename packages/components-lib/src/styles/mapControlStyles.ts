@@ -57,29 +57,29 @@ export const ControlButton = styled.button`
           path {
             fill: ${colors.darkPurple};
           }`
-        : `background-color: ${colors.darkPurple};
+        : `background-color: ${colors.lightPurpleWithOpacity};
           color: ${colors.white};
           path {
-            fill: ${colors.white};
+            fill: ${colors.darkPurple};
           }`}
   }
 
   ${({ active }: ControlButtonProps) =>
     active &&
-    ` background-color: ${colors.darkPurple};
+    ` background-color: ${colors.lightPurpleWithOpacity};
       color: ${colors.white};
       path {
-        fill: ${colors.white};
+        fill: ${colors.darkPurple};
       }`}
 `;
 
 export const Group = styled.div`
   flex-direction: column;
   border-radius: 6px;
-  box-shadow: 0 3px 5px 0 rgb(56 22 63 / 50%);
   outline: 0;
   padding: 0;
   display: flex;
   position: absolute;
   right: 18px;
+  border: 1px solid ${colors.grey};
 `;

@@ -53,7 +53,6 @@ const Header = styled.div`
   margin-bottom: 11px;
   font-weight: 400;
   font-size: 10px;
-  letter-spacing: 0.8px;
   line-height: normal;
 
   @media (min-width: ${size.laptop}) {
@@ -79,7 +78,7 @@ const Label = styled.span`
   color: ${colors.darkPurple};
   min-width: 92px;
   font-family: LinearSans;
-  font-size: 10px;
+  font-size: 13px;
 `;
 
 const Row = styled.div`

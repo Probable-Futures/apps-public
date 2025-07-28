@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import {
-  size,
   colors,
   degreesOptions,
   DescKeys,
@@ -37,6 +36,7 @@ const Container = styled.div`
   border: 1px solid ${colors.grey};
   border-radius: 6px;
   gap: 5px;
+  color: ${colors.dimBlack};
 `;
 
 const ButtonWrapper = styled.div`
@@ -57,6 +57,13 @@ const StyledButton = styled(Button)`
   border-right: 1px solid ${colors.grey};
   position: relative;
   height: 50px;
+
+  span.label-number {
+    margin-top: 5px;
+  }
+
+  ${({ isLast }: ButtonProps) => isLast && `border-right: 1px solid transparent;`}
+
   ${({ partialBorder }: ButtonProps) =>
     partialBorder
       ? `
@@ -81,25 +88,6 @@ const StyledButtonContainer = styled(ButtonContainer)`
     `
     background-color: ${colors.lightPurple};
   `};
-
-  &::after,
-  &::before {
-    @media (min-width: ${size.tabletMax}) {
-      rotate: 90deg;
-    }
-  }
-
-  &::before {
-    @media (min-width: ${size.tabletMax}) {
-      top: 50px;
-    }
-  }
-
-  &::after {
-    @media (min-width: ${size.tabletMax}) {
-      top: 50px;
-    }
-  }
 `;
 
 const AboutThisMap = styled.div`
@@ -108,9 +96,8 @@ const AboutThisMap = styled.div`
   align-items: center;
   cursor: pointer;
   font-weight: 400;
-  font-size: 10px;
+  font-size: 13px;
   gap: 10px;
-  letter-spacing: 0.8px;
   line-height: 12px;
 
   svg {
@@ -150,11 +137,10 @@ const YearLabel = styled.span`
   min-height: 11px;
   position: absolute;
   z-index: 1;
-  background: white;
   padding: 0 8px;
   border-radius: 3px;
   padding-bottom: 2px;
-  top: -7px;
+  top: 2px;
 `;
 
 const Degrees = ({
@@ -186,6 +172,7 @@ const Degrees = ({
         style={{ color }}
         partialBorder={false}
         selected={isSelected}
+        isLast={index === degreesOptions.length - 1}
       >
         {showYearLabel && (
           <YearLabel>{translatedHeader ? translatedHeader["yearLabel" + index] : year}</YearLabel>
@@ -194,7 +181,7 @@ const Degrees = ({
           className="button-focus-border"
           width={index % 2 === 0 ? "80px" : "65px"}
         />
-        <span>{label}</span>
+        <span className="label-number">{label}</span>
       </StyledButton>
     );
   };
