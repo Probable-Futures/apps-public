@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { colors, Option, TourProps, Map } from "@probable-futures/lib";
+import * as S from "../../styles/datasetSelectorStyles";
 
 import TourBox from "../TourBox";
 import { generateGroupedDatasets } from "../../utils/dataset";
@@ -43,7 +44,6 @@ const AccordionTitle = styled.div<{ isCollapsed: boolean }>`
   border-bottom: 1px solid;
   border-bottom-color: ${({ isCollapsed }) => (isCollapsed ? colors.grey : "transparent")};
   transition: border-bottom-color 0.3s ease-in-out, padding-bottom 0.3s ease-in-out;
-  opacity: 0.8;
 
   &:last-child {
     border-bottom: none;
@@ -95,18 +95,6 @@ const ExpandCollapseIcon = styled.div<{ isOpen: boolean }>`
     border-right: 4px solid transparent;
     border-top: 4px solid white;
   }
-`;
-
-const SignButton = styled.span`
-  margin-left: 5px;
-  background-color: ${colors.cream};
-  border: 1px solid transparent;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 18px;
-  height: 18px;
 `;
 
 const Section = styled.div<{ isFirstChild: boolean }>`
@@ -164,7 +152,7 @@ const SvgIcon = styled.svg`
 
 const Title = styled.span<{ animate: boolean }>`
   display: inline-block;
-  opacity: ${({ animate }) => (animate ? 0 : 1)};
+  opacity: ${({ animate }) => (animate ? 0 : 0.8)};
   animation: ${({ animate }) => (animate ? fadeInAnimation : "none")} 0.3s ease-out forwards;
 `;
 
@@ -232,9 +220,9 @@ const DatasetSelector = ({
                 onClick={() => toggleSection(section.label)}
               >
                 <span>{section.label}</span>
-                <SignButton>
+                <S.SignButton>
                   {openSection === section.label ? <MinusIcon /> : <PlusIcon />}
-                </SignButton>
+                </S.SignButton>
               </AccordionTitle>
               <AccordionContent isVisible={openSection === section.label}>
                 {section.options?.map((option) => (
