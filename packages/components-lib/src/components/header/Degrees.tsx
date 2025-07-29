@@ -59,7 +59,7 @@ const StyledButton = styled(Button)`
   height: 50px;
 
   span.label-number {
-    margin-top: 5px;
+    margin-top: 10px;
   }
 
   ${({ isLast }: ButtonProps) => isLast && `border-right: 1px solid transparent;`}
@@ -128,7 +128,8 @@ const DegreesHeader = styled.div`
 `;
 
 const YearLabel = styled.span`
-  color: ${colors.lightGrey2};
+  color: ${({ selected }: { selected: boolean }) => (selected ? "inherit" : colors.lightGrey2)};
+
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0;
@@ -140,7 +141,7 @@ const YearLabel = styled.span`
   padding: 0 8px;
   border-radius: 3px;
   padding-bottom: 2px;
-  top: 2px;
+  top: 4px;
 `;
 
 const Degrees = ({
@@ -175,7 +176,9 @@ const Degrees = ({
         isLast={index === degreesOptions.length - 1}
       >
         {showYearLabel && (
-          <YearLabel>{translatedHeader ? translatedHeader["yearLabel" + index] : year}</YearLabel>
+          <YearLabel selected={isSelected}>
+            {translatedHeader ? translatedHeader["yearLabel" + index] : year}
+          </YearLabel>
         )}
         <BorderVisibleOnFocus
           className="button-focus-border"

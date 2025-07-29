@@ -21,7 +21,8 @@ const Container = styled.div`
     left: calc(50% - 138px);
   `};
   width: 276px;
-  border: 1px solid ${colors.darkPurple};
+  border: 1px solid ${colors.grey};
+  border-radius: 6px;
   background-color: ${colors.lightCream};
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
   padding: 10px 22px 10px 23px;
@@ -152,7 +153,7 @@ const TourBox = ({
           position={position}
           childRect={childRect}
           popoverRect={popoverRect}
-          arrowColor={colors.darkPurple}
+          arrowColor={colors.grey}
           arrowSize={10}
         >
           <ArrowContainer
