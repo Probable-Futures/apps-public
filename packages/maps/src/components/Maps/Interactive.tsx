@@ -796,7 +796,7 @@ const InteractiveMap = () => {
                 setSearchIsOpen={setSearchIsOpen}
                 mapRef={mapRef}
                 mapboxAccessToken={mapboxAccessToken}
-                top="120px"
+                top="115px"
                 onFly={onFly}
                 language={locale}
               />

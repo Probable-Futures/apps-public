@@ -35,7 +35,6 @@ const Container = styled.div`
   height: 100%;
   border: 1px solid ${colors.grey};
   border-radius: 6px;
-  gap: 5px;
   color: ${colors.dimBlack};
 `;
 
@@ -46,7 +45,7 @@ const ButtonWrapper = styled.div`
 `;
 
 const Label = styled.span`
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 400;
   color: ${colors.dimBlack};
   opacity: 0.8;
