@@ -4,7 +4,8 @@ import { Popover, ArrowContainer, PopoverAlign, PopoverPosition } from "react-ti
 import { useMediaQuery } from "react-responsive";
 
 import { DatasetDescriptionResponse, Map, consts, colors, size } from "@probable-futures/lib";
-import { ReactComponent as CloseIcon } from "../assets/icons/close.svg";
+import { ReactComponent as CloseIcon } from "../assets/icons/cancel-circle.svg";
+
 import { purpleFilter } from "../styles/commonStyles";
 
 type Props = {

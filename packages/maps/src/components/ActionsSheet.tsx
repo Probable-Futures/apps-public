@@ -112,7 +112,7 @@ const ActionsSheet = ({
               : translate("mapControl.showCountryBorders")}
           </span>
         </ActionSheetItem>
-        <ActionSheetItem className="about-maps-toggle" onClick={onAboutThisMapClick}>
+        <ActionSheetItem onClick={onAboutThisMapClick}>
           <InfoIcon />
           <span>{translate("actionSheet.aboutThisMap")}</span>
         </ActionSheetItem>
