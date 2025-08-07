@@ -11,6 +11,9 @@ type Props = {
   tourProps?: TourProps;
   datasets: Map[];
   translatedHeader?: any;
+  selectMode: boolean;
+  setSelectMode: React.Dispatch<React.SetStateAction<boolean>>;
+
   setShowAllMapsModal?: (show: boolean) => void;
   onChange?: (option: Option) => void;
 };
@@ -114,7 +117,7 @@ const AllContent = styled.div<{ isVisible: boolean }>`
 
 const SelectedMapWrapper = styled.div<{ isVisible: boolean }>`
   ${({ isVisible }) => isVisible && "padding: 16px 10px;"}
-  font-size: 12px;
+  font-size: 13px;
   opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
   transform: ${({ isVisible }) => (isVisible ? "translateY(0)" : "translateY(-10px)")};
   transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
@@ -176,9 +179,10 @@ const DatasetSelector = ({
   tourProps,
   datasets,
   translatedHeader,
+  selectMode,
+  setSelectMode,
 }: Props) => {
   const [openSection, setOpenSection] = useState<string>("");
-  const [selectMode, setSelectMode] = useState(true);
   const [animateAccordionTitle, setAnimateAccordionTitle] = useState(false);
 
   const groupedDatasets = useMemo(() => {
@@ -205,9 +209,7 @@ const DatasetSelector = ({
       <AccordionWrapper>
         <MainTitle onClick={toggleAllSections}>
           <Title animate={animateAccordionTitle}>
-            {selectMode
-              ? translatedHeader?.selectMap || "Select a map"
-              : translatedHeader?.currentlySelectedMap || "Currently selected map"}
+            {translatedHeader?.selectMap || "Select a map"}
           </Title>
           <ExpandCollapseIcon isOpen={selectMode} />
         </MainTitle>

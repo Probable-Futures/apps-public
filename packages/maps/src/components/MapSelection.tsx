@@ -2,12 +2,13 @@ import camelcase from "lodash.camelcase";
 import styled from "styled-components";
 import { useMediaQuery } from "react-responsive";
 
-import { components, contexts } from "@probable-futures/components-lib";
+import { components, contexts, hooks } from "@probable-futures/components-lib";
 import { useMapData } from "../contexts/DataContext";
 import { useTourData } from "../contexts/TourContext";
 import { useTranslation } from "../contexts/TranslationContext";
 import { useDatasetChangeHandler } from "../utils/useDatasetChangeHandler";
 import { size } from "@probable-futures/lib";
+import { useRef, useState } from "react";
 
 const Container = styled.div`
   position: absolute;
@@ -51,6 +52,10 @@ const MapSelection = () => {
   const isTablet = useMediaQuery({
     query: `(max-width: ${size.tabletMax})`,
   });
+  const ref = useRef<HTMLDivElement>(null);
+  const [selectMode, setSelectMode] = useState(true);
+
+  hooks.useOnClickOutside(ref, () => setSelectMode(false), [".pf-map-tour-box"]);
 
   if (!selectedDataset) {
     return null;
@@ -72,7 +77,7 @@ const MapSelection = () => {
           />
         </MobileContainer>
       ) : (
-        <Container>
+        <Container ref={ref}>
           <components.DatasetSelector
             value={{
               value: selectedDataset.slug || "",
@@ -90,6 +95,8 @@ const MapSelection = () => {
             datasets={datasets}
             translatedHeader={translatedHeader}
             setShowAllMapsModal={setShowAllMapsModal}
+            selectMode={selectMode}
+            setSelectMode={setSelectMode}
           />
         </Container>
       )}

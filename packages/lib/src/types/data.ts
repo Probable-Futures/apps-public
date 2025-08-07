@@ -30,4 +30,5 @@ export type AboutMapResources = {
   related_subheading: string;
   resources: Resource[];
   data_resources: Resource[];
+  warming_scenario_description: string;
 };

@@ -52,10 +52,8 @@ export function TourProvider(props: PropsWithChildren<{}>): JSX.Element {
   const [inspectPromptLocation, setInspectPromptLocation] = useState({});
 
   const onNext = useCallback(() => {
-    const skipThirdStep = step === 1;
-
-    setStep(step + (skipThirdStep ? 2 : 1));
-  }, [step]);
+    setStep((step) => step + 1);
+  }, []);
 
   const onClose = useCallback(() => {
     setIsTourActive(false);

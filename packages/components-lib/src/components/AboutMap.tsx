@@ -26,9 +26,13 @@ type Props = {
   translatedHeader?: any;
   selectedDataset?: Map;
   aboutMapResources?: AboutMapResources;
+  source: Source;
   onDatasetChange: (option: Option) => void;
   onClose: MouseEventHandler<HTMLButtonElement>;
+  handleTourClick?: () => void;
 };
+
+export type Source = "maps" | "pro";
 
 const SharedLeftPadding = css`
   padding-left: 20px;
@@ -316,7 +320,6 @@ const CloseButton = styled.button`
 `;
 
 const OverlayContainer = styled.div`
-  transition: opacity 0.2s ease-in-out;
   opacity: 0;
   pointer-events: none;
 
@@ -336,8 +339,10 @@ const AboutMap = ({
   translatedHeader,
   selectedDataset,
   aboutMapResources,
+  source,
   onDatasetChange,
   onClose,
+  handleTourClick,
 }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -417,10 +422,11 @@ const AboutMap = ({
                 <Title>
                   {translatedHeader?.whatAreWarmingScenarios || "What are warming scenarios?"}
                 </Title>
-                <Paragraph>
-                  {translatedHeader?.descriptionOfWarmingScenarios ||
-                    "Warming scenarios tell us how much Earth’s global average surface temperature has increased since pre-industrial times. The widely-accepted 0°C baseline warming scenario for pre-industrial times is Earth’s average temperature from 1850 to 1900. These maps depict warming scenarios from 0.5°C (Earth’s average temperature from 1971 to 2000) to 3°C (a possible future scenario.) Read more about how we measure climate change."}
-                </Paragraph>
+                <Paragraph
+                  dangerouslySetInnerHTML={{
+                    __html: aboutMapResources?.warming_scenario_description || "",
+                  }}
+                />
 
                 <WarmingScenarioSection>
                   <WarmingScenarioTitle onClick={() => setIsExpanded(!isExpanded)}>
@@ -456,6 +462,8 @@ const AboutMap = ({
                   resources={aboutMapResources?.resources}
                   intro={aboutMapResources?.related_subheading}
                   title={aboutMapResources?.related_heading}
+                  handleTourClick={handleTourClick}
+                  source={source}
                 />
               </Section>
               <Section>
@@ -464,6 +472,7 @@ const AboutMap = ({
                   resources={aboutMapResources?.data_resources}
                   intro={aboutMapResources?.explore_subheading}
                   title={aboutMapResources?.explore_heading}
+                  source={source}
                 />
               </Section>
             </ContentWrapper>

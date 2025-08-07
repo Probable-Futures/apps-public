@@ -234,7 +234,7 @@ const DegreesFooter = ({
                   {value === 1.5 && tourProps ? (
                     <TourBoxWrapper>
                       <TourBox
-                        show={tourProps.isTourActive && tourProps.step === 3}
+                        show={tourProps.isTourActive && tourProps.step === 2}
                         position="top"
                         {...tourProps}
                       >

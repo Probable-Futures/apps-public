@@ -294,6 +294,7 @@ const InteractiveMap = () => {
     onNext,
     setInspectPromptLocation,
     setSteps,
+    setIsTourActive,
   } = useTourData();
   const { popupVisible, setPopupVisible, feature, setPopupFeature } = useFeaturePopup(degrees);
   const mapStyles = useRef<MapStyles>({});
@@ -663,6 +664,18 @@ const InteractiveMap = () => {
     [degrees, updateMapStyles],
   );
 
+  const handleTourClick = () => {
+    setShowAboutMap(false);
+    setTimeout(() => {
+      setIsTourActive(true);
+    }, 200);
+    trackEvent("Map tour started", {
+      props: {
+        map: `${selectedDataset?.name}`,
+      },
+    });
+  };
+
   const onSourceData = (e: MapSourceDataEvent) => e.tile && setShowLoader(true);
 
   const onIdle = () => setShowLoader(false);
@@ -869,6 +882,8 @@ const InteractiveMap = () => {
           selectedDataset={selectedDataset}
           aboutMapResources={aboutMapResources}
           onDatasetChange={onDatasetChange}
+          handleTourClick={handleTourClick}
+          source="maps"
         />
         {selectedDataset && (
           <components.AllMapsModal

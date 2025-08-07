@@ -10,16 +10,25 @@ type AnyEvent = MouseEvent | TouchEvent;
 function useOnClickOutside<T extends HTMLElement = HTMLElement>(
   ref: RefObject<T>,
   handler: (event: AnyEvent) => void,
+  excludeSelectors?: string[],
 ): void {
   useEffect(() => {
     const listener = (event: AnyEvent) => {
       const el = ref?.current;
+      const target = event.target as Element;
 
       // Do nothing if clicking ref's element or descendent elements
       if (!el || el.contains(event.target as Node)) {
         return;
       }
 
+      if (excludeSelectors && excludeSelectors.length > 0) {
+        for (const selector of excludeSelectors) {
+          if (target.closest(selector)) {
+            return;
+          }
+        }
+      }
       handler(event);
     };
 
@@ -32,7 +41,7 @@ function useOnClickOutside<T extends HTMLElement = HTMLElement>(
     };
 
     // Reload only if ref or handler changes
-  }, [ref, handler]);
+  }, [ref, handler, excludeSelectors]);
 }
 
 export default useOnClickOutside;

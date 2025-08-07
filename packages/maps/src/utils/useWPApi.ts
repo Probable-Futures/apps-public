@@ -71,6 +71,7 @@ export default function useWPApi({
           related_subheading: body.acf.related_subheading,
           resources: body.acf.resources,
           data_resources: body.acf.data_resources,
+          warming_scenario_description: body.acf.warming_scenario_description,
         };
         setAboutMapResources?.(aboutMapResources);
       }

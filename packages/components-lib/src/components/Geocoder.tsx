@@ -160,6 +160,9 @@ const RecentlySearchedItem = styled.div`
 
   &:hover {
     ${ItemHoverStyles}
+    :last-child {
+      border-radius: 5px;
+    }
   }
 
   &:last-child {

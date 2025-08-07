@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { components, contexts } from "@probable-futures/components-lib";
+import { useRef, useState } from "react";
+import { components, contexts, hooks } from "@probable-futures/components-lib";
 import { consts, size } from "@probable-futures/lib";
 import styled from "styled-components";
 
@@ -47,6 +47,10 @@ const MobileContainer = styled.div`
 const MapSelection = ({ activeSidePanel }: { activeSidePanel: boolean }) => {
   const { selectedClimateData, climateData } = useMapData();
   const [showAllMapsModal, setShowAllMapsModal] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const [selectMode, setSelectMode] = useState(true);
+
+  hooks.useOnClickOutside(ref, () => setSelectMode(false));
 
   const isTablet = useMediaQuery({
     query: `(max-width: ${size.tabletMax})`,
@@ -74,7 +78,7 @@ const MapSelection = ({ activeSidePanel }: { activeSidePanel: boolean }) => {
             />
           </MobileContainer>
         ) : (
-          <DesktopContainer activeSidePanel={activeSidePanel}>
+          <DesktopContainer activeSidePanel={activeSidePanel} ref={ref}>
             <components.DatasetSelector
               value={{
                 value: selectedClimateData?.slug || "",
@@ -85,6 +89,8 @@ const MapSelection = ({ activeSidePanel }: { activeSidePanel: boolean }) => {
               datasets={climateData}
               onChange={onDatasetChange}
               setShowAllMapsModal={setShowAllMapsModal}
+              selectMode={selectMode}
+              setSelectMode={setSelectMode}
             />
           </DesktopContainer>
         )}

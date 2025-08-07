@@ -112,8 +112,7 @@ const TourBox = ({
   };
 
   const getCurrentStep = () => {
-    // If there are no stories on the map, skip 3rd step
-    return `${step === 3 ? step : step + 1} of ${Object.keys(steps).length - 1}`;
+    return `${step + 1} of ${Object.keys(steps).length}`;
   };
 
   const parseStep = (currentStep: string) => {
@@ -127,7 +126,7 @@ const TourBox = ({
   const TourContent = () => {
     const currentStep = steps[`tour_part_${step + 1}`] || "";
     return (
-      <Container showContentOnly={showContentOnly}>
+      <Container showContentOnly={showContentOnly} className="pf-map-tour-box">
         <Content dangerouslySetInnerHTML={{ __html: parseStep(currentStep) }} />
         <RowContainer>
           <Step>{getCurrentStep()}</Step>

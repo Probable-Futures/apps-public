@@ -648,6 +648,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
           selectedDataset={selectedClimateData}
           onDatasetChange={onDatasetChange}
           aboutMapResources={aboutMapResources}
+          source="pro"
         />
         {renderBottomLinks()}
       </Container>

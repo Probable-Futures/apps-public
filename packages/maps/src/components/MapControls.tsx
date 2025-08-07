@@ -407,6 +407,7 @@ const MapControls = ({
               >
                 <ArrowContainer />
                 <AdjustViewMenuList>
+                  <AdjustViewMenuTitle>{adjustViewTitle}</AdjustViewMenuTitle>
                   <AdjustViewMenuListItem onClick={onProjectionChange}>
                     {mapProjection.name === "globe" ? <MapIcon /> : <GlobeIcon />}
                     {projectionTitle}

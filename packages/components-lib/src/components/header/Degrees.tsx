@@ -207,7 +207,7 @@ const Degrees = ({
               <StyledButtonContainer isActive={isSelected}>
                 {value === 1.5 && tourProps ? (
                   <TourBox
-                    show={tourProps.isTourActive && tourProps.step === 3}
+                    show={tourProps.isTourActive && tourProps.step === 2}
                     position="bottom"
                     {...tourProps}
                   >
