@@ -19,6 +19,7 @@ const WrapperComponent = styled.div<{ isOpen: boolean }>`
   max-height: 100vh;
   overflow-y: scroll;
   user-select: none;
+  position: relative;
   ${({ isOpen }) => (isOpen ? "height: 100vh" : "height: auto")};
 
   @media (min-width: ${size.mobileMax}) {
@@ -35,7 +36,6 @@ const StyledTitle = styled(S.Title)`
 const SelectMapText = styled.span`
   color: ${colors.dimBlack};
   opacity: 0.8;
-  font-family: Linear Sans;
   font-size: 10px;
   font-style: normal;
   font-weight: 400;
@@ -61,7 +61,10 @@ const DatasetSelectorForMobile = ({ value, datasets, translatedHeader, onChange 
   } = useDatasetSelctor({ datasets, translatedDatasets });
 
   return (
-    <WrapperComponent isOpen={selectMode}>
+    <WrapperComponent
+      isOpen={selectMode}
+      className={`${selectMode ? "pf-map-dataset-selector__open" : ""}`}
+    >
       <SelectMapText>{translatedHeader?.selectMap || "Select a map"}</SelectMapText>
       <S.MainTitle isOpen={selectMode} onClick={toggleAllSections} style={{ marginTop: "2px" }}>
         <StyledTitle animate={animateAccordionTitle}>{value.label}</StyledTitle>

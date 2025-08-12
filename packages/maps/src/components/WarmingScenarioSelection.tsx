@@ -18,7 +18,7 @@ const Container = styled.div`
 `;
 
 const MobileContainer = styled.div`
-  position: absolute;
+  position: fixed;
   bottom: 0;
   box-sizing: content-box;
   z-index: 3;

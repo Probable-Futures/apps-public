@@ -11,6 +11,7 @@ function useOnClickOutside<T extends HTMLElement = HTMLElement>(
   ref: RefObject<T>,
   handler: (event: AnyEvent) => void,
   excludeSelectors?: string[],
+  disabled = false,
 ): void {
   useEffect(() => {
     const listener = (event: AnyEvent) => {
@@ -19,6 +20,10 @@ function useOnClickOutside<T extends HTMLElement = HTMLElement>(
 
       // Do nothing if clicking ref's element or descendent elements
       if (!el || el.contains(event.target as Node)) {
+        return;
+      }
+
+      if (disabled) {
         return;
       }
 
@@ -41,7 +46,7 @@ function useOnClickOutside<T extends HTMLElement = HTMLElement>(
     };
 
     // Reload only if ref or handler changes
-  }, [ref, handler, excludeSelectors]);
+  }, [ref, handler, excludeSelectors, disabled]);
 }
 
 export default useOnClickOutside;

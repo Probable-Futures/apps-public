@@ -147,8 +147,8 @@ const Label = styled.div<{ isSelected: boolean }>`
 `;
 
 const SvgIcon = styled.svg`
-  width: 16px;
-  height: 16px;
+  width: 30px;
+  height: 30px;
   stroke: currentColor;
   stroke-width: 1;
 `;
@@ -195,7 +195,11 @@ const DatasetSelector = ({
   };
 
   const toggleAllSections = () => {
-    setSelectMode((prev) => !prev);
+    if (tourProps?.isTourActive) {
+      setSelectMode(true);
+    } else {
+      setSelectMode((prev) => !prev);
+    }
   };
 
   useEffect(() => {
@@ -203,6 +207,12 @@ const DatasetSelector = ({
     const timeout = setTimeout(() => setAnimateAccordionTitle(false), 400);
     return () => clearTimeout(timeout);
   }, [selectMode]);
+
+  useEffect(() => {
+    if (tourProps?.isTourActive) {
+      setSelectMode(true);
+    }
+  }, [setSelectMode, tourProps?.isTourActive]);
 
   const renderContent = () => {
     return (
@@ -231,7 +241,11 @@ const DatasetSelector = ({
                   <Label
                     key={option.value}
                     onClick={() => {
-                      setSelectMode((s) => !s);
+                      if (tourProps?.isTourActive) {
+                        setSelectMode(true);
+                      } else {
+                        setSelectMode((s) => !s);
+                      }
                       if (onChange) {
                         onChange(option);
                       }

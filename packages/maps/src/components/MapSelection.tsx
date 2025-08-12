@@ -53,9 +53,14 @@ const MapSelection = () => {
     query: `(max-width: ${size.tabletMax})`,
   });
   const ref = useRef<HTMLDivElement>(null);
-  const [selectMode, setSelectMode] = useState(true);
+  const [selectMode, setSelectMode] = useState(false);
 
-  hooks.useOnClickOutside(ref, () => setSelectMode(false), [".pf-map-tour-box"]);
+  hooks.useOnClickOutside(
+    ref,
+    () => setSelectMode(false),
+    [".pf-map-tour-box", ".pf-map-tour-box"],
+    isTourActive,
+  );
 
   if (!selectedDataset) {
     return null;

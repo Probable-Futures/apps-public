@@ -50,6 +50,9 @@ type GroupProps = {
 const topStyledGroupCss = css`
   top: 165px;
 
+  @media (min-width: ${size.tablet}) {
+    top: 75px;
+  }
   @media (min-width: ${customTabletSizeForHeader}) {
     top: 100px;
   }
@@ -303,7 +306,7 @@ const MapControls = ({
     : translate("mapControl.showCountryBorders");
   return (
     <>
-      <MediaQuery maxWidth={customTabletSizeForHeader}>
+      <MediaQuery maxWidth={parseInt(customTabletSizeForHeader) - 1}>
         <StyledGroup position="top">
           <styles.ControlButton
             title="More"
@@ -417,7 +420,10 @@ const MapControls = ({
                     {countryBordersTitle}
                   </AdjustViewMenuListItem>
                   {Object.keys(steps).length > 0 && (
-                    <AdjustViewMenuListItem onClick={onTakeTourButtonClick}>
+                    <AdjustViewMenuListItem
+                      onClick={onTakeTourButtonClick}
+                      className="pf-map-tour-box"
+                    >
                       <TourIcon />
                       <span>{tourMessage}</span>
                       {isTourActive && (

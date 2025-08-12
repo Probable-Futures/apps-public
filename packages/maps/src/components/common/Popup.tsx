@@ -86,6 +86,7 @@ const Popup = ({ feature, onClose, children }: PropsWithChildren<Props>): JSX.El
       anchor="top"
       showClickArea={isTourActive && step === 1}
       maxWidth="none"
+      focusAfterOpen={false}
     >
       {children}
     </Container>

@@ -28,6 +28,8 @@ export const DegreesSeparator = styled.div`
   margin-left: -1px;
   margin-right: -1px;
 
+  ${({ hide }: { hide?: boolean }) => hide && `border-left: 1px solid transparent;`}
+
   @media (min-width: ${size.tablet}) {
     height: 32px;
   }

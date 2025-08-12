@@ -48,7 +48,7 @@ const MapSelection = ({ activeSidePanel }: { activeSidePanel: boolean }) => {
   const { selectedClimateData, climateData } = useMapData();
   const [showAllMapsModal, setShowAllMapsModal] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const [selectMode, setSelectMode] = useState(true);
+  const [selectMode, setSelectMode] = useState(false);
 
   hooks.useOnClickOutside(ref, () => setSelectMode(false));
 

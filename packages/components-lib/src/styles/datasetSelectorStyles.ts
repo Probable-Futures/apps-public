@@ -44,7 +44,7 @@ export const MainTitle = styled.div.attrs<{
   display: flex;
   justify-content: space-between;
   cursor: pointer;
-  padding: 0px 18px 0px 15px;
+  padding: 0px 10px 0px 15px;
   ${({ isOpen }) => isOpen && `border-bottom: 1px solid ${colors.grey};`}
   font-size: 10px;
   align-items: center;
@@ -69,8 +69,13 @@ export const SignButton = styled.span`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 18px;
-  height: 18px;
+  width: 30px;
+  height: 30px;
+
+  @media (min-width: ${size.laptop}) {
+    width: 18px;
+    height: 18px;
+  }
 `;
 
 export const Section = styled.div<{ isFirstChild: boolean }>`
@@ -79,7 +84,7 @@ export const Section = styled.div<{ isFirstChild: boolean }>`
   font-size: 16px;
   font-weight: 400;
   line-height: 24px;
-  padding: 0px 18px 0px 15px;
+  padding: 0px 10px 0px 15px;
 
   border-top: ${({ isFirstChild }) => (!isFirstChild ? `1px solid ${colors.grey}` : "none")};
   @media (min-width: ${size.laptop}) {
@@ -134,6 +139,6 @@ export const Title = styled.span<{ animate: boolean }>`
   display: inline-block;
   opacity: ${({ animate }) => (animate ? 0 : 1)};
   animation: ${({ animate }) => (animate ? fadeInAnimation : "none")} 0.3s ease-out forwards;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
 `;

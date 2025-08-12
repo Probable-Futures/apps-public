@@ -139,7 +139,7 @@ const StyledYearLabel = styled.span`
 `;
 
 const StyledButtonContainer = styled(ButtonContainer)`
-  flex-basis: 20%;
+  flex-basis: 100%;
   flex-grow: 0;
   min-width: 105px;
   border-top: 6px solid transparent;
@@ -224,6 +224,9 @@ const DegreesFooter = ({
         <Buttons style={{ color, backgroundColor }} gradientOpacity={gradientOpacity}>
           {degreesOptions.map(({ label, value, descKey, year }, index) => {
             const isSelected = showBaselineModal ? value === 0.5 : degrees === value;
+            const isNextSelected = showBaselineModal
+              ? index === 0 && value === 0.5
+              : degreesOptions[index + 1] && degreesOptions[index + 1].value === degrees;
             const isLastButton = index === degreesOptions.length - 1;
             return (
               <ButtonAndSeparator key={label}>
@@ -245,7 +248,11 @@ const DegreesFooter = ({
                     renderButton(value, index, year, label, descKey)
                   )}
                 </StyledButtonContainer>
-                <DegreesSeparator />
+                {
+                  <DegreesSeparator
+                    hide={index === degreesOptions.length - 1 || isSelected || isNextSelected}
+                  />
+                }
               </ButtonAndSeparator>
             );
           })}

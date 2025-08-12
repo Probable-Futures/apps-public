@@ -2,8 +2,8 @@ import styled from "styled-components";
 import { size } from "@probable-futures/lib";
 
 export const ExpandCollapseIcon = styled.div<{ isOpen: boolean }>`
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   background-color: black;
   border-radius: 50%; /* Makes it a circle */
   display: flex;

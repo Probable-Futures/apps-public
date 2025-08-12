@@ -87,7 +87,7 @@ const MainContainer = styled.div`
   transform: ${({ isOpen }: { isOpen: boolean }) =>
     isOpen ? "translateX(0)" : "translateX(100%)"};
   box-shadow: ${({ isOpen }) => (isOpen ? "-1px 0 5px 0 rgba(0, 0, 0, 0.3)" : "none")};
-  z-index: 7;
+  z-index: 101;
 
   @media (min-width: ${size.laptop}) {
     width: 50vw;
@@ -246,7 +246,7 @@ const WarmingScenarioSection = styled.div`
 
 const WarmingScenarioTitle = styled.div`
   font-weight: bold;
-  font-size: 0.95rem;
+  font-size: 20px;
   display: flex;
   justify-content: space-between;
   cursor: pointer;
@@ -322,13 +322,20 @@ const CloseButton = styled.button`
 const OverlayContainer = styled.div`
   opacity: 0;
   pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
 
   ${({ visible }: { visible: boolean }) =>
     visible &&
     `
-  opacity: 1;
-  pointer-events: all;
-`}
+    opacity: 1;
+    pointer-events: all;
+  `}
 `;
 
 const AboutMap = ({
