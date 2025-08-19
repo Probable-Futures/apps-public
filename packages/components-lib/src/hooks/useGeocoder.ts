@@ -34,6 +34,7 @@ const options = {
 
 const useGeocoder = (props: GeocoderProps) => {
   const [suggestionList, setSuggestionList] = useState<Feature[]>([]);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState<number>(-1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [inputValue, setInputValue] = useState("");
@@ -235,7 +236,23 @@ const useGeocoder = (props: GeocoderProps) => {
     event: React.KeyboardEvent<HTMLInputElement>,
     recentlySearchedItems: RecentlySearchedItemType[],
   ) => {
-    if (event.code === "Enter" && suggestionList.length > 0) {
+    if (suggestionList.length === 0) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActiveSuggestionIndex((prev) => {
+        const next = prev < suggestionList.length - 1 ? prev + 1 : 0;
+        return next;
+      });
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActiveSuggestionIndex((prev) => {
+        const next = prev > 0 ? prev - 1 : suggestionList.length - 1;
+        return next;
+      });
+    } else if (event.key === "Enter" && activeSuggestionIndex >= 0) {
+      setInputValue(suggestionList[activeSuggestionIndex].place_name);
+      onFeatureSelected(suggestionList[activeSuggestionIndex], recentlySearchedItems);
+    } else if (event.key === "Enter" && suggestionList.length > 0) {
       setInputValue(suggestionList[0].place_name);
       onFeatureSelected(suggestionList[0], recentlySearchedItems);
     }
@@ -255,6 +272,8 @@ const useGeocoder = (props: GeocoderProps) => {
     onClear,
     onKeyDown,
     setIsInputFocused,
+    activeSuggestionIndex,
+    setActiveSuggestionIndex,
   };
 };
 

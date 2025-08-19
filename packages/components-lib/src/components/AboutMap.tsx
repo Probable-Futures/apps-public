@@ -361,6 +361,22 @@ const AboutMap = ({
     }
   }, [containerRef]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (typeof onClose === "function") {
+          const fakeEvent = { preventDefault: () => {}, stopPropagation: () => {} } as any;
+          onClose(fakeEvent);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!selectedDataset) {
     return null;
   }

@@ -27,6 +27,8 @@ type Props = {
   activateClimateZoneLayer?: (value?: string[]) => void;
   activeClimateZoneLayers?: string[];
   precipitationUnit: PrecipitationUnit;
+  onAboutMapClick?: () => void;
+  translatedHeader?: any;
 };
 
 const Container = styled.div`
@@ -50,7 +52,7 @@ const Header = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 11px;
+  margin-bottom: 10px;
   font-weight: 400;
   font-size: 10px;
   line-height: normal;
@@ -61,7 +63,7 @@ const Header = styled.div`
   }
 
   @media (min-width: ${size.tablet}) and (max-width: ${size.tabletMax}) {
-    margin-top: 6px;
+    margin-top: 5px;
   }
 `;
 
@@ -69,14 +71,22 @@ const LabelAndSwitch = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 0px;
   gap: 10px;
+`;
+
+const VerticalSeparator = styled.div`
+  width: 1px;
+  height: 15px;
+  background-color: ${colors.grey};
+  margin: 0 2px;
 `;
 
 const Label = styled.span`
   display: block;
   color: ${colors.darkPurple};
-  min-width: 92px;
+  min-width: 103px;
   font-family: LinearSans;
   font-size: 13px;
 `;
@@ -184,17 +194,22 @@ const MapKey = ({
   datasetDescriptionResponse,
   activeClimateZoneLayers,
   precipitationUnit,
+  translatedHeader,
   activateClimateZoneLayer,
   setPrecipitationUnit,
+  onAboutMapClick,
 }: PropsWithChildren<Props>) => {
   const isTablet = useMediaQuery({
     query: `(max-width: ${size.tabletMax})`,
   });
+
   const datasetUnitLongNames = mapKeyText?.datasetUnitLong || {};
   const binLabels = mapKeyText?.binLabels || {};
+
   if (!selectedDataset) {
     return null;
   }
+
   if (selectedDataset.dataset.unit === "class" && datasetDescriptionResponse) {
     return (
       <ClimateZonesKey
@@ -280,6 +295,12 @@ const MapKey = ({
                 ? datasetUnit.replace("mm", precipitationUnit)
                 : datasetUnit}
             </Label>
+            {isTablet && (
+              <>
+                {(isTempMap || isPrecipitationMap) && <VerticalSeparator />}
+                {renderSwitch()}
+              </>
+            )}
           </LabelAndSwitch>
           {!isTablet && renderSwitch()}
         </Header>
@@ -306,7 +327,6 @@ const MapKey = ({
                 </BinContainer>
               );
             })}
-            {isTablet && renderSwitch()}
           </BinsContainer>
         </Row>
         {children}

@@ -306,7 +306,7 @@ const MapControls = ({
     : translate("mapControl.showCountryBorders");
   return (
     <>
-      <MediaQuery maxWidth={parseInt(customTabletSizeForHeader) - 1}>
+      <MediaQuery maxWidth={size.tabletMax}>
         <StyledGroup position="top">
           <styles.ControlButton
             title="More"
@@ -338,9 +338,25 @@ const MapControls = ({
             onBordersClick();
             setMoreIsOpen(false);
           }}
+          handleEmbeddableMapDownload={() => {
+            setMoreIsOpen(false);
+            handleEmbeddableMapDownload();
+          }}
+          handleQRCodeDownload={() => {
+            setMoreIsOpen(false);
+            handleQRCodeDownload();
+          }}
+          onTakeScreenshot={(e) => {
+            setMoreIsOpen(false);
+            onTakeScreenshot(e as React.MouseEvent<HTMLButtonElement, MouseEvent>);
+          }}
+          handleOpenComparisonModal={() => {
+            setMoreIsOpen(false);
+            handleOpenComparisonModal();
+          }}
         />
       </MediaQuery>
-      <MediaQuery minWidth={customTabletSizeForHeader}>
+      <MediaQuery minWidth={size.laptop}>
         <StyledGroup position="middle">
           {/* Screenshot */}
           <components.ControlsTooltip

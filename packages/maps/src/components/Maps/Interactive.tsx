@@ -206,15 +206,14 @@ const MapKeyContainer = styled.div`
     border: none;
     box-sizing: content-box;
     border-top: 1px solid ${colors.darkPurple};
-    border-bottom: 1px solid ${colors.darkPurple};
+    border-bottom: 1px solid ${colors.grey};
 
     @media (min-width: ${size.tablet}) and (max-width: ${size.tabletMax}) {
       border: 1px solid ${colors.grey};
       padding: 0px;
       padding-left: 16px;
       width: auto;
-      height: 80px;
-      overflow-x: hidden;
+      height: 61px;
     }
 
     @media (min-width: ${size.laptop}) {
@@ -746,6 +745,8 @@ const InteractiveMap = () => {
                 activeClimateZoneLayers={activeClimateZoneLayers}
                 precipitationUnit={precipitationUnit}
                 setPrecipitationUnit={setPrecipitationUnit}
+                onAboutMapClick={() => setShowAboutMap(true)}
+                translatedHeader={translatedHeader}
               />
             )}
           </MapKeyContainer>

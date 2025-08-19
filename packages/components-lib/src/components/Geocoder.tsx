@@ -255,6 +255,9 @@ const Suggestion = styled.div`
     ${ItemHoverStyles}
   }
 
+  ${({ isActive }: { isActive: boolean }) =>
+    isActive && `border-top-left-radius: 5px; border-top-right-radius: 5px;`}
+
   @media (min-width: ${size.laptop}) {
     &:first-child {
       padding-top: 12px;
@@ -326,6 +329,8 @@ const Geocoder = (props: GeocoderProps) => {
     onClear,
     onKeyDown,
     setIsInputFocused,
+    activeSuggestionIndex,
+    setActiveSuggestionIndex,
   } = useGeocoder(props);
 
   const ref = useRef(null);
@@ -344,7 +349,7 @@ const Geocoder = (props: GeocoderProps) => {
     const address = placeName.splice(1, placeName.length).join(",");
     return (
       <Suggestion
-        isActive={index === 0}
+        isActive={index === activeSuggestionIndex}
         key={feature.place_name}
         onClick={() => {
           onFeatureSelected(feature, recentlySearchedItems);
@@ -383,11 +388,19 @@ const Geocoder = (props: GeocoderProps) => {
       }
     };
     window.addEventListener("keydown", handleKeyDown);
-    // Clean up the event listener when the component unmounts
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [inputRef, setIsInputFocused]);
+
+  // Reset activeSuggestionIndex when suggestionList changes or input is focused
+  useEffect(() => {
+    if (isInputFocused && suggestionList.length > 0) {
+      setActiveSuggestionIndex(0);
+    } else {
+      setActiveSuggestionIndex(-1);
+    }
+  }, [suggestionList, isInputFocused, setActiveSuggestionIndex]);
 
   hooks.useOnClickOutside(ref, () => setIsInputFocused(false));
 

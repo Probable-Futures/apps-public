@@ -8,10 +8,17 @@ import { ReactComponent as PublicOnIcon } from "@probable-futures/components-lib
 import { ReactComponent as PublicOffIcon } from "@probable-futures/components-lib/src/assets/icons/public-off.svg";
 import { ReactComponent as InfoIcon } from "@probable-futures/components-lib/src/assets/icons/info.svg";
 
+import { ReactComponent as CodeIcon } from "@probable-futures/components-lib/src/assets/icons/code.svg";
+import { ReactComponent as CompareIcon } from "@probable-futures/components-lib/src/assets/icons/compare.svg";
+import { ReactComponent as QRIcon } from "@probable-futures/components-lib/src/assets/icons/qr.svg";
+import { ReactComponent as PhotoCarmeraIcon } from "../assets/icons/photo-camera.svg";
+
 import { ReactComponent as GlobeIcon } from "../assets/icons/globe.svg";
 import { ReactComponent as MapIcon } from "../assets/icons/map.svg";
 import { colors } from "../consts";
 import { useTranslation } from "../contexts/TranslationContext";
+import { size } from "@probable-futures/lib";
+import { MediaQuery } from "react-responsive";
 
 type Props = {
   isOpen: boolean;
@@ -22,6 +29,10 @@ type Props = {
   onAboutThisMapClick: MouseEventHandler<HTMLElement>;
   onProjectionChange: MouseEventHandler<HTMLElement>;
   onBordersClick: MouseEventHandler<HTMLElement>;
+  onTakeScreenshot: MouseEventHandler<HTMLElement>;
+  handleQRCodeDownload: MouseEventHandler<HTMLElement>;
+  handleEmbeddableMapDownload: MouseEventHandler<HTMLElement>;
+  handleOpenComparisonModal: MouseEventHandler<HTMLElement>;
 };
 
 const Container = styled.div`
@@ -81,8 +92,15 @@ const ActionsSheet = ({
   onSearchClick,
   onProjectionChange,
   onBordersClick,
+  onTakeScreenshot,
+  handleQRCodeDownload,
+  handleEmbeddableMapDownload,
+  handleOpenComparisonModal,
 }: Props) => {
   const { translate } = useTranslation();
+
+  const downloadScreenshotTitle = translate("mapControl.downloadScreenshot");
+
   return (
     <Container show={isOpen} onClick={closeSheet}>
       <ActionSheet
@@ -112,6 +130,24 @@ const ActionsSheet = ({
               : translate("mapControl.showCountryBorders")}
           </span>
         </ActionSheetItem>
+        <MediaQuery minWidth={size.tablet} maxWidth={size.tabletMax}>
+          <ActionSheetItem onClick={onTakeScreenshot}>
+            <PhotoCarmeraIcon />
+            <span>{downloadScreenshotTitle}</span>
+          </ActionSheetItem>
+          <ActionSheetItem onClick={handleQRCodeDownload}>
+            <QRIcon />
+            {translate("downloadMap.qrCodeOptionLabel")}
+          </ActionSheetItem>
+          <ActionSheetItem onClick={handleEmbeddableMapDownload}>
+            <CodeIcon />
+            <span>{translate("downloadMap.simpleMapOptionLabel")}</span>
+          </ActionSheetItem>
+          <ActionSheetItem onClick={handleOpenComparisonModal}>
+            <CompareIcon />
+            <span>{translate("downloadMap.compareMapOptionLabel")}</span>
+          </ActionSheetItem>
+        </MediaQuery>
         <ActionSheetItem onClick={onAboutThisMapClick}>
           <InfoIcon />
           <span>{translate("actionSheet.aboutThisMap")}</span>

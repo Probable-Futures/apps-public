@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { types } from "@probable-futures/lib";
 import { components } from "@probable-futures/components-lib";
@@ -195,6 +195,21 @@ const DownloadMapModal = ({ isVisible, selectedDataset, onClose, onExportCompare
       </Button>
     );
   };
+
+  useEffect(() => {
+    if (!isVisible) {
+      return;
+    }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (typeof onClose === "function") {
+          onClose();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isVisible, onClose]);
 
   return (
     <components.MapModal

@@ -9,26 +9,20 @@ type Props = {
   onChange: ChangeEventHandler<HTMLInputElement>;
 };
 
-const Container = styled.div`
-  margin-top: -5px;
-
-  @media (min-width: ${size.laptop}) {
-    margin-top: 0px;
-  }
-`;
+const Container = styled.div``;
 
 const Toggle = styled.div`
   position: relative;
-  width: 62px;
-  height: 22px;
+  width: 54px;
+  height: 17px;
   background-color: ${colors.white};
   border-radius: 4px;
-  margin: 0 5px;
+  margin: 0 2px;
   border: 1px solid ${colors.darkPurple};
   box-sizing: border-box;
   display: flex;
   font-family: "RelativeMono";
-  font-size: 13px;
+  font-size: 11px;
   letter-spacing: 0;
   line-height: 16px;
   text-align: center;
@@ -37,17 +31,26 @@ const Toggle = styled.div`
 
   .toggle-span {
     position: absolute;
-    top: 2px;
+    top: 1px;
     left: 3px;
-    width: 25px;
-    height: 16px;
+    width: 22px;
+    height: 13px;
     border-radius: 4px;
     transition: 0.2s;
     background-color: ${colors.darkPurple};
+    @media (min-width: ${size.laptop}) {
+      top: 2px;
+      left: 3px;
+      width: 25px;
+      height: 16px;
+    }
   }
 
   @media (min-width: ${size.laptop}) {
     margin: 0;
+    width: 62px;
+    height: 22px;
+    font-size: 13px;
   }
 `;
 

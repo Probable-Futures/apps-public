@@ -24,9 +24,13 @@ type ColorProps = {
 const Container = styled.div`
   background-color: ${consts.colors.white};
   border: 1px solid ${consts.colors.grey};
-  border-radius: 6px;
+  border-radius: 0px;
   display: flex;
   align-items: center;
+
+  @media (min-width: ${size.tabletMax}) ) {
+    border-radius: 6px;
+  }
 `;
 
 const BinContainer = styled.div`

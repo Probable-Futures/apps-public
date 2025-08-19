@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useEffect } from "react";
 
 import { types } from "@probable-futures/lib";
 import { Option, Map } from "@probable-futures/lib/src/types";
@@ -79,6 +79,21 @@ const AllMapsModal = ({
     () => generateGroupedDatasets(datasets, translatedDatasets),
     [datasets, translatedDatasets],
   );
+
+  useEffect(() => {
+    if (!isVisible) {
+      return;
+    }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (typeof onClose === "function") {
+          onClose();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isVisible, onClose]);
 
   return (
     <MapModal
