@@ -1,7 +1,7 @@
 {
   "name": "@probable-futures/build",
   "private": true,
-  "version": "4.18.0",
+  "version": "5.0.0",
   "scripts": {
     "precommit": "lefthook run pre-commit",
     "build": "lerna run build",
@@ -71,5 +71,6 @@
     "**/api/postgraphile/**/ws": "7.5.10",
     "**/api/@uppy/companion/ws": "8.17.1",
     "**/maps/react-scripts/webpack-dev-server/ws": "8.17.1"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }
