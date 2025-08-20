@@ -21,7 +21,6 @@ type SharedProps = {
 
 const Intro = styled.p`
   color: ${colors.darkPurple};
-  font-family: "Linear Sans";
   font-size: 20px;
   font-style: normal;
   font-weight: 400;

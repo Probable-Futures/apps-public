@@ -26,6 +26,7 @@ const Popup = ({ feature, onClose, children }: PropsWithChildren<Props>): JSX.El
       onClose={onClose}
       anchor="top"
       maxWidth="none"
+      focusAfterOpen={false}
     >
       {children}
     </Container>
