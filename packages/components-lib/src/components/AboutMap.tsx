@@ -28,7 +28,7 @@ type Props = {
   aboutMapResources?: AboutMapResources;
   source: Source;
   onDatasetChange: (option: Option) => void;
-  onClose: MouseEventHandler<HTMLButtonElement>;
+  onClose: MouseEventHandler<HTMLButtonElement | HTMLDivElement>;
   handleTourClick?: () => void;
 };
 
@@ -510,7 +510,7 @@ const AboutMap = ({
       <MainContainer id="about-map" ref={containerRef} isOpen={isOpen}>
         {renderContent()}
       </MainContainer>
-      <OverlayContainer visible={isOpen}>
+      <OverlayContainer visible={isOpen} onClick={onClose}>
         <MapOverlay onClick={() => {}} />
       </OverlayContainer>
     </>
