@@ -6,6 +6,7 @@ import {
   defaultNoteValue,
   emailSignature,
   emailStartOfTheList,
+  joinSlackMessage,
 } from "../../utils/emailConsts";
 
 export const composeEmail = ({
@@ -65,7 +66,7 @@ export const composeEmail = ({
   if (resourcesList !== "") {
     finalEmail += emailStartOfTheList + resourcesList + "</ol>";
   }
-  finalEmail += closing + emailSignature;
+  finalEmail += joinSlackMessage + closing + emailSignature;
   return finalEmail;
 };
 

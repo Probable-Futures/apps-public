@@ -1,10 +1,12 @@
 export const defaultNoteValue = `
-    <p> Thank you for signing up to use Probable Futures resources. If you would like to join a Slack group where you can message with the Probable Futures team and others using our maps and data, please <a href="https://join.slack.com/t/probablefuturesdata/shared_invite/zt-1id97wfdw-49padl_S6Dt6mi5HiRbbYg">join using this link</a>.</p>
+    <p> Thank you for signing up to use Probable Futures data resources.</p>
     <p>
-      If you haven't already done so, I would recommend you read or listen to the
+      If you haven't already done so, please read or listen to the
       <a href="https://probablefutures.org/stability/">climate handbook</a> on the Probable Futures website. It provides essential context for interpreting the maps and data you will find in the resources below.
       You may also be aware of our <a href="https://probablefutures.org/maps">climate maps</a>, which are publicly available. The resources below are simply other ways of accessing or analyzing the data in these same climate maps.
     </p>`;
+
+export const joinSlackMessage = `<p>If you would like to join a Slack group where you can message with the Probable Futures team and others using our maps and data, please <a href="https://join.slack.com/t/probablefuturesdata/shared_invite/zt-1id97wfdw-49padl_S6Dt6mi5HiRbbYg">join using this link</a>.</p>`;
 
 export const defaultClosingValue = `
   <p>Please let me know if you have questions. Thanks for joining us in our efforts to help people explore the risks and consequences of climate change.</p>
@@ -34,7 +36,7 @@ export const emailSignature = `
     </b>
   </div>
   <div style="margin:0in;line-height:19.2px;font-size:12pt;font-family:Calibri,sans-serif;color:rgb(0,0,0)">
-    <span style="font-size:x-small;font-family:Calibri,sans-serif">Peter Croce, Product Lead</span>
+    <span style="font-size:x-small;font-family:Calibri,sans-serif">Peter Croce, Director of Product</span>
   </div>
   <div style="margin:0in;line-height:19.2px;font-family:Calibri,sans-serif;color:rgb(0,0,0)">
     <span style="font-size:x-small;font-family:Calibri,sans-serif">he/him</span>

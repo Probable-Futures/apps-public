@@ -197,11 +197,11 @@ const Consent = () => {
               <label htmlFor="agreed">
                 I have read and agree to the{" "}
                 <a
-                  href="https://probablefutures.org/pro-alpha-terms/"
+                  href="https://probablefutures.org/pro-terms/"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Probable Futures Pro Tool Alpha User License Terms
+                  Probable Futures Pro User License Terms
                 </a>
                 .
               </label>

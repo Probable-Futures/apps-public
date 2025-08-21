@@ -67,7 +67,7 @@ const emailSignature = `
     </b>
   </div>
   <div style="margin:0in;line-height:19.2px;font-size:12pt;font-family:Calibri,sans-serif;color:rgb(0,0,0)">
-    <span style="font-size:x-small;font-family:Calibri,sans-serif">Peter Croce, Product Lead</span>
+    <span style="font-size:x-small;font-family:Calibri,sans-serif">Peter Croce, Director of Product</span>
   </div>
   <div style="margin:0in;line-height:19.2px;font-family:Calibri,sans-serif;color:rgb(0,0,0)">
     <span style="font-size:x-small;font-family:Calibri,sans-serif">he/him</span>
