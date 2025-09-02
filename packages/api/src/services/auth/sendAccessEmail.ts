@@ -53,7 +53,7 @@ export const composeEmail = ({
   if (authClient) {
     resourcesList += `
         <li>
-          Data API for getting numeric climate dat about specific locations. Your client ID and client secret to access the API are below. Instructions for API access are on the <a href="https://docs.probablefutures.org/data-api-access/">API access</a> and <a href="https://docs.probablefutures.org/data-api-calls/">calling the API</a> pages in the docs.
+          Data API for getting numeric climate data about specific locations. Your client ID and client secret to access the API are below. Instructions for API access are on the <a href="https://docs.probablefutures.org/data-api-access/">API access</a> and <a href="https://docs.probablefutures.org/data-api-calls/">calling the API</a> pages in the docs.
           <br />
           <br />
           <b>Client ID:</b> ${authClient.client_id}
