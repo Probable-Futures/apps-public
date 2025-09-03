@@ -5458,12 +5458,12 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==
 
-"@pulumi/auth0@^2.4.0":
-  version "2.24.3"
-  resolved "https://registry.yarnpkg.com/@pulumi/auth0/-/auth0-2.24.3.tgz#b8b8d91fcd069695bf1bd3d55a5020cf21474747"
-  integrity sha512-5ZnBgG/7/IdFe51QvnWiKrk3Fzc0vwz2TXIB7ljtRNb5hasRh3dheQ+0F4Yyipcd9AsUOZ2YSmNncNdGyVoOTw==
+"@pulumi/auth0@^3.25.0":
+  version "3.26.0"
+  resolved "https://registry.yarnpkg.com/@pulumi/auth0/-/auth0-3.26.0.tgz#ea41bbfba65927cb759e506c80c5ff0034131630"
+  integrity sha512-uDhhoCbYtg8RRqOuPvECjIPxp51rRCRU14sT4OcwV6THhMVd8OE6gcdFNoghBHj8TVVDRY30h5Zlk4t1OKa+JA==
   dependencies:
-    "@pulumi/pulumi" "^3.0.0"
+    "@pulumi/pulumi" "^3.142.0"
 
 "@pulumi/aws@^5.35.0", "@pulumi/aws@^5.42.0":
   version "5.43.0"

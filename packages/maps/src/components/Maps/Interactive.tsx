@@ -579,7 +579,9 @@ const InteractiveMap = () => {
     }
   };
 
-  const takeScreenshot = () => {
+  const takeScreenshot = async () => {
+    // Wait a little bit to make sure the dataset selector dropdown has fully closed in case it was open
+    await new Promise((resolve) => setTimeout(resolve, 250));
     setIsScreenshot(true);
     exportComponentAsPNG(
       mapContainerRef,
@@ -731,7 +733,7 @@ const InteractiveMap = () => {
       >
         <div ref={mapContainerRef}>
           <components.Loader show={showLoader} />
-          {showHeader && <MapSelection />}
+          {showHeader && <MapSelection isTakingScreenshot={isScreenshot} />}
           {showHeader && <WarmingScenarioSelection />}
           <MapKeyContainer id="map-key">
             {showKey && (

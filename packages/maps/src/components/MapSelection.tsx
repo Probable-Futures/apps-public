@@ -42,7 +42,7 @@ const MobileContainer = styled.div`
   }
 `;
 
-const MapSelection = () => {
+const MapSelection = ({ isTakingScreenshot }: { isTakingScreenshot?: boolean }) => {
   const { selectedDataset, datasets, setShowAllMapsModal } = useMapData();
   const { step, steps, isTourActive, onClose, onNext } = useTourData();
   const { translate } = useTranslation();
@@ -102,6 +102,7 @@ const MapSelection = () => {
             setShowAllMapsModal={setShowAllMapsModal}
             selectMode={selectMode}
             setSelectMode={setSelectMode}
+            isTakingScreenshot={isTakingScreenshot}
           />
         </Container>
       )}

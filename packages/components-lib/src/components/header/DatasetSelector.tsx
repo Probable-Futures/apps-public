@@ -12,6 +12,7 @@ type Props = {
   datasets: Map[];
   translatedHeader?: any;
   selectMode: boolean;
+  isTakingScreenshot?: boolean;
   setSelectMode: React.Dispatch<React.SetStateAction<boolean>>;
 
   setShowAllMapsModal?: (show: boolean) => void;
@@ -27,14 +28,30 @@ const fadeInAnimation = keyframes`
   }
 `;
 
-const AccordionWrapper = styled.div<{ isOpen: boolean }>`
+const AccordionWrapper = styled.div<{ showScrollbar: boolean }>`
   width: 220px;
   border: 1px solid ${colors.grey};
   border-radius: 6px;
   background-color: ${colors.white};
   user-select: none;
   color: ${colors.dimBlack};
-  ${({ isOpen }) => (isOpen ? "max-height: 80vh; overflow-y: scroll;" : "overflow: hidden;")}
+  overflow-x: hidden;
+  ${({ showScrollbar }) =>
+    showScrollbar
+      ? ` max-height: 80vh; overflow-y: scroll;
+          ::-webkit-scrollbar {
+              width: 3px;
+          }
+
+          ::-webkit-scrollbar-thumb {
+              background-color: rgb(150, 150, 150);
+              border-radius: 2px;
+          }
+
+          ::-webkit-scrollbar-track {
+              background: transparent;
+          }`
+      : "overflow: hidden;"}
 `;
 
 const AccordionTitle = styled.div<{ isCollapsed: boolean }>`
@@ -179,6 +196,7 @@ const DatasetSelector = ({
   datasets,
   translatedHeader,
   selectMode,
+  isTakingScreenshot,
   setSelectMode,
 }: Props) => {
   const [openSection, setOpenSection] = useState<string>("");
@@ -215,7 +233,7 @@ const DatasetSelector = ({
 
   const renderContent = () => {
     return (
-      <AccordionWrapper isOpen={selectMode}>
+      <AccordionWrapper showScrollbar={selectMode && !isTakingScreenshot}>
         <MainTitle onClick={toggleAllSections}>
           <Title animate={animateAccordionTitle}>
             {translatedHeader?.selectMap || "Select a map"}
