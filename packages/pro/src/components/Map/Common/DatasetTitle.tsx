@@ -107,9 +107,10 @@ const DatasetTitle = ({ dataset, section, children, onToggle }: Props): JSX.Elem
       });
       const climateDatasetNames: string[] = [];
       uniquePfDatasetIds.forEach((pfDatasetId) => {
-        climateDatasetNames.push(
-          climateData.find((dataset) => dataset.dataset.id === pfDatasetId)!.name,
-        );
+        const rawDataset = climateData.find((dataset) => dataset.dataset.id === pfDatasetId);
+        if (rawDataset) {
+          climateDatasetNames.push(rawDataset.name);
+        }
       });
       if (climateDatasetNames.length === 0) {
         if (section === "filters") {

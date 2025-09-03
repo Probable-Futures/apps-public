@@ -27,15 +27,14 @@ const fadeInAnimation = keyframes`
   }
 `;
 
-const AccordionWrapper = styled.div`
+const AccordionWrapper = styled.div<{ isOpen: boolean }>`
   width: 220px;
   border: 1px solid ${colors.grey};
   border-radius: 6px;
   background-color: ${colors.white};
-  max-height: 80vh;
-  overflow-y: scroll;
   user-select: none;
   color: ${colors.dimBlack};
+  ${({ isOpen }) => (isOpen ? "max-height: 80vh; overflow-y: scroll;" : "overflow: hidden;")}
 `;
 
 const AccordionTitle = styled.div<{ isCollapsed: boolean }>`
@@ -216,7 +215,7 @@ const DatasetSelector = ({
 
   const renderContent = () => {
     return (
-      <AccordionWrapper>
+      <AccordionWrapper isOpen={selectMode}>
         <MainTitle onClick={toggleAllSections}>
           <Title animate={animateAccordionTitle}>
             {translatedHeader?.selectMap || "Select a map"}
