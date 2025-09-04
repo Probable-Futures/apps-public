@@ -1,4 +1,4 @@
-FROM node:18.19.0-bullseye-slim 
+FROM node:20.19.5-bullseye-slim
 
 ARG YARN_VERSION="1.22.5"
 ENV YARN_VERSION $YARN_VERSION

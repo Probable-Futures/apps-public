@@ -44,7 +44,7 @@
     "release-it": "^17.0.3"
   },
   "volta": {
-    "node": "18.19.0",
+    "node": "20.16.0",
     "yarn": "1.22.5"
   },
   "workspaces": {

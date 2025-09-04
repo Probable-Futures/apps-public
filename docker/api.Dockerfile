@@ -1,6 +1,6 @@
 ARG BASE_IMAGE=base
 
-FROM node:18.19.0-bullseye-slim AS base
+FROM node:20.19.5-bullseye-slim AS base
 
 ARG BASE_IMAGE
 ARG NODE_ENV=production
