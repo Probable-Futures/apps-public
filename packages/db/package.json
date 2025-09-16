@@ -12,6 +12,6 @@
   "dependencies": {
     "dotenv": "^10.0.0",
     "graphile-migrate": "^1.4.1",
-    "graphile-worker": "0.16.2"
+    "graphile-worker": "^0.16.6"
   }
 }
