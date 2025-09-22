@@ -39,9 +39,9 @@
   },
   "devDependencies": {
     "@arkweid/lefthook": "^0.7.5",
-    "lerna": "^8.2.3",
+    "lerna": "^8.2.4",
     "prettier": "^2.2.1",
-    "release-it": "^17.0.3"
+    "release-it": "^19.0.4"
   },
   "volta": {
     "node": "20.16.0",
@@ -70,7 +70,8 @@
     "**/maps/react-scripts/jest/**/ws": "7.5.10",
     "**/api/postgraphile/**/ws": "7.5.10",
     "**/api/@uppy/companion/ws": "8.17.1",
-    "**/maps/react-scripts/webpack-dev-server/ws": "8.17.1"
+    "**/maps/react-scripts/webpack-dev-server/ws": "8.17.1",
+    "@types/express-serve-static-core": "5.0.0"
   },
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }

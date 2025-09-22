@@ -13,11 +13,13 @@ const loggerOpts: LoggerOptions = {
 export const logger = pino(loggerOpts);
 
 let httpLoggerOpts: HttpLoggerOptions = {
-  ...loggerOpts,
+  level: LOG_LEVEL,
 };
 
 const autoLoggingOpts: AutoLoggingOptions = {
-  ignorePaths: [apiRoutes.healthCheck],
+  ignore: (req) => {
+    return !!req.url?.includes(apiRoutes.healthCheck);
+  },
 };
 
 if (isProd) {

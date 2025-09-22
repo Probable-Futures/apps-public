@@ -1,7 +1,11 @@
 {
   "extends": "@probable-futures/tsconfig/browser.json",
   "compilerOptions": {
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"]
 }

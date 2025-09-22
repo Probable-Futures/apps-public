@@ -1,4 +1,4 @@
-import { UppyFile } from "@uppy/core";
+import { Meta, UppyFile } from "@uppy/core";
 
 import { Geodata } from "../components/Dashboard/Project/MergeData";
 import { requiredCsvHeaders } from "../consts/file";
@@ -44,7 +44,9 @@ export const parseCsvRows = (data: Blob | File, chunkSize: number): Promise<stri
   });
 };
 
-export const getGeodataType = async (file: UppyFile): Promise<Geodata | undefined> => {
+export const getGeodataType = async (
+  file: UppyFile<Meta, Record<string, never>>,
+): Promise<Geodata | undefined> => {
   const headers = await parseCsvRows(file.data, 2048);
   // replace all occurences of a new line or non alpha-numeric characters with an empty space
   const parsedCSVHeaders = headers.map((h) =>

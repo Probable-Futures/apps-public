@@ -122,7 +122,7 @@ const UserDatasets = () => {
 
   const uploadFiles = () => {
     if (uppyRef.current && uppyRef.current.getFiles().length > 0) {
-      uppyRef.current?.upload().then((res) => {});
+      uppyRef.current?.upload();
     }
   };
 

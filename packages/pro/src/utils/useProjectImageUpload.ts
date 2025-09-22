@@ -3,9 +3,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { startExportingImage, cleanupExportImage, setExportImageSetting } from "kepler.gl/actions";
 // @ts-ignore
 import { dataURItoBlob } from "kepler.gl";
-import Uppy, { UppyFile, UppyOptions, SuccessResponse } from "@uppy/core";
+import Uppy, { Meta, UppyFile, UppyOptions } from "@uppy/core";
 import { useAuth0 } from "@auth0/auth0-react";
-import AwsS3Multipart from "@uppy/aws-s3-multipart";
+import AwsS3Multipart from "@uppy/aws-s3";
 
 import { MAP_ID } from "../consts/MapConsts";
 import useProjectUpdate from "./useProjectUpdate";
@@ -46,10 +46,19 @@ const useProjectImageUpload = () => {
   useEffect(() => {
     if (imageDataUri && projectId && exportingImage) {
       async function initUppy() {
-        const uppyOptions: UppyOptions = {
+        const uppyOptions: UppyOptions<Record<string, unknown>, any> = {
           id: "uppy-image-upload",
           autoProceed: false,
           allowMultipleUploads: false,
+          restrictions: {
+            maxFileSize: null,
+            minFileSize: null,
+            maxTotalFileSize: null,
+            maxNumberOfFiles: null,
+            minNumberOfFiles: null,
+            allowedFileTypes: null,
+            requiredMetaFields: [],
+          },
         };
         const companionUrl = `${env.PF_API}/upload`;
         let token = "";
@@ -67,7 +76,7 @@ const useProjectImageUpload = () => {
         if (!uppy.current) {
           uppy.current = new Uppy(uppyOptions).use(AwsS3Multipart, {
             id: "pf-uppy-s3-multipart",
-            companionUrl,
+            endpoint: companionUrl,
             ...AuthHeader,
           });
         }
@@ -97,12 +106,12 @@ const useProjectImageUpload = () => {
 
   useEffect(() => {
     return () => {
-      uppy.current?.close();
+      uppy.current?.destroy();
     };
   }, []);
 
   const onUploadSuccess = useCallback(
-    async (_file: UppyFile | undefined, response: SuccessResponse) => {
+    async (_file: UppyFile<Meta, Record<string, never>> | undefined, response: any) => {
       if (response.uploadURL) {
         updateProject({ imageUrl: response.uploadURL });
       }

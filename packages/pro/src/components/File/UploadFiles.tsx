@@ -1,16 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import Uppy, { UppyFile, UppyOptions, SuccessResponse } from "@uppy/core";
+import Uppy, { UppyFile, UppyOptions, Meta } from "@uppy/core";
 import { Dashboard } from "@uppy/react";
 
-import "@uppy/core/dist/style.css";
+import "@uppy/core/css/style.css";
 import "@uppy/progress-bar/dist/style.css";
-import "@uppy/dashboard/dist/style.css";
+import "@uppy/dashboard/css/style.css";
 import "@uppy/file-input/dist/style.css";
-import "@uppy/status-bar/dist/style.css";
-import "@uppy/drag-drop/dist/style.css";
+import "@uppy/status-bar/css/style.css";
+import "@uppy/drag-drop/css/style.css";
 
 import styled, { css } from "styled-components";
-import AwsS3Multipart from "@uppy/aws-s3-multipart";
+import AwsS3 from "@uppy/aws-s3";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import * as env from "../../consts/env";
@@ -31,8 +31,8 @@ type Props = {
   onUploadError?: () => void;
   onUploadFinish: (datasetUploadResponse: UploadResponse) => void;
   setUppyRef?: (arg: any) => void;
-  onFileAdded?: (file: UppyFile) => void;
-  onFileRemoved?: (file: UppyFile) => void;
+  onFileAdded?: (file: UppyFile<Meta, Record<string, never>>) => void;
+  onFileRemoved?: (file: UppyFile<Meta, Record<string, never>>) => void;
   geodataType?: Geodata;
   process?: boolean;
 };
@@ -273,7 +273,7 @@ const UploadFiles = ({
   });
 
   const onUploadSuccess = useCallback(
-    async (file: UppyFile | undefined, response: SuccessResponse) => {
+    async (file?: UppyFile<Meta, Record<string, never>>, response?: any) => {
       if (!file) {
         return;
       }
@@ -283,7 +283,7 @@ const UploadFiles = ({
           description: (file.meta as typeof file.meta & { description: string }).description || "",
         },
       });
-      if (partnerDataset.data && response.uploadURL) {
+      if (partnerDataset.data && response?.uploadURL) {
         startUploadProcess(
           response.uploadURL,
           partnerDataset.data.createPartnerDataset.pfPartnerDataset.id,
@@ -296,15 +296,23 @@ const UploadFiles = ({
 
   useEffect(() => {
     return () => {
-      uppy.current?.close();
+      uppy.current?.destroy();
     };
   }, []);
 
   useEffect(() => {
     async function initUppy() {
-      const uppyOptions: UppyOptions = {
+      const uppyOptions: UppyOptions<Record<string, unknown>, any> = {
         id: "uppy",
-        restrictions: { allowedFileTypes: [".csv", ".json", ".geojson"], maxFileSize },
+        restrictions: {
+          allowedFileTypes: [".csv", ".json", ".geojson"],
+          maxFileSize,
+          minFileSize: null,
+          maxTotalFileSize: null,
+          maxNumberOfFiles: null,
+          minNumberOfFiles: null,
+          requiredMetaFields: [],
+        },
         autoProceed: false,
         allowMultipleUploadBatches: false,
         debug: !env.isProd,
@@ -319,18 +327,16 @@ const UploadFiles = ({
         }
         throw e;
       }
-      const AuthHeader = {
-        companionHeaders: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-      };
 
       if (!uppy.current) {
-        uppy.current = new Uppy(uppyOptions).use(AwsS3Multipart, {
+        uppy.current = new Uppy(uppyOptions).use(AwsS3, {
           id: "pf-uppy-s3-multipart",
           limit: 4,
-          companionUrl,
-          ...AuthHeader,
+          shouldUseMultipart: true,
+          endpoint: companionUrl,
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
         });
       }
       if (setUppyRef) {
@@ -368,7 +374,7 @@ const UploadFiles = ({
     }
   });
 
-  uppy.current.on("file-added", (file: UppyFile) => {
+  uppy.current.on("file-added", (file) => {
     const filesCount = uppy.current?.getFiles().length;
     setShowUploadIcon(filesCount === 0); // hide icon and text when new files are added
     setErrorMessage("");
@@ -377,7 +383,7 @@ const UploadFiles = ({
     }
   });
 
-  uppy.current.on("file-removed", (file: UppyFile) => {
+  uppy.current.on("file-removed", (file) => {
     const filesCount = uppy.current?.getFiles().length;
     setShowUploadIcon(filesCount === 0); // hide icon and text when new files are added
     setErrorMessage("");
@@ -393,7 +399,7 @@ const UploadFiles = ({
         <Dashboard
           height={270}
           uppy={uppy.current}
-          showProgressDetails={true}
+          hideProgressDetails={false}
           note={note}
           proudlyDisplayPoweredByUppy={false}
           metaFields={metaFields}

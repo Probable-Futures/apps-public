@@ -1,4 +1,4 @@
-import { Express } from "express";
+import { Express, RequestHandler } from "express";
 import ConnectPgSimple from "connect-pg-simple";
 import ConnectRedis from "connect-redis";
 import * as redis from "redis";
@@ -50,5 +50,5 @@ export default (app: Express) => {
     secret: SESSION_SECRET,
   });
 
-  app.use(sessionMiddleware);
+  app.use(sessionMiddleware as RequestHandler);
 };

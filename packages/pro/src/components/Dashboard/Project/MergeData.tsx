@@ -2,7 +2,7 @@ import React, { useCallback, useRef, useState } from "react";
 import { useQuery, useMutation, useApolloClient } from "@apollo/client";
 import styled from "styled-components";
 import Modal from "react-modal";
-import Uppy, { UppyFile } from "@uppy/core";
+import Uppy, { Meta, UppyFile } from "@uppy/core";
 
 import { Button, ModalClose, ModalHeader, ModalTitle, StyledCloseIcon } from "../../Common";
 import CloseIcon from "../../../assets/icons/dashboard/close.svg";
@@ -206,7 +206,7 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
   }, [createProject, projectName, projectId, imageUrl, mapConfig]);
 
   const onFileAdded = useCallback(
-    async (file: UppyFile) => {
+    async (file: UppyFile<Meta, Record<string, never>>) => {
       if (file.extension === "csv") {
         const geodata = await getGeodataType(file);
         setGeodataType(geodata);
@@ -272,14 +272,14 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
       time: 0,
     };
     if (uppyFiles && uppyFiles.length > 0) {
-      const totalSizeInBytes = uppyFiles.reduce((count, file) => count + file.size, 0);
+      const totalSizeInBytes = uppyFiles.reduce((count, file) => count + (file.size || 0), 0);
       // Convert total size to MB as we assume every 1 MB will take 0.9 mins
       // set a minimum of 0.5 min no matter how small the file since it is going through the process
       loaderProcessingInfo.time = Math.max((totalSizeInBytes / (1024 * 1024)) * 0.9, 0.5);
       loaderProcessingInfo.text = `Your file
         ${uppyFiles.length > 1 ? "s are " : " is "}
-        ${bytesToString(totalSizeInBytes)}. It will take 
-        ${Math.round(loaderProcessingInfo.time)} minute(s) to process. 
+        ${bytesToString(totalSizeInBytes)}. It will take
+        ${Math.round(loaderProcessingInfo.time)} minute(s) to process.
         Please keep the tab open. Closing the tab will stop the processing.`;
     }
     return loaderProcessingInfo;
@@ -327,7 +327,7 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
           if (uppyFiles.some((f) => f.isPaused && f.progress?.uploadStarted)) {
             uppyRef.current?.resumeAll();
           } else {
-            uppyRef.current?.upload().then(() => {});
+            uppyRef.current?.upload();
           }
           if (
             geodataType === "cityCountry" ||

@@ -65,6 +65,7 @@ export default (app: Express) => {
     customScopeKey: "permissions",
     failWithError: true,
     customUserKey: "auth",
+    checkAllScopes: false,
   }) as ConditionalHandler;
 
   authZ.unless = unless;
@@ -78,7 +79,8 @@ export default (app: Express) => {
 
   const checkAuthHeaders = (req: Request, res: Response, next: NextFunction) => {
     if (useApiKeyAuth(req) && useJWTAuth(req)) {
-      return res.sendStatus(401);
+      res.sendStatus(401);
+      return;
     }
     next();
   };

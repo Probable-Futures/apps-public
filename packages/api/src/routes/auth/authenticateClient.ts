@@ -10,7 +10,8 @@ export default function authenticateClient(
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Basic ")) {
-    return res.status(401).send("Unauthorized");
+    res.status(401).send("Unauthorized");
+    return;
   }
 
   const base64Credentials = authHeader.split(" ")[1];
@@ -18,7 +19,8 @@ export default function authenticateClient(
   const [clientID, clientSecret] = credentials.split(":");
 
   if (!clientID || !clientSecret) {
-    return res.status(401).send("Unauthorized");
+    res.status(401).send("Unauthorized");
+    return;
   }
 
   req.clientId = clientID;
