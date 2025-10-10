@@ -9,11 +9,13 @@ import { useMediaQuery } from "react-responsive";
 
 type DesktopContainerProps = {
   activeSidePanel: boolean;
+  isSharedProject: boolean;
 };
 
 const DesktopContainer = styled.div`
   ${({ activeSidePanel }: DesktopContainerProps) => !activeSidePanel && "transition: left 250ms;"}
-  left: ${({ activeSidePanel }: DesktopContainerProps) => (activeSidePanel ? "340px" : "75px")};
+  left: ${({ activeSidePanel, isSharedProject }: DesktopContainerProps) =>
+    isSharedProject ? "10px" : activeSidePanel ? "340px" : "75px"};
   display: block;
   position: absolute;
   top: 10px;
@@ -44,7 +46,13 @@ const MobileContainer = styled.div`
   margin-left: 40px;
 `;
 
-const MapSelection = ({ activeSidePanel }: { activeSidePanel: boolean }) => {
+const MapSelection = ({
+  activeSidePanel,
+  isSharedProject,
+}: {
+  activeSidePanel: boolean;
+  isSharedProject: boolean;
+}) => {
   const { selectedClimateData, climateData } = useMapData();
   const [showAllMapsModal, setShowAllMapsModal] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -78,7 +86,11 @@ const MapSelection = ({ activeSidePanel }: { activeSidePanel: boolean }) => {
             />
           </MobileContainer>
         ) : (
-          <DesktopContainer activeSidePanel={activeSidePanel} ref={ref}>
+          <DesktopContainer
+            activeSidePanel={activeSidePanel}
+            isSharedProject={isSharedProject}
+            ref={ref}
+          >
             <components.DatasetSelector
               value={{
                 value: selectedClimateData?.slug || "",

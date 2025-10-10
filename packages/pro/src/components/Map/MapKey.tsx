@@ -8,6 +8,7 @@ import { consts, types } from "@probable-futures/lib";
 
 type Props = {
   activeSidePanel: boolean;
+  isSharedProject: boolean;
   slugId: string;
   tempUnit: string;
   bins?: number[];
@@ -18,6 +19,7 @@ type Props = {
 
 type MapKeyWrapperProps = {
   activeSidePanel: boolean;
+  isSharedProject: boolean;
 };
 
 const MapKeyWrapper = styled.div<MapKeyWrapperProps>`
@@ -37,7 +39,8 @@ const MapKeyWrapper = styled.div<MapKeyWrapperProps>`
   }
 
   @media (min-width: ${size.laptop}) {
-    left: ${({ activeSidePanel }: MapKeyWrapperProps) => (activeSidePanel ? "340px" : "75px")};
+    left: ${({ activeSidePanel, isSharedProject }: MapKeyWrapperProps) =>
+      isSharedProject ? "10px" : activeSidePanel ? "340px" : "75px"};
     top: unset;
     right: unset;
     bottom: 36px;
@@ -109,6 +112,7 @@ const MapKeyWrapper = styled.div<MapKeyWrapperProps>`
 
 const MapKey = ({
   activeSidePanel,
+  isSharedProject,
   slugId,
   bins,
   tempUnit,
@@ -123,7 +127,7 @@ const MapKey = ({
   }
 
   return (
-    <MapKeyWrapper activeSidePanel={activeSidePanel}>
+    <MapKeyWrapper activeSidePanel={activeSidePanel} isSharedProject={isSharedProject}>
       {datasetDescriptionResponse && (
         <components.MapKey
           stops={bins}

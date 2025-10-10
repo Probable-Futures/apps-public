@@ -48,7 +48,7 @@ const customCss = `
   .map-control {
     display: none!important;
   }
-  
+
   .map-popover {
     box-sizing: border-box;
     border: 1px solid #39273b;
@@ -56,35 +56,35 @@ const customCss = `
     box-shadow: 0 3px 5px 0 rgba(56, 22, 63, 0.23);
     overflow-x: hidden;
   }
-  
+
   .map-popover .map-popover__layer-name,
   .map-popover .popover-arrow-left,
   .map-popover .popover-pin {
     display: none !important;
   }
-  
+
   .map-popover .row__value {
     color: ${colors.black} !important;
     font-size: 13px;
     text-align: left !important;
     word-break: break-all;
   }
-  
+
   .map-popover .row__name {
     font-weight: 600 !important;
     font-size: 13px;
     color: ${colors.black} !important;
     word-break: break-all;
   }
-  
+
   .map-popover .row__name:after {
     content: ":";
   }
-  
+
   .map-popover .coordingate-hover-info {
     display: none !important;
   }
-  
+
   .map-popover .map-popover__layer-info,
   .map-popover .map-popover__layer-info > table {
     margin-top: 0;
@@ -173,10 +173,10 @@ const useExportMapAsHTML = ({
       dataset: selectedClimateData,
       datasetDescriptionResponse,
     };
-    const fileBlob = new Blob([exportMapToHTML(data)], { type: "text/html" });
+    const fileBlob = new Blob([exportMapToHTML(data)], { type: "text/html;charset=utf-8" });
     downloadFile(
       fileBlob,
-      `${projectName} - ${selectedClimateData?.name} at ${mapStyleConfigs.degrees}°C`,
+      `${projectName} - ${selectedClimateData?.name} at ${mapStyleConfigs.degrees}°C.html`,
     );
   };
 

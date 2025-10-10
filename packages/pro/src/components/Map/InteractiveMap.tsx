@@ -6,7 +6,7 @@ import { mapStyleChange, updateMap, toggleModal, fitBounds } from "kepler.gl/act
 //@ts-ignore
 import { EXPORT_IMAGE_ID } from "kepler.gl";
 import { useLocation } from "react-router-dom";
-import { utils, consts, HEADER_HEIGHT } from "@probable-futures/lib";
+import { utils, consts } from "@probable-futures/lib";
 import { components, contexts } from "@probable-futures/components-lib";
 import { Helmet } from "react-helmet";
 import { Feature } from "@probable-futures/components-lib/src/hooks/useGeocoder";
@@ -65,12 +65,13 @@ const Container = styled.div`
 `;
 
 const SharedProjectHeader = styled.div`
-  border: 1px solid ${colors.darkPurple};
+  border: 1px solid rgb(182, 180, 183);
   background-color: ${colors.white};
   padding: 15px 10px;
   position: fixed;
-  top: calc(${HEADER_HEIGHT} + 20px);
-  left: 20px;
+  top: 10px;
+  left: 270px;
+  border-radius: 6px;
 `;
 
 const SharedProjectTitle = styled.div`
@@ -79,7 +80,7 @@ const SharedProjectTitle = styled.div`
   letter-spacing: 0.8px;
   line-height: 11px;
   text-transform: uppercase;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 `;
 
 const SharedProjectDescription = styled.p`
@@ -223,7 +224,9 @@ const InteractiveMap = (props: PropsFromRedux) => {
     clickedMapInfo: project?.clickedMapInfo,
     dispatch: dispatch,
   });
+
   const activeSidePanel = !!keplerGl[MAP_ID]?.uiState?.activeSidePanel;
+  const isSharedProject = !!project.slugId;
 
   const { onExportClick } = useExportMapAsHTML({
     selectedClimateData,
@@ -504,7 +507,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
       {renderHelmetComponent()}
       <Container>
         <components.Loader show={isMapOrDataLoading} />
-        <MapSelection activeSidePanel={activeSidePanel} />
+        <MapSelection activeSidePanel={activeSidePanel} isSharedProject={isSharedProject} />
         {selectedClimateData && (
           <contexts.ThemeProvider theme="light">
             {isTablet ? (
