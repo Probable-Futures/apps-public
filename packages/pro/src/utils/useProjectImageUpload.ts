@@ -5,7 +5,7 @@ import { startExportingImage, cleanupExportImage, setExportImageSetting } from "
 import { dataURItoBlob } from "kepler.gl";
 import Uppy, { Meta, UppyFile, UppyOptions } from "@uppy/core";
 import { useAuth0 } from "@auth0/auth0-react";
-import AwsS3Multipart from "@uppy/aws-s3";
+import AwsS3 from "@uppy/aws-s3";
 
 import { MAP_ID } from "../consts/MapConsts";
 import useProjectUpdate from "./useProjectUpdate";
@@ -39,7 +39,7 @@ const useProjectImageUpload = () => {
     };
     setTimeout(() => {
       startExporting();
-    }, 5000);
+    }, 10000);
   }, [dispatch, setExportingImage]);
 
   const imageDataUri = keplerGl[MAP_ID]?.uiState?.exportImage?.imageDataUri;
@@ -67,17 +67,16 @@ const useProjectImageUpload = () => {
         } catch (e) {
           throw e;
         }
-        const AuthHeader = {
-          companionHeaders: {
-            Authorization: token ? `Bearer ${token}` : "",
-          },
-        };
 
         if (!uppy.current) {
-          uppy.current = new Uppy(uppyOptions).use(AwsS3Multipart, {
+          uppy.current = new Uppy(uppyOptions).use(AwsS3, {
             id: "pf-uppy-s3-multipart",
             endpoint: companionUrl,
-            ...AuthHeader,
+            limit: 4,
+            shouldUseMultipart: true,
+            headers: {
+              Authorization: token ? `Bearer ${token}` : "",
+            },
           });
         }
         if (uppy.current) {

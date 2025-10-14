@@ -27,10 +27,18 @@ const protocol = rootUrl.protocol.replace(":", "");
 // 1GB
 const maxFileSize = 1 * 1024 * 1024 * 1024;
 
-function getKey(_req: Express.Request, filename: string, _metadata: any): string {
-  const uploadDir = isLocal && isDev ? "local-development/" : "";
-  if (_metadata && _metadata.source === "project-image-upload") {
-    return `${uploadDir}images/${filename}.png`;
+function getKey({
+  req: _req,
+  filename,
+  metadata,
+}: {
+  req: Express.Request;
+  filename: string;
+  metadata: any;
+}): string {
+  const uploadDir = isLocal && isDev ? "local-development" : "";
+  if (metadata && metadata.source === "project-image-upload") {
+    return `${uploadDir}/images/${filename}.png`;
   } else {
     const randomId = uuid();
     return `${uploadDir}uploads/${randomId}-${filename}`;
