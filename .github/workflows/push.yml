@@ -17,15 +17,37 @@ jobs:
 
       - name: Free disk space
         run: |
+          echo "============================================"
+          echo "Disk space before cleanup:"
+          df -h
+          echo "============================================"
+
+          # Remove unnecessary tools and libraries
+          echo "Removing unnecessary tools..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+          # Remove swap
+          echo "Removing swap files..."
           sudo swapoff -a
           sudo rm -f /swapfile
-          sudo apt clean
-          if [ -n "$(docker image ls -aq)" ]; then
-            docker rmi $(docker image ls -aq)
-          else
-            echo "No Docker images to remove."
-          fi
+          sudo rm -f /mnt/swapfile
+
+          # Clean apt cache
+          echo "Cleaning apt cache..."
+          sudo apt-get clean
+
+          # Docker cleanup
+          echo "Cleaning Docker resources..."
+          docker system prune -a -f --volumes || echo "No Docker resources to clean"
+
+          echo "============================================"
+          echo "Disk space after cleanup:"
           df -h
+          echo "============================================"
 
       - name: Get changed files
         id: changedFiles
@@ -45,6 +67,7 @@ jobs:
 
       - run: |
           yarn install --frozen-lockfile
+          yarn cache clean
 
       - name: Set pulumi stack name based on branch
         uses: cobraz/setup-variables@v1
@@ -106,6 +129,15 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Clean up before API deployment
+        if: ${{github.event.inputs.deploy_api == 'true' || github.event.inputs.db_migration == 'true'}}
+        run: |
+          echo "Cleaning up disk space before API deployment..."
+          docker system prune -a -f --volumes
+          sudo apt-get clean
+          echo "Current disk space:"
+          df -h
+
       - name: Deploy API resources
         if: |
           contains(steps.changedFiles.outputs.all_modified_files, 'infra/apps/api/') ||
@@ -126,6 +158,7 @@ jobs:
           AWS_REGION: us-west-2
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          DOCKER_BUILDKIT: 1
 
       - name: Get current date/time
         if: contains(steps.changedFiles.outputs.all_modified_files, 'packages/db/migrations/committed/')
