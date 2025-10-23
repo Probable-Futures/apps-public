@@ -1,21 +1,13 @@
-import {
-  compose,
-  combineReducers,
-  createStore,
-  ThunkAction,
-  Action,
-  applyMiddleware,
-} from "@reduxjs/toolkit";
-// @ts-ignore
-import keplerGlReducer from "kepler.gl/reducers";
-// @ts-ignore
-import { enhanceReduxMiddleware } from "kepler.gl/middleware";
+import { compose, combineReducers, createStore, applyMiddleware } from "@reduxjs/toolkit";
+import keplerGlReducer, { KeplerGlState } from "@kepler.gl/reducers";
+import { enhanceReduxMiddleware } from "@kepler.gl/reducers";
 import { consts } from "@probable-futures/lib";
 
-import { MAP_ID } from "consts/MapConsts";
+import { MAP_ID } from "../consts/MapConsts";
 import { getDefaultInteraction } from "../utils";
 import interceptKeplerActionsMiddlware from "./interceptKeplerActionsMiddlware";
 import projectReducer, { ProjectState } from "./reducers/projectReducer";
+import { PROJECT_SHARE_ID_QUERY_PARAM } from "../consts/dashboardConsts";
 
 const defaultViewState = {
   longitude: 0,
@@ -26,6 +18,8 @@ const defaultViewState = {
 const keplerReducerInitialState = () => {
   const { zoom, longitude, latitude } =
     consts.getInitialMapViewState(window.location.hash.replace("#", "")) || defaultViewState;
+  const params = new URLSearchParams(window.location.search);
+  const slugId = params.get(PROJECT_SHARE_ID_QUERY_PARAM);
 
   return {
     mapState: {
@@ -38,6 +32,7 @@ const keplerReducerInitialState = () => {
     uiState: {
       // hide add data modal when kepler mounts.
       currentModal: null,
+      readOnly: !!slugId,
     },
     visState: {
       interactionConfig: { ...getDefaultInteraction() },
@@ -47,12 +42,11 @@ const keplerReducerInitialState = () => {
 
 type Reducer = {
   keplerGl: {
-    [MAP_ID]: any;
+    [MAP_ID]: KeplerGlState;
   };
   project: ProjectState;
 };
 
-// @ts-ignore
 const customizedKeplerGlReducer = keplerGlReducer.initialState(keplerReducerInitialState()).plugin({
   HIDE_SIDE_BAR: (state: any, action: any) => {
     return {
@@ -79,9 +73,3 @@ export const store = createStore(reducers, {}, composeEnhancers(...enhancers));
 
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;
-export type AppThunk<ReturnType = void> = ThunkAction<
-  ReturnType,
-  RootState,
-  unknown,
-  Action<string>
->;

@@ -3,11 +3,10 @@ import {
   LayerColorRangeSelector,
   LayerColorSelector,
   VisConfigSlider,
-  // @ts-ignore
-} from "kepler.gl/components";
+} from "@kepler.gl/components";
 import styled from "styled-components";
+import { Field } from "@kepler.gl/types";
 
-import { DatasetFields, Option } from "../../../../shared/types";
 import { Dropdown, MapStyleLabel, SideBarSubSection } from "../../../Common";
 import ItemSelector from "../../Common/ItemSelector";
 import {
@@ -17,22 +16,12 @@ import {
 } from "../../../../utils";
 import { colors } from "../../../../consts";
 import { Theme } from "../../../../shared/styles/styles";
-
-type Props = {
-  layer: any;
-  datasets: any;
-  layerTypeOptions: any;
-  openModal: Function;
-  updateLayerConfig: Function;
-  updateLayerType: Function;
-  updateLayerVisConfig: Function;
-  updateLayerVisualChannelConfig: Function;
-  updateLayerColorUI: Function;
-};
+import { LayerConfiguratorProps } from "../../KeplerCustomComponents/CustomLayerConfigurator";
 
 const ColorSelectorWrapper = styled.div`
   margin-top: 6px;
 `;
+
 const OpacitySliderWrapper = styled.div`
   margin-bottom: 24px;
   height: 70px;
@@ -52,7 +41,12 @@ const RenderingTitle = styled.div`
   padding-top: 12px;
 `;
 
-const getInitialColorField = (props: Props) =>
+type Option = {
+  value: string | null;
+  label: string;
+};
+
+const getInitialColorField = (props: LayerConfiguratorProps) =>
   props.layer.config.colorField
     ? `${props.layer.config.colorField.displayName} (${props.layer.config.colorField.type})`
     : "";
@@ -63,9 +57,9 @@ const layerTypes: Option[] = [
   { label: "Polygon", value: "geojson" },
 ];
 
-const LayerColor = (props: Props): JSX.Element => {
-  const [options, setOptions] = useState<DatasetFields[]>([]);
-  const [filteredOptions, setFilteredOptions] = useState<DatasetFields[]>([]);
+const LayerColor = (props: LayerConfiguratorProps): JSX.Element => {
+  const [options, setOptions] = useState<Field[]>([]);
+  const [filteredOptions, setFilteredOptions] = useState<Field[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedBaseColor, setSelectedBaseColor] = useState<string>(getInitialColorField(props));
   const [selectedLayerType, setSelectedLayerType] = useState<Option>({
@@ -114,7 +108,7 @@ const LayerColor = (props: Props): JSX.Element => {
     setShowDropdown(false);
   };
 
-  const onSelectItem = (item: DatasetFields | null) => {
+  const onSelectItem = (item: Field | null) => {
     layerChannelConfigProps.onChange(
       { [layer.visualChannels.color.field]: item },
       layer.visualChannels.color.key,
@@ -128,8 +122,10 @@ const LayerColor = (props: Props): JSX.Element => {
   };
 
   const updateLayerType = (option: Option) => {
-    setSelectedLayerType(option);
-    props.updateLayerType(option.value);
+    if (option.value) {
+      setSelectedLayerType(option);
+      props.updateLayerType(option.value);
+    }
   };
 
   return (

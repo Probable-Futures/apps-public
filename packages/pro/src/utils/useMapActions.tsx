@@ -4,14 +4,14 @@ import {
   layerVisualChannelConfigChange,
   layerConfigChange,
   updateMap,
-  // @ts-ignore
-} from "kepler.gl/actions";
+} from "@kepler.gl/actions";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { types, consts } from "@probable-futures/lib";
+import { consts, types } from "@probable-futures/lib";
 import debounce from "lodash.debounce";
+import { SavedCustomMapStyle } from "@kepler.gl/types";
+import { Layer } from "@kepler.gl/layers";
 
-import { SavedCustomMapStyle } from "../types/schemas/schema-manager";
 import { AppDispatch } from "../store/store";
 import { useMapData } from "../contexts/DataContext";
 import { hideSideBar } from "../store/actions";
@@ -43,17 +43,20 @@ const useMapActions = ({
   project: ProjectState;
   keplerGl: any;
 }) => {
-  const { selectedClimateData } = useMapData();
+  const { climateData, selectedClimateData } = useMapData();
   const { isAuthenticated, isLoading } = useAuth0();
   const navigate = useNavigate();
   const location = useLocation();
 
+  /**
+   * Set default color field for point layers to null and color to black
+   */
   const setDefaultColorField = useCallback(
-    (layers: any, datasetId?: string) => {
+    (layers: Layer[], datasetId?: string) => {
       if (layers && layers.length) {
-        layers.forEach((layer: any) => {
+        layers.forEach((layer) => {
           if (layer.type === "point" && layer.visualChannels && layer.visualChannels.color) {
-            if (datasetId ? layer.config?.dataId === datasetId : true) {
+            if (!datasetId || layer.config?.dataId === datasetId) {
               dispatch(
                 layerVisualChannelConfigChange(
                   layer,
@@ -72,15 +75,35 @@ const useMapActions = ({
 
   useEffect(() => {
     if (selectedClimateData) {
+      const mapStyleObject = buildMapStylesObject(selectedClimateData);
       dispatch(
         addDataToMap({
+          datasets: [],
           config: {
-            mapStyle: { mapStyles: buildMapStylesObject(selectedClimateData) },
+            mapStyle: { styleType: mapStyleObject[Object.keys(mapStyleObject)[0]].id },
           },
         }),
       );
     }
   }, [selectedClimateData, dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      addDataToMap({
+        config: {
+          mapStyle: {
+            mapStyles: climateData.reduce((prev, data) => {
+              return {
+                ...prev,
+                ...buildMapStylesObject(data),
+              };
+            }, {}),
+          },
+        },
+        datasets: [],
+      }),
+    );
+  }, [climateData, dispatch]);
 
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {

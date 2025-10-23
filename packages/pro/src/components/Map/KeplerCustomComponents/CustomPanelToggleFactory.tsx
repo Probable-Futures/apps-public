@@ -1,5 +1,8 @@
-import React, { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import styled from "styled-components";
+import { PanelTabFactory, PanelTabProps } from "@kepler.gl/components";
+import { PanelItem } from "@kepler.gl/components/dist/side-panel/panel-tab";
+import { ActionHandler, toggleSidePanel } from "@kepler.gl/actions";
 
 import FilterIcon from "../../../assets/icons/map/filter.svg";
 import MapStyleIcon from "../../../assets/icons/map/map-style.svg";
@@ -85,21 +88,19 @@ const getTabName = (id: string): string => {
   return name;
 };
 
+type PanelToggleProps = {
+  panels: PanelItem[];
+  activePanel: string | null;
+  togglePanel: ActionHandler<typeof toggleSidePanel>;
+};
+
 const CustomPanelTabFactory = () => {
-  const CloseButton = ({
-    panel,
-    isActive,
-    onClick,
-  }: {
-    panel: any;
-    isActive: any;
-    onClick: any;
-  }) => {
+  const CloseButton = ({ panel, isActive, onClick }: PanelTabProps) => {
     if (panel.id === "map") {
       return null;
     }
     return (
-      <StyledTab isActive={isActive} onClick={() => onClick(panel)}>
+      <StyledTab isActive={isActive} onClick={onClick}>
         <TabIcon icon={getTabIcon(panel.id)} />
         {getTabName(panel.id)}
       </StyledTab>
@@ -108,20 +109,12 @@ const CustomPanelTabFactory = () => {
   return CloseButton;
 };
 
-function CustomPanelToggleFactory(PanelTab: any) {
-  const PanelToggle = ({ activePanel, panels, togglePanel }: any) => {
-    const onClick = useCallback(
-      (panel: any) => {
-        const callback = panel.onClick || togglePanel;
-        callback(panel.id);
-      },
-      [togglePanel],
-    );
-
+function CustomPanelToggleFactory(PanelTab: ReturnType<typeof PanelTabFactory>) {
+  const PanelToggle = ({ activePanel, panels, togglePanel }: PanelToggleProps) => {
     const orderedPanels = useMemo(() => {
       const panelsCpy = [...panels];
-      const filterIdx = panelsCpy.findIndex((panel: any) => panel.id === "filter");
-      const mapIdx = panelsCpy.findIndex((panel: any) => panel.id === "map");
+      const filterIdx = panelsCpy.findIndex((panel) => panel.id === "filter");
+      const mapIdx = panelsCpy.findIndex((panel) => panel.id === "map");
 
       const temp = panelsCpy[filterIdx];
       panelsCpy[filterIdx] = panelsCpy[mapIdx];
@@ -132,12 +125,12 @@ function CustomPanelToggleFactory(PanelTab: any) {
 
     return (
       <StyledHeaderWrapper>
-        {orderedPanels.map((panel: any) => (
+        {orderedPanels.map((panel) => (
           <PanelTab
             key={panel.id}
             panel={panel}
             isActive={activePanel === panel.id}
-            onClick={() => onClick(panel)}
+            onClick={() => togglePanel(panel.id)}
           />
         ))}
       </StyledHeaderWrapper>

@@ -1,10 +1,18 @@
 import { useCallback, useMemo } from "react";
 import styled from "styled-components";
-// @ts-ignore
-import { SidePanelSection, Button, FilterManagerFactory } from "kepler.gl/components";
+import {
+  SidePanelSection,
+  Button,
+  FilterManagerFactory,
+  FilterPanelFactory,
+  FilterManagerProps,
+  DatasetSectionFactory,
+} from "@kepler.gl/components";
 import { styles } from "@probable-futures/components-lib";
-import SearchIcon from "@probable-futures/components-lib/src/assets/icons/search.svg";
-import { BinningType, MAP_VERSION_URL } from "@probable-futures/lib";
+import { MAP_VERSION_URL } from "@probable-futures/lib/src/consts";
+import { BinningType } from "@probable-futures/lib/src/utils";
+import { Filter } from "@kepler.gl/types";
+import { KeplerTable } from "@kepler.gl/table";
 
 import TrashIcon from "../../../assets/icons/map/trash.svg";
 import DatasetTitle from "../Common/DatasetTitle";
@@ -12,21 +20,13 @@ import { colors } from "../../../consts";
 import ThresholdFilter from "../Filter/ThresholdFilter";
 import { useMapData } from "../../../contexts/DataContext";
 import { PfProLogo } from "../../Common";
-import { Filter, Datasets, KeplerTable } from "../../../types/reducers/vis-state-updaters";
-import { Layer } from "../../../types/layers";
 import { getFilterName } from "../../../utils/useDatasetFilter";
 import { useAppSelector } from "../../../app/hooks";
 import useEnrich from "../../../utils/useEnrich";
 import ConfirmationModal from "../../Common/ConfirmationModal";
 import DatasetLoader from "../Common/DatasetLoader";
 import { DATA_VALUES, DEGREES } from "../../../consts/MapConsts";
-
-type Props = {
-  filters: Filter[];
-  datasets: Datasets;
-  layers: Layer[];
-  visStateActions: any;
-};
+import { TabTitle } from "../../../shared/styles/styles";
 
 const StyledFilterManagerContainer = styled.div`
   .side-panel-section-hidden {
@@ -47,214 +47,6 @@ const StyledFilterManagerContainer = styled.div`
     background-color: ${colors.darkPurpleBackground};
     border-left: none;
     height: 60px;
-  }
-
-  .typeahead {
-    border: 1px solid ${colors.darkGrey};
-    background-color: #130e13;
-    margin-top: -4px;
-  }
-
-  .typeahead__input_box {
-    background-color: transparent;
-    border: none;
-    padding: 0px;
-    margin: 8px;
-  }
-
-  .typeahead__input,
-  .chickleted-input,
-  .item-selector__dropdown {
-    border: 1px solid ${colors.darkGrey};
-    background-color: ${colors.secondaryBlack};
-    border-radius: 0px;
-    font-family: LinearSans;
-    font-size: 14px !important;
-    min-height: 36px;
-    color: ${colors.primaryWhite};
-
-    .item-selector__dropdown__value {
-      color: ${colors.primaryWhite};
-      font-family: LinearSans;
-      font-size: 14px !important;
-    }
-
-    &.active {
-      border: 1px solid ${colors.primaryWhite} !important;
-    }
-
-    ::placeholder {
-      color: ${colors.primaryWhite};
-      opacity: 1; /* Firefox */
-    }
-
-    span {
-      font-size: 12px;
-    }
-  }
-
-  .chickleted-input {
-    div {
-      background-color: #787279;
-      color: ${colors.primaryWhite};
-    }
-
-    .chickleted-input__placeholder {
-      visibility: hidden;
-
-      &:after {
-        color: ${colors.primaryWhite};
-        font-size: 14px;
-        font-family: LinearSans;
-        visibility: visible;
-        position: absolute;
-        top: 7px;
-        left: 12px;
-        content: "Select a field";
-        text-transform: initial;
-      }
-    }
-  }
-
-  .list-selector {
-    color: ${colors.primaryWhite};
-    background-color: #130e13;
-    border-top: none;
-
-    ::-webkit-scrollbar-track {
-      background: ${colors.secondaryBlack};
-    }
-
-    ::-webkit-scrollbar-thumb {
-      border: 1px solid ${colors.primaryWhite};
-      background-color: #d8d8d8;
-    }
-
-    ::-webkit-scrollbar {
-      width: 2px;
-      height: 2px;
-    }
-  }
-
-  .field-selector {
-    max-width: 92%;
-  }
-
-  .field-selector_list-item {
-    display: flex;
-    flex: 1;
-    justify-content: flex-end;
-    flex-direction: row-reverse;
-    color: ${colors.primaryWhite};
-    align-items: center;
-    font-family: LinearSans;
-    font-size: 12px;
-
-    div:first-child {
-      border: none;
-
-      div:first-child {
-        border: none;
-        background: transparent;
-        color: ${colors.primaryWhite};
-
-        ::before {
-          content: "(";
-        }
-
-        ::after {
-          content: ")";
-        }
-      }
-    }
-  }
-
-  .list__item__anchor {
-    color: ${colors.primaryWhite};
-    font-family: LinearSans;
-    font-size: 14px;
-  }
-
-  .filter-panel__content {
-    background-color: ${colors.darkPurpleBackground};
-    padding: 0px;
-  }
-
-  .filter-panel__filter {
-    padding: 0px 12px 12px 12px;
-
-    .side-panel-panel__label {
-      visibility: hidden;
-      position: relative;
-    }
-
-    .side-panel-panel__label:after {
-      color: ${colors.midGrey};
-      font-size: 14px;
-      font-family: LinearSans;
-      visibility: visible;
-      position: absolute;
-      top: 0;
-      left: 0;
-      content: "Selection(s)";
-      text-transform: initial;
-    }
-  }
-
-  .add-filter-button {
-    color: ${colors.primaryWhite};
-    font-family: LinearSans;
-    font-size: 14px;
-    letter-spacing: 0;
-    text-align: center;
-    background: transparent;
-    border: 1px solid white;
-    cursor: pointer;
-
-    .data-ex-icons-add {
-      display: none;
-    }
-
-    &:hover {
-      border: 1px solid ${colors.secondaryBlue};
-      color: ${colors.secondaryBlue};
-    }
-  }
-
-  .data-ex-icons-trash {
-    display: none;
-  }
-
-  .panel--header__action:hover {
-    &:after {
-      ${styles.blueFilter}
-      pointer-events: none;
-    }
-  }
-
-  .data-ex-icons-search {
-    visibility: hidden;
-    position: relative;
-  }
-
-  .typeahead__input_icon:after {
-    visibility: visible;
-    display: inline-block;
-    content: " ";
-    background-image: url(${SearchIcon});
-    background-repeat: no-repeat;
-    background-size: 100% auto;
-    background-position: center;
-    margin-right: 5px;
-    height: 14.98px;
-    width: 15px;
-    cursor: pointer;
-    margin-top: 3px;
-    ${styles.whiteFilter}
-
-    :hover {
-      opacity: 0.7;
-    }
   }
 
   .filter-panel {
@@ -280,34 +72,25 @@ const StyledFilterManagerContainer = styled.div`
     }
   }
 
-  .kg-range-slider {
-    &__bar {
-      background-color: ${colors.blue} !important;
-      height: 2px !important;
+  .add-filter-button {
+    color: ${colors.primaryWhite};
+    font-family: LinearSans;
+    font-size: 14px;
+    letter-spacing: 0;
+    text-align: center;
+    background: transparent;
+    border: 1px solid white;
+    cursor: pointer;
+    background-color: transparent !important;
+
+    .data-ex-icons-add {
+      display: none;
     }
 
-    &__handle {
-      border-radius: 50% !important;
-      width: 16px !important;
-      height: 16px !important;
-      margin-top: -6px !important;
-      background-color: ${colors.primaryWhite} !important;
-    }
-
-    &__input {
-      height: 36px !important;
-      width: auto !important;
-      max-width: 75px;
-      border: 1px solid ${colors.darkGrey} !important;
-      color: ${colors.primaryWhite} !important;
-      background-color: ${colors.secondaryBlack} !important;
-      font-family: LinearSans;
-      font-size: 14px;
-      caret-color: white;
-    }
-
-    &__plot {
-      margin-bottom: 5px;
+    &:hover {
+      border: 1px solid ${colors.secondaryBlue};
+      color: ${colors.secondaryBlue};
+      background-color: transparent;
     }
   }
 `;
@@ -382,19 +165,29 @@ const ButtonContainer = styled.div`
   gap: 10px;
 `;
 
-function CustomFilterManagerFactory(_: any, FilterPanel: any) {
+type DatasetFilters = {
+  filters: Filter[];
+  hasThresholdFilter: boolean;
+  originalThresholdFilterIdx: number;
+};
+type FiltersByDataset = {
+  [dataset_id: string]: DatasetFilters;
+};
+
+function CustomFilterManagerFactory(
+  _DatasetSection: ReturnType<typeof DatasetSectionFactory>,
+  FilterPanel: ReturnType<typeof FilterPanelFactory>,
+) {
   // the below function is copied from kepler.gl/src/components/side-panel/filter-manager.js with few updates
-  const CustomFilterManager = ({ filters = [], datasets, layers, visStateActions }: Props) => {
-    const {
-      addFilter,
-      enlargeFilter,
-      removeFilter,
-      setFilter,
-      toggleAnimation,
-      toggleFilterFeature,
-    } = visStateActions;
-    const isAnyFilterAnimating = filters.some((f: any) => f.isAnimating);
-    const hadEmptyFilter = filters.some((f: any) => !f.name);
+  const CustomFilterManager = ({
+    filters = [],
+    datasets,
+    layers,
+    visStateActions,
+  }: FilterManagerProps) => {
+    const { addFilter, removeFilter, setFilter, toggleFilterFeature } = visStateActions;
+    const isAnyFilterAnimating = filters.some((f) => f.isAnimating);
+    const hadEmptyFilter = filters.some((f) => !f.name);
     const hadDataset = Object.keys(datasets).length;
     const onClickAddFilter = useCallback(
       (datasetId: string) => {
@@ -418,13 +211,7 @@ function CustomFilterManagerFactory(_: any, FilterPanel: any) {
     const filteredProjectDatasets = useAppSelector(
       (state) => state.project.filteredProjectDatasets,
     );
-    const filtersByDataset = useMemo<{
-      [dataset_id: string]: {
-        filters: Filter[];
-        hasThresholdFilter: boolean;
-        originalThresholdFilterIdx: number;
-      };
-    }>(() => {
+    const filtersByDataset = useMemo<FiltersByDataset>(() => {
       if (!datasets) {
         return {};
       }
@@ -489,7 +276,7 @@ function CustomFilterManagerFactory(_: any, FilterPanel: any) {
     );
 
     const isEnrichmentOutdated = useCallback(
-      (index: number, dataset: any) => {
+      (index: number, dataset: DatasetFilters) => {
         return (
           !showLoading(index) &&
           dataset.hasThresholdFilter &&
@@ -500,7 +287,7 @@ function CustomFilterManagerFactory(_: any, FilterPanel: any) {
       [filteredProjectDatasets, selectedClimateData, showLoading],
     );
 
-    const renderEnrichOrReloadButton = (index: number, dataId: string, dataset: any) => {
+    const renderEnrichOrReloadButton = (index: number, dataId: string, dataset: DatasetFilters) => {
       if (!showReload(index) && !showLoading(index) && showEnrich(index)) {
         return (
           <Button
@@ -532,7 +319,7 @@ function CustomFilterManagerFactory(_: any, FilterPanel: any) {
     };
 
     // show this message if a new climate data version has been added, and the dataset was enriched before this addition.
-    const renderOutDatedEnrichmentText = (index: number, dataset: any) => {
+    const renderOutDatedEnrichmentText = (index: number, dataset: DatasetFilters) => {
       if (isEnrichmentOutdated(index, dataset)) {
         return (
           <EnrichmentOutdatedText>
@@ -550,6 +337,7 @@ function CustomFilterManagerFactory(_: any, FilterPanel: any) {
     return (
       <>
         <Container>
+          <TabTitle>Filters</TabTitle>
           {Object.keys(filtersByDataset).map((datasetId, index) => {
             const dataset = filtersByDataset[datasetId];
             return (
@@ -596,10 +384,11 @@ function CustomFilterManagerFactory(_: any, FilterPanel: any) {
                                 layers={layers}
                                 isAnyFilterAnimating={isAnyFilterAnimating}
                                 removeFilter={() => removeFilter(originalIdx)}
-                                enlargeFilter={() => enlargeFilter(originalIdx)}
-                                toggleAnimation={() => toggleAnimation(originalIdx)}
+                                enlargeFilter={() => {}}
+                                toggleAnimation={() => {}}
                                 toggleFilterFeature={() => toggleFilterFeature(originalIdx)}
                                 setFilter={setFilter}
+                                setFilterPlot={() => {}}
                               />
                               <StyledTrashIcon
                                 onClick={() => {

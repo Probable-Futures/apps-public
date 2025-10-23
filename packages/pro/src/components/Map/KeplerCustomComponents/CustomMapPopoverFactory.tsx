@@ -1,12 +1,18 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-// @ts-ignore
-import { MapPopoverFactory, LayerHoverInfoFactory, appInjector } from "kepler.gl/components";
+import {
+  MapPopoverFactory,
+  LayerHoverInfoFactory,
+  appInjector,
+  MapPopoverContentFactory,
+} from "@kepler.gl/components";
 import { consts } from "@probable-futures/lib";
+import { MapPopoverProps } from "@kepler.gl/components/dist/map/map-popover";
+import { LayerHoverProp } from "@kepler.gl/reducers";
 
 import { useMapData } from "../../../contexts/DataContext";
 import TooltipFeature from "../TooltipFeature";
-import { StyledDivider } from "../../Common";
+import { EmptyFactory } from "../../Common";
 import { getFeature } from "../../../utils/useFeaturePopup";
 import { useAppSelector } from "../../../app/hooks";
 
@@ -14,15 +20,10 @@ const LayerHoverInfoWrapper = styled.div`
   margin-bottom: 11.5px;
 `;
 
-const ClimateDataWrapper = styled.div`
-  .separator {
-    margin: 0px 0px 20px;
-  }
-`;
-
-const CustomCoordinateInfoFactory = () => {
-  const CustomCoordinateInfo = () => null;
-  return CustomCoordinateInfo;
+type MapPopoverContentProps = {
+  coordinate: [number, number] | boolean;
+  layerHoverProp: LayerHoverProp | null;
+  zoom: number;
 };
 
 const CustomLayerHoverInfoFactory = () => {
@@ -80,14 +81,11 @@ const CustomLayerHoverInfoFactory = () => {
           );
           return (
             feature && (
-              <ClimateDataWrapper>
-                <StyledDivider className="separator" />
-                <TooltipFeature
-                  feature={feature}
-                  dataset={selectedClimateData}
-                  degreesOfWarming={degrees}
-                />
-              </ClimateDataWrapper>
+              <TooltipFeature
+                feature={feature}
+                dataset={selectedClimateData}
+                degreesOfWarming={degrees}
+              />
             )
           );
         }
@@ -108,20 +106,35 @@ const CustomLayerHoverInfoFactory = () => {
   return CustomLayerHoverInfo;
 };
 
-function CustomMapPopoverFactory(...deps: any) {
-  const MapPopover = MapPopoverFactory(...deps);
-  const CustomMapPopover = (props: any) => {
-    // when a point is clicked froze the tooltip in the middle of the page to the right
-    const [x, y] = props.frozen
-      ? [window.innerWidth - 60, window.innerHeight / 2 - 160]
-      : [props.x, props.y];
+const CustomMapPopoverContentFactory = (...deps: Parameters<typeof MapPopoverContentFactory>) => {
+  const MapPopoverContent = MapPopoverContentFactory(...deps);
+
+  const CustomMapPopoverContent = (props: MapPopoverContentProps) => {
     const propsWithCoordinate = {
       ...props,
-      layerHoverProp: {
-        ...props.layerHoverProp,
-        coordinate: props.coordinate,
-        xy: [props.x, props.y],
-      },
+      layerHoverProp: props.layerHoverProp
+        ? {
+            ...props.layerHoverProp,
+            coordinate: props.coordinate,
+          }
+        : null,
+    };
+
+    return props.coordinate ? <MapPopoverContent {...propsWithCoordinate} /> : null;
+  };
+
+  return CustomMapPopoverContent;
+};
+
+CustomMapPopoverContentFactory.deps = [CustomLayerHoverInfoFactory, () => EmptyFactory()];
+
+function CustomMapPopoverFactory(...deps: Parameters<typeof MapPopoverFactory>) {
+  const MapPopover = MapPopoverFactory(...deps);
+  const CustomMapPopover = (props: MapPopoverProps) => {
+    // when a point is clicked froze the tooltip in the middle of the page to the right
+    const [x, y] = props.frozen ? [window.innerWidth + 10, 100] : [props.x, props.y];
+    const propsWithCoordinate = {
+      ...props,
       x,
       y,
     };
@@ -131,6 +144,6 @@ function CustomMapPopoverFactory(...deps: any) {
   return CustomMapPopover;
 }
 
-CustomMapPopoverFactory.deps = [CustomLayerHoverInfoFactory, CustomCoordinateInfoFactory];
+CustomMapPopoverFactory.deps = [CustomMapPopoverContentFactory];
 
 export default CustomMapPopoverFactory;

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { useLocation } from "react-router-dom";
 
-import { hideSideBar, SET_PF_DATASET_ID, SET_MAP_CONFIG } from "../store/actions";
+import { SET_PF_DATASET_ID, SET_MAP_CONFIG } from "../store/actions";
 import { PROJECT_SHARE_ID_QUERY_PARAM } from "../consts/dashboardConsts";
 import { GET_PARTNER_PROJECT_SHARE } from "../graphql/queries/projects";
 import { initialState } from "../store/reducers/projectReducer";
@@ -66,7 +66,6 @@ const useShareProjectApi = () => {
           slugId,
         },
       });
-      dispatch(hideSideBar());
     }
   }, [getPartnerProjectShare, location.search, dispatch]);
 

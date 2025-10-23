@@ -24,6 +24,10 @@ const DesktopContainer = styled.div`
   height: ${consts.HEADER_HEIGHT};
   box-sizing: content-box;
 
+  .pf-dataset-selector__wrapper {
+    overflow: hidden;
+  }
+
   button {
     font-family: LinearSans;
   }

@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-// @ts-ignore
-import { startExportingImage, cleanupExportImage, setExportImageSetting } from "kepler.gl/actions";
-// @ts-ignore
-import { dataURItoBlob } from "kepler.gl";
+import { startExportingImage, cleanupExportImage, setExportImageSetting } from "@kepler.gl/actions";
+import { dataURItoBlob } from "@kepler.gl/utils";
 import Uppy, { Meta, UppyFile, UppyOptions } from "@uppy/core";
 import { useAuth0 } from "@auth0/auth0-react";
 import AwsS3 from "@uppy/aws-s3";
@@ -29,8 +27,8 @@ const useProjectImageUpload = () => {
         setExportImageSetting({
           ratio: "SCREEN",
           resolution: "ONE_X",
-          mapW: 1400,
-          mapH: 990,
+          mapW: 1170,
+          mapH: 800,
           legend: true,
         }),
       );
@@ -87,7 +85,6 @@ const useProjectImageUpload = () => {
           dispatch(cleanupExportImage());
         }
         setUppyInitialized(true);
-        setExportingImage(false);
       }
       if (!uppy.current) {
         initUppy();
@@ -112,8 +109,11 @@ const useProjectImageUpload = () => {
   const onUploadSuccess = useCallback(
     async (_file: UppyFile<Meta, Record<string, never>> | undefined, response: any) => {
       if (response.uploadURL) {
-        updateProject({ imageUrl: response.uploadURL });
+        await updateProject({ imageUrl: response.uploadURL });
       }
+      setTimeout(() => {
+        setExportingImage(false);
+      });
     },
     [updateProject],
   );
@@ -131,7 +131,7 @@ const useProjectImageUpload = () => {
     dispatch(cleanupExportImage());
   });
 
-  return { exportImage };
+  return { exportImage, exportingImage };
 };
 
 export default useProjectImageUpload;

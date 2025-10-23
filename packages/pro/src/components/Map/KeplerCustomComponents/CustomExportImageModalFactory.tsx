@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
-// @ts-ignore
-import { EXPORT_IMG_RATIO_OPTIONS, EXPORT_IMG_RESOLUTION_OPTIONS } from "kepler.gl";
-// @ts-ignore
-import { StyledModalContent } from "kepler.gl/components";
+import { ExportImageModalProps } from "@kepler.gl/components/dist/modals/export-image-modal";
+import { EXPORT_IMG_RATIO_OPTIONS, EXPORT_IMG_RESOLUTION_OPTIONS } from "@kepler.gl/constants";
+import { StyledModalContent } from "@kepler.gl/components";
+import { ExportImage } from "@kepler.gl/types";
 import { injectIntl } from "react-intl";
 
 import { Dropdown } from "../../Common";
@@ -62,20 +62,18 @@ const CustomExportImageModalFactory = () => {
     exportImage,
     onUpdateImageSetting,
     cleanupExportImage,
-    intl,
-  }: any) => {
+  }: ExportImageModalProps) => {
     const { ratio, resolution } = exportImage;
 
     const [selectedResolution, setSelectedResolution] = useState<Option>({
       value: resolution,
-      label:
-        EXPORT_IMG_RESOLUTION_OPTIONS.find((resol: any) => resol.id === resolution)?.label || "",
+      label: EXPORT_IMG_RESOLUTION_OPTIONS.find((resol) => resol.id === resolution)?.label || "",
     });
     const [selectedRatio, setSelectedRatio] = useState<Option>({
       value: ratio,
       label:
         RatioMessage[
-          EXPORT_IMG_RATIO_OPTIONS.find((r: any) => r.id === ratio)?.id as keyof typeof RatioMessage
+          EXPORT_IMG_RATIO_OPTIONS.find((r) => r.id === ratio)?.id as keyof typeof RatioMessage
         ] || "",
     });
 
@@ -98,14 +96,15 @@ const CustomExportImageModalFactory = () => {
     const updateResolution = (option: Option) => {
       setSelectedResolution(option);
       const resolutionOption = EXPORT_IMG_RESOLUTION_OPTIONS.find(
-        (resol: any) => resol.id === option.value,
+        (resol) => resol.id === option.value,
       );
-      resolutionOption.available && onUpdateImageSetting({ resolution: option.value });
+      resolutionOption?.available &&
+        onUpdateImageSetting({ resolution: option.value as ExportImage["resolution"] });
     };
 
     const updateRation = (option: Option) => {
       setSelectedRatio(option);
-      onUpdateImageSetting({ ratio: option.value });
+      onUpdateImageSetting({ ratio: option.value as ExportImage["ratio"] });
     };
 
     return (
@@ -117,14 +116,12 @@ const CustomExportImageModalFactory = () => {
               <div className="image-option-section-title">Ratio of image</div>
               <div className="button-list" id="export-image-modal__option_ratio">
                 <Dropdown
-                  options={EXPORT_IMG_RATIO_OPTIONS.filter((op: any) => !op.hidden).map(
-                    (op: any) => {
-                      return {
-                        label: RatioMessage[op.id as keyof typeof RatioMessage],
-                        value: op.id,
-                      };
-                    },
-                  )}
+                  options={EXPORT_IMG_RATIO_OPTIONS.filter((op) => !op.hidden).map((op) => {
+                    return {
+                      label: RatioMessage[op.id as keyof typeof RatioMessage],
+                      value: op.id,
+                    };
+                  })}
                   value={selectedRatio}
                   onChange={updateRation}
                   theme={Theme.LIGHT}
@@ -135,7 +132,7 @@ const CustomExportImageModalFactory = () => {
               <div className="image-option-section-title">Resolution</div>
               <div className="button-list" id="export-image-modal__option_resolution">
                 <Dropdown
-                  options={EXPORT_IMG_RESOLUTION_OPTIONS.map((op: any) => ({
+                  options={EXPORT_IMG_RESOLUTION_OPTIONS.map((op) => ({
                     label: op.label,
                     value: op.id,
                   }))}

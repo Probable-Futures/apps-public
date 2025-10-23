@@ -2,32 +2,32 @@ import React, { useState, memo } from "react";
 import styled from "styled-components";
 import uniqBy from "lodash.uniqby";
 import { SortableHandle, SortableContainer, SortableElement } from "react-sortable-hoc";
+import { Field } from "@kepler.gl/types";
 
 import DotsIcon from "../../../../assets/icons/map/multi-dots.svg";
 import CloseIcon from "../../../../assets/icons/map/close.svg";
 import Accessor from "../../Common/Accessor";
 import { arrayMove, toArray } from "../../../../utils";
-import { DatasetFields } from "../../../../shared/types";
 import ItemSelector from "../../Common/ItemSelector";
 import { colors } from "../../../../consts";
 
 type Props = {
   getOptionValue: any;
   displayOption: any;
-  selectedItems: DatasetFields[];
-  options: DatasetFields[];
+  selectedItems: Field[];
+  options: Field[];
   onChange: any;
   multiSelect: any;
 };
 
 type SortableElementProps = {
-  item: DatasetFields;
-  onRemoveClick: (e: any, item: DatasetFields) => void;
+  item: Field;
+  onRemoveClick: (e: any, item: Field) => void;
 };
 
 type SortableContainerProps = {
-  items: DatasetFields[];
-  onRemoveClick: (e: any, item: DatasetFields) => void;
+  items: Field[];
+  onRemoveClick: (e: any, item: Field) => void;
 };
 
 const SelectedItem = styled.div`
@@ -145,7 +145,7 @@ const WrappedSortableContainer = SortableContainer<SortableContainerProps>(
 
 function TooltipItemSelector(props: Props): JSX.Element {
   const [showDropdown, setShowDropdown] = useState(false);
-  const [filteredOptions, setFilteredOptions] = useState<DatasetFields[]>(props.options);
+  const [filteredOptions, setFilteredOptions] = useState<Field[]>(props.options);
 
   const onShowDropdown = (show?: boolean) => {
     setFilteredOptions(props.options);
@@ -161,7 +161,7 @@ function TooltipItemSelector(props: Props): JSX.Element {
     setFilteredOptions(filteredData);
   };
 
-  const onRemoveItem = (e: any, item: DatasetFields) => {
+  const onRemoveItem = (e: any, item: Field) => {
     e.preventDefault();
     e.stopPropagation();
     const index = props.selectedItems.findIndex((t) => t === item);
@@ -178,7 +178,7 @@ function TooltipItemSelector(props: Props): JSX.Element {
     props.onChange(items);
   };
 
-  const onSelectItem = (item: DatasetFields | null) => {
+  const onSelectItem = (item: Field | null) => {
     const getValue = Accessor.generateOptionToStringFor(
       props.getOptionValue || props.displayOption,
     );

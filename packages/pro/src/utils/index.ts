@@ -1,3 +1,5 @@
+import { LayerConfiguratorProps } from "../components/Map/KeplerCustomComponents/CustomLayerConfigurator";
+
 export { parseCsvRows } from "./file";
 
 export function toArray(item: any) {
@@ -15,21 +17,21 @@ export function toArray(item: any) {
 export const getLayerFields = (datasets: any, layer: any) =>
   layer.config && datasets[layer.config.dataId] ? datasets[layer.config.dataId].fields : [];
 
-export const getVisConfiguratorProps = (props: any) => ({
+export const getVisConfiguratorProps = (props: LayerConfiguratorProps) => ({
   layer: props.layer,
   fields: getLayerFields(props.datasets, props.layer),
   onChange: props.updateLayerVisConfig,
   setColorUI: props.updateLayerColorUI,
 });
 
-export const getLayerConfiguratorProps = (props: any) => ({
+export const getLayerConfiguratorProps = (props: LayerConfiguratorProps) => ({
   layer: props.layer,
   fields: getLayerFields(props.datasets, props.layer),
   onChange: props.updateLayerConfig,
   setColorUI: props.updateLayerColorUI,
 });
 
-export const getLayerChannelConfigProps = (props: any) => ({
+export const getLayerChannelConfigProps = (props: LayerConfiguratorProps) => ({
   layer: props.layer,
   fields: getLayerFields(props.datasets, props.layer),
   onChange: props.updateLayerVisualChannelConfig,

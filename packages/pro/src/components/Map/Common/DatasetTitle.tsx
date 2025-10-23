@@ -76,7 +76,10 @@ const Container = styled.div`
   background-color: ${colors.secondaryBlack};
   z-index: 10;
   padding-bottom: 1px;
-  margin-top: 15px;
+
+  :not(:first-child) {
+    margin-top: 15px;
+  }
 `;
 
 const DatasetTitle = ({ dataset, section, children, onToggle }: Props): JSX.Element | null => {

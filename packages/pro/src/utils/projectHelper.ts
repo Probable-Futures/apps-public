@@ -1,11 +1,10 @@
 import { utils } from "@probable-futures/lib";
+import { SavedConfigV1, Viewport } from "@kepler.gl/types";
+import { ParsedLayer, ParsedConfig, TooltipField } from "@kepler.gl/types";
 
-import { ParsedConfig, ParsedLayer } from "../types/schemas/schema-manager";
-import { TooltipField } from "../types/reducers/vis-state-updaters";
 import { mapOldDataValuesToNewOnes, supportLayerTypes } from "../consts/MapConsts";
-import { AddDataToMapPayload } from "../types/actions";
 import { ProjectDatasetNode } from "../shared/types";
-import { PartnerDataset } from "./useProjectApi";
+import { AddDataToMapPayloadSimplified, PartnerDataset } from "./useProjectApi";
 
 export type PfMapConfig = {
   percentileValue: utils.BinningType;
@@ -21,7 +20,7 @@ export type KeplerConfig = {
 };
 
 export type MapConfig = {
-  keplerConfig?: KeplerConfig;
+  keplerConfig?: SavedConfigV1;
   pfMapConfig: PfMapConfig;
 };
 
@@ -39,7 +38,7 @@ export type UpdateProjectParams = {
     key: keyof PfMapConfig;
     value: utils.BinningType | number[] | number | boolean;
   };
-  keplerConfig?: KeplerConfig;
+  keplerConfig?: SavedConfigV1;
   pfDatasetId?: number;
   imageUrl?: string;
   erasePfMapConfig?: boolean;
@@ -51,14 +50,14 @@ export type ClickedMapInfo = {
   coordinate: number[];
   index: number;
   layer: any;
-  lngLat: number[];
   object: any;
   x: number;
   y: number;
+  viewport: Viewport;
 };
 
 // clean filters array because passing filters to kepler without name or value will break the ui
-const removeEmptyFilters = (dataToMapPayload: AddDataToMapPayload) => {
+const removeEmptyFilters = (dataToMapPayload: AddDataToMapPayloadSimplified) => {
   if (
     dataToMapPayload.config &&
     dataToMapPayload.config.visState?.filters &&
@@ -73,7 +72,7 @@ const removeEmptyFilters = (dataToMapPayload: AddDataToMapPayload) => {
 
 // Old data attributes are replaced with new names. For example, `data_1c_mean` becomes `data_1c_mid` and
 // `data_2_5c_pctl10` becomes `data_2_5c_low`. So we need this function for backward compatibility.
-const replaceOldDataValues = (dataToMapPayload: AddDataToMapPayload) => {
+const replaceOldDataValues = (dataToMapPayload: AddDataToMapPayloadSimplified) => {
   if (Array.isArray(dataToMapPayload.datasets)) {
     dataToMapPayload.datasets.map((dataset) => {
       dataset.data.fields = dataset.data.fields.map((field) => {
@@ -98,7 +97,7 @@ const replaceOldDataValues = (dataToMapPayload: AddDataToMapPayload) => {
   return dataToMapPayload;
 };
 
-export const cleanKeplerConfig = (dataToMapPayload: AddDataToMapPayload) => {
+export const cleanKeplerConfig = (dataToMapPayload: AddDataToMapPayloadSimplified) => {
   return replaceOldDataValues(removeEmptyFilters(dataToMapPayload));
 };
 

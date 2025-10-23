@@ -1,8 +1,4 @@
-import {
-  LayerColorRangeSelector,
-  LayerColorSelector,
-  // @ts-ignore
-} from "kepler.gl/components";
+import { LayerColorRangeSelector, LayerColorSelector } from "@kepler.gl/components";
 import styled from "styled-components";
 
 import { MapStyleLabel, SideBarSubSection } from "../../../Common";

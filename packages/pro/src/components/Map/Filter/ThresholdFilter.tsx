@@ -1,12 +1,12 @@
 import React, { memo } from "react";
 import styled from "styled-components";
 import { Slider } from "@mui/material";
+import { Filter } from "@kepler.gl/types";
 
 import { PanelContent, PanelHeaderTitle, StyledDivider } from "../../Common";
 import Info from "../Info";
 import ThresholdBinning from "./ThresholdBinning";
 import { colors } from "../../../consts";
-import { Filter } from "../../../types/reducers/vis-state-updaters";
 
 type Props = {
   filter: Filter;

@@ -46,23 +46,19 @@ export interface PfDataset {
   name: string;
 }
 
-export type Option = {
-  value: string | number;
-  label: string;
-};
-
-export type DatasetFields = {
-  analyzerType: string;
-  displayName: string;
-  fieldIdx: number;
-  format: string;
-  id: string;
-  label: string;
-  name: string;
-  type: string;
-  value: any;
-  valueAccessor: () => void;
-};
+export type Option =
+  | {
+      value: string;
+      label: string;
+    }
+  | {
+      value: number;
+      label: string;
+    }
+  | {
+      value: string | null;
+      label: string;
+    };
 
 export type GqlResponse<T> = {
   nodes: T[];

@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
-// @ts-ignore
-import { mapStyleChange, updateMap, toggleModal, fitBounds } from "kepler.gl/actions";
-//@ts-ignore
-import { EXPORT_IMAGE_ID } from "kepler.gl";
+import { mapStyleChange, updateMap, toggleModal, fitBounds } from "@kepler.gl/actions";
+import { EXPORT_IMAGE_ID } from "@kepler.gl/constants";
 import { useLocation } from "react-router-dom";
 import { utils, consts } from "@probable-futures/lib";
 import { components, contexts } from "@probable-futures/components-lib";
@@ -40,6 +38,7 @@ import useDegreesSelector from "../../utils/useDegreesSelector";
 import useExportMapAsHTML from "../../utils/useExportMapAsHTML";
 import MapSelection from "./MapSelection";
 import { useDatasetChangeHandler } from "../../utils/useDatasetChangeHandler";
+import useProjectImageUpload from "../../utils/useProjectImageUpload";
 
 const mapStateToProps = (state: RootState) => state;
 const dispatchToProps = (dispatch: AppDispatch) => ({ dispatch });
@@ -134,12 +133,8 @@ const DegreesMobileContainer = styled.div`
   left: 40px;
 `;
 
-function easeCubic(t: any) {
-  return ((t *= 2) <= 1 ? t * t * t : (t -= 2) * t * t + 2) / 2;
-}
-
 const InteractiveMap = (props: PropsFromRedux) => {
-  const location = useLocation();
+  const { pathname } = useLocation();
   const [showShareModal, setShowShareModal] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
@@ -157,6 +152,8 @@ const InteractiveMap = (props: PropsFromRedux) => {
   useEnrichSingleDataset({ onEnrichmentFinish: setFinalEnrichmentDataset });
 
   const onDatasetChange = useDatasetChangeHandler();
+
+  const { exportImage, exportingImage } = useProjectImageUpload();
 
   const { setDefaultColorField } = useMapActions({
     dispatch,
@@ -245,6 +242,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
     const {
       current: { bins, degrees, showBorders, showLabels, percentileValue, binHexColors },
     } = mapGeneralStyles;
+
     if (bins && binHexColors) {
       const mapBox = mapRef.current.getMap();
       const { layers } = mapBox?.getStyle();
@@ -293,18 +291,31 @@ const InteractiveMap = (props: PropsFromRedux) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    const mapBoxMap = mapRef.current?.getMap();
+    if (
+      !project.imageUrl &&
+      !project.slugId &&
+      project.addedDataToMap &&
+      mapBoxMap?.loaded() &&
+      !exportingImage
+    ) {
+      exportImage();
+    }
+  }, [
+    project.imageUrl,
+    project.slugId,
+    project.addedDataToMap,
+    exportImage,
+    mapRef,
+    exportingImage,
+  ]);
+
   const { createProject } = useProjectApi({
     setDefaultColorField,
     percentileValue,
     degrees,
   });
-
-  useEffect(() => {
-    if (mapRef.current) {
-      const map = mapRef.current.getMap();
-      map.on("style.load", () => updateMapStyles());
-    }
-  }, [mapRef, updateMapStyles]);
 
   useEffect(() => {
     mapGeneralStyles.current = {
@@ -374,7 +385,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
 
   useEffect(() => {
     if (selectedClimateData && isClimateDataVisible) {
-      dispatch(mapStyleChange(selectedClimateData.dataset.slug));
+      dispatch(mapStyleChange(selectedClimateData.dataset.slug!));
     } else if (!isClimateDataVisible) {
       dispatch(mapStyleChange("light"));
     }
@@ -471,7 +482,6 @@ const InteractiveMap = (props: PropsFromRedux) => {
           longitude: feature.geometry.coordinates[0],
           latitude: feature.geometry.coordinates[1],
           transitionDuration: 1500,
-          transitionEasing: easeCubic,
         }),
       );
 
@@ -481,15 +491,29 @@ const InteractiveMap = (props: PropsFromRedux) => {
     },
     [dispatch],
   );
+
   const getMapboxRef = (ref: any) => {
-    if (ref && !mapRef.current) {
-      mapRef.current = ref;
-      const map = mapRef.current.getMap();
-      map.on("style.load", () => updateMapStyles());
-      map.on("sourcedata", (e: any) => e.tile && setShowLoader(true));
-      map.on("idle", () => setShowLoader(false));
+    if (ref) {
+      const map = ref.getMap();
+      if (!mapRef.current && selectedClimateData) {
+        mapRef.current = ref;
+        const onStyleLoad = () => updateMapStyles();
+        const onSourceData = (e: any) => e.tile && setShowLoader(true);
+        const onIdle = () => setShowLoader(false);
+        map.on("style.load", onStyleLoad);
+        map.on("sourcedata", onSourceData);
+        map.on("idle", onIdle);
+      }
     }
   };
+
+  const mapStyleLink = useMemo(() => {
+    if (selectedClimateData) {
+      const styleBaseURL = `mapbox://styles/${process.env.REACT_APP_MAPBOX_ACCOUNT}`;
+      return `${styleBaseURL}/${selectedClimateData.mapStyleId}`;
+    }
+    return "";
+  }, [selectedClimateData]);
 
   const isMapOrDataLoading = useMemo(() => {
     const datasetEnrichment = project.datasetEnrichment;
@@ -534,16 +558,17 @@ const InteractiveMap = (props: PropsFromRedux) => {
             )}
           </contexts.ThemeProvider>
         )}
-        <KeplerGl
-          mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
-          id={MAP_ID}
-          width={windowDimension.width}
-          height={windowDimension.height}
-          localeMessages={localeMessages}
-          mapStyle=""
-          hash
-          getMapboxRef={getMapboxRef}
-        />
+        {((selectedClimateData && mapStyleLink) || showMergeDataModal) && (
+          <KeplerGl
+            mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
+            id={MAP_ID}
+            width={windowDimension.width}
+            height={windowDimension.height}
+            localeMessages={localeMessages}
+            hash
+            getMapboxRef={getMapboxRef}
+          />
+        )}
         {popupVisible && selectedClimateData && datasetDescriptionResponse && (
           <FeaturePopup
             feature={feature}
@@ -561,7 +586,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
         {showMergeDataModal && (
           <MergeData createProject={createProject} onDatasetUploadFinish={onDatasetUploadFinish} />
         )}
-        {location.pathname === "/map" && project.projectId && (
+        {pathname === "/map" && project.projectId && (
           <MapControls
             zoom={keplerGl[MAP_ID]?.mapState?.zoom}
             maxZoom={consts.MAX_ZOOM}

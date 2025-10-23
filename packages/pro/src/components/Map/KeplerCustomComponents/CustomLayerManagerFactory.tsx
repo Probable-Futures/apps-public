@@ -1,11 +1,22 @@
-//@ts-ignore
-import { LayerManagerFactory } from "kepler.gl/components";
+import { LayerManagerFactory, SourceDataCatalogProps } from "@kepler.gl/components";
 import styled from "styled-components";
+import { Datasets } from "@kepler.gl/table";
+import { Layer, LayerClassesType } from "@kepler.gl/layers";
+import {
+  UIStateActions,
+  VisStateActions,
+  MapStateActions,
+  ActionHandler,
+} from "@kepler.gl/actions";
+import { PanelListView } from "@kepler.gl/types";
+import { SidePanelItem } from "@kepler.gl/components/dist/types";
+import { WrappedComponentProps } from "react-intl";
 
 import { useMapData } from "../../../contexts/DataContext";
-import { PfProLogo } from "../../Common";
+import { EmptyFactory, PfProLogo } from "../../Common";
 import { colors } from "../../../consts";
 import Data from "../Data";
+import { TabTitle } from "../../../shared/styles/styles";
 
 const StyledAddButton = styled.button`
   width: 91px;
@@ -32,6 +43,7 @@ const StyledLayerManagerContainer = styled.div`
   padding-right: 13px;
   z-index: 2;
   height: calc(100vh - 230px);
+  position: relative;
 
   ::-webkit-scrollbar-track {
     background: ${colors.secondaryBlack};
@@ -49,44 +61,59 @@ const StyledLayerManagerContainer = styled.div`
   .side-panel-section {
     display: none;
   }
+
   .side-panel-divider {
     display: none;
   }
 `;
 
-const CustomAddDataButtonFactory = () => {
-  const AddDataButton = () => {
-    const { setShowMergeDataModal } = useMapData();
-    return (
-      <StyledAddButton className="add-data-button" onClick={() => setShowMergeDataModal(true)}>
-        Add Data
-      </StyledAddButton>
-    );
-  };
+export type LayerManagerProps = {
+  datasets: Datasets;
+  layers: Layer[];
+  layerOrder: string[];
+  layerClasses: LayerClassesType;
+  layerBlending: string;
+  overlayBlending: string;
+  uiStateActions: typeof UIStateActions;
+  visStateActions: typeof VisStateActions;
+  mapStateActions: typeof MapStateActions;
+  showAddDataModal: () => void;
+  removeDataset: ActionHandler<typeof UIStateActions.openDeleteModal>;
+  showDatasetTable: ActionHandler<typeof VisStateActions.showDatasetTable>;
+  updateTableColor: ActionHandler<typeof VisStateActions.updateTableColor>;
+  panelListView: PanelListView;
+  panelMetadata: SidePanelItem;
+  showDeleteDataset?: boolean;
+} & WrappedComponentProps;
 
-  return AddDataButton;
-};
-
-const CustomLayerPanelFactory = () => {
-  const CustomLayerPanel = () => {
-    return null;
-  };
-  return CustomLayerPanel;
+const AddDataButton = () => {
+  const { setShowMergeDataModal } = useMapData();
+  return (
+    <StyledAddButton className="add-data-button" onClick={() => setShowMergeDataModal(true)}>
+      Add Data
+    </StyledAddButton>
+  );
 };
 
 const CustomSourceDataCatalogFactory = () => {
-  const SourceDataCatalog = ({ showDatasetTable }: { showDatasetTable: any }) => (
-    <Data onShowDatasetTable={showDatasetTable} />
-  );
+  const SourceDataCatalog = ({ showDatasetTable }: SourceDataCatalogProps) => {
+    return (
+      <>
+        <Data onShowDatasetTable={showDatasetTable} />
+        <AddDataButton />
+      </>
+    );
+  };
 
   return SourceDataCatalog;
 };
 
-function CustomLayerManagerFactory(...deps: any) {
+function CustomLayerManagerFactory(...deps: Parameters<typeof LayerManagerFactory>) {
   const LayerManager = LayerManagerFactory(...deps);
-  const CustomLayerManager = (props: any) => (
+  const CustomLayerManager = (props: LayerManagerProps) => (
     <>
       <StyledLayerManagerContainer>
+        <TabTitle>Data</TabTitle>
         <LayerManager {...props} />
       </StyledLayerManagerContainer>
       <PfProLogo />
@@ -97,9 +124,13 @@ function CustomLayerManagerFactory(...deps: any) {
 }
 
 CustomLayerManagerFactory.deps = [
-  CustomAddDataButtonFactory,
-  CustomLayerPanelFactory,
+  EmptyFactory,
+  EmptyFactory,
+  EmptyFactory,
+  EmptyFactory,
   CustomSourceDataCatalogFactory,
+  EmptyFactory,
+  EmptyFactory,
 ];
 
 export default CustomLayerManagerFactory;

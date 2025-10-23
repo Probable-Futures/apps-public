@@ -1,6 +1,4 @@
-import { MouseEventHandler } from "react";
-// @ts-ignore
-import { SidebarFactory } from "kepler.gl/components";
+import { CollapseButtonFactory, CollapseButtonProps, SidebarFactory } from "@kepler.gl/components";
 import styled from "styled-components";
 import { styles } from "@probable-futures/components-lib";
 
@@ -18,6 +16,7 @@ const StyledSideBarContainer = styled.div`
     background: ${colors.secondaryBlack};
     max-width: 296px;
     z-index: 5;
+    min-width: 40px;
   }
   .side-panel__content {
     background-color: ${colors.secondaryBlack};
@@ -50,6 +49,7 @@ const StyledCloseButton = styled.div`
   margin-left: 32px;
   align-items: flex-start;
   padding-top: 15px;
+
   :hover {
     cursor: pointer;
     background-color: transparent;
@@ -66,19 +66,14 @@ const StyledArrow = styled.i`
   margin-right: 5px;
   height: 20px;
   width: 20px;
+
   :hover {
     ${styles.blueFilter}
   }
 `;
 
 const CloseButtonFactory = () => {
-  const CloseButton = ({
-    onClick,
-    isOpen,
-  }: {
-    onClick: MouseEventHandler<HTMLDivElement>;
-    isOpen: boolean;
-  }) => (
+  const CloseButton = ({ onClick, isOpen }: CollapseButtonProps) => (
     <StyledCloseButton className="side-bar__close" onClick={onClick}>
       <StyledArrow isOpen={isOpen}></StyledArrow>
     </StyledCloseButton>
@@ -86,7 +81,7 @@ const CloseButtonFactory = () => {
   return CloseButton;
 };
 
-function CustomSidebarFactory(CloseButtonFactory: any) {
+function CustomSidebarFactory(CloseButtonFactory: ReturnType<typeof CollapseButtonFactory>) {
   const SideBar = SidebarFactory(CloseButtonFactory);
   const CustomSidebar = (props: any) => (
     <StyledSideBarContainer>

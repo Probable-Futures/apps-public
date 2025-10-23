@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Collapse } from "@mui/material";
+import { VisualChannelDomain } from "@kepler.gl/types";
 
 import { useMapData } from "../../contexts/DataContext";
 import { colors } from "../../consts";
@@ -10,14 +11,9 @@ import { useAppSelector } from "../../app/hooks";
 import { MAP_ID } from "../../consts/MapConsts";
 
 const Container = styled.div`
-  position: absolute;
   background-color: ${colors.white};
-  width: ${({ activeSidePanel }: { activeSidePanel: boolean }) =>
-    activeSidePanel ? "calc(100% + 8px)" : "calc(100% + 11px)"};
-  transform: ${({ activeSidePanel }: { activeSidePanel: boolean }) =>
-    activeSidePanel ? "translateX(-8px)" : "translateX(-11px)"};
-  border: 1px solid ${colors.darkPurple};
-  border-right: none;
+  border: 1px solid ${colors.grey};
+  border-radius: 6px;
 `;
 
 const ColorsContainer = styled.div`
@@ -82,10 +78,10 @@ const PointColorWrapper = styled.div`
   padding: 12px 18px 0px 18px;
 `;
 
-const MapKeyExtension = ({ activeSidePanel }: { activeSidePanel: boolean }) => {
+const MapKeyExtension = () => {
   const { selectedClimateData } = useMapData();
   const [showColors, setShowColors] = useState(true);
-  const [filteredColorDomains, setFilteredColorDomains] = useState([]);
+  const [filteredColorDomains, setFilteredColorDomains] = useState<VisualChannelDomain>([]);
   const layers = useAppSelector((state) => state.keplerGl[MAP_ID]?.visState?.layers);
   const filters = useAppSelector((state) => state.keplerGl[MAP_ID]?.visState?.filters);
   const pointLayer = layers?.find((layer: any) => layer.type === "point");
@@ -98,13 +94,13 @@ const MapKeyExtension = ({ activeSidePanel }: { activeSidePanel: boolean }) => {
           filter.name.includes(pointLayer.config.colorField?.name),
         );
         if (currentColorFilter) {
-          const filteredColors = pointLayer.config.colorDomain?.filter((color: string) => {
-            if (currentColorFilter.type === "range") {
+          const filteredColors = res.filter((color: string | number) => {
+            if (currentColorFilter.type === "range" && currentColorFilter.domain) {
               return color > currentColorFilter.domain[0] && color < currentColorFilter.domain[1];
             }
             return currentColorFilter.value.includes(color);
           });
-          res = filteredColors;
+          res = filteredColors as VisualChannelDomain;
         }
       }
       setFilteredColorDomains(res);
@@ -160,13 +156,13 @@ const MapKeyExtension = ({ activeSidePanel }: { activeSidePanel: boolean }) => {
     } else {
       return (
         <ColorsContainer>
-          {filteredColorDomains.slice(0, 200).map((value: string, index: number) => (
+          {filteredColorDomains.slice(0, 200).map((value, index: number) => (
             <ColorNameContainer key={`${value}_${index}`}>
               <Color
                 value={
                   pointLayer.config.visConfig.colorRange.colors[
-                    pointLayer.config.colorDomain.findIndex(
-                      (colorDomain: string) => colorDomain === value,
+                    (pointLayer.config.colorDomain || []).findIndex(
+                      (colorDomain) => colorDomain === value,
                     ) % pointLayer.config.visConfig.colorRange.colors.length
                   ]
                 }
@@ -180,7 +176,7 @@ const MapKeyExtension = ({ activeSidePanel }: { activeSidePanel: boolean }) => {
   };
 
   return (
-    <Container activeSidePanel={activeSidePanel}>
+    <Container>
       {pointLayer && pointLayer.config.colorField && (
         <PointColorWrapper>
           <ColorTitleWrapper onClick={toggleShowColors}>

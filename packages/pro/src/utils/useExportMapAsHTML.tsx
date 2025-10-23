@@ -1,14 +1,12 @@
 import ReactDOMServer from "react-dom/server";
 import styled, { ServerStyleSheet } from "styled-components";
 import { consts, types, utils } from "@probable-futures/lib";
-//@ts-ignore
-import { downloadFile } from "kepler.gl";
+import { downloadFile } from "@kepler.gl/utils";
 
 import { colors } from "../consts";
 import { MAP_ID } from "../consts/MapConsts";
 import { useAppSelector } from "../app/hooks";
 import { EMBEDDABLE_MAPS_MAPBOX_ACCESS_TOKEN } from "../consts/env";
-import { buildMapStylesObject } from "./useMapActions";
 import { ExportMapProps, exportMapToHTML } from "../consts/export-map-html";
 import { DatasetDescriptionResponse } from "@probable-futures/lib/src/types";
 
@@ -153,7 +151,7 @@ const useExportMapAsHTML = ({
     const data: ExportMapProps = {
       ...mapToSave,
       mapboxAccessToken: EMBEDDABLE_MAPS_MAPBOX_ACCESS_TOKEN,
-      mapStyle: buildMapStylesObject(selectedClimateData),
+      mapStyle: `mapbox://styles/probablefutures/${selectedClimateData?.mapStyleId}`,
       markups: [headerMarkup],
       styles: allStyles,
       mapStyleConfigs: {

@@ -1,7 +1,5 @@
-// @ts-ignore
-import { ModalContainerFactory } from "kepler.gl/components";
-// @ts-ignore
-import { dataURItoBlob, downloadFile } from "kepler.gl";
+import { ModalContainerFactory } from "@kepler.gl/components";
+import { dataURItoBlob, downloadFile } from "@kepler.gl/utils";
 
 import { useAppSelector } from "../../../app/hooks";
 
@@ -22,7 +20,7 @@ function withUseMapData(Component: any) {
   };
 }
 
-function CustomModalContainerFactory(...deps: any) {
+function CustomModalContainerFactory(...deps: Parameters<typeof ModalContainerFactory>) {
   const ModalContainer = ModalContainerFactory(...deps) as any;
   // extend ModalContainer and override _onExportImage function
   class CustomModalContainer extends ModalContainer {

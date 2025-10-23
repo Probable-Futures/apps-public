@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { injectIntl } from "react-intl";
-// @ts-ignore
-import { DatasetTagFactory, SidePanelSection } from "kepler.gl/components";
+import { DatasetTagFactory, FieldSelectorFactory, SidePanelSection } from "@kepler.gl/components";
+import { KeplerTable } from "@kepler.gl/table";
 
 import CustomFieldSelectorFactory from "./CustomFieldSelectorFactory";
 
@@ -11,9 +11,31 @@ const TooltipConfigWrapper = styled.div`
   }
 `;
 
+type DatasetTooltipConfigProps = {
+  config: {
+    fieldsToShow: {
+      [key: string]: { name: string; format: string | null }[];
+    };
+    compareMode: boolean;
+    compareType: string | null;
+  };
+  onChange: (config: {
+    fieldsToShow: {
+      [key: string]: { name: string; format: string | null }[];
+    };
+    compareMode: boolean;
+    compareType: string | null;
+  }) => void;
+  dataset: KeplerTable;
+  onDisplayFormatChange: (dataId: string, column: string, displayFormat: string) => void;
+};
+
 CustomTooltipConfigFactory.deps = [DatasetTagFactory, CustomFieldSelectorFactory];
-function CustomTooltipConfigFactory(_: any, FieldSelector: any) {
-  const DatasetTooltipConfig = ({ config, onChange, dataset }: any) => {
+function CustomTooltipConfigFactory(
+  _DatasetTag: ReturnType<typeof DatasetTagFactory>,
+  FieldSelector: ReturnType<typeof FieldSelectorFactory>,
+) {
+  const DatasetTooltipConfig = ({ config, onChange, dataset }: DatasetTooltipConfigProps) => {
     if (!dataset) {
       return null;
     }
@@ -58,6 +80,7 @@ function CustomTooltipConfigFactory(_: any, FieldSelector: any) {
             config={config}
             onChange={onChange}
             dataset={datasets[dataId]}
+            onDisplayFormatChange={() => {}}
           />
         ))}
       </TooltipConfigWrapper>

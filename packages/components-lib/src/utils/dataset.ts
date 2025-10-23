@@ -3,6 +3,8 @@ import camelcase from "lodash.camelcase";
 import { groupByfield } from "@probable-futures/lib/src/utils";
 import { Map, Option } from "@probable-futures/lib/src/types";
 
+const firstLetterToUpper = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
 export const generateGroupedDatasets = (datasets: Map[], translatedDatasets: any = {}) => {
   const translatedParentCategories = translatedDatasets?.parentCategories || {};
   const translatedSubCategories = translatedDatasets?.subCategories || {};
@@ -37,12 +39,13 @@ export const generateGroupedDatasets = (datasets: Map[], translatedDatasets: any
         let displayedCategName = category.label
           .replace("Maps of ", "")
           .replace("Other maps", "Other");
-        displayedCategName =
-          displayedCategName.charAt(0).toUpperCase() + displayedCategName.slice(1);
+        displayedCategName = firstLetterToUpper(displayedCategName);
         option.label = displayedCategName;
         option.options = subCategoryOptions;
       } else {
-        option.label = translatedSubCategories[camelcase(subCategory.label)] || subCategory.label;
+        option.label =
+          translatedSubCategories[camelcase(subCategory.label)] ||
+          firstLetterToUpper(subCategory.label);
         option.label = option.label.replace("heat", "temperature").replace("and", "&");
         option.value = subCategory.options[0].dataset.subCategory!;
         option.options = subCategoryOptions;

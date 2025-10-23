@@ -70,9 +70,9 @@ export default function useFeaturePopup({
   }, [dataKey, feature, popupVisible]);
 
   useEffect(() => {
-    if (mapRef.current && clickedMapInfo?.x && clickedMapInfo?.y && clickedMapInfo?.lngLat) {
-      const mapBoxMap = mapRef.current.getMap();
-      const [longitude, latitude] = clickedMapInfo.lngLat;
+    if (mapRef.current && clickedMapInfo?.x && clickedMapInfo?.y && clickedMapInfo?.coordinate) {
+      const mapBoxMap = mapRef.current.getMap() as mapboxgl.Map;
+      const [longitude, latitude] = clickedMapInfo.coordinate;
       const { x, y } = clickedMapInfo;
       const features = mapBoxMap.queryRenderedFeatures([x, y]);
       const dataFeature = getFeature(features, longitude, latitude, x, y, dataKey);

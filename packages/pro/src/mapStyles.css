@@ -15,6 +15,10 @@
   display: none !important;
 }
 
+.map-popover .map-popover__layer-name + div {
+  display: none;
+}
+
 .map-popover .row__value {
   color: #000000 !important;
   font-size: 13px;

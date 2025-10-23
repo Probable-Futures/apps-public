@@ -1,7 +1,8 @@
 import { memo, useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 import Tippy from "@tippyjs/react/headless";
-import WebMercatorViewport from "viewport-mercator-project";
+import WebMercatorViewport, { Coordinates } from "viewport-mercator-project";
+import { MapState } from "@kepler.gl/types";
 
 import { colors } from "../../consts";
 import { ReactComponent as CloseIcon } from "@probable-futures/components-lib/src/assets/icons/cancel-circle.svg";
@@ -18,7 +19,7 @@ type Props = {
   feature: types.PopupFeature;
   dataset?: types.Map;
   degreesOfWarming: number;
-  mapState: any;
+  mapState: MapState;
   tempUnit?: string;
   datasetDescriptionResponse: DatasetDescriptionResponse;
   precipitationUnit?: types.PrecipitationUnit;
@@ -254,7 +255,7 @@ const createVirtualReference = (container: any, x = 0, y = 0, size = 0) => {
 };
 
 const getCoordinate = (viewport: WebMercatorViewport, lngLat: number[]) => {
-  const screenCoord = !viewport || !lngLat ? null : viewport.project(lngLat);
+  const screenCoord = !viewport || !lngLat ? null : viewport.project(lngLat as Coordinates);
   return screenCoord && { x: screenCoord[0], y: screenCoord[1] };
 };
 

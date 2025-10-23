@@ -1,35 +1,21 @@
-import React, { useEffect, useState } from "react";
-import {
-  VisConfigSlider,
-  // @ts-ignore
-} from "kepler.gl/components";
+import { useEffect, useState } from "react";
+import { VisConfigSlider } from "@kepler.gl/components";
+import { Field } from "@kepler.gl/types";
 
-import { DatasetFields } from "../../../../shared/types";
 import { MapStyleLabel, SideBarSubSection } from "../../../Common";
 import ItemSelector from "../../Common/ItemSelector";
 import { getLayerChannelConfigProps, getVisConfiguratorProps } from "../../../../utils";
 import MapStyleSectionTitle from "../MapStyleSectionTitle";
+import { LayerConfiguratorProps } from "../../KeplerCustomComponents/CustomLayerConfigurator";
 
-type Props = {
-  layer: any;
-  datasets: any;
-  layerTypeOptions: any;
-  openModal: Function;
-  updateLayerConfig: Function;
-  updateLayerType: Function;
-  updateLayerVisConfig: Function;
-  updateLayerVisualChannelConfig: Function;
-  updateLayerColorUI: Function;
-};
-
-const getInitialSizeField = (props: Props) =>
+const getInitialSizeField = (props: LayerConfiguratorProps) =>
   props.layer.config.sizeField
     ? `${props.layer.config.sizeField.displayName} (${props.layer.config.sizeField.type})`
     : "";
 
-const LayerRadius = (props: Props): JSX.Element => {
-  const [options, setOptions] = useState<DatasetFields[]>([]);
-  const [filteredOptions, setFilteredOptions] = useState<DatasetFields[]>([]);
+const LayerRadius = (props: LayerConfiguratorProps): JSX.Element => {
+  const [options, setOptions] = useState<Field[]>([]);
+  const [filteredOptions, setFilteredOptions] = useState<Field[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedBaseRadius, setSelectedBaseRadius] = useState<string>(getInitialSizeField(props));
 
@@ -67,7 +53,7 @@ const LayerRadius = (props: Props): JSX.Element => {
     setShowDropdown(false);
   };
 
-  const onSelectItem = (item: DatasetFields | null) => {
+  const onSelectItem = (item: Field | null) => {
     if (!layer.visualChannels.size) {
       return;
     }

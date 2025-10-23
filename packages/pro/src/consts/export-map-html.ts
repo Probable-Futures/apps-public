@@ -23,11 +23,11 @@ export type ExportMapProps = {
     dataKey: consts.DegreeDataKeys;
     precipitationUnit: types.PrecipitationUnit;
   };
-  dataset: types.Map;
-  longitude: number;
-  latitude: number;
-  zoom: number;
-  datasetDescriptionResponse: DatasetDescriptionResponse;
+  dataset?: types.Map;
+  longitude?: number;
+  latitude?: number;
+  zoom?: number;
+  datasetDescriptionResponse?: DatasetDescriptionResponse;
 };
 
 export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {

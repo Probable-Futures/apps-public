@@ -5,6 +5,7 @@ import { useMapData } from "../../contexts/DataContext";
 import { colors, size } from "../../consts";
 import MapKeyExtension from "./MapKeyExtension";
 import { consts, types } from "@probable-futures/lib";
+import { MediaQuery } from "react-responsive";
 
 type Props = {
   activeSidePanel: boolean;
@@ -30,6 +31,9 @@ const MapKeyWrapper = styled.div<MapKeyWrapperProps>`
   right: 0;
   z-index: 1;
   min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 
   @media (min-width: ${size.tablet}) and (max-width: ${size.tabletMax}) {
     top: 0;
@@ -140,7 +144,9 @@ const MapKey = ({
           setPrecipitationUnit={setPrecipitationUnit}
         />
       )}
-      <MapKeyExtension activeSidePanel={slugId ? false : activeSidePanel} />
+      <MediaQuery minWidth={size.laptop}>
+        <MapKeyExtension />
+      </MediaQuery>
     </MapKeyWrapper>
   );
 };

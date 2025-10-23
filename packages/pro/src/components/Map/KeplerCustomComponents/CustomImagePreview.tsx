@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-// @ts-ignore
-import { LoadingSpinner } from "kepler.gl/components";
+import { LoadingSpinner } from "@kepler.gl/components";
 
 const StyledImagePreview = styled.div.attrs({
   className: "image-preview",

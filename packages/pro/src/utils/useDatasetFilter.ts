@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
-// @ts-ignore
-import { addFilter, setFilter, removeFilter } from "kepler.gl/actions";
+import { useCallback, useEffect, useRef } from "react";
+import { addFilter, setFilter, removeFilter } from "@kepler.gl/actions";
 import { types, utils } from "@probable-futures/lib";
+import { KeplerTable, Datasets } from "@kepler.gl/table";
+import { Filter } from "@kepler.gl/types";
 
-import { Filter, Datasets, KeplerTable } from "../types/reducers/vis-state-updaters";
 import { AppDispatch } from "../store/store";
 import { ProjectDatasetNode } from "../shared/types";
 import { DATA_VALUES, DEGREES } from "../consts/MapConsts";
@@ -74,9 +74,7 @@ const useDatasetFilter = ({
   initializingProject,
   dispatch,
 }: Props) => {
-  const [datasetIdsWithNewThresholdFilter, setDatasetIdsWithNewThresholdFilter] = useState<
-    string[]
-  >([]);
+  const datasetIdsWithNewThresholdFilter = useRef<string[]>([]);
 
   const updateFilter = useCallback(
     (index: number, name: string, value: number[]) => {
@@ -151,7 +149,7 @@ const useDatasetFilter = ({
     if (
       isDataAdded &&
       selectedClimateData &&
-      datasetIdsWithNewThresholdFilter.length === 0 &&
+      datasetIdsWithNewThresholdFilter.current.length === 0 &&
       projectDatasets.length > 0 &&
       filteredProjectDatasets.length > 0
     ) {
@@ -186,7 +184,7 @@ const useDatasetFilter = ({
         }
       });
       if (dataIds.length) {
-        setDatasetIdsWithNewThresholdFilter(dataIds);
+        datasetIdsWithNewThresholdFilter.current = dataIds;
         setTimeout(() => {
           dataIds.forEach((dataId) => {
             dispatch(addFilter(dataId));
@@ -195,7 +193,6 @@ const useDatasetFilter = ({
       }
     }
   }, [
-    datasetIdsWithNewThresholdFilter.length,
     filteredProjectDatasets,
     projectDatasets.length,
     selectedClimateData,
@@ -210,8 +207,12 @@ const useDatasetFilter = ({
   ]);
 
   useEffect(() => {
-    if (datasetIdsWithNewThresholdFilter.length > 0 && filters.length > 0 && selectedClimateData) {
-      const dataId = datasetIdsWithNewThresholdFilter[0];
+    if (
+      datasetIdsWithNewThresholdFilter.current.length > 0 &&
+      filters.length > 0 &&
+      selectedClimateData
+    ) {
+      const dataId = datasetIdsWithNewThresholdFilter.current[0];
       const filterName = getFilterName(degree, datasets[dataId], percentileValue);
 
       if (filterName) {
@@ -219,18 +220,11 @@ const useDatasetFilter = ({
           selectedClimateData.dataset.minValue,
           selectedClimateData.dataset.maxValue,
         ]);
-        setDatasetIdsWithNewThresholdFilter((dataIds) => dataIds.slice(1));
+        datasetIdsWithNewThresholdFilter.current =
+          datasetIdsWithNewThresholdFilter.current.slice(1);
       }
     }
-  }, [
-    datasetIdsWithNewThresholdFilter,
-    filters.length,
-    datasets,
-    degree,
-    selectedClimateData,
-    percentileValue,
-    updateFilter,
-  ]);
+  }, [filters.length, datasets, degree, selectedClimateData, percentileValue, updateFilter]);
 
   /**
    * When climate dataset is changed, remove all threshold filters attached to datasets that

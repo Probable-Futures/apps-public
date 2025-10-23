@@ -12,11 +12,14 @@ import AuthProvider from "./components/AuthProvider";
 import { AuthorizedApolloProvider } from "./components/AuthorizedApolloProvider";
 import { routes as dashboardRoutes } from "./consts/dashboardConsts";
 import React from "react";
+import useFilterPanelWatcher from "./utils/useFilterPanelWatcher";
 
 const Map = React.lazy(() => import("./screens/Map"));
 const Dashboard = React.lazy(() => import("./screens/Dashboard"));
 
 export const App = () => {
+  useFilterPanelWatcher();
+
   return (
     <Sentry.ErrorBoundary fallback={ErrorBoundaryFallback}>
       <Router>

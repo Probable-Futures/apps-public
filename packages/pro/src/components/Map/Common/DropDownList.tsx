@@ -1,17 +1,17 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
+import { Field } from "@kepler.gl/types";
 
 import SearchIcon from "@probable-futures/components-lib/src/assets/icons/search.svg";
 import { styles, hooks } from "@probable-futures/components-lib";
 
-import { DatasetFields } from "../../../shared/types";
 import { colors } from "../../../consts";
 
 type Props = {
   handleChange: (e: any) => void;
-  filteredOptions?: DatasetFields[];
+  filteredOptions?: Field[];
   handleClickOutside: () => void;
-  onSelectItem: (option: DatasetFields) => void;
+  onSelectItem: (option: Field) => void;
 };
 
 const DropdownListWrapper = styled.div`

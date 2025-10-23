@@ -1,7 +1,6 @@
 import { memo, useEffect, useMemo, useState, FocusEvent } from "react";
 import styled from "styled-components";
-// @ts-ignore
-import { layerConfigChange, updateVisData, removeDataset } from "kepler.gl/actions";
+import { layerConfigChange, updateVisData, removeDataset } from "@kepler.gl/actions";
 import { Popover } from "react-tiny-popover";
 import { styles } from "@probable-futures/components-lib";
 import { utils, consts } from "@probable-futures/lib";
@@ -33,9 +32,10 @@ import {
   UPDATE_PARTNER_DATASET,
 } from "../../graphql/queries/datasets";
 import useEnrich from "../../utils/useEnrich";
+import { SourceDataCatalogProps } from "@kepler.gl/components";
 
 type Props = {
-  onShowDatasetTable: (arg: any) => void;
+  onShowDatasetTable: SourceDataCatalogProps["showDatasetTable"];
 };
 
 type StyledIconProps = {
@@ -104,6 +104,7 @@ const StyledEyeIcon = styled.i`
   height: 20px;
   width: 20px;
   cursor: pointer;
+
   :hover {
     ${styles.blueFilter}
   }
@@ -321,7 +322,8 @@ const Data = ({ onShowDatasetTable }: Props) => {
     }
 
     const datasetLayer = layers.find(
-      (layer: any) => supportLayerTypes.includes(layer.type) && layer.config.dataId === datasetId,
+      (layer) =>
+        layer.type && supportLayerTypes.includes(layer.type) && layer.config.dataId === datasetId,
     );
     if (datasetLayer) {
       dispatch(
@@ -357,7 +359,7 @@ const Data = ({ onShowDatasetTable }: Props) => {
         toggleLayersVisibility(datasetId);
         break;
       case "view":
-        onShowDatasetTable(datasetId);
+        onShowDatasetTable && onShowDatasetTable(datasetId);
         break;
       case "remove":
         setRemoveDatasetId(datasetId);
@@ -401,13 +403,12 @@ const Data = ({ onShowDatasetTable }: Props) => {
         return {
           data: {
             fields: datasets[key].fields,
-            rows: datasets[key].dataContainer._rows,
+            rows: [...datasets[key].dataContainer.rows()] as any[],
           },
           info: { ...datasets[key].metadata, label: newLabel, index },
-          version: datasets[key].version,
         };
       });
-      dispatch(updateVisData(newDatasets));
+      dispatch(updateVisData(newDatasets, {}));
     }
     setEditingDatasetId("");
   };

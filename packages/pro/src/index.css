@@ -1,6 +1,7 @@
 @import "normalize.css";
 @import "fonts.css";
 @import "./mapStyles.css";
+@import "./filters.scss";
 
 body {
   margin: 0;

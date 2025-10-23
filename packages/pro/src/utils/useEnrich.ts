@@ -30,6 +30,9 @@ const useEnrich = () => {
 
   const showEnrich = useCallback(
     (index: number) => {
+      if (project.filteredProjectDatasets.length === 0) {
+        return false;
+      }
       const { datasetId, originalFile } = project.filteredProjectDatasets[index];
       const layer = layers.find(
         (layer: any) => layer.config.dataId === Object.keys(datasets)[index],
@@ -79,9 +82,9 @@ const useEnrich = () => {
       } else {
         const currentDataset = project.filteredProjectDatasets[index];
         if (
-          currentDataset.enrich &&
-          currentDataset.pfDatasetId === project.pfDatasetId &&
-          currentDataset.enrichedDatasetFile
+          currentDataset?.enrich &&
+          currentDataset?.pfDatasetId === project.pfDatasetId &&
+          currentDataset?.enrichedDatasetFile
         ) {
           return false;
         }
@@ -89,7 +92,7 @@ const useEnrich = () => {
           (projectDataset) =>
             projectDataset.pfDatasetId === project.pfDatasetId &&
             projectDataset.enrichedDatasetFile &&
-            projectDataset.datasetId === currentDataset.datasetId,
+            projectDataset.datasetId === currentDataset?.datasetId,
         );
 
         if (enrichedDatasetWithSelectedClimateData) {

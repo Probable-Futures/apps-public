@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useMutation } from "@apollo/client";
-// @ts-ignore
-import { addDataToMap, interactionConfigChange, updateMap, reorderLayer } from "kepler.gl/actions";
-// @ts-ignore
-import KeplerGlSchema from "kepler.gl/schemas";
+import { addDataToMap, interactionConfigChange, reorderLayer } from "@kepler.gl/actions";
+import KeplerGlSchema from "@kepler.gl/schemas";
 import debounce from "lodash.debounce";
-import { types, consts, utils } from "@probable-futures/lib";
+import { types, utils } from "@probable-futures/lib";
+import { ParsedConfig, ParsedLayer, ProtoDataset, InteractionConfig } from "@kepler.gl/types";
+import { KeplerGlState } from "@kepler.gl/reducers";
+import { Layer } from "@kepler.gl/layers";
 
 import { CREATE_PARTNER_PROJECT } from "../graphql/queries/projects";
 import {
@@ -25,13 +26,9 @@ import {
   SET_SLUG_ID,
   UPDATE_PROJECT_SYNCED,
 } from "../store/actions";
-import { ParsedConfig, ParsedLayer } from "../types/schemas/schema-manager";
-import { AddDataToMapPayload, ProtoDataset } from "../types/actions";
-import useProjectImageUpload from "./useProjectImageUpload";
 import { buildMapStylesObject } from "./useMapActions";
 import { MAP_ID } from "../consts/MapConsts";
 import { useMapData } from "../contexts/DataContext";
-import { InteractionConfig } from "../types/reducers";
 import useDatasetFilter from "./useDatasetFilter";
 import useProjectUpdate from "./useProjectUpdate";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
@@ -41,7 +38,7 @@ import { initialState } from "../store/reducers/projectReducer";
 type Props = {
   degrees: number;
   percentileValue: utils.BinningType;
-  setDefaultColorField: (layers: any, dataId?: string) => void;
+  setDefaultColorField: (layers: Layer[], dataId?: string) => void;
 };
 
 export type PartnerDataset = {
@@ -55,11 +52,15 @@ type ProjectResponse = {
   };
 };
 
+export type AddDataToMapPayloadSimplified = {
+  datasets: ProtoDataset[] | ProtoDataset;
+  config?: ParsedConfig;
+};
+
 const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props) => {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const { keplerGl, project } = useAppSelector((state) => state);
-  const { exportImage } = useProjectImageUpload();
   const { updateProject } = useProjectUpdate();
   const { selectedClimateData, setShowMergeDataModal } = useMapData();
   const [createPartnerProject] = useMutation<ProjectResponse>(CREATE_PARTNER_PROJECT);
@@ -71,7 +72,7 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
     slugId: project.slugId,
     addingNewDataset: project.addingNewDataset,
   });
-  const keplerRef = useRef<any>();
+  const keplerRef = useRef<KeplerGlState>();
   const selectedClimateDataRef = useRef<types.Map>();
 
   const { fetchProject } = useProjectInit();
@@ -91,9 +92,7 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
     if (keplerRef.current) {
       mapConfig = {
         pfMapConfig: mapConfig.pfMapConfig,
-        keplerConfig: KeplerGlSchema.getConfigToSave(keplerRef.current) as
-          | { config: ParsedConfig; version: string }
-          | undefined,
+        keplerConfig: KeplerGlSchema.getConfigToSave(keplerRef.current),
       };
     }
     return mapConfig;
@@ -220,13 +219,16 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
       current: {
         filteredProjectDatasets,
         addedDataToMap,
-        imageUrl,
         mapConfig: configs,
         slugId,
         addingNewDataset,
       },
     } = projectDataRef;
 
+    // Only proceed if we haven't added data yet or if we're adding a new dataset
+    if (addedDataToMap && !addingNewDataset) {
+      return;
+    }
     const projectConfigs = configs;
     const mapConfig: MapConfig | undefined = projectConfigs
       ? JSON.parse(JSON.stringify(projectConfigs))
@@ -238,15 +240,23 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
         return Object.keys(datasets).map((key, index) => ({
           data: {
             fields: datasets[key].fields,
+            //@ts-ignore
             rows: datasets[key].dataContainer._rows,
           },
-          info: { ...datasets[key].metadata, index },
-          version: datasets[key].version,
+          info: { ...datasets[key].metadata },
+          // version: datasets[key].version,
+          // info: {
+          //   id: datasets[key].id,
+          //   label: datasets[key].label,
+          //   color: datasets[key].color,
+          //   type: datasets[key].type,
+          // },
         }));
       }
       return [];
     };
-    const getKeplerConfig = (): AddDataToMapPayload => {
+
+    const getKeplerConfig = (): AddDataToMapPayloadSimplified => {
       const schemaConfig = getSchemaConfig();
       const savedConf = mapConfig?.keplerConfig?.config as ParsedConfig | undefined;
 
@@ -281,13 +291,14 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
         },
       };
     };
+
     if (
       selectedClimateDataRef.current &&
       datasetsCount > 0 &&
       (slugId || datasetsCount === filteredProjectDatasets?.length)
     ) {
       // deep copy kepler's config to make the object writable
-      const keplerConf: AddDataToMapPayload = cleanKeplerConfig(
+      const keplerConf: AddDataToMapPayloadSimplified = cleanKeplerConfig(
         JSON.parse(JSON.stringify(getKeplerConfig())),
       );
       /**
@@ -313,7 +324,7 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
       }
 
       // match the dataset id with dataId in the config objects
-      if (Array.isArray(keplerConf.datasets) && keplerConf?.config?.visState?.layers) {
+      if (Array.isArray(keplerConf.datasets) && keplerConf.config?.visState?.layers) {
         if (addingNewDataset) {
           setDefaultConfig(false);
           dispatch({
@@ -323,9 +334,9 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
           if (!addedDataToMap) {
             dispatch({ type: SET_ADDED_DATA_TO_MAP, payload: { addedDataToMap: true } });
           }
-          if (keplerRef.current.visState?.layerOrder) {
+          if (keplerRef.current?.visState?.layerOrder) {
             // move the added layer to the end.
-            const newOrder = keplerRef.current.visState?.layerOrder as Array<number>;
+            const newOrder = keplerRef.current.visState?.layerOrder;
             const firstLayerOrder = newOrder.shift();
             if (firstLayerOrder) {
               newOrder.push(firstLayerOrder);
@@ -341,25 +352,24 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
             const dataset = keplerConf.datasets[i];
             dataset.info.id = dataId.next().value || dataset.info.id;
           }
-          const mapToLoad = KeplerGlSchema.load([], {
-            version: "v1",
-            config: keplerConf.config,
-          });
+          // set default config directly on the layer before sending the data to kepler
+          if (!mapConfig?.keplerConfig) {
+            keplerConf.config.visState.layers.forEach((layer) => {
+              if (layer.type === "point") {
+                layer.config.color = [0, 0, 0];
+              }
+            });
+          }
+
           dispatch(
             addDataToMap({
-              ...mapToLoad,
+              config: keplerConf.config,
               datasets: keplerConf.datasets,
               options: { centerMap: false },
             }),
           );
-          if (!mapConfig?.keplerConfig) {
-            setDefaultConfig(true);
-          }
           // Re-adjust the zoom after data is loaded, otherwise it is gonna start at 0 regardless of the minZoom level.
-          dispatch(updateMap({ zoom: consts.MIN_ZOOM }));
-          if (!imageUrl && !slugId) {
-            exportImage();
-          }
+          // dispatch(updateMap({ zoom: consts.MIN_ZOOM }));
           dispatch({
             type: CLEAR_DATASET_ENRICHMENT,
             payload: {},
@@ -370,7 +380,7 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
         }
       }
     }
-  }, [datasetsCount, dispatch, getSchemaConfig, exportImage, setDefaultConfig]);
+  }, [datasetsCount, dispatch, getSchemaConfig, setDefaultConfig]);
 
   return {
     createProject,

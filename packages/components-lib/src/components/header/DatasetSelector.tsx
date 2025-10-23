@@ -233,7 +233,10 @@ const DatasetSelector = ({
 
   const renderContent = () => {
     return (
-      <AccordionWrapper showScrollbar={selectMode && !isTakingScreenshot}>
+      <AccordionWrapper
+        showScrollbar={selectMode && !isTakingScreenshot}
+        className="pf-dataset-selector__wrapper"
+      >
         <MainTitle onClick={toggleAllSections}>
           <Title animate={animateAccordionTitle}>
             {translatedHeader?.selectMap || "Select a map"}

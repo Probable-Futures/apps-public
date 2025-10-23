@@ -1,8 +1,8 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import styled from "styled-components";
+import { Field } from "@kepler.gl/types";
 
 import DropDownList from "../Common/DropDownList";
-import { DatasetFields } from "../../../shared/types";
 import { MapStyleLabel } from "components/Common";
 import CloseIcon from "../../../assets/icons/map/close.svg";
 import { colors } from "../../../consts";
@@ -48,13 +48,13 @@ const Placeholder = styled.div`
 `;
 
 type Props = {
-  filteredOptions: DatasetFields[] | undefined;
-  options: DatasetFields[];
+  filteredOptions: Field[] | undefined;
+  options: Field[];
   isErasable: boolean;
   label?: string;
   placeholder: string;
   handleChange: (e: any) => void;
-  onSelectItem: (option: DatasetFields | null) => void;
+  onSelectItem: (option: Field | null) => void;
   toggleShowDropdown: (show?: boolean) => void;
   showDropdown: boolean;
 };

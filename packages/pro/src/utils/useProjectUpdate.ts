@@ -9,12 +9,12 @@ import { initialState } from "../store/reducers/projectReducer";
 
 const useProjectUpdate = () => {
   const [updatePartnerProject, { data }] = useMutation(UPDATE_PARTNER_PROJECT);
-  const updatedProject = data?.updatePartnerProject?.pfPartnerProject as Project | undefined;
   const dispatch = useAppDispatch();
   const currentProjectId = useAppSelector((state) => state.project.projectId);
   const currentMapConfig = useAppSelector((state) => state.project.mapConfig);
   const currentPfDatasetId = useAppSelector((state) => state.project.pfDatasetId);
   const currentImageUrl = useAppSelector((state) => state.project.imageUrl);
+  const updatedProject = data?.updatePartnerProject?.pfPartnerProject as Project | undefined;
 
   useEffect(() => {
     if (updatedProject) {

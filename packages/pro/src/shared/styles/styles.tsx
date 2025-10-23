@@ -213,3 +213,18 @@ export const StyledRadioLabel = styled.label`
     transform: translate(-50%, -50%);
   }
 `;
+
+export const TabTitle = styled.div`
+  height: 28px;
+  color: ${colors.primaryWhite};
+  font-family: LinearSans;
+  font-size: 24px;
+  letter-spacing: 0;
+  line-height: 28px;
+  margin-bottom: 16px;
+  position: sticky;
+  top: 0;
+  background: ${colors.secondaryBlack};
+  z-index: 1000;
+  padding-bottom: 40px;
+`;

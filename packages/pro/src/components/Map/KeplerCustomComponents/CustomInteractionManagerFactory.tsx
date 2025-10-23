@@ -1,28 +1,38 @@
-import React, { useEffect, useState } from "react";
-import {
-  InteractionManagerFactory,
-  // @ts-ignore
-} from "kepler.gl/components";
+import React, { useEffect, useMemo, useState } from "react";
+import { InteractionManagerFactory, PanelMeta } from "@kepler.gl/components";
 import styled from "styled-components";
 import { components, contexts } from "@probable-futures/components-lib";
+import { UIStateActions, VisStateActions } from "@kepler.gl/actions";
+import { Layer, LayerClassesType } from "@kepler.gl/layers";
+import {
+  ColorUI,
+  InteractionConfig,
+  LayerBaseConfig,
+  LayerVisConfig,
+  NestedPartial,
+} from "@kepler.gl/types";
+import { Datasets } from "@kepler.gl/table";
 
 import CustomInteractionPanelFactory from "./CustomInteractionPanelFactory";
-import CustomLayerManagerFactory from "./CustomLayerManagerFactoryForMapStyle";
+import { LayerConfigurator } from "./CustomLayerConfigurator";
 import { colors } from "../../../consts";
-import { StyledDivider } from "../../Common";
+import { EmptyFactory, StyledDivider } from "../../Common";
 import { supportLayerTypes } from "../../../consts/MapConsts";
 import BaseMapStyles from "../MapStyle/Binning/BaseMapStyles";
 import { useAppSelector } from "../../../app/hooks";
 import { useMapData } from "../../../contexts/DataContext";
 import useProjectUpdate from "../../../utils/useProjectUpdate";
+import { TabTitle } from "../../../shared/styles/styles";
 
 const StyledInteractionManagerContainer = styled.div`
   overflow-y: scroll;
   overflow-x: hidden;
   position: relative;
-  height: 100vh;
+  height: calc(100vh - 180px);
   width: 279px;
   padding-right: 14px;
+  position: relative;
+
   ::-webkit-scrollbar-track {
     background: ${colors.secondaryBlack};
   }
@@ -67,6 +77,10 @@ const StyledInteractionManagerContainer = styled.div`
   }
 `;
 
+const MainWrapper = styled.div`
+  position: relative;
+`;
+
 const BinningWrapper = styled.div`
   > div:first-child {
     padding: 12px;
@@ -74,15 +88,18 @@ const BinningWrapper = styled.div`
 `;
 
 type InteractionManagerProps = {
-  interactionConfig: any;
-  datasets: any;
-  visStateActions: any;
-  layers: any;
+  interactionConfig: InteractionConfig;
+  datasets: Datasets;
+  visStateActions: typeof VisStateActions;
+  uiStateActions: typeof UIStateActions;
+  panelMetadata: PanelMeta;
+  layers: Layer[];
+  layerOrder: string[];
+  layerClasses: LayerClassesType;
 };
 
-function CustomInteractionManagerFactory(...deps: any) {
+function CustomInteractionManagerFactory(...deps: Parameters<typeof InteractionManagerFactory>) {
   const InteractionManager = InteractionManagerFactory(...deps);
-  const LayerManagerFactory = CustomLayerManagerFactory();
 
   const CustomInteractionManager = (props: InteractionManagerProps) => {
     const { selectedClimateData } = useMapData();
@@ -102,7 +119,8 @@ function CustomInteractionManagerFactory(...deps: any) {
         const dataIdsSet = new Set<string>();
         const maxActiveLayers = Object.keys(props.datasets).length;
         let currentActiveLayers = props.layers.filter(
-          (layer: any) => supportLayerTypes.includes(layer.type) && layer.config.isConfigActive,
+          (layer: Layer) =>
+            layer.type && supportLayerTypes.includes(layer.type) && layer.config.isConfigActive,
         ).length;
         props.layers.forEach((layer: any) => {
           if (
@@ -120,37 +138,101 @@ function CustomInteractionManagerFactory(...deps: any) {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const layerTypeOptions = useMemo(
+      () =>
+        Object.keys(props.layerClasses).map((key) => {
+          // @ts-ignore
+          const layer = new props.layerClasses[key]({ dataId: "" });
+          return {
+            id: key,
+            label: layer.name,
+            icon: layer.layerIcon,
+            requireData: layer.requireData,
+          };
+        }),
+      [props.layerClasses],
+    );
+
+    const updateLayerConfig = (newProp: Partial<LayerBaseConfig>) => {
+      props.visStateActions.layerConfigChange(props.layers[0], newProp);
+    };
+
+    const updateLayerType = (newType: string) => {
+      props.visStateActions.layerTypeChange(props.layers[0], newType);
+    };
+
+    const updateLayerVisConfig = (newVisConfig: Partial<LayerVisConfig>) => {
+      props.visStateActions.layerVisConfigChange(props.layers[0], newVisConfig);
+    };
+
+    const updateLayerColorUI = (...args: [string, NestedPartial<ColorUI>]) => {
+      props.visStateActions.layerColorUIChange(props.layers[0], ...args);
+    };
+
+    const updateLayerTextLabel = (...args: [number | "all", string, any]) => {
+      props.visStateActions.layerTextLabelChange(props.layers[0], ...args);
+    };
+
+    const updateLayerVisualChannelConfig = (
+      newConfig: Partial<LayerBaseConfig>,
+      channel: string,
+      newVisConfig?: Partial<LayerVisConfig>,
+    ) => {
+      props.visStateActions.layerVisualChannelConfigChange(
+        props.layers[0],
+        newConfig,
+        channel,
+        newVisConfig,
+      );
+    };
+
     return (
-      <StyledInteractionManagerContainer>
-        <LayerManagerFactory {...props} />
-        <StyledDivider />
-        <div>
-          {props.layers[0] && props.layers[0].type !== "heatmap" && (
-            <InteractionManager {...props} />
-          )}
-          {props.layers && props.layers.length > 0 && <StyledDivider />}
-          <BinningWrapper>
-            <contexts.ThemeProvider theme="dark">
-              <components.Binning
-                mapBins={mapBins}
-                bins={bins}
-                binHexColors={selectedClimateData?.binHexColors}
-                selectedDataset={selectedClimateData}
-                onCommitChange={onCommitChange}
-                setMapbins={(bins) => setMapbins(bins)}
-                isPro={true}
-                title="Binning"
-              />
-            </contexts.ThemeProvider>
-          </BinningWrapper>
-          <BaseMapStyles />
-        </div>
-      </StyledInteractionManagerContainer>
+      <MainWrapper>
+        <TabTitle>Map Style</TabTitle>
+        <StyledInteractionManagerContainer>
+          <LayerConfigurator
+            layer={props.layers[0]}
+            datasets={props.datasets}
+            layerTypeOptions={layerTypeOptions}
+            openModal={props.uiStateActions.toggleModal}
+            updateLayerConfig={updateLayerConfig}
+            updateLayerType={updateLayerType}
+            updateLayerVisConfig={updateLayerVisConfig}
+            updateLayerVisualChannelConfig={updateLayerVisualChannelConfig}
+            updateLayerColorUI={updateLayerColorUI}
+            updateLayerTextLabel={updateLayerTextLabel}
+          />
+
+          <StyledDivider />
+          <div>
+            {props.layers[0] && props.layers[0].type !== "heatmap" && (
+              <InteractionManager {...props} />
+            )}
+            {props.layers && props.layers.length > 0 && <StyledDivider />}
+
+            <BinningWrapper>
+              <contexts.ThemeProvider theme="dark">
+                <components.Binning
+                  mapBins={mapBins}
+                  bins={bins}
+                  binHexColors={selectedClimateData?.binHexColors}
+                  selectedDataset={selectedClimateData}
+                  onCommitChange={onCommitChange}
+                  setMapbins={(bins) => setMapbins(bins)}
+                  isPro={true}
+                  title="Binning"
+                />
+              </contexts.ThemeProvider>
+            </BinningWrapper>
+            <BaseMapStyles />
+          </div>
+        </StyledInteractionManagerContainer>
+      </MainWrapper>
     );
   };
   return CustomInteractionManager;
 }
 
-CustomInteractionManagerFactory.deps = [CustomInteractionPanelFactory];
+CustomInteractionManagerFactory.deps = [CustomInteractionPanelFactory, EmptyFactory];
 
 export default CustomInteractionManagerFactory;

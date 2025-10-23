@@ -1,14 +1,12 @@
-// @ts-ignore
-import { FilterPanelFactory } from "kepler.gl/components";
-// @ts-ignore
-import { ALL_FIELD_TYPES } from "kepler.gl";
+import { FilterPanelFactory } from "@kepler.gl/components";
+import { ALL_FIELD_TYPES } from "@kepler.gl/constants";
 import { createSelector } from "reselect";
 
 const climateDataFieldsRegExp = new RegExp(
   "^(data_(1c|1_5c|2c|2_5c|3c))|(data_baseline)_(low|mid|high)$",
 );
 
-function CustomFilterPanelFactory(...deps: any) {
+function CustomFilterPanelFactory(...deps: Parameters<typeof FilterPanelFactory>) {
   const FilterPanel = FilterPanelFactory(...deps) as any;
   class CustomFilterPanel extends FilterPanel {
     // only show current field and field that's not already been used as a filter

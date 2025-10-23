@@ -46,7 +46,7 @@ const BackToDahsboardLink = styled.a`
 `;
 
 function CustomPanelHeaderFactory() {
-  const CustomPanelHeaderAction = (props: any) => (
+  const CustomPanelHeaderAction = () => (
     <StyledHeaderWrapper>
       <BackToDahsboardLink href="/dashboard/projects">
         <StyledArrow />

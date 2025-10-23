@@ -1,12 +1,10 @@
 import React, { PropsWithChildren } from "react";
 import styled from "styled-components";
 import Modal from "react-modal";
-//@ts-ignore
-import { FormattedMessage } from "kepler.gl/localization";
-//@ts-ignore
-import { Button as KeplerButton } from "kepler.gl/components";
-//@ts-ignore
-import { media } from "kepler.gl/styles";
+import { FormattedMessage } from "@kepler.gl/localization";
+import { Button as KeplerButton } from "@kepler.gl/components";
+import { media } from "@kepler.gl/styles";
+import { ModalDialogOwnProps } from "@kepler.gl/components/dist/common/modal";
 
 import { Button, StyledCloseIcon } from "../../Common";
 import CloseIcon from "../../../assets/icons/dashboard/close.svg";
@@ -161,27 +159,11 @@ export const ModalFooter = ({
   );
 };
 
-type Props = {
-  footer: boolean;
-  close: boolean;
-  onConfirm: any;
-  onCancel: any;
-  confirmButton: any;
-  confirmButtonLabel: string;
-  cancelButton: any;
-  cancelButtonLabel: string;
-  cssStyle: any[];
-  className: string;
-  theme: { modalOverlayBgd: any; modalOverLayZ: any };
-  style: any;
-  title: string;
-};
-
-const ModalDialog = (props: PropsWithChildren<Props>) => {
+const ModalDialog = (props: PropsWithChildren<ModalDialogOwnProps>) => {
   const exportImage = props.title === "modal.title.exportImage";
   return (
     <Modal
-      isOpen={false}
+      // isOpen={false}
       {...props}
       ariaHideApp={false}
       style={{

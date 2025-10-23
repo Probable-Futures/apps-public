@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useApolloClient, useMutation } from "@apollo/client";
-// @ts-ignore
-import { loadFiles, removeDataset } from "kepler.gl/actions";
+import { loadFiles, removeDataset } from "@kepler.gl/actions";
 import { useNavigate } from "react-router-dom";
 
 import {

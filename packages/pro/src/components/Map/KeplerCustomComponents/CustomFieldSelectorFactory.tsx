@@ -1,5 +1,4 @@
-//@ts-ignore
-import { FieldListItemFactoryFactory, FieldSelector } from "kepler.gl/components";
+import { FieldListItemFactoryFactory, FieldSelector } from "@kepler.gl/components";
 
 import TooltipItemSelector from "../MapStyle/Tooltip/TooltipItemSelector";
 
