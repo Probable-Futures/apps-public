@@ -4,6 +4,7 @@ import { dataURItoBlob } from "@kepler.gl/utils";
 import Uppy, { Meta, UppyFile, UppyOptions } from "@uppy/core";
 import { useAuth0 } from "@auth0/auth0-react";
 import AwsS3 from "@uppy/aws-s3";
+import { EXPORT_IMG_RATIOS, RESOLUTIONS } from "@kepler.gl/constants";
 
 import { MAP_ID } from "../consts/MapConsts";
 import useProjectUpdate from "./useProjectUpdate";
@@ -25,15 +26,19 @@ const useProjectImageUpload = () => {
     const startExporting = () => {
       dispatch(
         setExportImageSetting({
-          ratio: "SCREEN",
-          resolution: "ONE_X",
-          mapW: 1170,
-          mapH: 800,
+          ratio: EXPORT_IMG_RATIOS.SCREEN,
+          resolution: RESOLUTIONS.ONE_X,
+          mapW: 1400,
+          mapH: 990,
           legend: true,
+          exporting: true,
+          center: true,
         }),
       );
-      dispatch(startExportingImage());
-      setExportingImage(true);
+      setTimeout(() => {
+        dispatch(startExportingImage());
+        setExportingImage(true);
+      }, 10000);
     };
     setTimeout(() => {
       startExporting();
