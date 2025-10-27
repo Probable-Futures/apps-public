@@ -1793,6 +1793,8 @@ type PfDatasetStatistic implements Node {
   highValue: BigFloat
   id: UUID!
   lowValue: BigFloat
+  meanValue: BigFloat
+  medianValue: BigFloat
   midValue: BigFloat
 
   """
@@ -1840,6 +1842,12 @@ input PfDatasetStatisticCondition {
   """Checks for equality with the object’s `lowValue` field."""
   lowValue: BigFloat
 
+  """Checks for equality with the object’s `meanValue` field."""
+  meanValue: BigFloat
+
+  """Checks for equality with the object’s `medianValue` field."""
+  medianValue: BigFloat
+
   """Checks for equality with the object’s `midValue` field."""
   midValue: BigFloat
 
@@ -1880,6 +1888,12 @@ input PfDatasetStatisticFilter {
 
   """Filter by the object’s `lowValue` field."""
   lowValue: BigFloatFilter
+
+  """Filter by the object’s `meanValue` field."""
+  meanValue: BigFloatFilter
+
+  """Filter by the object’s `medianValue` field."""
+  medianValue: BigFloatFilter
 
   """Filter by the object’s `midValue` field."""
   midValue: BigFloatFilter
@@ -1944,6 +1958,10 @@ enum PfDatasetStatisticsOrderBy {
   ID_DESC
   LOW_VALUE_ASC
   LOW_VALUE_DESC
+  MEAN_VALUE_ASC
+  MEAN_VALUE_DESC
+  MEDIAN_VALUE_ASC
+  MEDIAN_VALUE_DESC
   MID_VALUE_ASC
   MID_VALUE_DESC
   NATURAL

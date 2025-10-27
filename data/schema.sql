@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 16.8
--- Dumped by pg_dump version 17.4
+-- Dumped by pg_dump version 17.5
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1459,7 +1459,9 @@ CREATE TABLE pf_public.pf_dataset_statistics (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     "values" numeric[],
-    cumulative_probability numeric[]
+    cumulative_probability numeric[],
+    mean_value numeric(6,1),
+    median_value numeric(6,1)
 );
 
 
