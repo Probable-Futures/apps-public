@@ -1569,6 +1569,588 @@ CREATE VIEW pf_private.aggregate_pf_dataset_statistic_cells AS
 
 
 --
+-- Name: aggregate_pf_dataset_statistics_with_absolute_values; Type: VIEW; Schema: pf_private; Owner: -
+--
+
+CREATE VIEW pf_private.aggregate_pf_dataset_statistics_with_absolute_values AS
+ SELECT coordinate_hash,
+    dataset_id,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_absolute_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_absolute_mid,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_absolute_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_mid,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_mid,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_mid,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_mid,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_mid,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_high,
+    unnest(array_agg(
+        CASE
+            WHEN (low_value IS NULL) THEN NULL::numeric
+            WHEN (low_value = ANY (ARRAY['-88888.0'::numeric, '-99999.0'::numeric])) THEN low_value
+            ELSE (0)::numeric
+        END) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_low,
+    1.0 AS data_baseline_mid,
+    unnest(array_agg(
+        CASE
+            WHEN (high_value IS NULL) THEN NULL::numeric
+            WHEN (high_value = ANY (ARRAY['-88888.0'::numeric, '-99999.0'::numeric])) THEN high_value
+            ELSE (0)::numeric
+        END) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_high
+   FROM pf_public.pf_dataset_statistics
+  GROUP BY coordinate_hash, dataset_id;
+
+
+--
+-- Name: VIEW aggregate_pf_dataset_statistics_with_absolute_values; Type: COMMENT; Schema: pf_private; Owner: -
+--
+
+COMMENT ON VIEW pf_private.aggregate_pf_dataset_statistics_with_absolute_values IS 'View of aggregate dataset statistics across all warming scenarios. Used to create change maps.';
+
+
+--
+-- Name: aggregate_pf_dataset_statistic_cells_with_absolute_values; Type: VIEW; Schema: pf_private; Owner: -
+--
+
+CREATE VIEW pf_private.aggregate_pf_dataset_statistic_cells_with_absolute_values AS
+ SELECT coords.cell,
+    stats.coordinate_hash,
+    stats.dataset_id,
+    stats.data_baseline_absolute_low,
+    stats.data_baseline_absolute_mid,
+    stats.data_baseline_absolute_high,
+    stats.data_1c_low,
+    stats.data_1c_mid,
+    stats.data_1c_high,
+    stats.data_1_5c_low,
+    stats.data_1_5c_mid,
+    stats.data_1_5c_high,
+    stats.data_2c_low,
+    stats.data_2c_mid,
+    stats.data_2c_high,
+    stats.data_2_5c_low,
+    stats.data_2_5c_mid,
+    stats.data_2_5c_high,
+    stats.data_3c_low,
+    stats.data_3c_mid,
+    stats.data_3c_high,
+    stats.data_baseline_low,
+    stats.data_baseline_mid,
+    stats.data_baseline_high
+   FROM (pf_private.aggregate_pf_dataset_statistics_with_absolute_values stats
+     JOIN pf_public.pf_grid_coordinates coords ON ((stats.coordinate_hash = coords.md5_hash)));
+
+
+--
+-- Name: VIEW aggregate_pf_dataset_statistic_cells_with_absolute_values; Type: COMMENT; Schema: pf_private; Owner: -
+--
+
+COMMENT ON VIEW pf_private.aggregate_pf_dataset_statistic_cells_with_absolute_values IS 'View of aggregate dataset statistics joined with coordinate cells. Used to create change maps';
+
+
+--
+-- Name: aggregate_pf_dataset_statistics_with_mean; Type: VIEW; Schema: pf_private; Owner: -
+--
+
+CREATE VIEW pf_private.aggregate_pf_dataset_statistics_with_mean AS
+ SELECT coordinate_hash,
+    dataset_id,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_mid,
+    unnest(array_agg(mean_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_mean,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_mid,
+    unnest(array_agg(mean_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_mean,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_mid,
+    unnest(array_agg(mean_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_mean,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_mid,
+    unnest(array_agg(mean_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_mean,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_mid,
+    unnest(array_agg(mean_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_mean,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_mid,
+    unnest(array_agg(mean_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_mean,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_high
+   FROM pf_public.pf_dataset_statistics
+  GROUP BY coordinate_hash, dataset_id;
+
+
+--
+-- Name: VIEW aggregate_pf_dataset_statistics_with_mean; Type: COMMENT; Schema: pf_private; Owner: -
+--
+
+COMMENT ON VIEW pf_private.aggregate_pf_dataset_statistics_with_mean IS 'View of aggregate dataset statistics across all warming scenarios';
+
+
+--
+-- Name: aggregate_pf_dataset_statistic_cells_with_mean; Type: VIEW; Schema: pf_private; Owner: -
+--
+
+CREATE VIEW pf_private.aggregate_pf_dataset_statistic_cells_with_mean AS
+ SELECT coords.cell,
+    stats.coordinate_hash,
+    stats.dataset_id,
+    stats.data_baseline_low,
+    stats.data_baseline_mid,
+    stats.data_baseline_mean,
+    stats.data_baseline_high,
+    stats.data_1c_low,
+    stats.data_1c_mid,
+    stats.data_1c_mean,
+    stats.data_1c_high,
+    stats.data_1_5c_low,
+    stats.data_1_5c_mid,
+    stats.data_1_5c_mean,
+    stats.data_1_5c_high,
+    stats.data_2c_low,
+    stats.data_2c_mid,
+    stats.data_2c_mean,
+    stats.data_2c_high,
+    stats.data_2_5c_low,
+    stats.data_2_5c_mid,
+    stats.data_2_5c_mean,
+    stats.data_2_5c_high,
+    stats.data_3c_low,
+    stats.data_3c_mid,
+    stats.data_3c_mean,
+    stats.data_3c_high
+   FROM (pf_private.aggregate_pf_dataset_statistics_with_mean stats
+     JOIN pf_public.pf_grid_coordinates coords ON ((stats.coordinate_hash = coords.md5_hash)));
+
+
+--
+-- Name: VIEW aggregate_pf_dataset_statistic_cells_with_mean; Type: COMMENT; Schema: pf_private; Owner: -
+--
+
+COMMENT ON VIEW pf_private.aggregate_pf_dataset_statistic_cells_with_mean IS 'View of aggregate dataset statistics joined with coordinate cells';
+
+
+--
+-- Name: aggregate_pf_dataset_statistics_with_median; Type: VIEW; Schema: pf_private; Owner: -
+--
+
+CREATE VIEW pf_private.aggregate_pf_dataset_statistics_with_median AS
+ SELECT coordinate_hash,
+    dataset_id,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_mid,
+    unnest(array_agg(median_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_median,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '0.5'::text))) AS data_baseline_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_mid,
+    unnest(array_agg(median_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_median,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '1.0'::text))) AS data_1c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_mid,
+    unnest(array_agg(median_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_median,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '1.5'::text))) AS data_1_5c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_mid,
+    unnest(array_agg(median_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_median,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '2.0'::text))) AS data_2c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_mid,
+    unnest(array_agg(median_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_median,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '2.5'::text))) AS data_2_5c_high,
+    unnest(array_agg(low_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_low,
+    unnest(array_agg(mid_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_mid,
+    unnest(array_agg(median_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_median,
+    unnest(array_agg(high_value) FILTER (WHERE (warming_scenario = '3.0'::text))) AS data_3c_high
+   FROM pf_public.pf_dataset_statistics
+  GROUP BY coordinate_hash, dataset_id;
+
+
+--
+-- Name: VIEW aggregate_pf_dataset_statistics_with_median; Type: COMMENT; Schema: pf_private; Owner: -
+--
+
+COMMENT ON VIEW pf_private.aggregate_pf_dataset_statistics_with_median IS 'View of aggregate dataset statistics across all warming scenarios';
+
+
+--
+-- Name: aggregate_pf_dataset_statistic_cells_with_median; Type: VIEW; Schema: pf_private; Owner: -
+--
+
+CREATE VIEW pf_private.aggregate_pf_dataset_statistic_cells_with_median AS
+ SELECT coords.cell,
+    stats.coordinate_hash,
+    stats.dataset_id,
+    stats.data_baseline_low,
+    stats.data_baseline_mid,
+    stats.data_baseline_median,
+    stats.data_baseline_high,
+    stats.data_1c_low,
+    stats.data_1c_mid,
+    stats.data_1c_median,
+    stats.data_1c_high,
+    stats.data_1_5c_low,
+    stats.data_1_5c_mid,
+    stats.data_1_5c_median,
+    stats.data_1_5c_high,
+    stats.data_2c_low,
+    stats.data_2c_mid,
+    stats.data_2c_median,
+    stats.data_2c_high,
+    stats.data_2_5c_low,
+    stats.data_2_5c_mid,
+    stats.data_2_5c_median,
+    stats.data_2_5c_high,
+    stats.data_3c_low,
+    stats.data_3c_mid,
+    stats.data_3c_median,
+    stats.data_3c_high
+   FROM (pf_private.aggregate_pf_dataset_statistics_with_median stats
+     JOIN pf_public.pf_grid_coordinates coords ON ((stats.coordinate_hash = coords.md5_hash)));
+
+
+--
+-- Name: VIEW aggregate_pf_dataset_statistic_cells_with_median; Type: COMMENT; Schema: pf_private; Owner: -
+--
+
+COMMENT ON VIEW pf_private.aggregate_pf_dataset_statistic_cells_with_median IS 'View of aggregate dataset statistics joined with coordinate cells';
+
+
+--
+-- Name: aggregate_pf_dataset_statistics_with_percentage; Type: VIEW; Schema: pf_private; Owner: -
+--
+
+CREATE VIEW pf_private.aggregate_pf_dataset_statistics_with_percentage AS
+ SELECT coordinate_hash,
+    dataset_id,
+    data_baseline_low,
+    data_baseline_mid,
+    data_baseline_high,
+    data_1c_low,
+    data_1c_mid,
+    data_1c_high,
+    data_1_5c_low,
+    data_1_5c_mid,
+    data_1_5c_high,
+    data_2c_low,
+    data_2c_mid,
+    data_2c_high,
+    data_2_5c_low,
+    data_2_5c_mid,
+    data_2_5c_high,
+    data_3c_low,
+    data_3c_mid,
+    data_3c_high,
+        CASE
+            WHEN (data_1c_mid = ('-99999'::integer)::numeric) THEN data_1c_mid
+            ELSE round(((data_1c_mid / data_baseline_mid) * (100)::numeric))
+        END AS data_1c_mid_percent,
+        CASE
+            WHEN (data_1_5c_mid = ('-99999'::integer)::numeric) THEN data_1_5c_mid
+            ELSE round(((data_1_5c_mid / data_baseline_mid) * (100)::numeric))
+        END AS data_1_5c_mid_percent,
+        CASE
+            WHEN (data_2c_mid = ('-99999'::integer)::numeric) THEN data_2c_mid
+            ELSE round(((data_2c_mid / data_baseline_mid) * (100)::numeric))
+        END AS data_2c_mid_percent,
+        CASE
+            WHEN (data_2_5c_mid = ('-99999'::integer)::numeric) THEN data_2_5c_mid
+            ELSE round(((data_2_5c_mid / data_baseline_mid) * (100)::numeric))
+        END AS data_2_5c_mid_percent,
+        CASE
+            WHEN (data_3c_mid = ('-99999'::integer)::numeric) THEN data_3c_mid
+            ELSE round(((data_3c_mid / data_baseline_mid) * (100)::numeric))
+        END AS data_3c_mid_percent
+   FROM ( SELECT pf_dataset_statistics.coordinate_hash,
+            pf_dataset_statistics.dataset_id,
+            unnest(array_agg(pf_dataset_statistics.low_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '0.5'::text))) AS data_baseline_low,
+            unnest(array_agg(pf_dataset_statistics.mid_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '0.5'::text))) AS data_baseline_mid,
+            unnest(array_agg(pf_dataset_statistics.high_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '0.5'::text))) AS data_baseline_high,
+            unnest(array_agg(pf_dataset_statistics.low_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '1.0'::text))) AS data_1c_low,
+            unnest(array_agg(pf_dataset_statistics.mid_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '1.0'::text))) AS data_1c_mid,
+            unnest(array_agg(pf_dataset_statistics.high_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '1.0'::text))) AS data_1c_high,
+            unnest(array_agg(pf_dataset_statistics.low_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '1.5'::text))) AS data_1_5c_low,
+            unnest(array_agg(pf_dataset_statistics.mid_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '1.5'::text))) AS data_1_5c_mid,
+            unnest(array_agg(pf_dataset_statistics.high_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '1.5'::text))) AS data_1_5c_high,
+            unnest(array_agg(pf_dataset_statistics.low_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '2.0'::text))) AS data_2c_low,
+            unnest(array_agg(pf_dataset_statistics.mid_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '2.0'::text))) AS data_2c_mid,
+            unnest(array_agg(pf_dataset_statistics.high_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '2.0'::text))) AS data_2c_high,
+            unnest(array_agg(pf_dataset_statistics.low_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '2.5'::text))) AS data_2_5c_low,
+            unnest(array_agg(pf_dataset_statistics.mid_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '2.5'::text))) AS data_2_5c_mid,
+            unnest(array_agg(pf_dataset_statistics.high_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '2.5'::text))) AS data_2_5c_high,
+            unnest(array_agg(pf_dataset_statistics.low_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '3.0'::text))) AS data_3c_low,
+            unnest(array_agg(pf_dataset_statistics.mid_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '3.0'::text))) AS data_3c_mid,
+            unnest(array_agg(pf_dataset_statistics.high_value) FILTER (WHERE (pf_dataset_statistics.warming_scenario = '3.0'::text))) AS data_3c_high
+           FROM pf_public.pf_dataset_statistics
+          GROUP BY pf_dataset_statistics.coordinate_hash, pf_dataset_statistics.dataset_id) t;
+
+
+--
+-- Name: VIEW aggregate_pf_dataset_statistics_with_percentage; Type: COMMENT; Schema: pf_private; Owner: -
+--
+
+COMMENT ON VIEW pf_private.aggregate_pf_dataset_statistics_with_percentage IS 'View of aggregate dataset statistics across all warming scenarios';
+
+
+--
+-- Name: aggregate_pf_dataset_statistic_cells_with_percentage; Type: VIEW; Schema: pf_private; Owner: -
+--
+
+CREATE VIEW pf_private.aggregate_pf_dataset_statistic_cells_with_percentage AS
+ SELECT coords.cell,
+    stats.coordinate_hash,
+    stats.dataset_id,
+    stats.data_baseline_low,
+    stats.data_baseline_mid,
+    stats.data_baseline_high,
+    stats.data_1c_low,
+    stats.data_1c_mid,
+    stats.data_1c_high,
+    stats.data_1_5c_low,
+    stats.data_1_5c_mid,
+    stats.data_1_5c_high,
+    stats.data_2c_low,
+    stats.data_2c_mid,
+    stats.data_2c_high,
+    stats.data_2_5c_low,
+    stats.data_2_5c_mid,
+    stats.data_2_5c_high,
+    stats.data_3c_low,
+    stats.data_3c_mid,
+    stats.data_3c_high,
+    stats.data_1c_mid_percent,
+    stats.data_1_5c_mid_percent,
+    stats.data_2c_mid_percent,
+    stats.data_2_5c_mid_percent,
+    stats.data_3c_mid_percent
+   FROM (pf_private.aggregate_pf_dataset_statistics_with_percentage stats
+     JOIN pf_public.pf_grid_coordinates coords ON ((stats.coordinate_hash = coords.md5_hash)));
+
+
+--
+-- Name: VIEW aggregate_pf_dataset_statistic_cells_with_percentage; Type: COMMENT; Schema: pf_private; Owner: -
+--
+
+COMMENT ON VIEW pf_private.aggregate_pf_dataset_statistic_cells_with_percentage IS 'View of aggregate dataset statistics joined with coordinate cells';
+
+
+--
+-- Name: aggregate_pf_statistics_change_to_absolute; Type: VIEW; Schema: pf_private; Owner: -
+--
+
+CREATE VIEW pf_private.aggregate_pf_statistics_change_to_absolute AS
+ SELECT dataset_id,
+    coordinate_hash,
+    max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN low_value
+            ELSE NULL::numeric
+        END) AS data_baseline_low,
+    max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN mid_value
+            ELSE NULL::numeric
+        END) AS data_baseline_mid,
+    max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN high_value
+            ELSE NULL::numeric
+        END) AS data_baseline_high,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN low_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '1.0'::text) THEN low_value
+            ELSE NULL::numeric
+        END)) AS data_1c_low,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN mid_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '1.0'::text) THEN mid_value
+            ELSE NULL::numeric
+        END)) AS data_1c_mid,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN high_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '1.0'::text) THEN high_value
+            ELSE NULL::numeric
+        END)) AS data_1c_high,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN low_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '1.5'::text) THEN low_value
+            ELSE NULL::numeric
+        END)) AS data_1_5c_low,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN mid_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '1.5'::text) THEN mid_value
+            ELSE NULL::numeric
+        END)) AS data_1_5c_mid,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN high_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '1.5'::text) THEN high_value
+            ELSE NULL::numeric
+        END)) AS data_1_5c_high,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN low_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '2.0'::text) THEN low_value
+            ELSE NULL::numeric
+        END)) AS data_2c_low,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN mid_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '2.0'::text) THEN mid_value
+            ELSE NULL::numeric
+        END)) AS data_2c_mid,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN high_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '2.0'::text) THEN high_value
+            ELSE NULL::numeric
+        END)) AS data_2c_high,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN low_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '2.5'::text) THEN low_value
+            ELSE NULL::numeric
+        END)) AS data_2_5c_low,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN mid_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '2.5'::text) THEN mid_value
+            ELSE NULL::numeric
+        END)) AS data_2_5c_mid,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN high_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '2.5'::text) THEN high_value
+            ELSE NULL::numeric
+        END)) AS data_2_5c_high,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN low_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '3.0'::text) THEN low_value
+            ELSE NULL::numeric
+        END)) AS data_3c_low,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN mid_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '3.0'::text) THEN mid_value
+            ELSE NULL::numeric
+        END)) AS data_3c_mid,
+    (max(
+        CASE
+            WHEN (warming_scenario = '0.5'::text) THEN high_value
+            ELSE NULL::numeric
+        END) + max(
+        CASE
+            WHEN (warming_scenario = '3.0'::text) THEN high_value
+            ELSE NULL::numeric
+        END)) AS data_3c_high
+   FROM pf_public.pf_dataset_statistics
+  GROUP BY dataset_id, coordinate_hash;
+
+
+--
+-- Name: VIEW aggregate_pf_statistics_change_to_absolute; Type: COMMENT; Schema: pf_private; Owner: -
+--
+
+COMMENT ON VIEW pf_private.aggregate_pf_statistics_change_to_absolute IS 'View of aggregate dataset statistics across all warming scenarios. Used to create change maps.';
+
+
+--
+-- Name: aggregate_pf_statistic_cells_change_to_absolute; Type: VIEW; Schema: pf_private; Owner: -
+--
+
+CREATE VIEW pf_private.aggregate_pf_statistic_cells_change_to_absolute AS
+ SELECT coords.cell,
+    stats.dataset_id,
+    stats.coordinate_hash,
+    stats.data_baseline_low,
+    stats.data_baseline_mid,
+    stats.data_baseline_high,
+    stats.data_1c_low,
+    stats.data_1c_mid,
+    stats.data_1c_high,
+    stats.data_1_5c_low,
+    stats.data_1_5c_mid,
+    stats.data_1_5c_high,
+    stats.data_2c_low,
+    stats.data_2c_mid,
+    stats.data_2c_high,
+    stats.data_2_5c_low,
+    stats.data_2_5c_mid,
+    stats.data_2_5c_high,
+    stats.data_3c_low,
+    stats.data_3c_mid,
+    stats.data_3c_high
+   FROM (pf_private.aggregate_pf_statistics_change_to_absolute stats
+     JOIN pf_public.pf_grid_coordinates coords ON ((stats.coordinate_hash = coords.md5_hash)));
+
+
+--
+-- Name: VIEW aggregate_pf_statistic_cells_change_to_absolute; Type: COMMENT; Schema: pf_private; Owner: -
+--
+
+COMMENT ON VIEW pf_private.aggregate_pf_statistic_cells_change_to_absolute IS 'View of aggregate dataset statistics joined with coordinate cells. Used to create change maps';
+
+
+--
 -- Name: connect_pg_simple_sessions; Type: TABLE; Schema: pf_private; Owner: -
 --
 
@@ -3952,6 +4534,76 @@ GRANT SELECT ON TABLE pf_public.pf_grid_coordinates TO pf_authenticated;
 --
 
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_dataset_statistic_cells TO pf_root;
+
+
+--
+-- Name: TABLE aggregate_pf_dataset_statistics_with_absolute_values; Type: ACL; Schema: pf_private; Owner: -
+--
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_dataset_statistics_with_absolute_values TO pf_root;
+
+
+--
+-- Name: TABLE aggregate_pf_dataset_statistic_cells_with_absolute_values; Type: ACL; Schema: pf_private; Owner: -
+--
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_dataset_statistic_cells_with_absolute_values TO pf_root;
+
+
+--
+-- Name: TABLE aggregate_pf_dataset_statistics_with_mean; Type: ACL; Schema: pf_private; Owner: -
+--
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_dataset_statistics_with_mean TO pf_root;
+
+
+--
+-- Name: TABLE aggregate_pf_dataset_statistic_cells_with_mean; Type: ACL; Schema: pf_private; Owner: -
+--
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_dataset_statistic_cells_with_mean TO pf_root;
+
+
+--
+-- Name: TABLE aggregate_pf_dataset_statistics_with_median; Type: ACL; Schema: pf_private; Owner: -
+--
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_dataset_statistics_with_median TO pf_root;
+
+
+--
+-- Name: TABLE aggregate_pf_dataset_statistic_cells_with_median; Type: ACL; Schema: pf_private; Owner: -
+--
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_dataset_statistic_cells_with_median TO pf_root;
+
+
+--
+-- Name: TABLE aggregate_pf_dataset_statistics_with_percentage; Type: ACL; Schema: pf_private; Owner: -
+--
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_dataset_statistics_with_percentage TO pf_root;
+
+
+--
+-- Name: TABLE aggregate_pf_dataset_statistic_cells_with_percentage; Type: ACL; Schema: pf_private; Owner: -
+--
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_dataset_statistic_cells_with_percentage TO pf_root;
+
+
+--
+-- Name: TABLE aggregate_pf_statistics_change_to_absolute; Type: ACL; Schema: pf_private; Owner: -
+--
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_statistics_change_to_absolute TO pf_root;
+
+
+--
+-- Name: TABLE aggregate_pf_statistic_cells_change_to_absolute; Type: ACL; Schema: pf_private; Owner: -
+--
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE pf_private.aggregate_pf_statistic_cells_change_to_absolute TO pf_root;
 
 
 --
