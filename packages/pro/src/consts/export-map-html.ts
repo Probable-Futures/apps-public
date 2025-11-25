@@ -1,4 +1,5 @@
 import { consts, types, DatasetDescriptionResponse } from "@probable-futures/lib";
+import type { SavedCustomMapStyle } from "@kepler.gl/types";
 import {
   displayBottomLinkFunction,
   displayClimateZonesKey,
@@ -9,7 +10,7 @@ import {
 
 export type ExportMapProps = {
   mapboxAccessToken: string;
-  mapStyle: string;
+  mapStyles: SavedCustomMapStyle;
   markups: string[];
   styles: string;
   datasets: any;
@@ -30,7 +31,7 @@ export type ExportMapProps = {
   datasetDescriptionResponse?: DatasetDescriptionResponse;
 };
 
-export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
+export const exportMapToHTML = (options: ExportMapProps, version = "3.2.0") => {
   return `
     <!DOCTYPE html>
     <html>
@@ -105,11 +106,11 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
         <meta property="twitter:image" content="http://probablefutures.org/assets/images/pf-gradient-1.jpg" />
         <meta name="twitter:url" content="http://probablefutures.org" />
         <!-- Load React/Redux -->
-        <script src="https://unpkg.com/react@16.8.4/umd/react.production.min.js" crossorigin></script>
-        <script src="https://unpkg.com/react-dom@16.8.4/umd/react-dom.production.min.js" crossorigin></script>
-        <script src="https://unpkg.com/redux@3.7.2/dist/redux.js" crossorigin></script>
-        <script src="https://unpkg.com/react-redux@7.1.3/dist/react-redux.min.js" crossorigin></script>
-        <script src="https://unpkg.com/styled-components@4.1.3/dist/styled-components.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/redux@4.2.1/dist/redux.js" crossorigin></script>
+        <script src="https://unpkg.com/react-redux@8.0.5/dist/react-redux.min.js" crossorigin></script>
+        <script src="https://unpkg.com/styled-components@6.1.8/dist/styled-components.min.js" crossorigin></script>
         <!-- Load Kepler.gl -->
         <script src="https://unpkg.com/kepler.gl@${version}/umd/keplergl.min.js" crossorigin></script>
         <script src="https://unpkg.com/@popperjs/core@2"></script>
@@ -315,7 +316,7 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
                     scrollZoom: false
                   },
                   mapStyle: {...${JSON.stringify(options.config.config.mapStyle)},
-                  mapStyles: ${JSON.stringify(options.mapStyle)}},
+                  mapStyles: ${JSON.stringify(options.mapStyles)}},
                 }),
                 project: projectReducer,
               });
@@ -607,9 +608,17 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
                   window.addEventListener('resize', handleResize);
                   return function() {window.removeEventListener('resize', handleResize);};
                 }, []);
-                function updateMapStyles () {
-                  let map = mapRef.current.getMap();
-                  let { layers } = map?.getStyle();
+                function updateMapStyles (retryCount = 0) {
+                  let map = mapRef.current?.getMap && mapRef.current.getMap();
+                  if (!map) return;
+                  let style = map.getStyle && map.getStyle();
+                  let layers = style?.layers;
+                  if (!layers || !layers.length) {
+                    if (retryCount < 10) {
+                      setTimeout(() => updateMapStyles(retryCount + 1), 300);
+                    }
+                    return;
+                  }
                   layers.forEach(function(layer) {
                     let { id, type } = layer;
                     if (id.includes('region-')) {
@@ -628,6 +637,53 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
                     mapRef.current = ref;
                     let map = mapRef.current.getMap();
                     map.on("style.load", () => updateMapStyles());
+                    function handleClick(event) {
+                      let target = event.target;
+                      while (target && target !== document.body) {
+                        if (
+                          target.classList &&
+                          (target.classList.contains("map-popover") ||
+                            target.classList.contains("tippy-box") ||
+                            target.id === "tippy-close-button")
+                        ) {
+                          return;
+                        }
+                        target = target.parentElement;
+                      }
+                      if (!mapRef.current) return;
+                      let currentMap = mapRef.current.getMap();
+                      let container = currentMap && currentMap.getContainer && currentMap.getContainer();
+                      if (!container) return;
+                      let bounds = container.getBoundingClientRect();
+                      let within =
+                        event.clientX >= bounds.left &&
+                        event.clientX <= bounds.right &&
+                        event.clientY >= bounds.top &&
+                        event.clientY <= bounds.bottom;
+                      if (!within) {
+                        return;
+                      }
+                      let x = event.clientX - bounds.left;
+                      let y = event.clientY - bounds.top;
+                      let lngLat = currentMap.unproject([x, y]);
+                      store.dispatch({
+                        type: UPDATE_CLICKED_MAP_INFO,
+                        payload: {
+                          clickedMapInfo: {
+                            longitude: lngLat.lng,
+                            latitude: lngLat.lat,
+                            lngLat: [lngLat.lng, lngLat.lat],
+                            x,
+                            y
+                          }
+                        }
+                      });
+                    }
+                    let container = map.getContainer();
+                    if (container) {
+                      container.addEventListener("click", handleClick, true);
+                    }
+                    document.addEventListener("click", handleClick, true);
                   }
                 };
                 return react.createElement(
@@ -697,13 +753,26 @@ export const exportMapToHTML = (options: ExportMapProps, version = "2.5.5") => {
               let datasets = ${JSON.stringify(options.datasets)};
               let config = ${JSON.stringify(options.config)};
               let loadedData = keplerGl.KeplerGlSchema.load(datasets, config);
-              store.dispatch(keplerGl.addDataToMap({
-                datasets: loadedData.datasets,
-                config: loadedData.config,
-                options: {keepExistingConfig: true,centerMap: false}
-              }));
-              let zoom = store.getState()?.keplerGl['pf-map']?.mapState?.zoom;
-              if (!isNaN(zoom) && zoom < 2.2) store.dispatch(keplerGl.updateMap({ zoom: 2.2 }));
+              function addDataWhenReady(retryCount = 0) {
+                let currentState = store.getState()?.keplerGl?.["pf-map"];
+                if (!currentState) {
+                  if (retryCount < 20) {
+                    setTimeout(() => addDataWhenReady(retryCount + 1), 200);
+                  } else {
+                    console.warn("[EmbeddableMap] Kepler instance not ready, skipping data load");
+                  }
+                  return;
+                }
+                store.dispatch(keplerGl.addDataToMap({
+                  datasets: loadedData.datasets,
+                  config: loadedData.config,
+                  options: {keepExistingConfig: false,centerMap: false}
+                }));
+                currentState = store.getState()?.keplerGl?.["pf-map"];
+                let zoom = currentState?.mapState?.zoom;
+                if (!isNaN(zoom) && zoom < 2.2) store.dispatch(keplerGl.updateMap({ zoom: 2.2 }));
+              }
+              addDataWhenReady();
             }(KeplerGl, store));
           })();
         </script>

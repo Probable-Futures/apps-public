@@ -78,6 +78,7 @@ const UserDatasets = () => {
     onCompleted: () => refetchDatasets(),
   });
   const [uploadDatasetModalOpen, setUploadDatasetModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [offset, setOffset] = useState<number>(0);
 
   const uppyRef = useRef<Uppy>();
@@ -113,18 +114,27 @@ const UserDatasets = () => {
     setUploadDatasetModalOpen(true);
   };
 
-  const closeModal = () => setUploadDatasetModalOpen(false);
+  const closeModal = useCallback(() => setUploadDatasetModalOpen(false), []);
 
   const onUploadFinish = useCallback(() => {
     refetchDatasets();
     closeModal();
-  }, [refetchDatasets]);
+  }, [closeModal, refetchDatasets]);
 
-  const uploadFiles = () => {
-    if (uppyRef.current && uppyRef.current.getFiles().length > 0) {
-      uppyRef.current?.upload();
+  const uploadFiles = useCallback(async () => {
+    const uppyInstance = uppyRef.current;
+    if (!uppyInstance || uppyInstance.getFiles().length === 0 || isUploading) {
+      return;
     }
-  };
+    try {
+      setIsUploading(true);
+      await uppyInstance.upload();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsUploading(false);
+    }
+  }, [isUploading]);
 
   useEffect(() => {
     if (loadingDatasets) {
@@ -180,7 +190,9 @@ const UserDatasets = () => {
             <ModalContent>
               <UploadFiles setUppyRef={setUppyRef} onUploadFinish={onUploadFinish} />
             </ModalContent>
-            <Button onClick={uploadFiles}>Upload File</Button>
+            <Button onClick={uploadFiles} isDisabled={isUploading}>
+              Upload File
+            </Button>
           </div>
         </Modal>
       </div>

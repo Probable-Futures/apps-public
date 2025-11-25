@@ -9,6 +9,7 @@ import { useAppSelector } from "../app/hooks";
 import { EMBEDDABLE_MAPS_MAPBOX_ACCESS_TOKEN } from "../consts/env";
 import { ExportMapProps, exportMapToHTML } from "../consts/export-map-html";
 import { DatasetDescriptionResponse } from "@probable-futures/lib/src/types";
+import { buildMapStylesObject } from "./useMapActions";
 
 const ExportMapHeader = styled.div`
   border: 1px solid ${colors.darkPurple};
@@ -140,18 +141,41 @@ const useExportMapAsHTML = ({
   };
 
   const onExportClick = () => {
+    if (!selectedClimateData) {
+      return;
+    }
     const [headerMarkup, headerStyles] = renderHeaderToString();
 
     // Concatenate the custom CSS with the extracted styles
     const allStyles = headerStyles + "\n<style>" + customCss + "</style>";
 
     const schema = keplerState.visState.schema;
-    const mapToSave = schema.save(keplerState);
+    const savedState = schema.save(keplerState);
     const [{ dataKey }] = consts.degreesOptions.filter((d) => d.value === mapStyleConfigs.degrees);
+    const mapStyles = buildMapStylesObject(selectedClimateData);
+    const savedConfig = savedState.config || {};
+    const savedInnerConfig = savedConfig.config || {};
+    const savedMapStyle = savedInnerConfig.mapStyle || {};
+    const mapToSave = {
+      ...savedState,
+      config: {
+        ...savedConfig,
+        config: {
+          ...savedInnerConfig,
+          mapStyle: {
+            ...savedMapStyle,
+            mapStyles: {
+              ...(savedMapStyle.mapStyles || {}),
+              ...mapStyles,
+            },
+          },
+        },
+      },
+    };
     const data: ExportMapProps = {
       ...mapToSave,
       mapboxAccessToken: EMBEDDABLE_MAPS_MAPBOX_ACCESS_TOKEN,
-      mapStyle: `mapbox://styles/probablefutures/${selectedClimateData?.mapStyleId}`,
+      mapStyles,
       markups: [headerMarkup],
       styles: allStyles,
       mapStyleConfigs: {
