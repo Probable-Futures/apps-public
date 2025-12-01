@@ -34,7 +34,8 @@
     "--shortcuts to run commands in different compose files--": "",
     "maps": "yarn --cwd packages/maps",
     "pro": "yarn --cwd packages/pro",
-    "compose:graphql": "docker-compose -f docker-compose.nginx.yml -f docker-compose.graphql.yml",
+    "compose:graphql": "docker compose -f docker-compose.nginx.yml -f docker-compose.graphql.yml",
+    "compose:both": "docker compose -f docker-compose.nginx.yml -f docker-compose.graphql.yml -f docker-compose.other.yml",
     "release": "release-it"
   },
   "devDependencies": {
