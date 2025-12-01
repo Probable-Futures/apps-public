@@ -59,7 +59,7 @@ const IconSharedStyles = css`
   cursor: pointer;
 `;
 
-const Container = styled.div`
+const Container = styled.div<{ isEditing?: boolean }>`
   .uppy-dashboard {
     margin: 0 auto;
     width: 100%;
@@ -111,6 +111,7 @@ const Container = styled.div`
     justify-content: center;
   }
   .uppy-DashboardContent-bar {
+    display: ${({ isEditing = false }) => (isEditing ? "none" : "flex")};
     background-color: ${colors.cream};
     border: 1px solid ${colors.secondaryBlack};
     border-bottom: none;
@@ -219,6 +220,12 @@ const Container = styled.div`
     background-color: ${colors.cream};
     border: 1px solid ${colors.secondaryBlack};
   }
+  .uppy-Dashboard-FileCard {
+    .uppy-Dashboard-FileCard-info {
+      height: unset;
+      padding: 10px 0px;
+    }
+  }
 `;
 
 const StyledUploadIcon = styled.i`
@@ -257,6 +264,7 @@ const UploadFiles = ({
   const [showUploadIcon, setShowUploadIcon] = useState(true);
   const [uppyInitialized, setUppyInitialized] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
   const uppy = useRef<Uppy>();
 
   const { getAccessTokenSilently, loginWithRedirect } = useAuth0();
@@ -277,10 +285,16 @@ const UploadFiles = ({
       if (!file) {
         return;
       }
+      // Extract name and description from file meta
+      const { name, description }: { name?: string; description?: string } = file.meta ?? {};
+
+      const datasetName = (name ?? file.name ?? "").trim();
+      const datasetDescription = (description ?? "").trim();
+
       const partnerDataset = await createPartnerDataset({
         variables: {
-          name: file.name,
-          description: (file.meta as typeof file.meta & { description: string }).description || "",
+          name: datasetName,
+          description: datasetDescription,
         },
       });
       if (partnerDataset.data && response?.uploadURL) {
@@ -356,6 +370,22 @@ const UploadFiles = ({
     };
   }, [onUploadSuccess, uppyInitialized]);
 
+  useEffect(() => {
+    const uppyInstance = uppy.current;
+    if (!uppyInitialized || !uppyInstance) return;
+
+    const handleEditStart = () => setIsEditing(true);
+    const handleEditEnd = () => setIsEditing(false);
+
+    uppyInstance.on("dashboard:file-edit-start", handleEditStart);
+    uppyInstance.on("dashboard:file-edit-complete", handleEditEnd);
+
+    return () => {
+      uppyInstance.off("dashboard:file-edit-start", handleEditStart);
+      uppyInstance.off("dashboard:file-edit-complete", handleEditEnd);
+    };
+  }, [uppyInitialized]);
+
   if (!uppy.current || !uppyInitialized) {
     return null;
   }
@@ -393,7 +423,7 @@ const UploadFiles = ({
   });
 
   return (
-    <Container>
+    <Container isEditing={isEditing}>
       <div className="uppy-dashboard">
         {showUploadIcon && <StyledUploadIcon icon={UploadIcon} />}
         <Dashboard

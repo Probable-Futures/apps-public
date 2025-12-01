@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState, FocusEvent } from "react";
 import styled from "styled-components";
-import { layerConfigChange, updateVisData, removeDataset } from "@kepler.gl/actions";
+import { layerConfigChange, removeDataset, updateDatasetProps } from "@kepler.gl/actions";
 import { Popover } from "react-tiny-popover";
 import { styles } from "@probable-futures/components-lib";
 import { utils, consts } from "@probable-futures/lib";
@@ -380,7 +380,11 @@ const Data = ({ onShowDatasetTable }: Props) => {
     });
   };
 
-  const onDatasetNameUpdate = (event: FocusEvent<HTMLInputElement>, index: number) => {
+  const onDatasetNameUpdate = (
+    event: FocusEvent<HTMLInputElement>,
+    index: number,
+    datasetId: string,
+  ) => {
     const newDatasetName = event.target.value;
     const dataset = project.filteredProjectDatasets[index];
     if (dataset && dataset.datasetName !== newDatasetName) {
@@ -397,18 +401,18 @@ const Data = ({ onShowDatasetTable }: Props) => {
           datasetName: newDatasetName,
         },
       });
-      // update dataset label inside kepler's state.
-      const newDatasets = Object.keys(datasets).map((key, datasetIdx) => {
-        const newLabel = datasetIdx === index ? newDatasetName : datasets[key].metadata.label;
-        return {
-          data: {
-            fields: datasets[key].fields,
-            rows: [...datasets[key].dataContainer.rows()] as any[],
-          },
-          info: { ...datasets[key].metadata, label: newLabel, index },
-        };
-      });
-      dispatch(updateVisData(newDatasets, {}));
+      // Keep kepler dataset label and metadata in sync with the updated name.
+      if (datasets && datasets[datasetId]) {
+        dispatch(
+          updateDatasetProps(datasetId, {
+            label: newDatasetName,
+            metadata: {
+              ...datasets[datasetId].metadata,
+              label: newDatasetName,
+            },
+          }),
+        );
+      }
     }
     setEditingDatasetId("");
   };
@@ -481,7 +485,7 @@ const Data = ({ onShowDatasetTable }: Props) => {
                   type="text"
                   defaultValue={dataset.label}
                   autoFocus
-                  onBlur={(event) => onDatasetNameUpdate(event, index)}
+                  onBlur={(event) => onDatasetNameUpdate(event, index, dataset.id)}
                 />
               ) : (
                 <DatasetName

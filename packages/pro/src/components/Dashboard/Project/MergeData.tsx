@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useApolloClient } from "@apollo/client";
 import styled from "styled-components";
 import Modal from "react-modal";
@@ -134,6 +134,8 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
   const [uppyFilesCount, setUppyFilesCount] = useState(0);
   const [projectName, setProjectName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadInProgress, setIsUploadInProgress] = useState(false);
+  const [uppyInstance, setUppyInstance] = useState<Uppy>();
   const uppyRef = useRef<Uppy>();
   const projectId = useAppSelector((state) => state.project.projectId);
   const mapConfig = useAppSelector((state) => state.project.mapConfig);
@@ -232,7 +234,31 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
 
   const setUppyRef = (uppy: Uppy) => {
     uppyRef.current = uppy;
+    setUppyInstance(uppy);
   };
+
+  useEffect(() => {
+    if (!uppyInstance) {
+      return;
+    }
+
+    const handleUploadStart = () => setIsUploadInProgress(true);
+    const handleUploadEnd = () => setIsUploadInProgress(false);
+
+    uppyInstance.on("upload", handleUploadStart);
+    uppyInstance.on("complete", handleUploadEnd);
+    uppyInstance.on("error", handleUploadEnd);
+    uppyInstance.on("upload-error", handleUploadEnd);
+    uppyInstance.on("cancel-all", handleUploadEnd);
+
+    return () => {
+      uppyInstance.off("upload", handleUploadStart);
+      uppyInstance.off("complete", handleUploadEnd);
+      uppyInstance.off("error", handleUploadEnd);
+      uppyInstance.off("upload-error", handleUploadEnd);
+      uppyInstance.off("cancel-all", handleUploadEnd);
+    };
+  }, [uppyInstance]);
 
   const onTabClick = (index: number) => {
     if (currentTab !== index) {
@@ -372,6 +398,10 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
     [projectDatasets, partnerDatasets?.viewPartnerDatasets?.nodes],
   );
 
+  const hasSelectedDataset = Boolean(selectedPartnerDataset?.partnerDatasetId);
+  const hasUploadedFile = uppyFilesCount > 0;
+  const isImportDisabled = (!hasUploadedFile && !hasSelectedDataset) || isUploadInProgress;
+
   return (
     <Modal
       style={{ ...modalStyle, content: { ...modalStyle.content, width: "520px" } }}
@@ -460,7 +490,7 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
             {fileValidationError && uppyFilesCount !== 0 && (
               <ErrorMessage text={fileValidationError} />
             )}
-            <Button type="submit" name="upload">
+            <Button type="submit" name="upload" isDisabled={isImportDisabled}>
               Import Dataset
             </Button>
           </form>
