@@ -9,7 +9,7 @@ import MapGL, {
 import styled from "styled-components";
 import { components } from "@probable-futures/components-lib";
 import { utils, consts } from "@probable-futures/lib";
-import { MapboxEvent, Map } from "mapbox-gl";
+import mapboxgl, { MapboxEvent, Map } from "mapbox-gl";
 
 import { useMenu } from "../Menu";
 import Popup from "../common/Popup";
@@ -315,6 +315,7 @@ const InteractiveMap = () => {
     <Container>
       {selectedDataset && (
         <MapGL
+          mapLib={mapboxgl}
           {...viewState}
           mapboxAccessToken={
             window.pfInteractiveMap?.mapboxAccessToken || process.env.REACT_APP_MAPBOX_ACCESS_TOKEN

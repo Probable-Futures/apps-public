@@ -6,6 +6,7 @@ import { MapboxEvent, Map as MapBoxMap, MapSourceDataEvent } from "mapbox-gl";
 import qrCode from "qrcode";
 import debounce from "lodash.debounce";
 import camelcase from "lodash.camelcase";
+import mapboxgl from "mapbox-gl";
 
 import { useMapData } from "../../contexts/DataContext";
 import { useTourData } from "../../contexts/TourContext";
@@ -754,6 +755,7 @@ const InteractiveMap = () => {
           </MapKeyContainer>
           {selectedDataset && (
             <MapGL
+              mapLib={mapboxgl}
               {...viewState}
               mapboxAccessToken={mapboxAccessToken}
               style={{ width: "100vw", height: mapHeight }}
