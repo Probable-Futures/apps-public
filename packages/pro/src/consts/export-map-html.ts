@@ -296,11 +296,14 @@ export const exportMapToHTML = (options: ExportMapProps, version = "3.2.0") => {
             };
             // Store
             let UPDATE_CLICKED_MAP_INFO = "UPDATE_CLICKED_MAP_INFO";
-            let initialState = {clickedMapInfo: undefined};
+            let SET_SHOULD_IGNORE_LAYER_CLICK = "SET_SHOULD_IGNORE_LAYER_CLICK";
+            let initialState = {clickedMapInfo: undefined, shouldIgnoreLayerClick: false};
             function projectReducer(state = initialState, action) {
               switch (action.type) {
                 case UPDATE_CLICKED_MAP_INFO:
                   return {...state,clickedMapInfo: action.payload.clickedMapInfo};
+                case SET_SHOULD_IGNORE_LAYER_CLICK:
+                  return {...state,shouldIgnoreLayerClick: action.payload.shouldIgnoreLayerClick};
                 default: return state;
               }
             }
@@ -324,7 +327,7 @@ export const exportMapToHTML = (options: ExportMapProps, version = "3.2.0") => {
             function interceptKeplerActionsMiddlware({ getState, dispatch }) {
               return (next) => (action) => {
                 let returnValue = next(action);
-                if (action.type === "@@kepler.gl/LAYER_CLICK") dispatch({type: UPDATE_CLICKED_MAP_INFO,payload: { clickedMapInfo: action.payload.info }});
+                if (action.type === "@@kepler.gl/LAYER_CLICK" && !getState()?.project?.shouldIgnoreLayerClick) dispatch({type: UPDATE_CLICKED_MAP_INFO,payload: { clickedMapInfo: action.payload.info }});
                 return returnValue;
               };
             }
@@ -362,8 +365,113 @@ export const exportMapToHTML = (options: ExportMapProps, version = "3.2.0") => {
                 }');
                 let mapRef = react.useRef(null);
                 let tippyInstanceRef = react.useRef(null);
+                let pointerCleanupRef = react.useRef(null);
+                let pointerListenersAttachedRef = react.useRef(false);
+                let pointerContainerRef = react.useRef(null);
                 let clickedMapInfo = ReactRedux.useSelector(function(state){return state.project.clickedMapInfo});
                 let mapState = ReactRedux.useSelector(function(state){return state.keplerGl["pf-map"]?.mapState});
+                react.useEffect(function() {
+                  return function cleanupPointerListeners() {
+                    if (pointerCleanupRef.current) {
+                      pointerCleanupRef.current();
+                    }
+                  };
+                }, []);
+
+                function attachPointerListeners(container) {
+                  if (!container || pointerListenersAttachedRef.current) return;
+                  pointerListenersAttachedRef.current = true;
+                  pointerContainerRef.current = container;
+                  const dragThreshold = 5;
+                  let pointerState = {isActive: false,hasDragged: false,startX: 0,startY: 0};
+                  function setLayerClickIgnore(value) {
+                    store.dispatch({type: SET_SHOULD_IGNORE_LAYER_CLICK,payload: {shouldIgnoreLayerClick: value}});
+                  }
+                  function getContainerBounds() {
+                    return pointerContainerRef.current && pointerContainerRef.current.getBoundingClientRect ? pointerContainerRef.current.getBoundingClientRect() : null;
+                  }
+                  function isWithinBounds(coords) {
+                    let bounds = getContainerBounds();
+                    if (!bounds) return false;
+                    return coords.x >= bounds.left && coords.x <= bounds.right && coords.y >= bounds.top && coords.y <= bounds.bottom;
+                  }
+                  function extractCoords(event) {
+                    if (typeof event.clientX === "number") return {x: event.clientX, y: event.clientY};
+                    let touch = (event.touches && event.touches[0]) || (event.changedTouches && event.changedTouches[0]);
+                    return touch ? {x: touch.clientX, y: touch.clientY} : null;
+                  }
+                  function handlePointerDown(event) {
+                    let coords = extractCoords(event);
+                    if (!coords || !isWithinBounds(coords)) return;
+                    pointerState.isActive = true;
+                    pointerState.hasDragged = false;
+                    pointerState.startX = coords.x;
+                    pointerState.startY = coords.y;
+                    setLayerClickIgnore(false);
+                  }
+                  function handlePointerMove(event) {
+                    if (!pointerState.isActive || pointerState.hasDragged) return;
+                    let coords = extractCoords(event);
+                    if (!coords) return;
+                    let deltaX = Math.abs(coords.x - pointerState.startX);
+                    let deltaY = Math.abs(coords.y - pointerState.startY);
+                    if (deltaX > dragThreshold || deltaY > dragThreshold) {
+                      pointerState.hasDragged = true;
+                      setLayerClickIgnore(true);
+                    }
+                  }
+                  function clearPointerState(source) {
+                    if (!pointerState.isActive) return;
+                    pointerState.isActive = false;
+                    if (!pointerState.hasDragged) return;
+                    pointerState.hasDragged = false;
+                    setTimeout(() => {
+                      setLayerClickIgnore(false);
+                    }, 0);
+                  }
+                  function handlePointerUp() {
+                    clearPointerState("pointerup");
+                  }
+                  function handlePointerCancel() {
+                    clearPointerState("pointercancel");
+                  }
+                  let supportsPointerEvents = Boolean(window.PointerEvent);
+                  if (supportsPointerEvents) {
+                    document.addEventListener("pointerdown", handlePointerDown, true);
+                    document.addEventListener("pointermove", handlePointerMove, true);
+                    document.addEventListener("pointerup", handlePointerUp, true);
+                    document.addEventListener("pointercancel", handlePointerCancel, true);
+                    document.addEventListener("pointerleave", handlePointerCancel, true);
+                  } else {
+                    document.addEventListener("mousedown", handlePointerDown, true);
+                    document.addEventListener("mousemove", handlePointerMove, true);
+                    document.addEventListener("mouseup", handlePointerUp, true);
+                    document.addEventListener("touchstart", handlePointerDown, true);
+                    document.addEventListener("touchmove", handlePointerMove, true);
+                    document.addEventListener("touchend", handlePointerCancel, true);
+                    document.addEventListener("touchcancel", handlePointerCancel, true);
+                  }
+                  pointerCleanupRef.current = function cleanupPointerListeners() {
+                    if (supportsPointerEvents) {
+                      document.removeEventListener("pointerdown", handlePointerDown, true);
+                      document.removeEventListener("pointermove", handlePointerMove, true);
+                      document.removeEventListener("pointerup", handlePointerUp, true);
+                      document.removeEventListener("pointercancel", handlePointerCancel, true);
+                      document.removeEventListener("pointerleave", handlePointerCancel, true);
+                    } else {
+                      document.removeEventListener("mousedown", handlePointerDown, true);
+                      document.removeEventListener("mousemove", handlePointerMove, true);
+                      document.removeEventListener("mouseup", handlePointerUp, true);
+                      document.removeEventListener("touchstart", handlePointerDown, true);
+                      document.removeEventListener("touchmove", handlePointerMove, true);
+                      document.removeEventListener("touchend", handlePointerCancel, true);
+                      document.removeEventListener("touchcancel", handlePointerCancel, true);
+                    }
+                    pointerListenersAttachedRef.current = false;
+                    pointerContainerRef.current = null;
+                    setLayerClickIgnore(false);
+                  };
+                }
 
                 const tippyCoordinate = react.useMemo(function(){
                   if (window.viewportMercatorProject && feature) {
@@ -636,6 +744,8 @@ export const exportMapToHTML = (options: ExportMapProps, version = "3.2.0") => {
                   if (ref && !mapRef.current) {
                     mapRef.current = ref;
                     let map = mapRef.current.getMap();
+                    let mapContainer = (map && map.getCanvasContainer && map.getCanvasContainer()) || (map && map.getContainer && map.getContainer());
+                    attachPointerListeners(mapContainer);
                     map.on("style.load", () => updateMapStyles());
                     function handleClick(event) {
                       let target = event.target;
@@ -660,7 +770,7 @@ export const exportMapToHTML = (options: ExportMapProps, version = "3.2.0") => {
                         event.clientX <= bounds.right &&
                         event.clientY >= bounds.top &&
                         event.clientY <= bounds.bottom;
-                      if (!within) {
+                      if (!within || store.getState()?.project?.shouldIgnoreLayerClick) {
                         return;
                       }
                       let x = event.clientX - bounds.left;
@@ -679,9 +789,9 @@ export const exportMapToHTML = (options: ExportMapProps, version = "3.2.0") => {
                         }
                       });
                     }
-                    let container = map.getContainer();
-                    if (container) {
-                      container.addEventListener("click", handleClick, true);
+                    let fallbackContainer = map.getContainer();
+                    if (fallbackContainer) {
+                      fallbackContainer.addEventListener("click", handleClick, true);
                     }
                     document.addEventListener("click", handleClick, true);
                   }
