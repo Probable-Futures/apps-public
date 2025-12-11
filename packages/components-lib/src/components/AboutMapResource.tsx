@@ -62,6 +62,8 @@ const SimulateAnchorTag = styled.span`
   }
 `;
 
+const isExternalLink = (url: string) => /^https?:\/\//i.test(url);
+
 const AboutMapResource = ({ intro, title, resources, source, handleTourClick }: Props) => {
   const renderResourceItem = (resource: Resource, index: number) => {
     // Add a special case for handling Take Tour link
@@ -73,11 +75,13 @@ const AboutMapResource = ({ intro, title, resources, source, handleTourClick }: 
         </ResourceItem>
       );
     } else {
+      const externalLink = isExternalLink(resource.resource.url);
+
       return (
         <ResourceItem key={index}>
           <a
             href={resource.resource.url}
-            target={resource.resource.target}
+            target={externalLink ? "_blank" : resource.resource.target}
             rel="noopener noreferrer"
           >
             {resource.resource.title}
