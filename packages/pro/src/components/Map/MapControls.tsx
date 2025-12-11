@@ -47,7 +47,7 @@ const bottomStyledGroupsCss = css`
 `;
 
 const StyledGroup = styled(styles.Group)`
-  background-color: ${colors.darkPurple};
+  background-color: ${colors.white};
   z-index: 1;
   right: 29px;
   ${({ position }: GroupProps) =>
@@ -64,7 +64,7 @@ const StyledGroup = styled(styles.Group)`
   }
 
   @media (min-width: ${size.laptop}) {
-    right: 29px;
+    right: 10px;
   }
 `;
 
@@ -116,7 +116,6 @@ export default function MapControls({
             onMouseEnter={() => setShowScreenshotTooltip(true)}
             onMouseLeave={() => setShowScreenshotTooltip(false)}
             first
-            mode="dark"
           >
             <DownloadIcon />
           </styles.ControlButton>
@@ -132,7 +131,6 @@ export default function MapControls({
             onClick={onShareClick}
             onMouseEnter={() => setShowShareTooltip(true)}
             onMouseLeave={() => setShowShareTooltip(false)}
-            mode="dark"
           >
             <ShareIcon />
           </styles.ControlButton>
@@ -149,7 +147,6 @@ export default function MapControls({
             onClick={onDownloadClick}
             onMouseEnter={() => setShowDownloadTooltip(true)}
             onMouseLeave={() => setShowDownloadTooltip(false)}
-            mode="dark"
           >
             <DownloadOffliceIcon />
           </styles.ControlButton>
@@ -166,7 +163,6 @@ export default function MapControls({
             onClick={onExportClick}
             onMouseEnter={() => setShowExportTooltip(true)}
             onMouseLeave={() => setShowExportTooltip(false)}
-            mode="dark"
             last
           >
             <IFrameIcon />
@@ -188,13 +184,12 @@ export default function MapControls({
               title="Zoom In"
               onClick={onZoomIn}
               first
-              mode="dark"
             >
               <ZoomInIcon />
             </styles.ControlButton>
           </styles.ButtonContainer>
         </components.ControlsTooltip>
-        <styles.ControlButton title="Zoom Out" onClick={() => onZoom(zoom - 1)} last mode="dark">
+        <styles.ControlButton title="Zoom Out" onClick={() => onZoom(zoom - 1)} last>
           <ZoomOutIcon />
         </styles.ControlButton>
       </StyledGroup>
