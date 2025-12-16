@@ -1,7 +1,7 @@
 {
   "name": "@probable-futures/build",
   "private": true,
-  "version": "5.0.0",
+  "version": "6.0.0",
   "scripts": {
     "precommit": "lefthook run pre-commit",
     "build": "lerna run build",
