@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
-import { mapStyleChange, updateMap, toggleModal, fitBounds } from "@kepler.gl/actions";
+import {
+  mapStyleChange,
+  updateMap,
+  toggleModal,
+  fitBounds,
+  toggleSidePanel,
+} from "@kepler.gl/actions";
 import { EXPORT_IMAGE_ID } from "@kepler.gl/constants";
 import { useLocation } from "react-router-dom";
 import { utils, consts } from "@probable-futures/lib";
@@ -210,6 +216,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
     showLabels,
     binHexColors,
   });
+  const sidePanelToRestoreRef = useRef<string | null>(null);
 
   const {
     popupVisible,
@@ -223,6 +230,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
   });
 
   const activeSidePanel = !!keplerGl[MAP_ID]?.uiState?.activeSidePanel;
+  const currentModal = keplerGl[MAP_ID]?.uiState?.currentModal;
   const isSharedProject = !!project.slugId;
 
   const { onExportClick } = useExportMapAsHTML({
@@ -272,6 +280,12 @@ const InteractiveMap = (props: PropsFromRedux) => {
   }, [mapRef]);
 
   const takeScreenshot = useCallback(() => {
+    const activePanel = keplerGl[MAP_ID]?.uiState?.activeSidePanel;
+    if (activePanel) {
+      sidePanelToRestoreRef.current = activePanel;
+      dispatch(toggleSidePanel(null));
+    }
+
     if (mapRef.current && keplerGl[MAP_ID]) {
       const map = mapRef.current.getMap();
       if (map) {
@@ -310,6 +324,13 @@ const InteractiveMap = (props: PropsFromRedux) => {
     mapRef,
     exportingImage,
   ]);
+
+  useEffect(() => {
+    if (currentModal !== EXPORT_IMAGE_ID && sidePanelToRestoreRef.current) {
+      dispatch(toggleSidePanel(sidePanelToRestoreRef.current));
+      sidePanelToRestoreRef.current = null;
+    }
+  }, [currentModal, dispatch]);
 
   const { createProject } = useProjectApi({
     setDefaultColorField,

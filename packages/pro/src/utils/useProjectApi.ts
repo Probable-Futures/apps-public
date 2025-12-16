@@ -76,6 +76,8 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
   const selectedClimateDataRef = useRef<types.Map>();
 
   const { fetchProject } = useProjectInit();
+  const normalizeFieldName = (name?: string | null): string =>
+    typeof name === "string" ? name.toLowerCase().trim().replace(/ /g, "_") : "";
 
   const datasetsCount = useMemo(() => {
     let count = 0;
@@ -94,13 +96,49 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
         pfMapConfig: mapConfig.pfMapConfig,
         keplerConfig: KeplerGlSchema.getConfigToSave(keplerRef.current),
       };
+
+      const currentLayers = keplerRef.current?.visState?.layers;
+      const savedLayers = mapConfig.keplerConfig?.config?.visState?.layers;
+
+      if (currentLayers?.length && savedLayers?.length) {
+        savedLayers.forEach((savedLayer, idx) => {
+          const savedConfig = savedLayer?.config as any;
+          const currentConfig = currentLayers[idx]?.config as any;
+
+          if (!currentConfig || !savedConfig) {
+            return;
+          }
+
+          if (currentConfig.colorField) {
+            savedConfig.colorField = currentConfig.colorField;
+          }
+
+          if (currentConfig.sizeField) {
+            savedConfig.sizeField = currentConfig.sizeField;
+          }
+
+          savedConfig.strokeColorField =
+            currentConfig.strokeColorField ?? savedConfig.strokeColorField;
+
+          if (Array.isArray(savedConfig.textLabel)) {
+            savedConfig.textLabel = savedConfig.textLabel.map((label: any, textIdx: number) => ({
+              ...label,
+              field: currentConfig.textLabel?.[textIdx]?.field ?? label.field,
+            }));
+          }
+        });
+      }
     }
     return mapConfig;
   }, []);
 
   const updateKeplerConfig = useCallback(() => {
+    const schemaConfig = getSchemaConfig();
+    if (!schemaConfig?.keplerConfig) {
+      return;
+    }
     updateProject({
-      keplerConfig: getSchemaConfig().keplerConfig,
+      keplerConfig: schemaConfig.keplerConfig,
     });
     dispatch({ type: UPDATE_PROJECT_SYNCED, payload: { isSynced: true } });
   }, [dispatch, updateProject, getSchemaConfig]);
@@ -208,7 +246,9 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
   useEffect(() => {
     let callDebounce: any;
     if (!project.isSynced && project.addedDataToMap) {
-      callDebounce = debounce(() => updateKeplerConfig(), 300);
+      callDebounce = debounce(() => {
+        updateKeplerConfig();
+      }, 300);
       callDebounce();
     }
     return () => callDebounce && callDebounce.cancel();
@@ -256,9 +296,12 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
       return [];
     };
 
-    const getKeplerConfig = (): AddDataToMapPayloadSimplified => {
+    const getKeplerConfig = (): AddDataToMapPayloadSimplified | undefined => {
       const schemaConfig = getSchemaConfig();
       const savedConf = mapConfig?.keplerConfig?.config as ParsedConfig | undefined;
+      if (!schemaConfig?.keplerConfig?.config) {
+        return undefined;
+      }
 
       /**
        * This is needed when multiple datasets are in a project:
@@ -269,12 +312,12 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
        * When a second dataset is added to the project??
        */
       const parsedLayers: ParsedLayer[] | undefined = mergeLayers(
-        schemaConfig.keplerConfig?.config.visState?.layers,
+        schemaConfig.keplerConfig.config.visState?.layers,
         savedConf?.visState?.layers,
       );
 
       const conf: ParsedConfig = {
-        ...schemaConfig.keplerConfig?.config,
+        ...schemaConfig.keplerConfig.config,
         ...savedConf,
       } as ParsedConfig;
 
@@ -298,8 +341,12 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
       (slugId || datasetsCount === filteredProjectDatasets?.length)
     ) {
       // deep copy kepler's config to make the object writable
+      const schemaConf = getKeplerConfig();
+      if (!schemaConf) {
+        return;
+      }
       const keplerConf: AddDataToMapPayloadSimplified = cleanKeplerConfig(
-        JSON.parse(JSON.stringify(getKeplerConfig())),
+        JSON.parse(JSON.stringify(schemaConf)),
       );
       /**
        * The enrichment process updates all columns in the CSV file to lower case.
@@ -312,13 +359,13 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
       if (Array.isArray(keplerConf.datasets)) {
         keplerConf.datasets.forEach((dataset) => {
           dataset.data.fields.forEach((field) => {
-            field.name = field.name.toLowerCase().trim().replace(/ /g, "_");
+            field.name = normalizeFieldName(field.name);
           });
         });
 
         keplerConf.config?.visState?.filters?.forEach((filter) => {
           if (filter.name) {
-            filter.name[0] = filter.name[0].toLowerCase().trim().replace(/ /g, "_");
+            filter.name[0] = normalizeFieldName(filter.name[0]);
           }
         });
       }

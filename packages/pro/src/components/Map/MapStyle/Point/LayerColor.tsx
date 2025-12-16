@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   LayerColorRangeSelector,
   LayerColorSelector,
@@ -46,66 +46,66 @@ type Option = {
   label: string;
 };
 
-const getInitialColorField = (props: LayerConfiguratorProps) =>
-  props.layer.config.colorField
-    ? `${props.layer.config.colorField.displayName} (${props.layer.config.colorField.type})`
-    : "";
-
 const layerTypes: Option[] = [
   { label: "Point", value: "point" },
   { label: "Heat map", value: "heatmap" },
   { label: "Polygon", value: "geojson" },
 ];
 
+const defaultLayerType = { label: "Point", value: "point" };
+
 const LayerColor = (props: LayerConfiguratorProps): JSX.Element => {
-  const [options, setOptions] = useState<Field[]>([]);
-  const [filteredOptions, setFilteredOptions] = useState<Field[]>([]);
+  const { layer, datasets, updateLayerType } = props;
+
   const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedBaseColor, setSelectedBaseColor] = useState<string>(getInitialColorField(props));
-  const [selectedLayerType, setSelectedLayerType] = useState<Option>({
-    value: props.layer.type,
-    label: layerTypes.find((l) => l.value === props.layer.type)?.label || "",
-  });
-  const defaultLayerType = { label: "Point", value: "point" };
+  const [searchTerm, setSearchTerm] = useState("");
 
   const visConfiguratorProps = getVisConfiguratorProps(props);
   const layerConfiguratorProps = getLayerConfiguratorProps(props);
   const layerChannelConfigProps = getLayerChannelConfigProps(props);
 
-  const { layer } = props;
+  // Derived Data: Get all available fields (options)
+  const fieldOptions = useMemo(() => {
+    if (layer && layer.config?.dataId && datasets[layer.config.dataId]) {
+      return datasets[layer.config.dataId].fields;
+    }
+    return [];
+  }, [datasets, layer]);
+
+  // Derived Data: Filter fields based on search term
+  const filteredOptions = useMemo(() => {
+    if (!searchTerm) return fieldOptions;
+    return fieldOptions.filter((item) =>
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [fieldOptions, searchTerm]);
+
+  // Derived Data: Current Color Label
+  const currentColorFieldLabel = useMemo(() => {
+    const { colorField } = layer.config;
+    return colorField ? `${colorField.displayName} (${colorField.type})` : "";
+  }, [layer.config]);
+
+  // Derived Data: Current Layer Type Option
+  const selectedLayerTypeOption = useMemo(() => {
+    return layerTypes.find((l) => l.value === layer.type) || defaultLayerType;
+  }, [layer.type]);
 
   const filteredLayerTypes = useMemo(() => {
-    if (selectedLayerType.value === "geojson") {
-      return layerTypes.filter((type) => type.value === "geojson");
-    } else {
-      return layerTypes.filter((type) => type.value !== "geojson");
-    }
-  }, [selectedLayerType.value]);
-
-  useEffect(() => {
-    if (layer && layer.config?.dataId) {
-      const fields = props.datasets[layer.config?.dataId].fields;
-      setOptions(fields);
-      setFilteredOptions(fields);
-    }
-  }, [props.datasets, layer]);
+    const isGeoJson = layer.type === "geojson";
+    return isGeoJson
+      ? layerTypes.filter((type) => type.value === "geojson")
+      : layerTypes.filter((type) => type.value !== "geojson");
+  }, [layer.type]);
 
   const onShowDropdown = (show?: boolean) => {
-    setFilteredOptions(options);
-    setShowDropdown(show ? show : !showDropdown);
+    // Reset search when opening dropdown
+    if (show) setSearchTerm("");
+    setShowDropdown(show ?? !showDropdown);
   };
 
-  const handleChange = (event: any) => {
-    const filteredData = options.filter((item) => {
-      return event.target.value
-        ? item.name.toLowerCase().includes(event.target.value.toLowerCase())
-        : true;
-    });
-    setFilteredOptions(filteredData);
-  };
-
-  const hideDropdown = () => {
-    setShowDropdown(false);
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
   };
 
   const onSelectItem = (item: Field | null) => {
@@ -113,18 +113,12 @@ const LayerColor = (props: LayerConfiguratorProps): JSX.Element => {
       { [layer.visualChannels.color.field]: item },
       layer.visualChannels.color.key,
     );
-    if (item) {
-      setSelectedBaseColor(`${item.displayName} (${item.type})`);
-    } else {
-      setSelectedBaseColor("");
-    }
-    hideDropdown();
+    setShowDropdown(false);
   };
 
-  const updateLayerType = (option: Option) => {
-    if (option.value) {
-      setSelectedLayerType(option);
-      props.updateLayerType(option.value);
+  const handleLayerTypeChange = (option: Option) => {
+    if (option.value && option.value !== layer.type) {
+      updateLayerType(option.value);
     }
   };
 
@@ -134,37 +128,37 @@ const LayerColor = (props: LayerConfiguratorProps): JSX.Element => {
       <div>
         <Dropdown
           options={filteredLayerTypes}
-          value={selectedLayerType ? selectedLayerType : defaultLayerType}
-          onChange={updateLayerType}
+          value={selectedLayerTypeOption}
+          onChange={handleLayerTypeChange}
           theme={Theme.DARK}
         />
       </div>
       <SideBarSubSection>
-        {selectedLayerType.value !== "heatmap" && (
+        {selectedLayerTypeOption.value !== "heatmap" && (
           <ItemSelector
             label="Color Based on"
             filteredOptions={filteredOptions}
-            options={options}
+            options={fieldOptions}
             isErasable={true}
-            handleChange={handleChange}
+            handleChange={handleSearch}
             onSelectItem={onSelectItem}
-            toggleShowDropdown={(show) => onShowDropdown(show)}
+            toggleShowDropdown={onShowDropdown}
             showDropdown={showDropdown}
-            placeholder={selectedBaseColor || "Select a field"}
+            placeholder={currentColorFieldLabel || "Select a field"}
           />
         )}
       </SideBarSubSection>
       <SideBarSubSection>
         <MapStyleLabel>Edit color(s)</MapStyleLabel>
         <ColorSelectorWrapper>
-          {props.layer.config.colorField || selectedLayerType.value === "heatmap" ? (
+          {layer.config.colorField || selectedLayerTypeOption.value === "heatmap" ? (
             <LayerColorRangeSelector {...visConfiguratorProps} />
           ) : (
             <LayerColorSelector {...layerConfiguratorProps} />
           )}
         </ColorSelectorWrapper>
       </SideBarSubSection>
-      {selectedLayerType.value !== "point" && (
+      {selectedLayerTypeOption.value !== "point" && (
         <OpacitySliderWrapper>
           <div>
             <VisConfigSlider {...layer.visConfigSettings.opacity} {...visConfiguratorProps} />

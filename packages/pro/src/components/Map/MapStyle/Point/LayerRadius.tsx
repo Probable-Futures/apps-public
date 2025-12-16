@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { VisConfigSlider } from "@kepler.gl/components";
 import { Field } from "@kepler.gl/types";
 
@@ -8,65 +8,67 @@ import { getLayerChannelConfigProps, getVisConfiguratorProps } from "../../../..
 import MapStyleSectionTitle from "../MapStyleSectionTitle";
 import { LayerConfiguratorProps } from "../../KeplerCustomComponents/CustomLayerConfigurator";
 
-const getInitialSizeField = (props: LayerConfiguratorProps) =>
-  props.layer.config.sizeField
-    ? `${props.layer.config.sizeField.displayName} (${props.layer.config.sizeField.type})`
-    : "";
-
 const LayerRadius = (props: LayerConfiguratorProps): JSX.Element => {
-  const [options, setOptions] = useState<Field[]>([]);
-  const [filteredOptions, setFilteredOptions] = useState<Field[]>([]);
+  const { layer, datasets } = props;
+
   const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedBaseRadius, setSelectedBaseRadius] = useState<string>(getInitialSizeField(props));
+  const [searchTerm, setSearchTerm] = useState("");
 
   const visConfiguratorProps = getVisConfiguratorProps(props);
   const layerChannelConfigProps = getLayerChannelConfigProps(props);
 
-  const { layer } = props;
   const property = "isRadius";
   const defaultSwitchValue =
     typeof layer.config.visConfig[property] === "boolean" ? layer.config.visConfig[property] : true;
 
-  useEffect(() => {
-    if (layer && layer.config?.dataId) {
-      const fields = props.datasets[layer.config?.dataId].fields;
-      setOptions(fields);
-      setFilteredOptions(fields);
+  // Derived Data: Get all available fields (options)
+  const fieldOptions = useMemo(() => {
+    if (layer && layer.config?.dataId && datasets[layer.config.dataId]) {
+      return datasets[layer.config.dataId].fields;
     }
-  }, [props.datasets, layer]);
+    return [];
+  }, [datasets, layer]);
+
+  // Derived Data: Filter fields based on search term
+  const filteredOptions = useMemo(() => {
+    if (!searchTerm) return fieldOptions;
+    return fieldOptions.filter((item) =>
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [fieldOptions, searchTerm]);
+
+  // Derived Data: Current Size Field Label
+  const currentSizeFieldLabel = useMemo(() => {
+    const { sizeField } = layer.config;
+    return sizeField ? `${sizeField.displayName} (${sizeField.type})` : "";
+  }, [layer.config]);
 
   const onShowDropdown = (show?: boolean) => {
-    setFilteredOptions(options);
-    setShowDropdown(show ? show : !showDropdown);
+    // Reset search when opening dropdown
+    if (show) setSearchTerm("");
+    setShowDropdown(show ?? !showDropdown);
   };
 
-  const handleChange = (event: any) => {
-    const filteredData = options.filter((item) => {
-      return event.target.value
-        ? item.name.toLowerCase().includes(event.target.value.toLowerCase())
-        : true;
-    });
-    setFilteredOptions(filteredData);
-  };
-
-  const hideDropdown = () => {
-    setShowDropdown(false);
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
   };
 
   const onSelectItem = (item: Field | null) => {
     if (!layer.visualChannels.size) {
       return;
     }
+    // Update the configuration via Redux action (layerChannelConfigProps.onChange)
     layerChannelConfigProps.onChange(
       { [layer.visualChannels.size.field]: item },
       layer.visualChannels.size.key,
     );
-    if (item) {
-      setSelectedBaseRadius(`${item.displayName} (${item.type})`);
-    } else {
-      setSelectedBaseRadius("");
-    }
-    hideDropdown();
+    setShowDropdown(false);
+  };
+
+  const handleSwitchToggle = () => {
+    visConfiguratorProps.onChange({
+      [property]: !defaultSwitchValue,
+    });
   };
 
   return (
@@ -75,23 +77,19 @@ const LayerRadius = (props: LayerConfiguratorProps): JSX.Element => {
         hasSwitch={true}
         title="Radius"
         checked={defaultSwitchValue}
-        onSwitchToggle={() =>
-          visConfiguratorProps.onChange({
-            [property]: !defaultSwitchValue,
-          })
-        }
+        onSwitchToggle={handleSwitchToggle}
       />
       {defaultSwitchValue && (
         <SideBarSubSection>
           <ItemSelector
             label="Radius Based on"
             filteredOptions={filteredOptions}
-            options={options}
+            options={fieldOptions}
             isErasable={true}
-            handleChange={handleChange}
+            handleChange={handleSearch}
             onSelectItem={onSelectItem}
-            placeholder={selectedBaseRadius || "Select a field"}
-            toggleShowDropdown={(show) => onShowDropdown(show)}
+            placeholder={currentSizeFieldLabel || "Select a field"}
+            toggleShowDropdown={onShowDropdown}
             showDropdown={showDropdown}
           />
         </SideBarSubSection>

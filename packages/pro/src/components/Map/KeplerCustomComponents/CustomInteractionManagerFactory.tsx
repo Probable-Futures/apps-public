@@ -87,6 +87,12 @@ const BinningWrapper = styled.div`
   }
 `;
 
+const StyledPlaceholder = styled.div`
+  color: ${colors.midGrey};
+  font-size: 16px;
+  padding: 24px 16px;
+`;
+
 type InteractionManagerProps = {
   interactionConfig: InteractionConfig;
   datasets: Datasets;
@@ -102,6 +108,10 @@ function CustomInteractionManagerFactory(...deps: Parameters<typeof InteractionM
   const InteractionManager = InteractionManagerFactory(...deps);
 
   const CustomInteractionManager = (props: InteractionManagerProps) => {
+    const primaryLayer = props.layers.length > 0 ? props.layers[0] : null;
+    const primaryDatasetId = primaryLayer?.config?.dataId;
+    const primaryDataset = primaryDatasetId ? props.datasets[primaryDatasetId] : null;
+
     const { selectedClimateData } = useMapData();
     const bins =
       useAppSelector((state) => state.project.mapConfig?.pfMapConfig?.bins) ||
@@ -153,24 +163,35 @@ function CustomInteractionManagerFactory(...deps: Parameters<typeof InteractionM
       [props.layerClasses],
     );
 
+    if (!primaryLayer || !primaryDataset) {
+      return (
+        <MainWrapper>
+          <TabTitle>Map Style</TabTitle>
+          <StyledInteractionManagerContainer>
+            <StyledPlaceholder>Loading map data…</StyledPlaceholder>
+          </StyledInteractionManagerContainer>
+        </MainWrapper>
+      );
+    }
+
     const updateLayerConfig = (newProp: Partial<LayerBaseConfig>) => {
-      props.visStateActions.layerConfigChange(props.layers[0], newProp);
+      props.visStateActions.layerConfigChange(primaryLayer, newProp);
     };
 
     const updateLayerType = (newType: string) => {
-      props.visStateActions.layerTypeChange(props.layers[0], newType);
+      props.visStateActions.layerTypeChange(primaryLayer, newType);
     };
 
     const updateLayerVisConfig = (newVisConfig: Partial<LayerVisConfig>) => {
-      props.visStateActions.layerVisConfigChange(props.layers[0], newVisConfig);
+      props.visStateActions.layerVisConfigChange(primaryLayer, newVisConfig);
     };
 
     const updateLayerColorUI = (...args: [string, NestedPartial<ColorUI>]) => {
-      props.visStateActions.layerColorUIChange(props.layers[0], ...args);
+      props.visStateActions.layerColorUIChange(primaryLayer, ...args);
     };
 
     const updateLayerTextLabel = (...args: [number | "all", string, any]) => {
-      props.visStateActions.layerTextLabelChange(props.layers[0], ...args);
+      props.visStateActions.layerTextLabelChange(primaryLayer, ...args);
     };
 
     const updateLayerVisualChannelConfig = (
@@ -179,7 +200,7 @@ function CustomInteractionManagerFactory(...deps: Parameters<typeof InteractionM
       newVisConfig?: Partial<LayerVisConfig>,
     ) => {
       props.visStateActions.layerVisualChannelConfigChange(
-        props.layers[0],
+        primaryLayer,
         newConfig,
         channel,
         newVisConfig,
@@ -191,7 +212,7 @@ function CustomInteractionManagerFactory(...deps: Parameters<typeof InteractionM
         <TabTitle>Map Style</TabTitle>
         <StyledInteractionManagerContainer>
           <LayerConfigurator
-            layer={props.layers[0]}
+            layer={primaryLayer}
             datasets={props.datasets}
             layerTypeOptions={layerTypeOptions}
             openModal={props.uiStateActions.toggleModal}
@@ -205,9 +226,7 @@ function CustomInteractionManagerFactory(...deps: Parameters<typeof InteractionM
 
           <StyledDivider />
           <div>
-            {props.layers[0] && props.layers[0].type !== "heatmap" && (
-              <InteractionManager {...props} />
-            )}
+            {primaryLayer && primaryLayer.type !== "heatmap" && <InteractionManager {...props} />}
             {props.layers && props.layers.length > 0 && <StyledDivider />}
 
             <BinningWrapper>
