@@ -1,14 +1,14 @@
 import Projects from "../components/Dashboard/Project/Projects";
 import Datasets from "../components/Dashboard/Dataset/Datasets";
-import Documentation from "../components/Dashboard/Documentation/Documentation";
+import Home from "../components/Dashboard/Home/Home";
 import UserDatasets from "../components/Dashboard/Dataset/UserDatasets";
 import UserRquests from "../components/Dashboard/User/UserRequests";
 
 export const routes = [
   {
-    title: "Documentation",
-    path: "documentation",
-    component: Documentation,
+    title: "Home",
+    path: "home",
+    component: Home,
   },
   {
     title: "Projects",

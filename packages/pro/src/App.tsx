@@ -36,7 +36,7 @@ export const App = () => {
                         <Route key={index} path={route.path} Component={route.component} />
                       ),
                   )}
-                  <Route path="" element={<Navigate to="documentation" />} />
+                  <Route path="" element={<Navigate to="home" />} />
                 </Route>
                 <Route path="/map" Component={Map} />
                 <Route path="/share" Component={Map} />
