@@ -17,6 +17,7 @@ import {
 import DatasetSelectorForAboutMap from "./DatasetSelectorFoAboutMap";
 import MapOverlay from "./MapOverlay";
 import { DataResources, RelatedResources } from "./AboutMapResource";
+import { Source, Title } from "./AboutMapShared";
 
 type Props = {
   isOpen: boolean;
@@ -31,8 +32,6 @@ type Props = {
   onClose: MouseEventHandler<HTMLButtonElement | HTMLDivElement>;
   handleTourClick?: () => void;
 };
-
-export type Source = "maps" | "pro";
 
 const SharedLeftPadding = css`
   padding-left: 20px;
@@ -158,19 +157,6 @@ const Content = styled.div`
       font-size: 42px;
       line-height: 50px;
     }
-  }
-`;
-
-export const Title = styled.h3`
-  font-size: 12px;
-  font-weight: 400;
-  text-transform: uppercase;
-  margin: 0;
-  font-family: "RelativeMono";
-  margin-bottom: 20px;
-
-  @media (min-width: ${size.tablet}) {
-    margin-bottom: 25px;
   }
 `;
 

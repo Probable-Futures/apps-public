@@ -1,6 +1,6 @@
 import { colors, Resource, size } from "@probable-futures/lib";
 import styled from "styled-components";
-import { Source, Title } from "./AboutMap";
+import { Source, Title } from "./AboutMapShared";
 
 type Props = {
   intro: string;

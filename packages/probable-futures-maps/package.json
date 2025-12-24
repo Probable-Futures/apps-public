@@ -1,6 +1,6 @@
 {
   "name": "@probable-futures/probable-futures-maps",
-  "version": "1.0.44",
+  "version": "1.0.46",
   "description": "This package empowers developers to seamlessly integrate dynamic and interactive climate maps into their web applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -38,11 +38,9 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@probable-futures/components-lib": "^1.0.7",
-    "@probable-futures/lib": "^1.0.26",
+    "@probable-futures/lib": "^1.0.27",
     "mapbox-gl": "^2.11.1",
     "mapbox-gl-compare": "^0.4.0",
-    "react-dom": "^18.2.0",
     "react-map-gl": "^7.0.23",
     "recharts": "^2.12.6",
     "styled-components": "^5.3.1"
@@ -73,6 +71,19 @@
           "useESM": true
         }
       ]
+    }
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18",
+    "@probable-futures/components-lib": "^1.0.9"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": false
+    },
+    "react-dom": {
+      "optional": false
     }
   }
 }

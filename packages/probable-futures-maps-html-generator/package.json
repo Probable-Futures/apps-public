@@ -44,7 +44,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@probable-futures/lib": "^1.0.26"
+    "@probable-futures/lib": "^1.0.27"
   },
   "publishConfig": {
     "access": "public",

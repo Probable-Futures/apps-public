@@ -7,7 +7,8 @@
     "lib": ["es2021"],
     "types": ["@types/node"],
     "declaration": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

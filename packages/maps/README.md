@@ -5,7 +5,7 @@ This package contains the React app for the map builder and the interactive map.
 ## Running the App
 
 To start the app, run `yarn start` at the project directory or `yarn workspace @probable-futures/maps start` at the root directory.
-Then open [https://local.probablefutures.org/](https://local.probablefutures.org/) to view it in the browser.
+Then open [https://local.probablefutures.org/maps](https://local.probablefutures.org/maps) to view it in the browser.
 
 ## Updating the App in WordPress Site
 

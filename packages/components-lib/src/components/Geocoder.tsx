@@ -9,7 +9,7 @@ import { ReactComponent as CancelIcon } from "../assets/icons/cancel.svg";
 import useGeocoder, { Feature } from "../hooks/useGeocoder";
 import { ItemHoverStyles } from "../styles/commonStyles";
 import Spinner from "./Spinner";
-import { hooks } from "..";
+import { useOnClickOutside } from "../hooks";
 
 export type GeocoderProps = {
   mapRef: RefObject<MapRef>;
@@ -402,7 +402,7 @@ const Geocoder = (props: GeocoderProps) => {
     }
   }, [suggestionList, isInputFocused, setActiveSuggestionIndex]);
 
-  hooks.useOnClickOutside(ref, () => setIsInputFocused(false));
+  useOnClickOutside(ref, () => setIsInputFocused(false));
 
   if (!props.searchIsOpen) {
     return null;

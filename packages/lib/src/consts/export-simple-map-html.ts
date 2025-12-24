@@ -1,5 +1,4 @@
 import * as types from "../types";
-import * as consts from ".";
 import {
   displayBottomLinkFunction,
   displayClimateZonesKey,
@@ -12,6 +11,13 @@ import {
   miscStyles,
 } from "../utils/embed.shared";
 import { DatasetDescriptionResponse } from "../types";
+import {
+  datasetsWithMidValuesOnly,
+  DegreeDataKeys,
+  degreesOptions,
+  interactiveClimateLayerIds,
+  MAP_VERSION_URL,
+} from "./mapConsts";
 
 type Props = {
   mapboxAccessToken: string;
@@ -20,7 +26,7 @@ type Props = {
     dataLayerPaintProperties: (string | number | string[])[];
     tempUnit: string;
     degrees: number;
-    dataKey: consts.DegreeDataKeys;
+    dataKey: DegreeDataKeys;
     precipitationUnit: types.PrecipitationUnit;
   };
   dataset: types.Map;
@@ -28,8 +34,8 @@ type Props = {
   datasetDescriptionResponse: DatasetDescriptionResponse;
   compare?: {
     show: boolean;
-    dataKeyBefore: consts.DegreeDataKeys;
-    dataKeyAfter: consts.DegreeDataKeys;
+    dataKeyBefore: DegreeDataKeys;
+    dataKeyAfter: DegreeDataKeys;
     dataLayerPaintPropertiesBefore: (string | number | string[])[];
     dataLayerPaintPropertiesAfter: (string | number | string[])[];
     degreesBefore: number;
@@ -62,7 +68,7 @@ export const exportSimpleMapToHTML = (options: Props) => {
         @font-face { font-family: "Cambon"; src: url("https://pf-fonts.s3.us-west-2.amazonaws.com/Cambon-Regular.otf") format("opentype"); font-weight: 400; font-style: normal;}
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
         .mapboxgl-ctrl-top-right { top: 50%; transform: translateY(-50%);}
-        .mapboxgl-ctrl.mapboxgl-ctrl-group { box-shadow: 0 3px 5px 0 rgb(56 22 63 / 50%); border-radius: 6px; background-color: #fdfdfd; margin-right: 20px;} 
+        .mapboxgl-ctrl.mapboxgl-ctrl-group { box-shadow: 0 3px 5px 0 rgb(56 22 63 / 50%); border-radius: 6px; background-color: #fdfdfd; margin-right: 20px;}
         .mapboxgl-ctrl.mapboxgl-ctrl-group button { width: 35px; height: 35px; border: none; outline: 0; font-family: "LinearSans"; color: #1b1a1c; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px;}
         .mapboxgl-ctrl.mapboxgl-ctrl-group button:first-child { border-top-left-radius: 6px; border-top-right-radius: 6px; border-bottom: 1px solid rgba(151,151,151,0.5); border-bottom-left-radius: unset; border-bottom-right-radius: unset;}
         .mapboxgl-ctrl.mapboxgl-ctrl-group button:last-child {display: none;}
@@ -114,7 +120,7 @@ export const exportSimpleMapToHTML = (options: Props) => {
       <meta property="og:image:width" content="1920" />
       <meta property="og:image:height" content="1080" />
       <meta property="og:url" content="http://probablefutures.org" />
-  
+
       <!-- Twitter -->
       <meta name="twitter:title" content="Probable Futures Map" />
       <meta name="twitter:card" content="summary" />
@@ -133,11 +139,11 @@ export const exportSimpleMapToHTML = (options: Props) => {
       <div id="map"></div>
       <script>
         (function() {
-          const datasetsWithMidValuesOnly = [${consts.datasetsWithMidValuesOnly.toString()}];
+          const datasetsWithMidValuesOnly = [${datasetsWithMidValuesOnly.toString()}];
           function cToF(value) {
             return Math.floor((value * 9) / 5 + 32);
           }
-          
+
           function getDataAttribute (degrees, percentileValue) {
             if (degrees === 0.5) {
               return "data_baseline_" + percentileValue;
@@ -243,7 +249,7 @@ export const exportSimpleMapToHTML = (options: Props) => {
                 } else {
                   return [
                     prevBin > 0 ? plusSign.concat(prevBin.toString()) : prevBin.toString(),
-                    curBin - step > 0 
+                    curBin - step > 0
                       ? plusSign.concat(parseFloat((curBin - step).toFixed(1)).toString())
                       : parseFloat((curBin - step).toFixed(1)).toString(),
                   ];
@@ -280,7 +286,7 @@ export const exportSimpleMapToHTML = (options: Props) => {
               return binningLabels[labelIdx];
             }
           }
-          
+
           function getClimateZoneByValue(datasetDescriptionResponse, midValue) {
             let climateZoneSubGroup;
             datasetDescriptionResponse.climate_zones?.forEach((climateZonesDescription) => {
@@ -292,15 +298,15 @@ export const exportSimpleMapToHTML = (options: Props) => {
             });
             return climateZoneSubGroup;
           }
-          const MAP_VERSION_URL = "${consts.MAP_VERSION_URL}";
-          const pfLayerIds = [${consts.interactiveClimateLayerIds
+          const MAP_VERSION_URL = "${MAP_VERSION_URL}";
+          const pfLayerIds = [${interactiveClimateLayerIds
             .map((id) => `"${id}"`)
             .join(", ")}, "water"];
           let { dataLayerPaintProperties, dataKey, degrees } = ${JSON.stringify(
             options.mapStyleConfigs,
           )};
           let dataset = ${JSON.stringify(options.dataset)};
-          const degreesOptions = ${JSON.stringify(consts.degreesOptions)};
+          const degreesOptions = ${JSON.stringify(degreesOptions)};
           mapboxgl.accessToken = '${options.mapboxAccessToken}';
           let tempUnit = '${options.mapStyleConfigs.tempUnit}';
           let precipitationUnit = '${options.mapStyleConfigs.precipitationUnit}';
@@ -320,8 +326,8 @@ export const exportSimpleMapToHTML = (options: Props) => {
           const isPrecipitationMap = dataset.dataset.unit === "mm";
           const showCompare = false;
           let initiallyLoadedInspector = false;
-          map = new mapboxgl.Map({ 
-            container: 'map', style: '${options.mapStyle}', 
+          map = new mapboxgl.Map({
+            container: 'map', style: '${options.mapStyle}',
             center: [${options.viewState.longitude || 0},${options.viewState.latitude || 0}],
             zoom: ${options.viewState.zoom || 2.2},
             minZoom: 2.2,
@@ -396,16 +402,16 @@ export const exportSimpleMapToHTML = (options: Props) => {
           function getPopupLngLat (map) {
             return map._popups[0]._lngLat;
           }
-          
+
           function handleMapClick(map, key, features) {
             map._popups.forEach(popup => popup.remove());
             if (!key || !features) {
               return;
             }
-            let dataFeature = features ? 
-              features.find(function(feature) { 
+            let dataFeature = features ?
+              features.find(function(feature) {
                 return feature.layer.id.includes("region-")
-              }) 
+              })
               : undefined;
             let selectedData = {
               mid:  dataFeature?.properties[key + "_mid"],
@@ -512,7 +518,7 @@ export const exportSimpleMapToHTML = (options: Props) => {
               isChecked = precipitationUnit === "in";
             }
             dataset.binHexColors.map(function(color, index) {
-              const [from, to] = getBinLabel(dataset.stops, index, dataset.dataset.pfDatasetUnitByUnit.unitLong, 
+              const [from, to] = getBinLabel(dataset.stops, index, dataset.dataset.pfDatasetUnitByUnit.unitLong,
                 dataset.dataset.minValue, dataset.dataset.maxValue, dataset.dataset.unit === "mm" && precipitationUnit === "in" ? 0.1 : dataset.step,
                 tempUnit, dataset.isDiff, isFrequent, precipitationUnit, isPrecipitationMap);
               const innerBinSpan = document.getElementsByClassName("map-key-inner-bin-label")[index];
