@@ -8,6 +8,7 @@ export const apiRoutes = {
   upload: "/upload",
   auth: "/auth",
   donate: "/donate",
+  data: "/data",
 };
 
 export const rdsRootCA = path.join(

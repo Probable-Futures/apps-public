@@ -67,6 +67,7 @@ export default (app: Express) => {
   app.use(apiRoutes.graphql, middleware);
   app.use(apiRoutes.contact, middleware);
   app.use(apiRoutes.donate, middleware);
+  app.use(apiRoutes.data, middleware);
   app.use(apiRoutes.auth, middleware);
   app.use(apiRoutes.upload, middleware);
 };

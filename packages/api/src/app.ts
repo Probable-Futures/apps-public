@@ -7,6 +7,7 @@ import * as middleware from "./middleware";
 import contact from "./routes/contact";
 import donate from "./routes/donate";
 import auth from "./routes/auth";
+import data from "./routes/data";
 
 const debug = extendDebugger("app");
 
@@ -43,6 +44,7 @@ export async function initApp({ httpServer }: { httpServer: Server }): Promise<E
 
   app.use(apiRoutes.contact, contact);
   app.use(apiRoutes.donate, donate);
+  app.use(apiRoutes.data, data);
   app.use(apiRoutes.auth, auth);
 
   app.use(errorHandler);
