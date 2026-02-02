@@ -53,7 +53,9 @@
   },
   "devDependencies": {
     "@craco/craco": "^7.1.0",
+    "@eslint/eslintrc": "^3.2.0",
     "@probable-futures/tsconfig": "^1.0.0",
+    "eslint": "^8.57.0",
     "@storybook/addon-essentials": "^7.6.0",
     "@storybook/addon-interactions": "^7.6.0",
     "@storybook/addon-links": "^7.6.0",

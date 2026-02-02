@@ -64,6 +64,7 @@
   },
   "dependencies": {},
   "resolutions": {
+    "eslint": "^8.57.0",
     "react-vis": "^1.12.1",
     "**/pro/**/marked": "4.0.10",
     "@types/debug": "4.1.7",
