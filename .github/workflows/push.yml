@@ -39,10 +39,12 @@ jobs:
           # Clean apt cache
           echo "Cleaning apt cache..."
           sudo apt-get clean
+          rm -rf ~/.cache/pip ~/.cache/pnpm ~/.cache/yarn ~/.npm ~/.local/share/pulumi ~/.pulumi
 
           # Docker cleanup
           echo "Cleaning Docker resources..."
           docker system prune -a -f --volumes || echo "No Docker resources to clean"
+          docker builder prune -af --all || true
 
           echo "============================================"
           echo "Disk space after cleanup:"

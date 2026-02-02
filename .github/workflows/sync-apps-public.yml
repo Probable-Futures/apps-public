@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -12,6 +13,8 @@ jobs:
     steps:
       - name: Checkout apps repo
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Clone apps-public repo
         uses: GuillaumeFalourd/clone-github-repo-action@v2.3
@@ -26,7 +29,7 @@ jobs:
           cd apps-public
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git config user.name "${GITHUB_ACTOR}"
-          rsync -av --compare-dest --update --checksum --exclude .git --exclude apps-public --exclude *node_modules  ../../apps/ ./
+          rsync -av --compare-dest --update --checksum --exclude .git --exclude apps-public --exclude *node_modules --exclude GETTING_STARTED.md ../../apps/ ./
           git add .
           git commit -m "$LATEST_COMMIT_MESSAGE" --allow-empty
           git push origin main
