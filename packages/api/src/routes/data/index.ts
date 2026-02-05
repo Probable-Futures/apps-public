@@ -21,8 +21,6 @@ const getRawData = async (req: Request, res: Response): Promise<void> => {
       LIMIT 1
     `, [GRID, longitude, latitude]);
 
-    console.log("hash result: ", hashResult.rows[0]);
-
     if (hashResult.rows.length === 0) {
       res.status(404).json({ error: 'Location not found in grid' });
       return;

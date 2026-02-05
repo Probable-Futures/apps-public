@@ -1,0 +1,17 @@
+name: Pulumi up
+description: Run pulumi up for a stack.
+inputs:
+  stack-name:
+    description: Pulumi stack name
+    required: true
+  work-dir:
+    description: Pulumi working directory
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: pulumi/actions@v3
+      with:
+        command: up
+        stack-name: ${{ inputs.stack-name }}
+        work-dir: ${{ inputs.work-dir }}

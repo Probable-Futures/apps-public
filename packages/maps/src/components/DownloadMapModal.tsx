@@ -84,7 +84,7 @@ const DegreeBox = styled.button`
   background-color: ${colors.white};
   box-sizing: border-box;
   font-weight: 500;
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   line-height: 1.75;
   letter-spacing: 1px;
   padding: 10px;
@@ -99,7 +99,7 @@ const DegreeBox = styled.button`
   ${({ selected }: { selected: boolean }) =>
     selected &&
     `
-    background-color: #eeeeee;
+    background-color: ${colors.lightGreyBackground};
     border-bottom: 5px solid ${colors.darkPurple};
   `}
 

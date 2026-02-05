@@ -10,6 +10,7 @@ export const colors = {
   secondaryGray: "#adadad",
   grey: "#b6b4b7",
   lightGrey: "#cccccc",
+  lightGreyBackground: "#eeeeee",
   whiteSmoke: "#f5f5f5",
   blue: "#006CC9",
   silver: "#c0c0c0",

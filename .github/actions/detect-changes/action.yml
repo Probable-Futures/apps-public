@@ -1,0 +1,11 @@
+name: Detect changed files
+description: Compute changed files.
+outputs:
+  all_modified_files:
+    description: List of all modified files
+    value: ${{ steps.changed.outputs.all_modified_files }}
+runs:
+  using: composite
+  steps:
+    - id: changed
+      uses: tj-actions/changed-files@v46

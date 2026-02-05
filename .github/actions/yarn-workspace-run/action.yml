@@ -1,0 +1,14 @@
+name: Yarn workspace run
+description: Run a yarn workspace script.
+inputs:
+  workspace:
+    description: Yarn workspace name
+    required: true
+  script:
+    description: Script to run
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: yarn workspace ${{ inputs.workspace }} ${{ inputs.script }}

@@ -6,228 +6,256 @@ on:
       - staging
       - main
 jobs:
-  update:
+  changes:
     runs-on: ubuntu-latest
+    outputs:
+      all_modified_files: ${{ steps.detect.outputs.all_modified_files }}
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 2
           submodules: recursive
           token: ${{ secrets.FINE_GRAINED_PAT }}
+      - id: detect
+        uses: ./.github/actions/detect-changes
 
-      - name: Free disk space
-        run: |
-          echo "============================================"
-          echo "Disk space before cleanup:"
-          df -h
-          echo "============================================"
-
-          # Remove unnecessary tools and libraries
-          echo "Removing unnecessary tools..."
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-
-          # Remove swap
-          echo "Removing swap files..."
-          sudo swapoff -a
-          sudo rm -f /swapfile
-          sudo rm -f /mnt/swapfile
-
-          # Clean apt cache
-          echo "Cleaning apt cache..."
-          sudo apt-get clean
-          rm -rf ~/.cache/pip ~/.cache/pnpm ~/.cache/yarn ~/.npm ~/.local/share/pulumi ~/.pulumi
-
-          # Docker cleanup
-          echo "Cleaning Docker resources..."
-          docker system prune -a -f --volumes || echo "No Docker resources to clean"
-          docker builder prune -af --all || true
-
-          echo "============================================"
-          echo "Disk space after cleanup:"
-          df -h
-          echo "============================================"
-
-      - name: Get changed files
-        id: changedFiles
-        uses: tj-actions/changed-files@v46
-
-      - uses: actions/setup-node@v4
+  stack:
+    runs-on: ubuntu-latest
+    outputs:
+      stack: ${{ steps.stack.outputs.stack }}
+    steps:
+      - uses: actions/checkout@v3
         with:
-          node-version: 20
-
-      - name: restore lerna
-        uses: actions/cache@v3
-        with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-
-      - run: |
-          yarn install --frozen-lockfile
-          yarn cache clean
-
-      - name: Set pulumi stack name based on branch
-        uses: cobraz/setup-variables@v1
-        id: pulumiStack
+          fetch-depth: 1
+          token: ${{ secrets.FINE_GRAINED_PAT }}
+      - id: stack
+        uses: ./.github/actions/set-pulumi-stack
         with:
           key: ${{ github.ref }}
-          map: |
-            'refs/heads/production': production
-            'refs/heads/staging': staging
-            'refs/heads/main': development
+          default-stack: development
 
-      - name: Make aws profile
+  pulumi-up:
+    needs: [changes, stack]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [foundation, services, api, sites]
+        include:
+          - app: foundation
+            workdir: ./infra/foundation
+          - app: services
+            workdir: ./infra/services
+          - app: api
+            workdir: ./infra/apps/api
+          - app: sites
+            workdir: ./infra/apps/sites
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_REGION: us-west-2
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      DOCKER_BUILDKIT: 1
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+          submodules: recursive
+          token: ${{ secrets.FINE_GRAINED_PAT }}
+      - id: gate
+        shell: bash
+        env:
+          ALL_MODIFIED_FILES: ${{ needs.changes.outputs.all_modified_files }}
         run: |
-          mkdir ~/.aws
-          echo "[probablefutures]
-          region=us-west-2
-          aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          " > ~/.aws/credentials
+          RUN=false
+          case "${{ matrix.app }}" in
+            foundation)
+              [[ "$ALL_MODIFIED_FILES" == *"infra/foundation/"* ]] && RUN=true
+              ;;
+            services)
+              [[ "$ALL_MODIFIED_FILES" == *"infra/services/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"node.base.Dockerfile"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"packages/db/migrations/committed/"* ]] && RUN=true
+              ;;
+            api)
+              [[ "$ALL_MODIFIED_FILES" == *"infra/apps/api/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"packages/api/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"packages/worker/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"packages/db/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"api.Dockerfile"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"worker.Dockerfile"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"migrate.Dockerfile"* ]] && RUN=true
+              ;;
+            sites)
+              [[ "$ALL_MODIFIED_FILES" == *"infra/apps/sites/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"packages/maps/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"packages/pro/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"packages/lib/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"packages/components-lib/"* ]] && RUN=true
+              ;;
+          esac
 
-      - name: Deploy foundation resources
-        if: contains(steps.changedFiles.outputs.all_modified_files, 'infra/foundation/')
-        uses: pulumi/actions@v3
+          echo "run=${RUN}" >> $GITHUB_OUTPUT
+
+      - uses: ./.github/actions/free-disk-space
+        if: steps.gate.outputs.run == 'true' && (matrix.app == 'api' || matrix.app == 'sites')
+      - uses: ./.github/actions/setup-node-yarn
+        if: steps.gate.outputs.run == 'true'
         with:
-          command: up
-          stack-name: "Probable-Futures/foundation/${{ steps.pulumiStack.outputs.result }}"
-          work-dir: ./infra/foundation
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_REGION: us-west-2
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-
-      - name: Deploy services
-        if: |
-          contains(steps.changedFiles.outputs.all_modified_files, 'infra/services/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'node.base.Dockerfile') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/db/migrations/committed/')
-        id: pulumiServices
-        uses: pulumi/actions@v3
+          node-version: 20
+      - uses: ./.github/actions/aws-profile
+        if: steps.gate.outputs.run == 'true'
         with:
-          command: up
-          stack-name: "Probable-Futures/services/${{ steps.pulumiStack.outputs.result }}"
-          work-dir: ./infra/services
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_REGION: us-west-2
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: us-west-2
+      - uses: ./.github/actions/aws-configure
+        if: steps.gate.outputs.run == 'true'
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
-
       - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Clean up before API deployment
-        if: ${{github.event.inputs.deploy_api == 'true' || github.event.inputs.db_migration == 'true'}}
-        run: |
-          echo "Cleaning up disk space before API deployment..."
-          docker system prune -a -f --volumes
-          sudo apt-get clean
-          echo "Current disk space:"
-          df -h
-
-      - name: Deploy API resources
-        if: |
-          contains(steps.changedFiles.outputs.all_modified_files, 'infra/apps/api/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/api/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/worker/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/db/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'api.Dockerfile') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'worker.Dockerfile') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'migrate.Dockerfile')
-        id: pulumiApi
-        uses: pulumi/actions@v3
+        if: steps.gate.outputs.run == 'true' && matrix.app == 'api'
+        uses: ./.github/actions/aws-ecr-login
+      - id: pulumi
+        if: steps.gate.outputs.run == 'true'
+        uses: ./.github/actions/pulumi-up
         with:
-          command: up
-          stack-name: "Probable-Futures/api/${{ steps.pulumiStack.outputs.result }}"
-          work-dir: ./infra/apps/api
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_REGION: us-west-2
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          DOCKER_BUILDKIT: 1
-
-      - name: Get current date/time
-        if: contains(steps.changedFiles.outputs.all_modified_files, 'packages/db/migrations/committed/')
-        id: date
-        run: echo "date=$(date +'%Y-%m-%dT%H-%M-%S')" >> $GITHUB_OUTPUT
-
-      - name: Create a DB snapshot
-        if: contains(steps.changedFiles.outputs.all_modified_files, 'packages/db/migrations/committed/')
-        run: |
-          aws rds create-db-cluster-snapshot \
-            --db-cluster-identifier ${{ steps.pulumiStack.outputs.result }}-pf-core-db-cluster \
-            --db-cluster-snapshot-identifier ${{ steps.pulumiStack.outputs.result }}-pf-core-db-cluster-${{ steps.date.outputs.date }}
-
+          stack-name: Probable-Futures/${{ matrix.app }}/${{ needs.stack.outputs.stack }}
+          work-dir: ${{ matrix.workdir }}
       - name: Run migration task on Amazon ECS
-        if: contains(steps.changedFiles.outputs.all_modified_files, 'packages/db/migrations/committed/')
+        if: steps.gate.outputs.run == 'true' && matrix.app == 'services' && contains(needs.changes.outputs.all_modified_files, 'packages/db/migrations/committed/')
         # FIXME: `assignPublicIp=ENABLED` is a security risk. We do not want our server running migrations exposed to the public internet
         run: |
+          DATE=$(date +'%Y-%m-%dT%H-%M-%S')
+          aws rds create-db-cluster-snapshot \
+            --db-cluster-identifier ${{ needs.stack.outputs.stack }}-pf-core-db-cluster \
+            --db-cluster-snapshot-identifier ${{ needs.stack.outputs.stack }}-pf-core-db-cluster-${DATE}
+
+          API_TASK_DEFINITION_ARN=$(pulumi stack output migrateTaskDefinitionArn --stack "Probable-Futures/api/${{ needs.stack.outputs.stack }}")
+          MIGRATE_CLUSTER_NAME=$(pulumi stack output migrateClusterName --stack "Probable-Futures/services/${{ needs.stack.outputs.stack }}")
+          MIGRATE_CLUSTER_SUBNET_IDS=$(pulumi stack output migrateClusterSubnetIds --stack "Probable-Futures/services/${{ needs.stack.outputs.stack }}")
+          MIGRATE_CLUSTER_SECURITY_GROUPS=$(pulumi stack output migrateClusterSecurityGroups --stack "Probable-Futures/services/${{ needs.stack.outputs.stack }}")
+
           aws ecs run-task \
-            --cluster ${{ steps.pulumiServices.outputs.migrateClusterName }} \
-            --task-definition ${{ steps.pulumiApi.outputs.migrateTaskDefinitionArn }} \
-            --network-configuration "awsvpcConfiguration={subnets=${{ steps.pulumiServices.outputs.migrateClusterSubnetIds }},securityGroups=${{ steps.pulumiServices.outputs.migrateClusterSecurityGroups }},assignPublicIp=ENABLED}" \
+            --cluster ${MIGRATE_CLUSTER_NAME} \
+            --task-definition ${API_TASK_DEFINITION_ARN} \
+            --network-configuration "awsvpcConfiguration={subnets=${MIGRATE_CLUSTER_SUBNET_IDS},securityGroups=${MIGRATE_CLUSTER_SECURITY_GROUPS},assignPublicIp=ENABLED}" \
             --count 1 \
             --launch-type FARGATE \
             --started-by ci
 
-      - name: Generate build files for maps
+  build-ui:
+    needs: [changes]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [maps, pro, storybook]
+        include:
+          - target: maps
+            workspace: "@probable-futures/maps"
+            script: build
+            artifact: maps-build
+            artifact-path: packages/maps/build
+          - target: pro
+            workspace: "@probable-futures/pro"
+            script: build
+            artifact: pro-build
+            artifact-path: packages/pro/build
+          - target: storybook
+            workspace: "@probable-futures/maps"
+            script: build-storybook
+            artifact: storybook-build
+            artifact-path: packages/maps/storybook-static
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+          submodules: recursive
+          token: ${{ secrets.FINE_GRAINED_PAT }}
+      - id: gate
+        shell: bash
+        env:
+          ALL_MODIFIED_FILES: ${{ needs.changes.outputs.all_modified_files }}
+        run: |
+          RUN=false
+          case "${{ matrix.target }}" in
+            maps)
+              [[ "$ALL_MODIFIED_FILES" == *"packages/maps/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"packages/lib/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"packages/components-lib/"* ]] && RUN=true
+              ;;
+            pro)
+              [[ "$ALL_MODIFIED_FILES" == *"packages/pro/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"packages/lib/"* ]] && RUN=true
+              [[ "$ALL_MODIFIED_FILES" == *"packages/components-lib/"* ]] && RUN=true
+              ;;
+            storybook)
+              [[ "$ALL_MODIFIED_FILES" == *"packages/maps/src/stories"* ]] && RUN=true
+              ;;
+          esac
+
+          echo "run=${RUN}" >> $GITHUB_OUTPUT
+
+      - uses: ./.github/actions/free-disk-space
+        if: steps.gate.outputs.run == 'true'
+      - uses: ./.github/actions/setup-node-yarn
+        if: steps.gate.outputs.run == 'true'
+        with:
+          node-version: 20
+      - uses: ./.github/actions/yarn-workspace-run
+        if: steps.gate.outputs.run == 'true'
+        with:
+          workspace: ${{ matrix.workspace }}
+          script: ${{ matrix.script }}
+      - name: Upload build artifact
+        if: steps.gate.outputs.run == 'true' && (matrix.target == 'maps' || matrix.target == 'pro')
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact-path }}
+
+  sentry-release:
+    needs: [changes, build-ui, stack]
+    runs-on: ubuntu-latest
+    if: |
+      contains(needs.changes.outputs.all_modified_files, 'packages/maps/') ||
+      contains(needs.changes.outputs.all_modified_files, 'packages/pro/') ||
+      contains(needs.changes.outputs.all_modified_files, 'packages/lib/') ||
+      contains(needs.changes.outputs.all_modified_files, 'packages/components-lib/') ||
+      contains(needs.changes.outputs.all_modified_files, 'packages/maps/src/stories')
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+          submodules: recursive
+          token: ${{ secrets.FINE_GRAINED_PAT }}
+      - name: Download maps build
         if: |
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/maps/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/lib/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/components-lib/')
-        run: yarn workspace @probable-futures/maps build
-
-      - name: Generate build files for pf pro
+          contains(needs.changes.outputs.all_modified_files, 'packages/maps/') ||
+          contains(needs.changes.outputs.all_modified_files, 'packages/lib/') ||
+          contains(needs.changes.outputs.all_modified_files, 'packages/components-lib/')
+        uses: actions/download-artifact@v4
+        with:
+          name: maps-build
+          path: packages/maps/build
+      - name: Download pro build
         if: |
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/pro/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/lib/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/components-lib/')
-        run: yarn workspace @probable-futures/pro build
-
-      - name: Generate build files for story book
-        if: contains(steps.changedFiles.outputs.all_modified_files, 'packages/maps/src/stories')
-        run: yarn workspace @probable-futures/maps build-storybook
-
+          contains(needs.changes.outputs.all_modified_files, 'packages/pro/') ||
+          contains(needs.changes.outputs.all_modified_files, 'packages/lib/') ||
+          contains(needs.changes.outputs.all_modified_files, 'packages/components-lib/')
+        uses: actions/download-artifact@v4
+        with:
+          name: pro-build
+          path: packages/pro/build
       - name: Create Sentry release
         uses: getsentry/action-release@v1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
         with:
-          environment: ${{ steps.pulumiStack.outputs.result }}
+          environment: ${{ needs.stack.outputs.stack }}
           projects: "maps pro"
           sourcemaps: "packages/maps/build packages/pro/build"
-
-      - name: Deploy sites
-        if: |
-          contains(steps.changedFiles.outputs.all_modified_files, 'infra/apps/sites/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/maps/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/pro/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/lib/') ||
-          contains(steps.changedFiles.outputs.all_modified_files, 'packages/components-lib/')
-        uses: pulumi/actions@v3
-        with:
-          command: up
-          stack-name: "Probable-Futures/sites/${{ steps.pulumiStack.outputs.result }}"
-          work-dir: ./infra/apps/sites
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_REGION: us-west-2
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

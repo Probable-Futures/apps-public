@@ -1,0 +1,11 @@
+name: AWS ECR login
+description: Login to Amazon ECR.
+outputs:
+  registry:
+    description: ECR registry
+    value: ${{ steps.login.outputs.registry }}
+runs:
+  using: composite
+  steps:
+    - id: login
+      uses: aws-actions/amazon-ecr-login@v1

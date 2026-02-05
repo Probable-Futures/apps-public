@@ -1,0 +1,21 @@
+name: Setup Node and Yarn
+description: Set up Node, restore cache, install dependencies.
+inputs:
+  node-version:
+    description: Node.js version
+    required: false
+    default: "20"
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: yarn
+        cache-dependency-path: |
+          yarn.lock
+          */*/yarn.lock
+    - shell: bash
+      run: |
+        yarn install --frozen-lockfile --prefer-offline
+        yarn cache clean

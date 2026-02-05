@@ -1,0 +1,36 @@
+name: Free disk space
+description: Remove large preinstalled tools, caches, and Docker data.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        echo "============================================"
+        echo "Disk space before cleanup:"
+        df -h
+        echo "============================================"
+
+        echo "Removing unnecessary tools..."
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /opt/hostedtoolcache/CodeQL
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+        echo "Removing swap files..."
+        sudo swapoff -a || true
+        sudo rm -f /swapfile
+        sudo rm -f /mnt/swapfile
+
+        echo "Cleaning apt cache..."
+        sudo apt-get clean
+        rm -rf ~/.cache/pip ~/.cache/pnpm ~/.cache/yarn ~/.npm ~/.local/share/pulumi ~/.pulumi
+
+        echo "Cleaning Docker resources..."
+        docker system prune -a -f --volumes || echo "No Docker resources to clean"
+        docker builder prune -af --all || true
+
+        echo "============================================"
+        echo "Disk space after cleanup:"
+        df -h
+        echo "============================================"

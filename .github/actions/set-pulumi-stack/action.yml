@@ -1,0 +1,28 @@
+name: Set Pulumi stack
+description: Resolve stack name from Git ref with a default.
+inputs:
+  key:
+    description: Git ref key
+    required: true
+  default-stack:
+    description: Stack name to use when no match is found
+    required: false
+    default: development
+outputs:
+  stack:
+    description: Resolved stack name
+    value: ${{ steps.stack.outputs.stack }}
+runs:
+  using: composite
+  steps:
+    - id: stack
+      shell: bash
+      run: |
+        case "${{ inputs.key }}" in
+          refs/heads/production) STACK=production ;;
+          refs/heads/staging) STACK=staging ;;
+          refs/heads/main) STACK=development ;;
+          *) STACK="${{ inputs.default-stack }}" ;;
+        esac
+
+        echo "stack=${STACK}" >> $GITHUB_OUTPUT
