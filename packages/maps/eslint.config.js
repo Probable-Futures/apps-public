@@ -4,4 +4,4 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-module.exports = [...compat.extends("react-app", "plugin:storybook/recommended")];
+module.exports = [...compat.extends("react-app")];

@@ -217,7 +217,6 @@ jobs:
         run: |
           yarn workspace @probable-futures/maps build
           yarn workspace @probable-futures/pro build
-          yarn workspace @probable-futures/maps build-storybook
 
       - name: Create Sentry release for sites
         if: ${{github.event.inputs.deploy_sites == 'true'}}

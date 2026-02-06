@@ -152,7 +152,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [maps, pro, storybook]
+        target: [maps, pro]
         include:
           - target: maps
             workspace: "@probable-futures/maps"
@@ -164,11 +164,6 @@ jobs:
             script: build
             artifact: pro-build
             artifact-path: packages/pro/build
-          - target: storybook
-            workspace: "@probable-futures/maps"
-            script: build-storybook
-            artifact: storybook-build
-            artifact-path: packages/maps/storybook-static
     steps:
       - uses: actions/checkout@v3
         with:
@@ -191,9 +186,6 @@ jobs:
               [[ "$ALL_MODIFIED_FILES" == *"packages/pro/"* ]] && RUN=true
               [[ "$ALL_MODIFIED_FILES" == *"packages/lib/"* ]] && RUN=true
               [[ "$ALL_MODIFIED_FILES" == *"packages/components-lib/"* ]] && RUN=true
-              ;;
-            storybook)
-              [[ "$ALL_MODIFIED_FILES" == *"packages/maps/src/stories"* ]] && RUN=true
               ;;
           esac
 
