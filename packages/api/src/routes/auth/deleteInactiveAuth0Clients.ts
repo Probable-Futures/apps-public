@@ -1,4 +1,22 @@
-import request from "request";
+/*
+ * This script is designed to clean up inactive Machine-to-Machine (M2M) applications in our Auth0 tenant.
+ * 1. Set the environment variables in the .env file for the Auth0 Management API credentials.
+ * 2. RUN yarn workspace @probable-futures/api delete-inactive-auth-applications
+ *
+ * IMPORTANT - before running the script:
+ * Before you run the script we need to check the list of the clients that are going to be deleted and make sure that they are not active. The script will log the clients that are going to be deleted, so please review the logs before confirming the deletion.
+ * 1. Comment out the line "await deleteApplication(app.client_id, managementApiToken);" in the main function.
+ * 2. Run the script and review the logs to see which clients are marked for deletion.
+ * 3. Confirm that the clients listed in the logs are indeed inactive by running the following query:
+ * select distinct user_sub from pf_private.pf_audit where user_sub in ('client_id_1', 'client_id_2', ...);
+ * 4. The clients that do not appear in the query results are inactive and can be safely deleted. pf_private.pf_audit table contains logs of all the authentication events, and they get automatically deleted after 6 months, so if a client_id does not appear in the results, it means that it has not been used for authentication in the last 6 months.
+ * 5. Once you have confirmed the inactive clients, uncomment the line "await deleteApplication(app.client_id, managementApiToken);" and run the script again to proceed with the deletion.
+ *
+ * TODO: Automate the whole process in two stages:
+ * 1. This script should automatically check SQL for the client_ids that have not been used in the last 6 months and delete them without logging.
+ * 2. Optional, but we could have an automated job that runs this script every 6 months and sends a report of the deleted clients to the team.
+ */
+
 import fetch from "node-fetch";
 
 import * as env from "../../utils/env";
@@ -25,61 +43,59 @@ const activeClients = [
   "R7mCeXncliAqshicUGVEPV4NSR3Hfrq1", //(API Access for Alexander Liss)
   "tTAbahVkAaYqB8sonDP8cVWAP00tgGiS", //(API Access for Peter Croce)
   "0W2dINdF3IyDBXGcQHICftxNmsfzs9yA", //For Airtable
+  "BF0JagTw5Z5m9yfkTQzDCwBTVK2ZlX55", //(API Access for the AI Agent)
 ];
 
 // Function to get the Management API token
 async function getManagementApiToken() {
-  return new Promise((resolve, reject) => {
-    const options = {
-      method: "POST",
-      url: `${AUTH0_DOMAIN}/oauth/token`,
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        client_id: AUTH0_CLIENT_ID,
-        client_secret: AUTH0_CLIENT_SECRET,
-        audience: `${AUTH0_DOMAIN}/api/v2/`,
-        grant_type: "client_credentials",
-      }),
-    };
-
-    request(options, function (error, response, body) {
-      if (error) reject(error);
-      resolve(JSON.parse(body).access_token);
-    });
+  const response = await fetch(`${AUTH0_DOMAIN}/oauth/token`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      client_id: AUTH0_CLIENT_ID,
+      client_secret: AUTH0_CLIENT_SECRET,
+      audience: `${AUTH0_DOMAIN}/api/v2/`,
+      grant_type: "client_credentials",
+    }),
   });
+
+  if (!response.ok) {
+    throw new Error(`Failed to get management token: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.access_token as string;
 }
 
 // Function to list all M2M applications
 async function listM2MApplications(managementApiToken: string): Promise<any> {
-  return new Promise((resolve, reject) => {
-    const options = {
-      method: "GET",
-      url: `${AUTH0_DOMAIN}/api/v2/clients`,
-      headers: { Authorization: `Bearer ${managementApiToken}` },
-    };
-
-    request(options, function (error, _response, body) {
-      if (error) reject(error);
-      const data = JSON.parse(body).filter((app: any) => app.app_type === "non_interactive");
-      resolve(data);
-    });
+  const response = await fetch(`${AUTH0_DOMAIN}/api/v2/clients`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${managementApiToken}` },
   });
+
+  if (!response.ok) {
+    throw new Error(`Failed to list clients: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.filter((app: any) => app.app_type === "non_interactive");
 }
 
 // Function to delete an application by its client ID
 async function deleteApplication(clientId: string, managementApiToken: string) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      method: "DELETE",
-      url: `${AUTH0_DOMAIN}/api/v2/clients/${clientId}`,
-      headers: { Authorization: `Bearer ${managementApiToken}` },
-    };
-
-    request(options, function (error, response, body) {
-      if (error) reject(error);
-      resolve(true);
-    });
+  const response = await fetch(`${AUTH0_DOMAIN}/api/v2/clients/${clientId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${managementApiToken}` },
   });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to delete client ${clientId}: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  return true;
 }
 
 async function getRecentAppRequests() {
