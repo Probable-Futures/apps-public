@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.8
+-- Dumped from database version 16.11
 -- Dumped by pg_dump version 17.5
 
 SET statement_timeout = 0;
@@ -1331,6 +1331,79 @@ CREATE FUNCTION pf_public.update_partner_project(project_id uuid, map_config jso
     *;
 
 $$;
+
+
+--
+-- Name: adaptation_documents; Type: TABLE; Schema: knowledge; Owner: -
+--
+
+CREATE TABLE knowledge.adaptation_documents (
+    id integer NOT NULL,
+    record_id text NOT NULL,
+    title text NOT NULL,
+    file_name text NOT NULL,
+    file_url text NOT NULL,
+    source_url text,
+    metadata jsonb,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+--
+-- Name: adaptation_documents_id_seq; Type: SEQUENCE; Schema: knowledge; Owner: -
+--
+
+CREATE SEQUENCE knowledge.adaptation_documents_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: adaptation_documents_id_seq; Type: SEQUENCE OWNED BY; Schema: knowledge; Owner: -
+--
+
+ALTER SEQUENCE knowledge.adaptation_documents_id_seq OWNED BY knowledge.adaptation_documents.id;
+
+
+--
+-- Name: adaptation_embeddings; Type: TABLE; Schema: knowledge; Owner: -
+--
+
+CREATE TABLE knowledge.adaptation_embeddings (
+    id integer NOT NULL,
+    document_id integer,
+    content_order integer NOT NULL,
+    content_tokens integer NOT NULL,
+    content text NOT NULL,
+    page_number integer,
+    embedding public.vector(1536),
+    metadata jsonb
+);
+
+
+--
+-- Name: adaptation_embeddings_id_seq; Type: SEQUENCE; Schema: knowledge; Owner: -
+--
+
+CREATE SEQUENCE knowledge.adaptation_embeddings_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: adaptation_embeddings_id_seq; Type: SEQUENCE OWNED BY; Schema: knowledge; Owner: -
+--
+
+ALTER SEQUENCE knowledge.adaptation_embeddings_id_seq OWNED BY knowledge.adaptation_embeddings.id;
 
 
 --
@@ -2698,6 +2771,20 @@ CREATE VIEW pf_public.view_user_access_request AS
 
 
 --
+-- Name: adaptation_documents id; Type: DEFAULT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_documents ALTER COLUMN id SET DEFAULT nextval('knowledge.adaptation_documents_id_seq'::regclass);
+
+
+--
+-- Name: adaptation_embeddings id; Type: DEFAULT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_embeddings ALTER COLUMN id SET DEFAULT nextval('knowledge.adaptation_embeddings_id_seq'::regclass);
+
+
+--
 -- Name: posts id; Type: DEFAULT; Schema: knowledge; Owner: -
 --
 
@@ -2709,6 +2796,22 @@ ALTER TABLE ONLY knowledge.posts ALTER COLUMN id SET DEFAULT nextval('knowledge.
 --
 
 ALTER TABLE ONLY knowledge.posts_embeddings ALTER COLUMN id SET DEFAULT nextval('knowledge.posts_embeddings_id_seq'::regclass);
+
+
+--
+-- Name: adaptation_documents adaptation_documents_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_documents
+    ADD CONSTRAINT adaptation_documents_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: adaptation_embeddings adaptation_embeddings_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_embeddings
+    ADD CONSTRAINT adaptation_embeddings_pkey PRIMARY KEY (id);
 
 
 --
@@ -3013,6 +3116,20 @@ ALTER TABLE ONLY pf_public.pf_statistical_variable_names
 
 ALTER TABLE ONLY pf_public.pf_warming_scenarios
     ADD CONSTRAINT pf_warming_scenarios_pkey PRIMARY KEY (slug);
+
+
+--
+-- Name: adaptation_documents_record_file_idx; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE UNIQUE INDEX adaptation_documents_record_file_idx ON knowledge.adaptation_documents USING btree (record_id, file_url);
+
+
+--
+-- Name: adaptation_embeddings_embedding_idx; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX adaptation_embeddings_embedding_idx ON knowledge.adaptation_embeddings USING ivfflat (embedding);
 
 
 --
@@ -3391,6 +3508,14 @@ CREATE TRIGGER _200_set_cell BEFORE INSERT OR UPDATE ON pf_public.pf_grid_coordi
 --
 
 COMMENT ON TRIGGER _200_set_cell ON pf_public.pf_grid_coordinates IS 'Set cell from point and based on the model';
+
+
+--
+-- Name: adaptation_embeddings adaptation_embeddings_document_id_fkey; Type: FK CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_embeddings
+    ADD CONSTRAINT adaptation_embeddings_document_id_fkey FOREIGN KEY (document_id) REFERENCES knowledge.adaptation_documents(id) ON DELETE CASCADE;
 
 
 --
