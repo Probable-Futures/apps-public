@@ -37,7 +37,7 @@
     "@types/pino": "^6.3.9",
     "@types/pino-std-serializers": "^4.0.0",
     "@uppy/companion": "^5.8.0",
-    "ajv": "^6.12.2",
+    "ajv": "^8.18.0",
     "aws-sdk": "^2.1692.0",
     "bottleneck": "^2.19.5",
     "connect-pg-simple": "^6.2.1",
