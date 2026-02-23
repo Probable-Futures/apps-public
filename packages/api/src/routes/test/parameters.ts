@@ -1,15 +1,17 @@
 import Ajv from "ajv";
+import addFormats from "ajv-formats";
 
 import { collect } from "../../utils/error";
 import * as contactRequestBodySchema from "./schema.json";
 
 const ajv = new Ajv({
   allErrors: true,
-  schemaId: "auto",
   schemas: {
     body: contactRequestBodySchema,
   },
 });
+
+addFormats(ajv);
 
 export interface FormData {
   emailAddress: string;
@@ -26,7 +28,8 @@ export async function validateFormData(body: { data: object }): Promise<FormData
     throw collect(
       400,
       "invalid request body",
-      ajv.errors?.map(({ dataPath, message }) => new Error(`body${dataPath} ${message}`)) ?? [],
+      ajv.errors?.map(({ instancePath, message }) => new Error(`body${instancePath} ${message}`)) ??
+        [],
     );
   }
 

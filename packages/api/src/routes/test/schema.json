@@ -1,5 +1,5 @@
 {
-  "id": "https://json-schema.org/draft-04/schema#",
+  "$id": "https://json-schema.org/draft-04/schema#",
   "definitions": {},
   "properties": {
     "data": {
