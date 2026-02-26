@@ -48,17 +48,28 @@ const approveOpenDataAccess = async (
 
   let createUserAccessRequestResponse,
     response: Response = {};
+  const errorRelevantData = `Email: ${email}, Form: ${formName}`;
   try {
     createUserAccessRequestResponse = await context.pgClient.query(
       "select * from pf_public.create_user_access_request ($1, $2, $3)",
       [formName, email, formFields],
     );
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, "Failed to create user access request");
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to create user access request in DB";
+    await slackUtils.sendErrorToSlack(errorMessage, errorPrefix, errorRelevantData);
     throw error;
   }
 
   const requestId = createUserAccessRequestResponse.rows[0]?.create_user_access_request;
+
+  if (!requestId) {
+    const errorMessage = "create_user_access_request returned no request ID";
+    logger.error(errorMessage);
+    await slackUtils.sendErrorToSlack(errorMessage, errorPrefix, errorRelevantData);
+    throw new Error(errorMessage);
+  }
 
   const whatWouldYouLikeToUse: { id: string; name: string }[] =
     getFormFieldValueById(formFieldsNameIdMap["whatWouldYouLikeToUse"], formFields) || [];
@@ -67,7 +78,6 @@ const approveOpenDataAccess = async (
   const lastName = getFormFieldValueById(formFieldsNameIdMap["lastName"], formFields);
   const emailList = getFormFieldValueById(formFieldsNameIdMap["emailList"], formFields);
   const fullName = `${firstName} ${lastName}`;
-  const errorRelevantData = `Email: ${email}`;
 
   try {
     const auth0ManagementToken = await verify(
@@ -140,7 +150,15 @@ const approveOpenDataAccess = async (
       includeCustomizableMaps,
     });
 
-    await sendAccessEmail(email, composedEmail);
+    try {
+      await sendAccessEmail(email, composedEmail);
+    } catch (error) {
+      logger.error({ err: error }, "Failed to send access email");
+      const errorMessage = error instanceof Error ? error.message : "Failed to send access email";
+      await slackUtils.sendErrorToSlack(errorMessage, errorPrefix, errorRelevantData);
+      // Don't throw — continue to update the request and subscribe to Mailchimp
+      response.error = [response.error, errorMessage].filter(Boolean).join("\n");
+    }
 
     try {
       await context.pgClient.query(
@@ -148,7 +166,10 @@ const approveOpenDataAccess = async (
         [requestId, true, defaultNoteValue, defaultClosingValue, false, composedEmail, null, null],
       );
     } catch (error) {
-      console.error(error);
+      logger.error({ err: error }, "Failed to update user access request");
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update user access request in DB";
+      await slackUtils.sendErrorToSlack(errorMessage, errorPrefix, errorRelevantData);
     }
 
     try {
@@ -174,7 +195,9 @@ const approveOpenDataAccess = async (
         );
       }
     } catch (e) {
-      console.error(e);
+      logger.error({ err: e }, "Failed to create Mailchimp contact");
+      const errorMessage = e instanceof Error ? e.message : "Failed to create Mailchimp contact";
+      await slackUtils.sendErrorToSlack(errorMessage, errorPrefix, errorRelevantData);
     }
 
     if (response.error) {
@@ -182,7 +205,7 @@ const approveOpenDataAccess = async (
     }
     return response;
   } catch (e) {
-    console.error(e);
+    logger.error({ err: e }, "Unexpected error in approveOpenDataAccess");
     if (e instanceof Error) {
       await slackUtils.sendErrorToSlack(e.message, errorPrefix, errorRelevantData);
     } else {
