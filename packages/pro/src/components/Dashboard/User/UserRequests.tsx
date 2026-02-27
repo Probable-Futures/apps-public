@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { useOutletContext } from "react-router-dom";
 import { Alert, Link, Snackbar } from "@mui/material";
@@ -9,10 +9,12 @@ import {
   GET_PF_USER_ACCESS_REQUESTS,
   SEND_CUSTOM_ONBOARDING_EMAIL,
 } from "../../../graphql/queries/userRequests";
-import { GqlResponse } from "../../../shared/types";
+import { PageInfo } from "../../../shared/types";
 import UserRequestTable from "./UserRequestTable";
 import { colors } from "@probable-futures/lib";
 import { isProd } from "../../../consts/env";
+
+const ITEMS_PER_PAGE = 10;
 
 export type RequestField = {
   name: string;
@@ -34,11 +36,16 @@ export type UserRequestNode = {
 };
 
 export type UserAccessRequestResponse = {
-  viewUserAccessRequests: GqlResponse<UserRequestNode>;
+  viewUserAccessRequests: {
+    nodes: UserRequestNode[];
+    pageInfo: PageInfo;
+    totalCount: number;
+  };
 };
 
 const UserRequests = () => {
   const [apiError, setApiError] = useState<string>();
+  const [offset, setOffset] = useState(0);
   const { toggleLoading } = useOutletContext<{
     toggleLoading: (arg: boolean) => {};
   }>();
@@ -47,7 +54,15 @@ const UserRequests = () => {
     data,
     refetch: refetchUserRequests,
   } = useQuery<UserAccessRequestResponse>(GET_PF_USER_ACCESS_REQUESTS, {
-    variables: {},
+    variables: {
+      first: ITEMS_PER_PAGE,
+      offset,
+      condition: {
+        rejected: false,
+        customEmailDiscarded: false,
+        customEmail: null,
+      },
+    },
     fetchPolicy: "no-cache",
     notifyOnNetworkStatusChange: true,
   });
@@ -86,6 +101,22 @@ const UserRequests = () => {
     });
   };
 
+  const handlePageChange = useCallback(
+    (newOffset: number) => {
+      setOffset(newOffset);
+      refetchUserRequests({
+        first: ITEMS_PER_PAGE,
+        offset: newOffset,
+        condition: {
+          rejected: false,
+          customEmailDiscarded: false,
+          customEmail: null,
+        },
+      });
+    },
+    [refetchUserRequests],
+  );
+
   useEffect(() => {
     if (loadingUserAccessRequests) {
       toggleLoading(true);
@@ -103,7 +134,16 @@ const UserRequests = () => {
         <DashboardTitle title="User Requests" />
       </div>
       {!loadingUserAccessRequests && data && (
-        <UserRequestTable data={data} onDiscard={onDiscard} onSend={onSend} />
+        <UserRequestTable
+          data={data}
+          onDiscard={onDiscard}
+          onSend={onSend}
+          offset={offset}
+          setOffset={setOffset}
+          onPageChange={handlePageChange}
+          isLoading={loadingUserAccessRequests}
+          itemsPerPage={ITEMS_PER_PAGE}
+        />
       )}
       <div style={{ marginTop: 10, marginBottom: 20 }}>
         <Link

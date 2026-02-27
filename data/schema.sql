@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.11
+-- Dumped from database version 16.12
 -- Dumped by pg_dump version 17.5
 
 SET statement_timeout = 0;
@@ -2316,7 +2316,7 @@ CREATE TABLE pf_private.pf_user_access_requests (
     closing text,
     final_email text,
     custom_email text,
-    custom_email_discarded boolean
+    custom_email_discarded boolean DEFAULT false
 );
 
 

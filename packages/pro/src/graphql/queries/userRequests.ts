@@ -1,8 +1,12 @@
 import { gql } from "@apollo/client";
 
 export const GET_PF_USER_ACCESS_REQUESTS = gql`
-  query PfUserAccessRequests {
-    viewUserAccessRequests {
+  query PfUserAccessRequests(
+    $first: Int!
+    $offset: Int!
+    $condition: ViewUserAccessRequestCondition
+  ) {
+    viewUserAccessRequests(first: $first, offset: $offset, condition: $condition) {
       nodes {
         id
         formName
@@ -15,6 +19,11 @@ export const GET_PF_USER_ACCESS_REQUESTS = gql`
         customEmail
         customEmailDiscarded
       }
+      pageInfo {
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `;
