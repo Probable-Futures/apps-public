@@ -27,7 +27,9 @@ export const composeEmail = ({
   closing?: string;
   includeCustomizableMaps: boolean;
 }) => {
-  const greetingPart = `Hi ${firstName},`;
+  // remove trailing space from the first name if it exists
+  firstName = firstName.trimEnd();
+  const greetingPart = `Hi ${firstName.trimEnd()},`;
 
   const emailIntro = note;
 
