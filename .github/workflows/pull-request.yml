@@ -75,7 +75,7 @@ jobs:
 
       - name: Preview foundation
         if: contains(steps.changedFiles.outputs.all_modified_files, 'infra/foundation/')
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v6
         with:
           command: preview
           stack-name: "Probable-Futures/foundation/${{ steps.pulumiStack.outputs.result }}"
@@ -91,7 +91,7 @@ jobs:
         if: |
           contains(steps.changedFiles.outputs.all_modified_files, 'infra/services/') ||
           contains(steps.changedFiles.outputs.all_modified_files, 'node.base.Dockerfile')
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v6
         with:
           command: preview
           stack-name: "Probable-Futures/services/${{ steps.pulumiStack.outputs.result }}"
@@ -112,7 +112,7 @@ jobs:
           contains(steps.changedFiles.outputs.all_modified_files, 'api.Dockerfile') ||
           contains(steps.changedFiles.outputs.all_modified_files, 'worker.Dockerfile') ||
           contains(steps.changedFiles.outputs.all_modified_files, 'migrate.Dockerfile')
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v6
         with:
           command: preview
           stack-name: "Probable-Futures/api/${{ steps.pulumiStack.outputs.result }}"
@@ -131,7 +131,7 @@ jobs:
           contains(steps.changedFiles.outputs.all_modified_files, 'packages/pro/') ||
           contains(steps.changedFiles.outputs.all_modified_files, 'packages/lib/') ||
           contains(steps.changedFiles.outputs.all_modified_files, 'packages/components-lib/')
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v6
         with:
           command: preview
           stack-name: "Probable-Futures/sites/${{ steps.pulumiStack.outputs.result }}"

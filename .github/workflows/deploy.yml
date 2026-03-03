@@ -126,7 +126,7 @@ jobs:
 
       - name: Deploy global resources
         if: ${{github.event.inputs.deploy_global == 'true'}}
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v6
         with:
           command: up
           stack-name: "Probable-Futures/identity/global"
@@ -139,7 +139,7 @@ jobs:
 
       - name: Deploy foundation resources
         if: ${{github.event.inputs.deploy_foundation == 'true'}}
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v6
         with:
           command: up
           stack-name: "Probable-Futures/foundation/${{ github.event.inputs.deploy_env }}"
@@ -153,7 +153,7 @@ jobs:
       - name: Deploy services
         if: ${{github.event.inputs.deploy_services == 'true' || github.event.inputs.db_migration == 'true'}}
         id: pulumiServices
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v6
         with:
           command: up
           stack-name: "Probable-Futures/services/${{ github.event.inputs.deploy_env }}"
@@ -176,7 +176,7 @@ jobs:
       - name: Deploy API resources
         if: ${{github.event.inputs.deploy_api == 'true' || github.event.inputs.db_migration == 'true'}}
         id: pulumiApi
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v6
         with:
           command: up
           stack-name: "Probable-Futures/api/${{ github.event.inputs.deploy_env }}"
@@ -231,7 +231,7 @@ jobs:
 
       - name: Deploy sites
         if: ${{github.event.inputs.deploy_sites == 'true'}}
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v6
         with:
           command: up
           stack-name: "Probable-Futures/sites/${{ github.event.inputs.deploy_env }}"

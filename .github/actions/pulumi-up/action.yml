@@ -10,7 +10,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: pulumi/actions@v3
+    - uses: pulumi/actions@v6
       with:
         command: up
         stack-name: ${{ inputs.stack-name }}
