@@ -33,6 +33,13 @@ import useClimateZoneHighlighter from "../../utils/useClimateZoneHighlighter";
 import WarmingScenarioSelection from "../WarmingScenarioSelection";
 import Popup from "../common/Popup";
 import { useDatasetChangeHandler } from "../../utils/useDatasetChangeHandler";
+import {
+  trackMixpanelEvent,
+  trackMapTilesetClicked,
+  AnalyticsEvent,
+} from "../../utils/mixpanelAnalytics";
+import MapboxClient from "@mapbox/mapbox-sdk/lib/client";
+import mbxGeocoder from "@mapbox/mapbox-sdk/services/geocoding";
 
 type MapStyles = {
   stops?: number[];
@@ -334,10 +341,16 @@ const InteractiveMap = () => {
   });
 
   const { drawGlobeLines, removeGlobeLayers } = useGlobeLines(mapProjection, mapRef.current);
-  const onDatasetChange = useDatasetChangeHandler();
+  const onDatasetChange = useDatasetChangeHandler("map_selector");
+  const onDatasetChangeFromAboutMap = useDatasetChangeHandler("about_map_panel");
 
   const mapboxAccessToken =
     window.pfInteractiveMap?.mapboxAccessToken || process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+
+  const geocodingService = useMemo(() => {
+    if (!mapboxAccessToken) return null;
+    return mbxGeocoder(MapboxClient({ accessToken: mapboxAccessToken }));
+  }, [mapboxAccessToken]);
 
   const showHeader = true;
 
@@ -398,6 +411,11 @@ const InteractiveMap = () => {
     });
     const fileBlob = new Blob([template], { type: "text/html" });
     downloadFile(fileBlob, `${selectedDataset.name} at ${degreeToString(degrees)}°C`);
+
+    trackMixpanelEvent(AnalyticsEvent.EMBEDDABLE_MAP_DOWNLOADED, {
+      map_name: selectedDataset.name,
+      warming_scenario: degrees,
+    });
   };
 
   const onExportCompareMapConfirm = async (selectedDegrees: number[]) => {
@@ -425,6 +443,13 @@ const InteractiveMap = () => {
         selectedDegrees[0],
       )}°C and ${degreeToString(selectedDegrees[1])}°C`,
     );
+
+    trackMixpanelEvent(AnalyticsEvent.COMPARISON_MAP_DOWNLOADED, {
+      map_name: selectedDataset.name,
+      scenarios_compared: `${degreeToString(selectedDegrees[0])}°C vs ${degreeToString(
+        selectedDegrees[1],
+      )}°C`,
+    });
   };
 
   useEffect(() => {
@@ -514,8 +539,14 @@ const InteractiveMap = () => {
         features: e.features,
         lngLat: [e.lngLat.lng, e.lngLat.lat],
       });
+
+      trackMapTilesetClicked(
+        geocodingService,
+        { map_name: selectedDataset?.name, warming_scenario: degrees },
+        [e.lngLat.lng, e.lngLat.lat],
+      );
     },
-    [setPopupFeature],
+    [setPopupFeature, selectedDataset?.name, degrees, geocodingService],
   );
 
   const tourInspectorLocation = useMemo(() => {
@@ -597,6 +628,13 @@ const InteractiveMap = () => {
         coordinates: `${viewState.latitude},${viewState.longitude}`,
       },
     });
+
+    trackMixpanelEvent(AnalyticsEvent.MAP_SCREENSHOT_TAKEN, {
+      map_name: selectedDataset?.name,
+      warming_scenario: degrees,
+      zoom: viewState?.zoom,
+      coordinates: `${viewState.latitude},${viewState.longitude}`,
+    });
   };
 
   const generateQRCodeDataURL = async (url: string): Promise<string> => {
@@ -618,6 +656,11 @@ const InteractiveMap = () => {
         degrees,
       )}°C.png`;
       a.click();
+
+      trackMixpanelEvent(AnalyticsEvent.QR_CODE_DOWNLOADED, {
+        map_name: selectedDataset?.name,
+        warming_scenario: degrees,
+      });
     } catch (error) {
       console.error(error);
     }
@@ -676,6 +719,8 @@ const InteractiveMap = () => {
         map: `${selectedDataset?.name}`,
       },
     });
+
+    trackMixpanelEvent(AnalyticsEvent.MAP_TOUR_STARTED, { map_name: selectedDataset?.name });
   };
 
   const onSourceData = (e: MapSourceDataEvent) => e.tile && setShowLoader(true);
@@ -699,9 +744,28 @@ const InteractiveMap = () => {
     );
   };
 
-  const onFly = useCallback((feature: Feature) => {
-    setTimeout(() => setSearchResult(feature), 1000);
-  }, []);
+  const onFly = useCallback(
+    (feature: Feature) => {
+      setTimeout(() => setSearchResult(feature), 1000);
+      trackMixpanelEvent(AnalyticsEvent.SEARCH_RESULT_SELECTED, {
+        map_name: selectedDataset?.name,
+        place_name: feature.place_name,
+        place_type: feature.place_type?.[0],
+      });
+    },
+    [selectedDataset?.name],
+  );
+
+  const onSearchCompleted = useCallback(
+    (query: string, resultCount: number) => {
+      trackMixpanelEvent(AnalyticsEvent.LOCATION_SEARCHED, {
+        map_name: selectedDataset?.name,
+        search_query: query,
+        result_count: resultCount,
+      });
+    },
+    [selectedDataset?.name],
+  );
 
   const activateClimateZoneLayer = useCallback(
     (layers: string[] | undefined) => {
@@ -748,7 +812,12 @@ const InteractiveMap = () => {
                 activeClimateZoneLayers={activeClimateZoneLayers}
                 precipitationUnit={precipitationUnit}
                 setPrecipitationUnit={setPrecipitationUnit}
-                onAboutMapClick={() => setShowAboutMap(true)}
+                onAboutMapClick={() => {
+                  setShowAboutMap(true);
+                  trackMixpanelEvent(AnalyticsEvent.ABOUT_MAP_OPENED, {
+                    map_name: selectedDataset?.name,
+                  });
+                }}
                 translatedHeader={translatedHeader}
               />
             )}
@@ -788,7 +857,12 @@ const InteractiveMap = () => {
                     dataset={selectedDataset}
                     degreesOfWarming={degrees}
                     tempUnit={tempUnit}
-                    onReadMoreClick={() => setShowDescriptionModal((show: boolean) => !show)}
+                    onReadMoreClick={() => {
+                      setShowDescriptionModal((show: boolean) => !show);
+                      trackMixpanelEvent(AnalyticsEvent.MAP_DESCRIPTION_VIEWED, {
+                        map_name: selectedDataset?.name,
+                      });
+                    }}
                     onBaselineClick={() => setShowDescriptionModal((show: boolean) => !show)}
                     showInspector={false}
                     datasetDescriptionResponse={datasetDescriptionResponse}
@@ -816,6 +890,7 @@ const InteractiveMap = () => {
                 mapboxAccessToken={mapboxAccessToken}
                 top="115px"
                 onFly={onFly}
+                onSearchCompleted={onSearchCompleted}
                 language={locale}
               />
               {renderBottomLinks()}
@@ -827,7 +902,12 @@ const InteractiveMap = () => {
           zoom={viewState.zoom || consts.MIN_ZOOM}
           maxZoom={consts.MAX_ZOOM}
           onZoom={changeZoom}
-          onDownloadClick={() => setShowDownloadMapModal(true)}
+          onDownloadClick={() => {
+            setShowDownloadMapModal(true);
+            trackMixpanelEvent(AnalyticsEvent.DOWNLOAD_COMPARE_MODAL_OPENED, {
+              map_name: selectedDataset?.name,
+            });
+          }}
           onTakeScreenshot={takeScreenshot}
           selectedDataset={selectedDataset}
           onDownloadQRCode={onDownloadQRCode}
@@ -886,9 +966,36 @@ const InteractiveMap = () => {
           translatedHeader={translatedHeader}
           selectedDataset={selectedDataset}
           aboutMapResources={aboutMapResources}
-          onDatasetChange={onDatasetChange}
+          onDatasetChange={onDatasetChangeFromAboutMap}
           handleTourClick={handleTourClick}
           source="maps"
+          onWarmingScenariosToggled={(isExpanded) => {
+            trackMixpanelEvent(AnalyticsEvent.WARMING_SCENARIOS_SECTION_TOGGLED, {
+              map_name: selectedDataset?.name,
+              is_expanded: isExpanded,
+            });
+          }}
+          onRelatedPostClicked={(title, url) => {
+            trackMixpanelEvent(AnalyticsEvent.ABOUT_MAP_RELATED_POST_CLICKED, {
+              map_name: selectedDataset?.name,
+              link_title: title,
+              link_url: url,
+            });
+          }}
+          onRelatedResourceClicked={(title, url) => {
+            trackMixpanelEvent(AnalyticsEvent.ABOUT_MAP_RESOURCE_CLICKED, {
+              map_name: selectedDataset?.name,
+              link_title: title,
+              link_url: url,
+            });
+          }}
+          onDataResourceClicked={(title, url) => {
+            trackMixpanelEvent(AnalyticsEvent.ABOUT_MAP_DATA_RESOURCE_CLICKED, {
+              map_name: selectedDataset?.name,
+              link_title: title,
+              link_url: url,
+            });
+          }}
         />
         {selectedDataset && (
           <components.AllMapsModal

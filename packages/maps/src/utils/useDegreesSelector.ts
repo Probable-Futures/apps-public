@@ -2,6 +2,7 @@ import { useEffect } from "react";
 
 import { useMapData } from "../contexts/DataContext";
 import { trackEvent } from "../utils/analytics";
+import { trackMixpanelEvent, AnalyticsEvent } from "../utils/mixpanelAnalytics";
 import { setQueryParam } from "../utils";
 
 const useDegreesSelector = () => {
@@ -29,6 +30,10 @@ const useDegreesSelector = () => {
     } else {
       setDegrees(value);
       setQueryParam({ warmingScenario: value });
+      trackMixpanelEvent(AnalyticsEvent.WARMING_SCENARIO_CHANGED, {
+        map_name: selectedDataset?.name,
+        warming_scenario: value,
+      });
     }
 
     trackEvent("Warming tab clicked", eventProps);

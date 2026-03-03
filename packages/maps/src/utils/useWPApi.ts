@@ -34,11 +34,16 @@ export default function useWPApi({
   locale,
 }: Props) {
   const urlWithLocale = useMemo(() => {
-    const url = new URL(baseUrl);
-    if (locale === "en") {
+    try {
+      const url = new URL(baseUrl);
+      if (locale === "en") {
+        return baseUrl;
+      }
+      return url.origin + "/" + locale + url.pathname;
+    } catch {
+      // Fallback: return baseUrl as-is to avoid crashing the entire app
       return baseUrl;
     }
-    return url.origin + "/" + locale + url.pathname;
   }, [locale]);
 
   const filterObjectBy = (obj: Object, filter: string) => {

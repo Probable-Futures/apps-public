@@ -3,8 +3,9 @@ import { types } from "@probable-futures/lib";
 import { useMapData, defaultDegreesForChangeMaps } from "../contexts/DataContext";
 import { setQueryParam } from "../utils";
 import { trackEvent } from "../utils/analytics";
+import { trackMixpanelEvent, AnalyticsEvent } from "../utils/mixpanelAnalytics";
 
-export const useDatasetChangeHandler = () => {
+export const useDatasetChangeHandler = (source?: string) => {
   const { datasets, degrees, setDegrees, setSelectedDataset } = useMapData();
 
   return useCallback(
@@ -29,8 +30,13 @@ export const useDatasetChangeHandler = () => {
         });
 
         trackEvent("Map viewed", { props: { map: dataset.name } });
+        trackMixpanelEvent(AnalyticsEvent.MAP_CHANGED, {
+          map_name: dataset.name,
+          map_slug: dataset.slug,
+          source: source || "map_selector",
+        });
       }
     },
-    [datasets, degrees, setDegrees, setSelectedDataset],
+    [datasets, degrees, setDegrees, setSelectedDataset, source],
   );
 };

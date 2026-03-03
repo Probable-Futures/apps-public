@@ -42,7 +42,7 @@ const useGeocoder = (props: GeocoderProps) => {
   const [showNoResultsMessage, setShowNoResultsMessage] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { onFly, mapRef } = props;
+  const { onFly, onSearchCompleted, mapRef } = props;
 
   const onSearch = useCallback(
     async (query: string) => {
@@ -63,18 +63,20 @@ const useGeocoder = (props: GeocoderProps) => {
           }
           setSuggestionList(features);
           setIsLoading(false);
+          onSearchCompleted?.(query, features.length);
           return features;
         } catch (e: any) {
           setError(e.message ?? "Error occured");
           setIsLoading(false);
           setShowNoResultsMessage(true);
+          onSearchCompleted?.(query, 0);
           throw e;
         }
       }
       setSuggestionList([]);
       return [];
     },
-    [geocodeSerice, props.language],
+    [geocodeSerice, props.language, onSearchCompleted],
   );
 
   const debouncedSearch = useMemo(

@@ -9,5 +9,8 @@ declare global {
       pfApiUrl: string | null;
       pfApiKey: string | null;
     };
+    AppAnalytics?: {
+      track: (eventName: string, props?: Record<string, any>) => void;
+    };
   }
 }

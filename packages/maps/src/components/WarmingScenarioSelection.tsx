@@ -5,6 +5,7 @@ import { useMapData } from "../contexts/DataContext";
 import { useTourData } from "../contexts/TourContext";
 import { useTranslation } from "../contexts/TranslationContext";
 import useDegreesSelector from "../utils/useDegreesSelector";
+import { trackMixpanelEvent, AnalyticsEvent } from "../utils/mixpanelAnalytics";
 import { useMediaQuery } from "react-responsive";
 import { size } from "@probable-futures/lib";
 
@@ -75,6 +76,9 @@ const WarmingScenarioSelection = () => {
             translatedHeader={translate("header")}
             onAboutMapClick={() => {
               setShowAboutMap(true);
+              trackMixpanelEvent(AnalyticsEvent.ABOUT_MAP_OPENED, {
+                map_name: selectedDataset?.name,
+              });
             }}
           />
         </Container>

@@ -148,7 +148,8 @@ const DownloadMapModal = ({ isVisible, selectedDataset, onClose, onExportCompare
 
   const onDownload = () => {
     if (selectedDegrees.size === 2) {
-      onExportCompareMap(Array.from(selectedDegrees.keys()));
+      const degrees = Array.from(selectedDegrees.keys());
+      onExportCompareMap(degrees);
     }
 
     onCloseClicked();

@@ -8,6 +8,7 @@ type Props = {
   resources: Resource[];
   source?: Source;
   handleTourClick?: () => void;
+  onResourceClicked?: (title: string, url: string) => void;
 };
 
 type SharedProps = {
@@ -17,6 +18,7 @@ type SharedProps = {
   title?: string;
   source?: Source;
   handleTourClick?: () => void;
+  onResourceClicked?: (title: string, url: string) => void;
 };
 
 const Intro = styled.p`
@@ -64,13 +66,27 @@ const SimulateAnchorTag = styled.span`
 
 const isExternalLink = (url: string) => /^https?:\/\//i.test(url);
 
-const AboutMapResource = ({ intro, title, resources, source, handleTourClick }: Props) => {
+const AboutMapResource = ({
+  intro,
+  title,
+  resources,
+  source,
+  handleTourClick,
+  onResourceClicked,
+}: Props) => {
   const renderResourceItem = (resource: Resource, index: number) => {
     // Add a special case for handling Take Tour link
     if (resource.resource.title.toLowerCase().indexOf("tour") !== -1 && source === "maps") {
       return (
         <ResourceItem key={index}>
-          <SimulateAnchorTag onClick={handleTourClick}>{resource.resource.title}</SimulateAnchorTag>
+          <SimulateAnchorTag
+            onClick={() => {
+              handleTourClick?.();
+              onResourceClicked?.(resource.resource.title, resource.resource.url);
+            }}
+          >
+            {resource.resource.title}
+          </SimulateAnchorTag>
           <p>{resource.description}</p>
         </ResourceItem>
       );
@@ -83,6 +99,7 @@ const AboutMapResource = ({ intro, title, resources, source, handleTourClick }: 
             href={resource.resource.url}
             target={externalLink ? "_blank" : resource.resource.target}
             rel="noopener noreferrer"
+            onClick={() => onResourceClicked?.(resource.resource.title, resource.resource.url)}
           >
             {resource.resource.title}
           </a>
@@ -107,6 +124,7 @@ export const RelatedResources = ({
   title = "",
   handleTourClick,
   source = "maps",
+  onResourceClicked,
 }: SharedProps) => {
   return (
     <AboutMapResource
@@ -115,10 +133,23 @@ export const RelatedResources = ({
       resources={resources}
       source={source}
       handleTourClick={handleTourClick}
+      onResourceClicked={onResourceClicked}
     />
   );
 };
 
-export const DataResources = ({ resources = [], intro = "", title = "" }: SharedProps) => {
-  return <AboutMapResource intro={intro} title={title} resources={resources} />;
+export const DataResources = ({
+  resources = [],
+  intro = "",
+  title = "",
+  onResourceClicked,
+}: SharedProps) => {
+  return (
+    <AboutMapResource
+      intro={intro}
+      title={title}
+      resources={resources}
+      onResourceClicked={onResourceClicked}
+    />
+  );
 };

@@ -6,6 +6,7 @@ import { ReactComponent as CancelIcon } from "@probable-futures/components-lib/s
 import { useTourData } from "../contexts/TourContext";
 import { ReactComponent as TourIcon } from "../assets/icons/tour.svg";
 import { trackEvent } from "../utils/analytics";
+import { trackMixpanelEvent, AnalyticsEvent } from "../utils/mixpanelAnalytics";
 import { useMapData } from "../contexts/DataContext";
 import { colors } from "../consts";
 import { useTranslation } from "../contexts/TranslationContext";
@@ -71,6 +72,7 @@ const TourButton = ({ last }: { last: boolean }) => {
         map: `${selectedDataset?.name}`,
       },
     });
+    trackMixpanelEvent(AnalyticsEvent.MAP_TOUR_STARTED, { map_name: selectedDataset?.name });
   };
 
   const renderTooltipContent = () => (

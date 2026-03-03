@@ -48,7 +48,7 @@ const MapSelection = ({ isTakingScreenshot }: { isTakingScreenshot?: boolean }) 
   const { translate } = useTranslation();
   const translatedDatasets = translate("header")?.datasets;
   const translatedHeader = translate("header");
-  const onDatasetChange = useDatasetChangeHandler();
+  const onDatasetChange = useDatasetChangeHandler("map_selector");
   const isTablet = useMediaQuery({
     query: `(max-width: ${size.tabletMax})`,
   });

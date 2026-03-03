@@ -31,6 +31,7 @@ import { ReactComponent as CancelCircleIcon } from "@probable-futures/components
 import { ReactComponent as TourIcon } from "../assets/icons/tour.svg";
 import { useTourData } from "../contexts/TourContext";
 import { trackEvent } from "../utils/analytics";
+import { trackMixpanelEvent, AnalyticsEvent } from "../utils/mixpanelAnalytics";
 
 type Props = {
   zoom: number;
@@ -239,6 +240,11 @@ const MapControls = ({
       setShowZoomTooltip(true);
     }
     onZoom(zoom + 1);
+    trackMixpanelEvent(AnalyticsEvent.MAP_ZOOMED, {
+      map_name: selectedDataset?.name,
+      zoom_direction: "in",
+      zoom_level: zoom + 1,
+    });
   };
 
   const checkZoom = () => {
@@ -247,14 +253,26 @@ const MapControls = ({
     }
   };
 
-  const onBordersClick = () =>
-    setShowCountryBorders((showCountryBorders: boolean) => !showCountryBorders);
+  const onBordersClick = () => {
+    setShowCountryBorders((prev: boolean) => {
+      const newValue = !prev;
+      trackMixpanelEvent(AnalyticsEvent.COUNTRY_BORDERS_TOGGLED, {
+        map_name: selectedDataset?.name,
+        borders_visible: newValue,
+      });
+      return newValue;
+    });
+  };
   const onProjectionChange = () => {
     const newProjection: Projection = {
       name: mapProjection.name === "globe" ? "mercator" : "globe",
     };
     setMapProjection(newProjection);
     setQueryParam({ mapProjection: newProjection.name });
+    trackMixpanelEvent(AnalyticsEvent.MAP_PROJECTION_CHANGED, {
+      map_name: selectedDataset?.name,
+      projection: newProjection.name,
+    });
   };
 
   const tourMessage = isTourActive
@@ -277,6 +295,7 @@ const MapControls = ({
         map: `${selectedDataset?.name}`,
       },
     });
+    trackMixpanelEvent(AnalyticsEvent.MAP_TOUR_STARTED, { map_name: selectedDataset?.name });
   };
 
   const handleQRCodeDownload = () => {
@@ -310,7 +329,16 @@ const MapControls = ({
         <StyledGroup position="top">
           <styles.ControlButton
             title="More"
-            onClick={() => setMoreIsOpen((isOpen: boolean) => !isOpen)}
+            onClick={() => {
+              setMoreIsOpen((isOpen: boolean) => {
+                if (!isOpen) {
+                  trackMixpanelEvent(AnalyticsEvent.MOBILE_ACTIONS_MENU_OPENED, {
+                    map_name: selectedDataset?.name,
+                  });
+                }
+                return !isOpen;
+              });
+            }}
             first
             last
           >
@@ -329,6 +357,9 @@ const MapControls = ({
           onAboutThisMapClick={() => {
             setShowAboutMap(true);
             setMoreIsOpen(false);
+            trackMixpanelEvent(AnalyticsEvent.ABOUT_MAP_OPENED, {
+              map_name: selectedDataset?.name,
+            });
           }}
           onProjectionChange={() => {
             onProjectionChange();
@@ -485,7 +516,18 @@ const MapControls = ({
               </styles.ControlButton>
             </styles.ButtonContainer>
           </components.ControlsTooltip>
-          <styles.ControlButton title="Zoom Out" onClick={() => onZoom(zoom - 1)} last>
+          <styles.ControlButton
+            title="Zoom Out"
+            onClick={() => {
+              onZoom(zoom - 1);
+              trackMixpanelEvent(AnalyticsEvent.MAP_ZOOMED, {
+                map_name: selectedDataset?.name,
+                zoom_direction: "out",
+                zoom_level: zoom - 1,
+              });
+            }}
+            last
+          >
             <ZoomOutIcon />
           </styles.ControlButton>
         </StyledGroup>

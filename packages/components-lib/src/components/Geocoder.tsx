@@ -26,6 +26,7 @@ export type GeocoderProps = {
   top: string;
   language?: string;
   onFly?: (arg: Feature) => void;
+  onSearchCompleted?: (query: string, resultCount: number) => void;
   setSearchIsOpen: (arg: boolean) => void;
 };
 

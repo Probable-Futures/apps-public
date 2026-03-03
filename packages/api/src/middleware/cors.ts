@@ -1,4 +1,4 @@
-import { constants } from "../utils";
+import { constants, env } from "../utils";
 import { Express, Request } from "express";
 import cors from "cors";
 
@@ -26,6 +26,11 @@ export default (app: Express) => {
       "https://dev-maps-tour.probablefutures.org",
       "https://docs.probablefutures.org",
     ];
+
+    // Allow localhost origins for local development
+    if (env.isLocal) {
+      allowedOrigins.push("http://localhost:8000", "http://localhost:3000");
+    }
 
     let origin: string | string[] = allowedOrigins;
 

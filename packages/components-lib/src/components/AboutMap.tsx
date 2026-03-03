@@ -31,6 +31,10 @@ type Props = {
   onDatasetChange: (option: Option) => void;
   onClose: MouseEventHandler<HTMLButtonElement | HTMLDivElement>;
   handleTourClick?: () => void;
+  onWarmingScenariosToggled?: (isExpanded: boolean) => void;
+  onRelatedPostClicked?: (title: string, url: string) => void;
+  onRelatedResourceClicked?: (title: string, url: string) => void;
+  onDataResourceClicked?: (title: string, url: string) => void;
 };
 
 const SharedLeftPadding = css`
@@ -336,6 +340,10 @@ const AboutMap = ({
   onDatasetChange,
   onClose,
   handleTourClick,
+  onWarmingScenariosToggled,
+  onRelatedPostClicked,
+  onRelatedResourceClicked,
+  onDataResourceClicked,
 }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -418,6 +426,7 @@ const AboutMap = ({
                           key={index}
                           href={item.post.url}
                           target={item.post.target || "_self"}
+                          onClick={() => onRelatedPostClicked?.(item.post.title, item.post.url)}
                         >
                           <span dangerouslySetInnerHTML={{ __html: item.post.title }} />
                           <StyledArrowIcon src={ArrowRightIcon} alt="Arrow Right" />
@@ -438,7 +447,13 @@ const AboutMap = ({
                 />
 
                 <WarmingScenarioSection>
-                  <WarmingScenarioTitle onClick={() => setIsExpanded(!isExpanded)}>
+                  <WarmingScenarioTitle
+                    onClick={() => {
+                      const newExpanded = !isExpanded;
+                      setIsExpanded(newExpanded);
+                      onWarmingScenariosToggled?.(newExpanded);
+                    }}
+                  >
                     {translatedHeader?.aboutEachWarmingScenario || "About each warming scenario"}
                     <ExpandCollapseIcon isOpen={isExpanded} />
                   </WarmingScenarioTitle>
@@ -473,6 +488,7 @@ const AboutMap = ({
                   title={aboutMapResources?.related_heading}
                   handleTourClick={handleTourClick}
                   source={source}
+                  onResourceClicked={onRelatedResourceClicked}
                 />
               </Section>
               <Section>
@@ -482,6 +498,7 @@ const AboutMap = ({
                   intro={aboutMapResources?.explore_subheading}
                   title={aboutMapResources?.explore_heading}
                   source={source}
+                  onResourceClicked={onDataResourceClicked}
                 />
               </Section>
             </ContentWrapper>
