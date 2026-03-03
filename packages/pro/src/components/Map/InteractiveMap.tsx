@@ -663,7 +663,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
         />
         {isLaptop && renderSharedProjectHeader()}
         <components.Geocoder
-          searchInputHeight={"35px"}
+          searchInputHeight={consts.SEARCH_INPUT_HEIGHT}
           serverErrorText="There was an error reaching the server"
           noResultText="No results found"
           placeholderText="Search for a location"
@@ -671,12 +671,12 @@ const InteractiveMap = (props: PropsFromRedux) => {
           recentlySearchedText="recently searched"
           localStorageRecentlySearchedIemskey={consts.LOCAL_STORAGE_RECENTLY_SEARCHED_ITEMS_KEY}
           mapRef={mapRef}
-          searchIsOpen={searchIsOpen}
+          searchIsOpen={isLaptop || searchIsOpen}
           mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
           onFly={handleOnFly}
           setSearchIsOpen={setSearchIsOpen}
           top="120px"
-          autoFocus
+          autoFocus={!isLaptop && searchIsOpen}
         />
         <components.AboutMap
           isOpen={showAboutMap}
