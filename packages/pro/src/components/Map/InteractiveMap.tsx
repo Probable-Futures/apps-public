@@ -528,14 +528,6 @@ const InteractiveMap = (props: PropsFromRedux) => {
     }
   };
 
-  const mapStyleLink = useMemo(() => {
-    if (selectedClimateData) {
-      const styleBaseURL = `mapbox://styles/${process.env.REACT_APP_MAPBOX_ACCOUNT}`;
-      return `${styleBaseURL}/${selectedClimateData.mapStyleId}`;
-    }
-    return "";
-  }, [selectedClimateData]);
-
   const isMapOrDataLoading = useMemo(() => {
     const datasetEnrichment = project.datasetEnrichment;
     const isEnrichingInProgress =
@@ -579,17 +571,15 @@ const InteractiveMap = (props: PropsFromRedux) => {
             )}
           </contexts.ThemeProvider>
         )}
-        {((selectedClimateData && mapStyleLink) || showMergeDataModal) && (
-          <KeplerGl
-            mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
-            id={MAP_ID}
-            width={windowDimension.width}
-            height={windowDimension.height}
-            localeMessages={localeMessages}
-            hash
-            getMapboxRef={getMapboxRef}
-          />
-        )}
+        <KeplerGl
+          mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
+          id={MAP_ID}
+          width={windowDimension.width}
+          height={windowDimension.height}
+          localeMessages={localeMessages}
+          hash
+          getMapboxRef={getMapboxRef}
+        />
         {popupVisible && selectedClimateData && datasetDescriptionResponse && (
           <FeaturePopup
             feature={feature}
