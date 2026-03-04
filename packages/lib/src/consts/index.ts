@@ -50,8 +50,8 @@ export const getInitialMapViewState = (hash: string) => {
   }
   const [zoom, latitude, longitude] = hash.split("/");
   return {
-    zoom: Number.isNaN(zoom) ? INITIAL_ZOOM : Number(zoom),
-    longitude: Number.isNaN(longitude) ? 0 : Number(longitude),
-    latitude: Number.isNaN(latitude) ? 0 : Number(latitude),
+    zoom: isNaN(Number(zoom)) ? INITIAL_ZOOM : Number(zoom),
+    longitude: isNaN(Number(longitude)) ? 0 : Number(longitude),
+    latitude: isNaN(Number(latitude)) ? 0 : Number(latitude),
   };
 };

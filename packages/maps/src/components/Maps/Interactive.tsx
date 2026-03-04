@@ -453,26 +453,6 @@ const InteractiveMap = () => {
   };
 
   useEffect(() => {
-    const handleHashChange = () => {
-      const newHash = window.location.hash.replace("#", "");
-      const [zoom, latitude, longitude] = newHash.split("/");
-      setViewState((viewState) => {
-        const newViewState = { ...viewState };
-        newViewState.zoom = Number.isNaN(zoom) ? viewState.zoom : Number(zoom);
-        newViewState.longitude = Number.isNaN(longitude) ? viewState.longitude : Number(longitude);
-        newViewState.latitude = Number.isNaN(latitude) ? viewState.latitude : Number(latitude);
-        return newViewState;
-      });
-    };
-
-    window.addEventListener("hashchange", handleHashChange, false);
-
-    return () => {
-      window.removeEventListener("hashchange", handleHashChange);
-    };
-  }, []);
-
-  useEffect(() => {
     if (mapRef.current) {
       const map = mapRef.current.getMap();
       updateMapStyles(map, degrees, false);
