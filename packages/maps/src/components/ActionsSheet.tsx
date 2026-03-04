@@ -11,7 +11,7 @@ import { ReactComponent as InfoIcon } from "@probable-futures/components-lib/src
 import { ReactComponent as CodeIcon } from "@probable-futures/components-lib/src/assets/icons/code.svg";
 import { ReactComponent as CompareIcon } from "@probable-futures/components-lib/src/assets/icons/compare.svg";
 import { ReactComponent as QRIcon } from "@probable-futures/components-lib/src/assets/icons/qr.svg";
-import { ReactComponent as PhotoCarmeraIcon } from "../assets/icons/photo-camera.svg";
+import { ReactComponent as PhotoCameraIcon } from "@probable-futures/components-lib/src/assets/icons/photo-camera.svg";
 
 import { ReactComponent as GlobeIcon } from "../assets/icons/globe.svg";
 import { ReactComponent as MapIcon } from "../assets/icons/map.svg";
@@ -132,7 +132,7 @@ const ActionsSheet = ({
         </ActionSheetItem>
         <MediaQuery minWidth={size.tablet} maxWidth={size.tabletMax}>
           <ActionSheetItem onClick={onTakeScreenshot}>
-            <PhotoCarmeraIcon />
+            <PhotoCameraIcon />
             <span>{downloadScreenshotTitle}</span>
           </ActionSheetItem>
           <ActionSheetItem onClick={handleQRCodeDownload}>

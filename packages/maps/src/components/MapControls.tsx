@@ -10,6 +10,7 @@ import { ReactComponent as QRIcon } from "@probable-futures/components-lib/src/a
 import { ReactComponent as ZoomInIcon } from "@probable-futures/components-lib/src/assets/icons/zoom-in.svg";
 import { ReactComponent as ZoomOutIcon } from "@probable-futures/components-lib/src/assets/icons/zoom-out.svg";
 import { ReactComponent as PublicOnIcon } from "@probable-futures/components-lib/src/assets/icons/public-on.svg";
+import { ReactComponent as PhotoCameraIcon } from "@probable-futures/components-lib/src/assets/icons/photo-camera.svg";
 import { ReactComponent as PublicOffIcon } from "@probable-futures/components-lib/src/assets/icons/public-off.svg";
 import { Projection } from "mapbox-gl";
 import { Popover } from "react-tiny-popover";
@@ -18,7 +19,6 @@ import { useMapData } from "../contexts/DataContext";
 import { size } from "../consts";
 import { ReactComponent as MoreIcon } from "../assets/icons/more.svg";
 import { ReactComponent as CloseIcon } from "../assets/icons/close-thick.svg";
-import { ReactComponent as PhotoCarmeraIcon } from "../assets/icons/photo-camera.svg";
 import { ReactComponent as GlobeIcon } from "../assets/icons/globe.svg";
 import { ReactComponent as MapIcon } from "../assets/icons/map.svg";
 import ActionsSheet from "./ActionsSheet";
@@ -403,7 +403,7 @@ const MapControls = ({
               onMouseEnter={() => setShowScreenshotTooltip(true)}
               onMouseLeave={() => setShowScreenshotTooltip(false)}
             >
-              <PhotoCarmeraIcon />
+              <PhotoCameraIcon />
             </styles.ControlButton>
           </components.ControlsTooltip>
           {/* Download */}

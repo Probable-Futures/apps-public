@@ -662,22 +662,24 @@ const InteractiveMap = (props: PropsFromRedux) => {
           onConfirm={reloadEnrichedDataset}
         />
         {isLaptop && renderSharedProjectHeader()}
-        <components.Geocoder
-          searchInputHeight={consts.SEARCH_INPUT_HEIGHT}
-          serverErrorText="There was an error reaching the server"
-          noResultText="No results found"
-          placeholderText="Search for a location"
-          clearText="clear"
-          recentlySearchedText="recently searched"
-          localStorageRecentlySearchedIemskey={consts.LOCAL_STORAGE_RECENTLY_SEARCHED_ITEMS_KEY}
-          mapRef={mapRef}
-          searchIsOpen={isLaptop || searchIsOpen}
-          mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
-          onFly={handleOnFly}
-          setSearchIsOpen={setSearchIsOpen}
-          top="120px"
-          autoFocus={!isLaptop && searchIsOpen}
-        />
+        {selectedClimateData && (
+          <components.Geocoder
+            searchInputHeight={consts.SEARCH_INPUT_HEIGHT}
+            serverErrorText="There was an error reaching the server"
+            noResultText="No results found"
+            placeholderText="Search for a location"
+            clearText="clear"
+            recentlySearchedText="recently searched"
+            localStorageRecentlySearchedIemskey={consts.LOCAL_STORAGE_RECENTLY_SEARCHED_ITEMS_KEY}
+            mapRef={mapRef}
+            searchIsOpen={isLaptop || searchIsOpen}
+            mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
+            onFly={handleOnFly}
+            setSearchIsOpen={setSearchIsOpen}
+            top="120px"
+            autoFocus={!isLaptop && searchIsOpen}
+          />
+        )}
         <components.AboutMap
           isOpen={showAboutMap}
           datasetDescriptionResponse={datasetDescriptionResponse}
