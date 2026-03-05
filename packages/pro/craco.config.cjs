@@ -92,6 +92,12 @@ module.exports = {
         );
       });
 
+      webpackConfig.resolve = webpackConfig.resolve || {};
+      webpackConfig.resolve.fallback = {
+        ...(webpackConfig.resolve.fallback || {}),
+        assert: require.resolve("assert/"),
+      };
+
       return webpackConfig;
     },
   },

@@ -281,7 +281,7 @@ const Data = ({ onShowDatasetTable }: Props) => {
     onEnrichClick,
     onReloadClick,
     setDatasetEnrichmentInfo,
-    onConfrimEnrich,
+    onConfirmEnrich,
   } = useEnrich();
   const [selectedBinning, setSelectedBinning] = useState<Option>();
   const [popoverIndex, setPopoverIndex] = useState(-1);
@@ -576,7 +576,7 @@ const Data = ({ onShowDatasetTable }: Props) => {
         message={enrichmentMessage}
         subTitle={enrichmentSubTitle}
         onCancel={() => setDatasetEnrichmentInfo(undefined)}
-        onConfirm={onConfrimEnrich}
+        onConfirm={onConfirmEnrich}
       />
       <ConfirmationModal
         isOpen={removeDatasetId !== ""}

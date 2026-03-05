@@ -37,7 +37,7 @@ type PartnerDatasetEnrichment = {
 const useEnrichmentProcess = ({ onEnrichmentFinish }: Props) => {
   const [startEnrichment, { data: newErichmentData }] = useMutation(START_ENRICHMENT);
   const newEnrichedDataNode = (newErichmentData as CreatePartnerDatasetEnrichment) || undefined;
-  const [processedWithCoodridatesRowCount, setProcessedWithCoodridatesRowCount] = useState(0);
+  const [processedWithCoordinatesRowCount, setProcessedWithCoodridatesRowCount] = useState(0);
   const [existingEnrichedDataNodeId, setExistingEnrichedDataNodeId] = useState("");
   const dispatch = useAppDispatch();
 
@@ -104,13 +104,13 @@ const useEnrichmentProcess = ({ onEnrichmentFinish }: Props) => {
   const getLoaderEnrichmentInfo = useCallback(() => {
     const loaderProcessingInfo = {
       text: "",
-      time: processedWithCoodridatesRowCount / 50000 / 3,
+      time: processedWithCoordinatesRowCount / 50000 / 3,
     };
-    if (processedWithCoodridatesRowCount < 10000) {
+    if (processedWithCoordinatesRowCount < 10000) {
       loaderProcessingInfo.time = 0.5;
     } else if (
-      processedWithCoodridatesRowCount >= 10000 &&
-      processedWithCoodridatesRowCount <= 50000
+      processedWithCoordinatesRowCount >= 10000 &&
+      processedWithCoordinatesRowCount <= 50000
     ) {
       loaderProcessingInfo.time = 1;
     }
@@ -121,7 +121,7 @@ const useEnrichmentProcess = ({ onEnrichmentFinish }: Props) => {
     } to load.`;
 
     return loaderProcessingInfo;
-  }, [processedWithCoodridatesRowCount]);
+  }, [processedWithCoordinatesRowCount]);
 
   return {
     createEnrichedDataset,

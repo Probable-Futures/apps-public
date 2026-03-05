@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { useMapData } from "../contexts/DataContext";
+import { useUIState } from "../contexts/UIStateContext";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { SET_MAP_CONFIG } from "../store/actions";
 import useProjectUpdate from "./useProjectUpdate";
@@ -10,7 +11,8 @@ export type ButtonContainerProps = {
 };
 
 const useDegreesSelector = () => {
-  const { selectedClimateData, showBaselineModal, setShowBaselineModal } = useMapData();
+  const { selectedClimateData } = useMapData();
+  const { showBaselineModal, setShowBaselineModal } = useUIState();
   const degrees = useAppSelector((state) => state.project.mapConfig?.pfMapConfig?.warmingScenario);
   const slugId = useAppSelector((state) => state.project.slugId);
   const dispatch = useAppDispatch();

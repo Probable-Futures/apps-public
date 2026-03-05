@@ -206,7 +206,7 @@ function CustomFilterManagerFactory(
       onEnrichClick,
       onReloadClick,
       setDatasetEnrichmentInfo,
-      onConfrimEnrich,
+      onConfirmEnrich,
     } = useEnrich();
     const filteredProjectDatasets = useAppSelector(
       (state) => state.project.filteredProjectDatasets,
@@ -423,7 +423,7 @@ function CustomFilterManagerFactory(
           message={enrichmentMessage}
           subTitle={enrichmentSubTitle}
           onCancel={() => setDatasetEnrichmentInfo(undefined)}
-          onConfirm={onConfrimEnrich}
+          onConfirm={onConfirmEnrich}
         />
       </>
     );

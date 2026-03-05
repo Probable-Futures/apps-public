@@ -81,21 +81,21 @@ const DatasetLoader = () => {
   }, [datasetEnrichment.index, fileSizes]);
 
   const getEnrichmenTime = useCallback(() => {
-    if (!datasetEnrichment.processedWithCoodridatesRowCount) {
+    if (!datasetEnrichment.processedWithCoordinatesRowCount) {
       return 0;
     }
-    let time = datasetEnrichment.processedWithCoodridatesRowCount / 50000 / 3;
-    if (datasetEnrichment.processedWithCoodridatesRowCount < 10000) {
+    let time = datasetEnrichment.processedWithCoordinatesRowCount / 50000 / 3;
+    if (datasetEnrichment.processedWithCoordinatesRowCount < 10000) {
       time = 0.5;
     } else if (
-      datasetEnrichment.processedWithCoodridatesRowCount >= 10000 &&
-      datasetEnrichment.processedWithCoodridatesRowCount <= 50000
+      datasetEnrichment.processedWithCoordinatesRowCount >= 10000 &&
+      datasetEnrichment.processedWithCoordinatesRowCount <= 50000
     ) {
       time = 1;
     }
 
     return time;
-  }, [datasetEnrichment.processedWithCoodridatesRowCount]);
+  }, [datasetEnrichment.processedWithCoordinatesRowCount]);
 
   useEffect(() => {
     let time =

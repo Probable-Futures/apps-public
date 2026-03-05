@@ -26,23 +26,25 @@ export const App = () => {
         <AuthProvider>
           <AuthorizedApolloProvider>
             <Provider store={store}>
-              <Routes>
-                <Route path="/" Component={Login} />
-                <Route path="/consent" Component={Consent} />
-                <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />}>
-                  {dashboardRoutes.map(
-                    (route, index) =>
-                      route.component && (
-                        <Route key={index} path={route.path} Component={route.component} />
-                      ),
-                  )}
-                  <Route path="" element={<Navigate to="home" />} />
-                </Route>
-                <Route path="/map" Component={Map} />
-                <Route path="/share" Component={Map} />
-                <Route path="/not-found" Component={NotFound} />
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
+              <React.Suspense fallback={null}>
+                <Routes>
+                  <Route path="/" Component={Login} />
+                  <Route path="/consent" Component={Consent} />
+                  <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />}>
+                    {dashboardRoutes.map(
+                      (route, index) =>
+                        route.component && (
+                          <Route key={index} path={route.path} Component={route.component} />
+                        ),
+                    )}
+                    <Route path="" element={<Navigate to="home" />} />
+                  </Route>
+                  <Route path="/map" Component={Map} />
+                  <Route path="/share" Component={Map} />
+                  <Route path="/not-found" Component={NotFound} />
+                  <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+              </React.Suspense>
             </Provider>
           </AuthorizedApolloProvider>
         </AuthProvider>

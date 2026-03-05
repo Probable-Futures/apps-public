@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import styled from "styled-components";
 import Modal from "react-modal";
@@ -11,7 +11,6 @@ import {
   GET_PF_PARTNER_DATASETS,
 } from "../../../graphql/queries/datasets";
 import EmptyDatasets from "./EmptyDatasets";
-import UploadFiles from "../../File/UploadFiles";
 import {
   ModalClose,
   ModalHeader,
@@ -22,11 +21,12 @@ import {
   LargeButton,
 } from "../../Common";
 import { itemsPerPage } from "../../../consts/dashboardConsts";
-import CloseIcon from "../../../assets/icons/dashboard/close.svg";
 import { modalStyle } from "../../../shared/styles/styles";
 import DashboardTitle from "../../Common/DashboardTitle";
 import { GqlResponse, PageInfo } from "../../../shared/types";
 import Item from "./Item";
+
+const UploadFiles = React.lazy(() => import("../../File/UploadFiles"));
 
 export type DatasetNode = {
   id: string;
@@ -184,11 +184,13 @@ const UserDatasets = () => {
             <ModalHeader>
               <ModalTitle>Upload dataset</ModalTitle>
               <ModalClose onClick={closeModal}>
-                <StyledCloseIcon icon={CloseIcon} />
+                <StyledCloseIcon icon={StyledCloseIcon} />
               </ModalClose>
             </ModalHeader>
             <ModalContent>
-              <UploadFiles setUppyRef={setUppyRef} onUploadFinish={onUploadFinish} />
+              <Suspense fallback={null}>
+                <UploadFiles setUppyRef={setUppyRef} onUploadFinish={onUploadFinish} />
+              </Suspense>
             </ModalContent>
             <Button onClick={uploadFiles} isDisabled={isUploading}>
               Upload File

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { useMapData } from "../contexts/DataContext";
+import { useUIState } from "../contexts/UIStateContext";
 import { AboutMapResources, DatasetDescriptionResponse } from "@probable-futures/lib";
 
 type Object = {
@@ -21,8 +22,8 @@ export default function useWPApi() {
     setDescription9010,
     setDescription955,
     setWpDatasetDescriptionResponse,
-    setAboutMapResources,
   } = useMapData();
+  const { setAboutMapResources } = useUIState();
 
   const filterObjectBy = (obj: Object, filter: string) => {
     return Object.keys(obj)

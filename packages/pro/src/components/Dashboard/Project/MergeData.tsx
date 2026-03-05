@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useApolloClient } from "@apollo/client";
 import styled from "styled-components";
 import Modal from "react-modal";
@@ -10,7 +10,7 @@ import {
   GET_PARTNER_DATASET_UPLOAD,
   GET_PF_PARTNER_DATASETS,
 } from "../../../graphql/queries/datasets";
-import UploadFiles, { PartnerDatasetUploadNode } from "../../File/UploadFiles";
+import type { PartnerDatasetUploadNode } from "../../File/UploadFiles";
 import { TabTitle } from "../Header";
 import DatasetSelect from "./DatasetSelect";
 import { UploadProcessErrorsUI } from "../../../shared/types";
@@ -19,6 +19,7 @@ import { modalStyle } from "../../../shared/styles/styles";
 import { DatasetNode } from "../Dataset/UserDatasets";
 import Loader from "../../Common/Loader";
 import { useMapData } from "../../../contexts/DataContext";
+import { useUIState } from "../../../contexts/UIStateContext";
 import { Project } from "../../../utils/projectHelper";
 import ErrorMessage from "../../Common/ErrorMessage";
 import { colors } from "../../../consts";
@@ -27,6 +28,8 @@ import { getGeodataType } from "../../../utils/file";
 import { DEFAULT_PF_DATASET_ID } from "../../../consts/MapConsts";
 import { useAppSelector } from "../../../app/hooks";
 import { PartnerDatasetUpload, readUploadErrors } from "../../../utils/DatasetUploadHelper";
+
+const UploadFiles = React.lazy(() => import("../../File/UploadFiles"));
 
 type Props = {
   onDatasetUploadFinish: (
@@ -148,11 +151,8 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
     GET_PF_PARTNER_DATASETS,
     { fetchPolicy: "no-cache" },
   );
-  const {
-    setShowMergeDataModal,
-    showMergeDataModal,
-    selectedClimateData: activeClimateDataset,
-  } = useMapData();
+  const { selectedClimateData: activeClimateDataset } = useMapData();
+  const { setShowMergeDataModal, showMergeDataModal } = useUIState();
   const modalTitle = projectId ? "Add Data" : "Create Project";
 
   const onUploadFinish = useCallback(
@@ -454,19 +454,21 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
             </StyledList>
             <hr />
             <TabWrapper isActive={currentTab === 0}>
-              <UploadFiles
-                onUploadError={onUploadError}
-                onUploadFinish={onUploadFinish}
-                setUppyRef={setUppyRef}
-                geodataType={geodataType}
-                onFileAdded={onFileAdded}
-                onFileRemoved={onFileRemoved}
-                process={
-                  geodataType === "cityCountry" ||
-                  geodataType === "fullAddress" ||
-                  geodataType === "addressOnly"
-                }
-              />
+              <Suspense fallback={null}>
+                <UploadFiles
+                  onUploadError={onUploadError}
+                  onUploadFinish={onUploadFinish}
+                  setUppyRef={setUppyRef}
+                  geodataType={geodataType}
+                  onFileAdded={onFileAdded}
+                  onFileRemoved={onFileRemoved}
+                  process={
+                    geodataType === "cityCountry" ||
+                    geodataType === "fullAddress" ||
+                    geodataType === "addressOnly"
+                  }
+                />
+              </Suspense>
             </TabWrapper>
             <TabWrapper isActive={currentTab === 1}>
               <DatasetSelect

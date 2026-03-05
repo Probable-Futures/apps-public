@@ -43,7 +43,7 @@ export type ProjectState = {
     enrichmentStatus?: EnrichStatus;
     index?: number;
     pfDatasetId?: number;
-    processedWithCoodridatesRowCount?: number;
+    processedWithCoordinatesRowCount?: number;
     enrichmentProgress: number;
     forceNewEnrichment?: boolean;
   };

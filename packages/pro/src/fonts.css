@@ -20,9 +20,7 @@
 
 @font-face {
   font-family: "LinearSans";
-  src: url("./assets/fonts/linear-sans-semibold.eot");
-  src: url("./assets/fonts/linear-sans-semibold.eot?#iefix") format("embedded-opentype"),
-    url("./assets/fonts/linear-sans-semibold.woff2") format("woff2"),
+  src: url("./assets/fonts/linear-sans-semibold.woff2") format("woff2"),
     url("./assets/fonts/linear-sans-semibold.woff") format("woff");
   font-weight: 600;
   font-style: normal;

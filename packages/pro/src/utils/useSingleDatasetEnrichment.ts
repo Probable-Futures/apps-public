@@ -179,7 +179,7 @@ const useEnrichSingleDataset = ({
             enrichmentStatus: datasetIsInProgress.enrichmentStatus,
             index: index,
             pfDatasetId: datasetIsInProgress.pfDatasetId,
-            processedWithCoodridatesRowCount: datasetIsInProgress.processedWithCoordinatesRowCount,
+            processedWithCoordinatesRowCount: datasetIsInProgress.processedWithCoordinatesRowCount,
             enrichmentProgress: 0,
           },
         },

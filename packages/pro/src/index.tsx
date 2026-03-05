@@ -1,6 +1,4 @@
 import * as Sentry from "@sentry/react";
-import { Integrations } from "@sentry/tracing";
-import { BrowserOptions } from "@sentry/browser";
 import { createRoot } from "react-dom/client";
 
 import "./index.css";
@@ -12,15 +10,13 @@ import * as serviceWorker from "./serviceWorker";
 
 const SENTRY_DSN = "https://beeac1c3164d4869a16e7e85996715ca@o542309.ingest.sentry.io/5806361";
 
-const sentryConf: BrowserOptions = {
+Sentry.init({
   enabled: isProd,
   dsn: SENTRY_DSN,
-  integrations: [new Integrations.BrowserTracing()],
+  integrations: [Sentry.browserTracingIntegration()],
   tracesSampleRate: 0.5,
   environment: DEPLOY_ENV,
-};
-
-Sentry.init(sentryConf);
+});
 
 enableAutoPageviews();
 

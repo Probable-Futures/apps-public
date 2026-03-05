@@ -21,6 +21,7 @@ import { DEFAULT_PF_DATASET_ID, MAP_ID } from "../../consts/MapConsts";
 import { MAPBOX_ACCESS_TOKEN } from "../../consts/env";
 import { AppDispatch, RootState } from "../../store/store";
 import { useMapData } from "../../contexts/DataContext";
+import { useUIState } from "../../contexts/UIStateContext";
 import MergeData, { UploadResponse } from "../Dashboard/Project/MergeData";
 import ShareProject from "../Dashboard/Project/ShareProject";
 import DownloadProject from "../Dashboard/Project/DownloadProject";
@@ -172,6 +173,14 @@ const InteractiveMap = (props: PropsFromRedux) => {
     isClimateDataVisible,
     mapRef,
     climateData,
+    warmingScenarioDescs,
+    datasetDescriptionResponse,
+    tempUnit,
+    precipitationUnit,
+    searchIsOpen,
+    setSearchIsOpen,
+  } = useMapData();
+  const {
     showMergeDataModal,
     importReviewProps,
     setShowMergeDataModal,
@@ -182,16 +191,10 @@ const InteractiveMap = (props: PropsFromRedux) => {
     setShowBaselineModal,
     showDescriptionModal,
     setShowDescriptionModal,
-    warmingScenarioDescs,
-    datasetDescriptionResponse,
-    tempUnit,
-    precipitationUnit,
-    searchIsOpen,
     showAboutMap,
-    setSearchIsOpen,
     setShowAboutMap,
     aboutMapResources,
-  } = useMapData();
+  } = useUIState();
   const isLaptop = useMediaQuery({
     query: `(min-width: ${size.laptop})`,
   });

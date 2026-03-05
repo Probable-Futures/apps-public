@@ -22,7 +22,7 @@ export const SET_ADDED_DATA_TO_MAP = "SET_ADDED_DATA_TO_MAP";
 export const setShouldAddDataToMap = createAction(SET_ADDED_DATA_TO_MAP);
 
 export const SET_FILTERED_PROJECT_DATASETS = "SET_FILTERED_PROJECT_DATASETS";
-export const setFitleredProjectDatasets = createAction(SET_FILTERED_PROJECT_DATASETS);
+export const setFilteredProjectDatasets = createAction(SET_FILTERED_PROJECT_DATASETS);
 
 export const UPDATE_PARTNER_DATASET_NAME = "UPDATE_PARTNER_DATASET_NAME";
 export const updatePartnerDatasetName = createAction(UPDATE_PARTNER_DATASET_NAME);

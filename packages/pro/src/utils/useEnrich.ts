@@ -132,7 +132,7 @@ const useEnrich = () => {
     }
   };
 
-  const onConfrimEnrich = useCallback(() => {
+  const onConfirmEnrich = useCallback(() => {
     if (datasetEnrichmentInfo) {
       dispatch({
         type: SET_DATASET_ENRICHMENT,
@@ -161,7 +161,7 @@ const useEnrich = () => {
     onReloadClick,
     onEnrichClick,
     setDatasetEnrichmentInfo,
-    onConfrimEnrich,
+    onConfirmEnrich,
   };
 };
 
