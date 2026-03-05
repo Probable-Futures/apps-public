@@ -37,6 +37,9 @@ const keplerReducerInitialState = () => {
     visState: {
       interactionConfig: { ...getDefaultInteraction() },
     },
+    mapStyle: {
+      visibleLayerGroups: { border: true, label: true, water: true, land: true },
+    },
   };
 };
 
