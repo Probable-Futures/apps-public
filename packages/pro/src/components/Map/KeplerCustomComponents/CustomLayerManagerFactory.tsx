@@ -12,7 +12,7 @@ import { PanelListView } from "@kepler.gl/types";
 import { SidePanelItem } from "@kepler.gl/components/dist/types";
 import { WrappedComponentProps } from "react-intl";
 
-import { useMapData } from "../../../contexts/DataContext";
+import { useUIState } from "../../../contexts/UIStateContext";
 import { EmptyFactory, PfProLogo } from "../../Common";
 import { colors } from "../../../consts";
 import Data from "../Data";
@@ -87,7 +87,7 @@ export type LayerManagerProps = {
 } & WrappedComponentProps;
 
 const AddDataButton = () => {
-  const { setShowMergeDataModal } = useMapData();
+  const { setShowMergeDataModal } = useUIState();
   return (
     <StyledAddButton className="add-data-button" onClick={() => setShowMergeDataModal(true)}>
       Add Data

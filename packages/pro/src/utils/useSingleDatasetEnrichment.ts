@@ -3,7 +3,7 @@ import { useCallback, useEffect } from "react";
 import { UploadResponse } from "../components/Dashboard/Project/MergeData";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import useEnrichmentProcess, { PartnerDatasetEnrichmentNode } from "./useEnrichmentProcess";
-import { useMapData } from "../contexts/DataContext";
+import { useUIState } from "../contexts/UIStateContext";
 import useUploadProcess from "./useUploadProcess";
 import { SET_DATASET_ENRICHMENT } from "../store/actions";
 
@@ -27,7 +27,7 @@ const useEnrichSingleDataset = ({
   const addedDataToMap = useAppSelector((state) => state.project.addedDataToMap);
   const dispatch = useAppDispatch();
 
-  const { setImportReviewProps, setShowImportReviewModal } = useMapData();
+  const { setImportReviewProps, setShowImportReviewModal } = useUIState();
 
   const enrichmentFinished = (datasetEnrichedNode: PartnerDatasetEnrichmentNode) => {
     if (datasetEnrichedNode.status === "successful") {

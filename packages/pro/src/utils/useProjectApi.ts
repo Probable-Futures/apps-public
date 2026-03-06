@@ -29,6 +29,7 @@ import {
 import { buildMapStylesObject } from "./useMapActions";
 import { MAP_ID } from "../consts/MapConsts";
 import { useMapData } from "../contexts/DataContext";
+import { useUIState } from "../contexts/UIStateContext";
 import useDatasetFilter from "./useDatasetFilter";
 import useProjectUpdate from "./useProjectUpdate";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
@@ -62,7 +63,8 @@ const useProjectApi = ({ setDefaultColorField, degrees, percentileValue }: Props
   const location = useLocation();
   const { keplerGl, project } = useAppSelector((state) => state);
   const { updateProject } = useProjectUpdate();
-  const { selectedClimateData, setShowMergeDataModal } = useMapData();
+  const { selectedClimateData } = useMapData();
+  const { setShowMergeDataModal } = useUIState();
   const [createPartnerProject] = useMutation<ProjectResponse>(CREATE_PARTNER_PROJECT);
   const projectDataRef = useRef({
     filteredProjectDatasets: project.filteredProjectDatasets,
