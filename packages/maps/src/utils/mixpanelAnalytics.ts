@@ -12,7 +12,7 @@ export const AnalyticsEvent = {
   MAP_DESCRIPTION_VIEWED: "Map Description Viewed",
   MAP_PROJECTION_CHANGED: "Map Projection Changed",
   MAP_SCREENSHOT_TAKEN: "Map Screenshot Taken",
-  MAP_TILESET_CLICKED: "Map Tileset Clicked",
+  MAP_CLICKED: "Map Clicked",
   MAP_TOUR_STARTED: "Map Tour Started",
   MAP_ZOOMED: "Map Zoomed",
   MOBILE_ACTIONS_MENU_OPENED: "Mobile Actions Menu Opened",
@@ -50,7 +50,7 @@ export function trackMixpanelEvent(eventName: string, props?: Record<string, any
  * @param lngLat - The [longitude, latitude] of the click, used for both
  *   reverse geocoding and as tracked event properties.
  */
-export function trackMapTilesetClicked(
+export function trackMapClicked(
   geocodingService: { reverseGeocode: Function } | null,
   props: { map_name?: string; warming_scenario: number },
   lngLat: [number, number],
@@ -73,16 +73,16 @@ export function trackMapTilesetClicked(
         const features = response.body?.features || [];
         const country = features.find((f: any) => f.place_type?.includes("country"));
         const city = features.find((f: any) => f.place_type?.includes("place"));
-        trackMixpanelEvent(AnalyticsEvent.MAP_TILESET_CLICKED, {
+        trackMixpanelEvent(AnalyticsEvent.MAP_CLICKED, {
           ...baseProps,
           country_name: country?.text || undefined,
           city_name: city?.text || undefined,
         });
       })
       .catch(() => {
-        trackMixpanelEvent(AnalyticsEvent.MAP_TILESET_CLICKED, baseProps);
+        trackMixpanelEvent(AnalyticsEvent.MAP_CLICKED, baseProps);
       });
   } else {
-    trackMixpanelEvent(AnalyticsEvent.MAP_TILESET_CLICKED, baseProps);
+    trackMixpanelEvent(AnalyticsEvent.MAP_CLICKED, baseProps);
   }
 }

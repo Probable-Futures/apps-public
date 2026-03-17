@@ -33,11 +33,7 @@ import useClimateZoneHighlighter from "../../utils/useClimateZoneHighlighter";
 import WarmingScenarioSelection from "../WarmingScenarioSelection";
 import Popup from "../common/Popup";
 import { useDatasetChangeHandler } from "../../utils/useDatasetChangeHandler";
-import {
-  trackMixpanelEvent,
-  trackMapTilesetClicked,
-  AnalyticsEvent,
-} from "../../utils/mixpanelAnalytics";
+import { trackMixpanelEvent, trackMapClicked, AnalyticsEvent } from "../../utils/mixpanelAnalytics";
 import MapboxClient from "@mapbox/mapbox-sdk/lib/client";
 import mbxGeocoder from "@mapbox/mapbox-sdk/services/geocoding";
 
@@ -520,7 +516,7 @@ const InteractiveMap = () => {
         lngLat: [e.lngLat.lng, e.lngLat.lat],
       });
 
-      trackMapTilesetClicked(
+      trackMapClicked(
         geocodingService,
         { map_name: selectedDataset?.name, warming_scenario: degrees },
         [e.lngLat.lng, e.lngLat.lat],
