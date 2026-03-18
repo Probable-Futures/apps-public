@@ -1407,6 +1407,20 @@ ALTER SEQUENCE knowledge.adaptation_embeddings_id_seq OWNED BY knowledge.adaptat
 
 
 --
+-- Name: adaptation_sessions; Type: TABLE; Schema: knowledge; Owner: -
+--
+
+CREATE TABLE knowledge.adaptation_sessions (
+    id uuid NOT NULL,
+    username text NOT NULL,
+    current_step integer DEFAULT 0 NOT NULL,
+    session_data jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: context_summaries; Type: TABLE; Schema: knowledge; Owner: -
 --
 
@@ -2815,6 +2829,14 @@ ALTER TABLE ONLY knowledge.adaptation_embeddings
 
 
 --
+-- Name: adaptation_sessions adaptation_sessions_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_sessions
+    ADD CONSTRAINT adaptation_sessions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: context_summaries context_summaries_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
 --
 
@@ -3129,7 +3151,14 @@ CREATE UNIQUE INDEX adaptation_documents_record_file_idx ON knowledge.adaptation
 -- Name: adaptation_embeddings_embedding_idx; Type: INDEX; Schema: knowledge; Owner: -
 --
 
-CREATE INDEX adaptation_embeddings_embedding_idx ON knowledge.adaptation_embeddings USING ivfflat (embedding);
+CREATE INDEX adaptation_embeddings_embedding_idx ON knowledge.adaptation_embeddings USING ivfflat (embedding public.vector_cosine_ops) WITH (lists='100');
+
+
+--
+-- Name: idx_adaptation_sessions_username; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX idx_adaptation_sessions_username ON knowledge.adaptation_sessions USING btree (username);
 
 
 --
