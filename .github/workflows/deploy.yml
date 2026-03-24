@@ -68,11 +68,7 @@ jobs:
           sudo rm -rf /opt/hostedtoolcache/CodeQL
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
-          # Remove swap
-          echo "Removing swap files..."
-          sudo swapoff -a
-          sudo rm -f /swapfile
-          sudo rm -f /mnt/swapfile
+          echo "Keeping swap enabled for memory-intensive builds..."
 
           # Clean apt cache
           echo "Cleaning apt cache..."
