@@ -34,10 +34,11 @@ const request = async (url: string, data: any) => {
 export const sendSlackNotification = async (
   message: string,
   channel: string = "#pf-engineering-production-notifications",
+  ssmWebhookParamName: string = "slack-webhook-url",
 ) => {
   try {
     const slackWebhookUrl = await SSM.getParameter({
-      Name: "slack-webhook-url",
+      Name: ssmWebhookParamName,
       WithDecryption: true,
     }).promise();
 

@@ -126,3 +126,23 @@ export const API_KEY_FOR_DONATE_ENDPOINT = env
   .get("API_KEY_FOR_DONATE_ENDPOINT")
   .required()
   .asString();
+
+export const API_KEY_FOR_IMPACT_TRACKING_ENDPOINT = env
+  .get("API_KEY_FOR_IMPACT_TRACKING_ENDPOINT")
+  .required()
+  .asString();
+
+export const AIRTABLE_IMPACT_TRACKING_BASE_ID = env
+  .get("AIRTABLE_IMPACT_TRACKING_BASE_ID")
+  .required()
+  .asString();
+
+export const AIRTABLE_IMPACT_TRACKING_TABLE_ID = env
+  .get("AIRTABLE_IMPACT_TRACKING_TABLE_ID")
+  .required()
+  .asString();
+
+export const AIRTABLE_ACCESS_TOKEN_FOR_IMPACT_TRACKING = env
+  .get("AIRTABLE_ACCESS_TOKEN_FOR_IMPACT_TRACKING")
+  .required()
+  .asString();

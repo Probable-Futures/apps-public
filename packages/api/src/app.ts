@@ -6,6 +6,7 @@ import { constants, error, httpLogger, extendDebugger, errorHandler } from "./ut
 import * as middleware from "./middleware";
 import contact from "./routes/contact";
 import donate from "./routes/donate";
+import tracking from "./routes/tracking";
 import auth from "./routes/auth";
 import data from "./routes/data";
 
@@ -44,6 +45,7 @@ export async function initApp({ httpServer }: { httpServer: Server }): Promise<E
 
   app.use(apiRoutes.contact, contact);
   app.use(apiRoutes.donate, donate);
+  app.use(apiRoutes.tracking, tracking);
   app.use(apiRoutes.data, data);
   app.use(apiRoutes.auth, auth);
 

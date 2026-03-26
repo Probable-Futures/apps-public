@@ -8,6 +8,7 @@ export const apiRoutes = {
   upload: "/upload",
   auth: "/auth",
   donate: "/donate",
+  tracking: "/tracking",
   data: "/data",
 };
 
