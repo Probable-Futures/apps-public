@@ -5,8 +5,10 @@ import Error from "./Common/Error";
 const ErrorBoundaryFallback = ({
   error,
 }: {
-  error: Error | null;
-  componentStack: string | null;
+  error: unknown;
+  componentStack: string;
+  eventId: string;
+  resetError(): void;
 }) => {
   const onClick = () => window.location.reload();
 
@@ -14,7 +16,9 @@ const ErrorBoundaryFallback = ({
     <Fragment>
       <Error
         title="You have encountered an error!"
-        description={error?.message ? error?.message : error?.toString() ?? ""}
+        description={
+          error instanceof globalThis.Error ? error.message || error.toString() : String(error)
+        }
         actionName="Close and reload"
         onButtonClicked={onClick}
       />

@@ -19,7 +19,7 @@
   ],
   "devDependencies": {
     "typescript": "^5.9.2",
-    "@types/node": "20.11.30"
+    "@types/node": "22.19.3"
   },
   "gitHead": "a9fa1d286e0b980a7603200dca6f1c5436616f6b",
   "publishConfig": {

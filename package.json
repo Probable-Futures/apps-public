@@ -40,12 +40,12 @@
   },
   "devDependencies": {
     "@arkweid/lefthook": "^0.7.5",
-    "lerna": "^8.2.4",
+    "lerna": "^9.0.7",
     "prettier": "^2.2.1",
     "release-it": "^19.0.4"
   },
   "volta": {
-    "node": "20.16.0",
+    "node": "22.22.2",
     "yarn": "1.22.5"
   },
   "workspaces": {

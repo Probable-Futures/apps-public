@@ -7,15 +7,7 @@ import { debug, pinoLogger, logger, env } from "./utils";
 import { pgPool } from "./database";
 import taskList from "./tasks";
 
-// This allows TypeScript to detect our global value
-declare global {
-  namespace NodeJS {
-    interface Global {
-      __rootdir__: string;
-    }
-  }
-}
-global.__rootdir__ = __dirname || process.cwd();
+const __rootdir__ = __dirname || process.cwd();
 
 Sentry.init({
   dsn: "https://096a45a001d644c0b78e8553b7382e30@o542309.ingest.sentry.io/5661870",
@@ -23,7 +15,7 @@ Sentry.init({
   integrations: [
     // Enable Production Sourcemaps
     new RewriteFrames({
-      root: global.__rootdir__,
+      root: __rootdir__,
     }),
     new Tracing.Integrations.Postgres(),
   ],

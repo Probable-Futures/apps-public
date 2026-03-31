@@ -4,24 +4,13 @@ import styled from "styled-components";
 import { MapStyleLabel, SideBarSubSection } from "../../../Common";
 import { getVisConfiguratorProps } from "../../../../utils";
 import MapStyleSectionTitle from "../MapStyleSectionTitle";
-
-type Props = {
-  layer: any;
-  datasets: any;
-  layerTypeOptions: any;
-  openModal: Function;
-  updateLayerConfig: Function;
-  updateLayerType: Function;
-  updateLayerVisConfig: Function;
-  updateLayerVisualChannelConfig: Function;
-  updateLayerColorUI: Function;
-};
+import { LayerConfiguratorProps } from "../../KeplerCustomComponents/CustomLayerConfigurator";
 
 const ColorSelectorWrapper = styled.div`
   margin-top: 6px;
 `;
 
-const LayerStroke = (props: Props): JSX.Element => {
+const LayerStroke = (props: LayerConfiguratorProps): JSX.Element => {
   const visConfiguratorProps = getVisConfiguratorProps(props);
   const { layer } = props;
   const property = "stroked";
@@ -44,7 +33,7 @@ const LayerStroke = (props: Props): JSX.Element => {
         <SideBarSubSection>
           <MapStyleLabel>Stroke color</MapStyleLabel>
           <ColorSelectorWrapper>
-            {layer.config.strokeColorField ? (
+            {(layer.config as any).strokeColorField ? (
               <LayerColorRangeSelector {...visConfiguratorProps} property="strokeColorRange" />
             ) : (
               <LayerColorSelector
