@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Auth0Provider, AppState } from "@auth0/auth0-react";
 
 export default function AuthProvider({ children }: PropsWithChildren<{}>): JSX.Element {
-  const domain = process.env.REACT_APP_AUTH0_DOMAIN || "";
-  const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID || "";
+  const domain = import.meta.env.VITE_AUTH0_DOMAIN || "";
+  const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID || "";
 
   const navigate = useNavigate();
 

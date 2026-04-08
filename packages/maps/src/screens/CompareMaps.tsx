@@ -10,7 +10,7 @@ import { colors } from "../consts";
 import ArrowLeftIcon from "../assets/icons/arrow-left.svg";
 import ArrowRightIcon from "../assets/icons/arrow-right.svg";
 
-mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || "";
 
 const Container = styled.div`
   height: 100vh;

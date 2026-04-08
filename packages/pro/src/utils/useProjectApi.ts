@@ -2,7 +2,13 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import { addDataToMap, interactionConfigChange, reorderLayer } from "@kepler.gl/actions";
-import KeplerGlSchema from "@kepler.gl/schemas";
+import * as _KeplerGlSchemaModule from "@kepler.gl/schemas";
+
+// Fix CJS interop: Vite may double-wrap the default export
+const KeplerGlSchema =
+  (_KeplerGlSchemaModule as any).default?.default ??
+  (_KeplerGlSchemaModule as any).default ??
+  _KeplerGlSchemaModule;
 import debounce from "lodash.debounce";
 import { types, utils } from "@probable-futures/lib";
 import { ParsedConfig, ParsedLayer, ProtoDataset, InteractionConfig } from "@kepler.gl/types";

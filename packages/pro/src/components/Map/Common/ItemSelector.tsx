@@ -3,9 +3,9 @@ import styled from "styled-components";
 import { Field } from "@kepler.gl/types";
 
 import DropDownList from "../Common/DropDownList";
-import { MapStyleLabel } from "components/Common";
 import CloseIcon from "../../../assets/icons/map/close.svg";
 import { colors } from "../../../consts";
+import { MapStyleLabel } from "../../Common/";
 
 const DropdownListContainer = styled.div`
   position: relative;

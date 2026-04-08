@@ -1,5 +1,5 @@
 import { User } from "@auth0/auth0-react";
-import { isLocal } from "consts/env";
+import { isLocal } from "../consts/env";
 
 export const isAdmin = (user?: User) => {
   if (!user) {

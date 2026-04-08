@@ -1,13 +1,13 @@
 import { useRef, MouseEventHandler, useEffect, useState } from "react";
 import Headroom from "react-headroom";
 import styled, { css } from "styled-components";
-import { ReactComponent as CloseIcon } from "@probable-futures/components-lib/src/assets/icons/cancel-circle-thin.svg";
-import ArrowRightIcon from "@probable-futures/components-lib/src/assets/icons/arrow-right.svg";
+import { ReactComponent as CloseIcon } from "../assets/icons/cancel-circle-thin.svg";
+import ArrowRightIcon from "../assets/icons/arrow-right.svg";
 import { Map, Option } from "@probable-futures/lib/src/types";
 import camelcase from "lodash.camelcase";
 
 import { colors, size } from "../../../maps/src/consts";
-import { ExpandCollapseIcon, purpleFilter } from "@probable-futures/components-lib/src/styles";
+import { ExpandCollapseIcon, purpleFilter } from "../styles";
 import {
   DatasetDescriptionResponse,
   degreesOptions,

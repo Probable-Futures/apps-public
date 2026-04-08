@@ -1,6 +1,13 @@
 import { compose, combineReducers, createStore, applyMiddleware } from "@reduxjs/toolkit";
-import keplerGlReducer, { KeplerGlState } from "@kepler.gl/reducers";
+import * as keplerGlReducersModule from "@kepler.gl/reducers";
 import { enhanceReduxMiddleware } from "@kepler.gl/reducers";
+import type { KeplerGlState } from "@kepler.gl/reducers";
+
+// Fix CJS interop: Vite may double-wrap the default export
+const keplerGlReducer =
+  (keplerGlReducersModule as any).default?.default ??
+  (keplerGlReducersModule as any).default ??
+  keplerGlReducersModule;
 import { consts } from "@probable-futures/lib";
 
 import { MAP_ID } from "../consts/MapConsts";

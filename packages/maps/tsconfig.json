@@ -1,7 +1,8 @@
 {
   "extends": "@probable-futures/tsconfig/browser.json",
   "compilerOptions": {
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "types": ["vite/client"]
   },
   "include": ["src", "../components-lib/src/components/AboutMap.tsx"],
   "exclude": ["src/stories/**"]

@@ -10,7 +10,7 @@
     "clean:pg": "rm -rf docker/postgres/data",
     "clean:all": "yarn clean:pg && yarn clean:deps",
     "deploy": "scripts/deploy",
-    "format": "prettier .",
+    "format": "prettier . --write",
     "lint": "lerna run lint",
     "test": "lerna run test",
     "typecheck": "lerna run typecheck",

@@ -4,14 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "craco start",
-    "build": "cross-env FAST_REFRESH=false craco --max_old_space_size=4096 build",
+    "start": "vite",
+    "build": "vite build",
     "lint": "eslint src/**/*.{ts,tsx}",
-    "test": "craco test --passWithNoTests",
+    "test": "echo 'No tests configured for Vite yet'",
     "clean:build": "rm -rf build",
     "clean:deps": "rm -rf node_modules",
-    "eject": "react-scripts eject",
-    "analyze": "source-map-explorer 'build/static/js/*.js'"
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@apollo/client": "^3.6.9",
@@ -43,8 +43,6 @@
     "@uppy/progress-bar": "^4.3.2",
     "@uppy/react": "^5.0.3",
     "@uppy/status-bar": "^5.0.1",
-    "assert": "^2.0.0",
-    "env-var": "^7.5.0",
     "lodash.debounce": "^4.0.8",
     "lodash.uniqby": "^4.7.0",
     "normalize.css": "^8.0.1",
@@ -66,12 +64,12 @@
     "styled-components": "^5.3.1"
   },
   "devDependencies": {
-    "@craco/craco": "^7.1.0",
     "@probable-futures/tsconfig": "^1.0.0",
+    "@svgr/core": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
     "@testing-library/jest-dom": "^5.10.1",
     "@testing-library/react": "^10.3.0",
     "@testing-library/user-event": "^12.0.6",
-    "@types/jest": "^24.0.0",
     "@types/lodash.debounce": "^4.0.6",
     "@types/lodash.uniqby": "^4.7.6",
     "@types/node": "^22.19.3",
@@ -83,15 +81,12 @@
     "@types/react-modal": "^3.12.1",
     "@types/react-responsive": "^8.0.3",
     "@types/react-virtualized": "^9.22.2",
-    "babel-loader": "10.1.1",
+    "@vitejs/plugin-react": "^6.0.1",
     "cross-env": "^7.0.3",
-    "customize-cra": "^1.0.0",
-    "react-app-rewired": "^2.2.1",
-    "source-map-explorer": "^2.5.3",
-    "typescript": "^5.9.2"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
+    "eslint-config-react-app": "^7.0.1",
+    "sass-embedded": "^1.86.0",
+    "typescript": "^5.9.2",
+    "vite": "^8.0.3"
   },
   "browserslist": {
     "production": [

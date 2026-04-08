@@ -7,7 +7,7 @@ import PlusIcon from "../../../assets/icons/map/plus.svg";
 import Info from "../Info";
 import { useMapData } from "../../../contexts/DataContext";
 import { colors } from "../../../consts";
-import { useAppSelector } from "app/hooks";
+import { useAppSelector } from "../../../app/hooks";
 import { MAP_ID } from "../../../consts/MapConsts";
 
 type Props = {

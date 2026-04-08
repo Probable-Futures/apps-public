@@ -3,7 +3,7 @@ import { useMemo, useCallback, useEffect } from "react";
 
 import { types } from "@probable-futures/lib";
 import { Option, Map } from "@probable-futures/lib/src/types";
-import { generateGroupedDatasets } from "@probable-futures/components-lib/src/utils/dataset";
+import { generateGroupedDatasets } from "../utils/dataset";
 import { colors } from "@probable-futures/lib/src/consts";
 import MapModal from "./MapModal";
 

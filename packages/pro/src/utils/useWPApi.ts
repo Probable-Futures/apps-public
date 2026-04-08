@@ -8,9 +8,9 @@ type Object = {
   [key: string]: string;
 };
 
-const baseUrl = `${process.env.REACT_APP_WP_API}/`;
+const baseUrl = `${import.meta.env.VITE_WP_API}/`;
 const headers = {
-  Authorization: `Basic ${process.env.REACT_APP_WP_AUTH}`,
+  Authorization: `Basic ${import.meta.env.VITE_WP_AUTH}`,
 };
 
 export default function useWPApi() {

@@ -5,9 +5,9 @@ type Object = {
   [key: string]: string;
 };
 
-export const baseUrl = window.pfInteractiveMap?.wpApiUrl || `${process.env.REACT_APP_WP_API}/`;
+export const baseUrl = window.pfInteractiveMap?.wpApiUrl || `${import.meta.env.VITE_WP_API}/`;
 export const headers = {
-  Authorization: `Basic ${process.env.REACT_APP_WP_AUTH}`,
+  Authorization: `Basic ${import.meta.env.VITE_WP_AUTH}`,
 };
 
 type Props = {

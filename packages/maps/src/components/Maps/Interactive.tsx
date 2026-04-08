@@ -341,7 +341,7 @@ const InteractiveMap = () => {
   const onDatasetChangeFromAboutMap = useDatasetChangeHandler("about_map_panel");
 
   const mapboxAccessToken =
-    window.pfInteractiveMap?.mapboxAccessToken || process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+    window.pfInteractiveMap?.mapboxAccessToken || import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
   const geocodingService = useMemo(() => {
     if (!mapboxAccessToken) return null;
@@ -670,7 +670,7 @@ const InteractiveMap = () => {
 
   const mapStyleLink = useMemo(() => {
     if (selectedDataset) {
-      const styleBaseURL = `mapbox://styles/${process.env.REACT_APP_MAPBOX_ACCOUNT}`;
+      const styleBaseURL = `mapbox://styles/${import.meta.env.VITE_MAPBOX_ACCOUNT}`;
       return `${styleBaseURL}/${selectedDataset.mapStyleId}`;
     }
     return "";

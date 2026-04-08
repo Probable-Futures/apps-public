@@ -2,10 +2,8 @@
   "extends": "@probable-futures/tsconfig/browser.json",
   "compilerOptions": {
     "baseUrl": "src",
-    "module": "esnext",
     "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "types": ["vite/client"]
   },
-  "include": ["src"]
+  "include": ["src", "../components-lib/src"]
 }

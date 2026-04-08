@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { colors, size } from "@probable-futures/lib";
 
 import MapOverlay from "./MapOverlay";
-import { ReactComponent as CloseIcon } from "@probable-futures/components-lib/src/assets/icons/cancel-circle.svg";
+import { ReactComponent as CloseIcon } from "../assets/icons/cancel-circle.svg";
 import { purpleFilter } from "../styles";
 
 type Size = "lg" | "md" | "sm";

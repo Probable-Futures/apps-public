@@ -11,16 +11,16 @@ import GlobalStyles from "./globalStyles";
 import "./fonts.css";
 
 // https://github.com/mapbox/mapbox-gl-js/issues/10173
+import MapboxWorker from "mapbox-gl/dist/mapbox-gl-csp-worker?worker";
 // @ts-ignore
-// eslint-disable-next-line import/no-webpack-loader-syntax
-mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
+mapboxgl.workerClass = MapboxWorker;
 
 Sentry.init({
   enabled: process.env.NODE_ENV === "production" && !window.pfInteractiveMap,
   dsn: "https://5bb7edd4789c4cbeb5c019fb9c8e2472@o542309.ingest.sentry.io/5661865",
   integrations: [new Integrations.BrowserTracing()],
   tracesSampleRate: 0.5,
-  environment: process.env.REACT_APP_DEPLOY_ENV,
+  environment: import.meta.env.VITE_DEPLOY_ENV,
 });
 
 const { appSelector = "#root" } = window.pfInteractiveMap || {};

@@ -269,7 +269,7 @@ const InteractiveMap = () => {
 
   const mapStyleLink = useMemo(() => {
     if (selectedDataset) {
-      const styleBaseURL = `mapbox://styles/${process.env.REACT_APP_MAPBOX_ACCOUNT}`;
+      const styleBaseURL = `mapbox://styles/${import.meta.env.VITE_MAPBOX_ACCOUNT}`;
       return `${styleBaseURL}/${selectedDataset.mapStyleId}`;
     }
     return "";
@@ -298,7 +298,7 @@ const InteractiveMap = () => {
           mapLib={mapboxgl}
           {...viewState}
           mapboxAccessToken={
-            window.pfInteractiveMap?.mapboxAccessToken || process.env.REACT_APP_MAPBOX_ACCESS_TOKEN
+            window.pfInteractiveMap?.mapboxAccessToken || import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
           }
           style={{ width: "100vw", height: "100vh" }}
           minZoom={

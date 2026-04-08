@@ -8,7 +8,7 @@ import { ModalClose, ModalHeader, ModalTitle, StyledCloseIcon } from "../../Comm
 import CloseIcon from "../../../assets/icons/dashboard/close.svg";
 import { colors } from "../../../consts";
 import { modalStyle } from "../../../shared/styles/styles";
-import { CREATE_PARTNER_PROJECT_SHARE } from "graphql/queries/projects";
+import { CREATE_PARTNER_PROJECT_SHARE } from "../../../graphql/queries/projects";
 
 type Props = {
   projectId: string | undefined;

@@ -18,7 +18,7 @@ export default function App(): JSX.Element {
   const { logout } = useAuth0();
 
   const httpLink = createHttpLink({
-    uri: window.pfInteractiveMap?.pfApiUrl || process.env.REACT_APP_GRAPHQL,
+    uri: window.pfInteractiveMap?.pfApiUrl || import.meta.env.VITE_GRAPHQL,
   });
 
   const logoutLink = onError(({ networkError }) => {
@@ -35,7 +35,7 @@ export default function App(): JSX.Element {
     return {
       headers: {
         ...headers,
-        "api-key": window.pfInteractiveMap?.pfApiKey || process.env.REACT_APP_GRAPHQL_API_KEY,
+        "api-key": window.pfInteractiveMap?.pfApiKey || import.meta.env.VITE_GRAPHQL_API_KEY,
       },
     };
   });
