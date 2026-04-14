@@ -1,6 +1,6 @@
 import { Popup, PopupEvent } from "react-map-gl";
 import styled from "styled-components";
-import CancelIcon from "@probable-futures/components-lib/src/assets/icons/cancel.svg";
+import { ReactComponent as CancelIcon } from "@probable-futures/components-lib/src/assets/icons/cancel.svg";
 import { whiteFilter } from "@probable-futures/components-lib/src/styles";
 
 import { colors } from "../../consts";
@@ -34,23 +34,31 @@ const Container = styled(Popup)`
   }
 
   .mapboxgl-popup-close-button {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    margin: auto 0;
-    right: 10px;
-    font-size: 0;
+    display: none;
+  }
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  right: 10px;
+  width: 17px;
+  height: 17px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  ${whiteFilter}
+
+  svg {
     width: 17px;
     height: 17px;
-    background-image: url(${CancelIcon});
-    background-repeat: no-repeat;
-    background-size: 17px auto;
-    background-position: center;
-    ${whiteFilter}
+  }
 
-    &:hover {
-      background-color: transparent;
-    }
+  &:hover {
+    background-color: transparent;
   }
 `;
 
@@ -69,12 +77,15 @@ const SearchPopup = ({ longitude, latitude, title, description, onClose }: Props
   <Container
     latitude={latitude}
     longitude={longitude}
-    closeButton
+    closeButton={false}
     closeOnClick={false}
     onClose={onClose}
     anchor="bottom"
     maxWidth="none"
   >
+    <CloseButton onClick={() => onClose?.({} as PopupEvent)}>
+      <CancelIcon />
+    </CloseButton>
     <Title>{title}</Title>
   </Container>
 );

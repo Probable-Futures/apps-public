@@ -2,7 +2,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import styled from "styled-components";
 
 import { colors } from "../../consts";
-import LogoutIcon from "../../assets/icons/logout.svg";
+import { ReactComponent as LogoutIcon } from "../../assets/icons/logout.svg";
 
 const Container = styled.div`
   border-top: 1px solid ${colors.lightGrey};
@@ -25,13 +25,18 @@ const Name = styled.span`
 const LogoutButton = styled.button`
   width: 20px;
   height: 20px;
-  background-image: url(${LogoutIcon});
-  background-repeat: no-repeat;
-  background-size: 20px 20px;
-  background-position: center;
   background-color: transparent;
   border: none;
   cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
 export default function UserInfo(): JSX.Element {
@@ -44,7 +49,9 @@ export default function UserInfo(): JSX.Element {
   return (
     <Container>
       <Name>{user.name}</Name>
-      <LogoutButton title="Logout" onClick={() => logout({ returnTo: window.location.origin })} />
+      <LogoutButton title="Logout" onClick={() => logout({ returnTo: window.location.origin })}>
+        <LogoutIcon />
+      </LogoutButton>
     </Container>
   );
 }

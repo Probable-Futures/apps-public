@@ -1,8 +1,8 @@
 import { useState, PropsWithChildren } from "react";
 import styled from "styled-components";
 
-import CaretUp from "../../assets/icons/caret-up.svg";
-import CaretDown from "../../assets/icons/caret-down.svg";
+import { ReactComponent as CaretUp } from "../../assets/icons/caret-up.svg";
+import { ReactComponent as CaretDown } from "../../assets/icons/caret-down.svg";
 
 type Status = {
   isOpen: boolean;
@@ -17,13 +17,23 @@ const Header = styled.button`
   font-weight: 600;
   letter-spacing: 0;
   line-height: 16px;
-  background-position: left center;
-  background-repeat: no-repeat;
-  background-size: 16px auto;
   cursor: pointer;
   margin: 0 20px 12px 52px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
 
-  background-image: ${({ isOpen }: Status) => (isOpen ? `url(${CaretUp})` : `url(${CaretDown})`)};
+const CaretIcon = styled.span`
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
 `;
 
 const Content = styled.div`
@@ -41,7 +51,8 @@ export default function Collapsible({
 
   return (
     <>
-      <Header isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
+      <Header onClick={() => setIsOpen(!isOpen)}>
+        <CaretIcon>{isOpen ? <CaretUp /> : <CaretDown />}</CaretIcon>
         {header}
       </Header>
       <Content isOpen={isOpen}>{children}</Content>

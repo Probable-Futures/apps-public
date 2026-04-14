@@ -1,7 +1,7 @@
 import { Popup as MapPopup, PopupEvent } from "react-map-gl";
 import styled from "styled-components";
 
-import CloseIcon from "@probable-futures/components-lib/src/assets/icons/cancel-circle.svg";
+import { ReactComponent as CloseIcon } from "@probable-futures/components-lib/src/assets/icons/cancel-circle.svg";
 import { types } from "@probable-futures/lib";
 import { useTourData } from "../../contexts/TourContext";
 import { colors } from "../../consts";
@@ -53,21 +53,29 @@ const Container = styled(MapPopup)`
   }
 
   .mapboxgl-popup-close-button {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    font-size: 0;
+    display: none;
+  }
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 1;
+
+  svg {
     width: 20px;
     height: 20px;
-    background-image: url(${CloseIcon});
-    background-repeat: no-repeat;
-    background-size: 20px auto;
-    background-position: center;
+  }
 
-    &:hover {
-      background-color: transparent;
-      ${purpleFilter}
-    }
+  &:hover {
+    ${purpleFilter}
   }
 `;
 
@@ -80,7 +88,7 @@ const Popup = ({ feature, onClose, children }: PropsWithChildren<Props>): JSX.El
     <Container
       latitude={latitude}
       longitude={longitude}
-      closeButton
+      closeButton={false}
       closeOnClick={false}
       onClose={onClose}
       anchor="top"
@@ -88,6 +96,9 @@ const Popup = ({ feature, onClose, children }: PropsWithChildren<Props>): JSX.El
       maxWidth="none"
       focusAfterOpen={false}
     >
+      <CloseButton onClick={() => onClose?.({} as PopupEvent)}>
+        <CloseIcon />
+      </CloseButton>
       {children}
     </Container>
   );

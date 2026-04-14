@@ -2,7 +2,7 @@ import { PropsWithChildren } from "react";
 import styled from "styled-components";
 
 import { colors } from "../../consts";
-import CaretRightIcon from "../../assets/icons/sidebar-caret-right.svg";
+import { ReactComponent as CaretRightIcon } from "../../assets/icons/sidebar-caret-right.svg";
 
 type SidebarProps = {
   sidebarOpen: boolean;
@@ -30,12 +30,16 @@ const SidebarButton = styled.button`
   width: 52px;
   height: 100%;
   background-color: transparent;
-  background-image: url(${CaretRightIcon});
-  background-repeat: no-repeat;
-  background-size: 16px auto;
-  background-position: center;
   border: none;
-  display: ${({ sidebarOpen }: SidebarProps) => (sidebarOpen ? "none" : "block")};
+  display: ${({ sidebarOpen }: SidebarProps) => (sidebarOpen ? "none" : "flex")};
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+
+  svg {
+    width: 16px;
+    height: auto;
+  }
 `;
 
 type DrawerProps = PropsWithChildren<{
@@ -48,7 +52,9 @@ export default function Drawer({ open, showSidebar, children }: DrawerProps): JS
   return (
     <Sidebar sidebarOpen={open}>
       {children}
-      <SidebarButton sidebarOpen={open} onClick={showSidebar} />
+      <SidebarButton sidebarOpen={open} onClick={showSidebar}>
+        <CaretRightIcon />
+      </SidebarButton>
     </Sidebar>
   );
 }

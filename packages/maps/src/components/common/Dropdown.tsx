@@ -3,7 +3,7 @@ import Select, { components } from "react-select";
 import styled from "styled-components";
 
 import { colors } from "../../consts";
-import CaretUpIcon from "../../assets/icons/caret-up.svg";
+import { ReactComponent as CaretUpIcon } from "../../assets/icons/caret-up.svg";
 
 type Option = {
   value: string | number;
@@ -15,20 +15,26 @@ type IconProps = {
 };
 
 const ArrowIcon = styled.i`
-  background-image: url(${CaretUpIcon});
-  background-repeat: no-repeat;
-  background-size: 100% auto;
-  background-position: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 12px;
   height: 12px;
   transform: ${({ menuIsOpen }: IconProps) => (menuIsOpen ? "rotate(180deg);" : "rotate(0);")};
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
 `;
 
 const DropdownIndicator = (props: any) => {
   return (
     components.DropdownIndicator && (
       <components.DropdownIndicator {...props}>
-        <ArrowIcon menuIsOpen={props.selectProps.menuIsOpen} />
+        <ArrowIcon menuIsOpen={props.selectProps.menuIsOpen}>
+          <CaretUpIcon />
+        </ArrowIcon>
       </components.DropdownIndicator>
     )
   );
