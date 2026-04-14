@@ -134,5 +134,17 @@ export default defineConfig({
   },
   build: {
     outDir: "build",
+    rollupOptions: {
+      output: {
+        // Output IIFE format so WP can load via regular <script> tags (no "export")
+        format: "iife",
+        // Single entry bundle — no code-splitting (WP can't handle dynamic imports)
+        inlineDynamicImports: true,
+        // CRA-style naming convention
+        entryFileNames: "static/js/[name].[hash].js",
+        chunkFileNames: "static/js/[name].[hash].js",
+        assetFileNames: "static/[ext]/[name].[hash][extname]",
+      },
+    },
   },
 });
