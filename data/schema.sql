@@ -1334,6 +1334,44 @@ $$;
 
 
 --
+-- Name: adaptation_case_studies; Type: TABLE; Schema: knowledge; Owner: -
+--
+
+CREATE TABLE knowledge.adaptation_case_studies (
+    id integer NOT NULL,
+    document_id integer,
+    company_name text,
+    sector text,
+    location text,
+    hazards_addressed text[] DEFAULT '{}'::text[] NOT NULL,
+    strategies_used text[] DEFAULT '{}'::text[] NOT NULL,
+    outcomes text,
+    embedding public.vector(1536),
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: adaptation_case_studies_id_seq; Type: SEQUENCE; Schema: knowledge; Owner: -
+--
+
+CREATE SEQUENCE knowledge.adaptation_case_studies_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: adaptation_case_studies_id_seq; Type: SEQUENCE OWNED BY; Schema: knowledge; Owner: -
+--
+
+ALTER SEQUENCE knowledge.adaptation_case_studies_id_seq OWNED BY knowledge.adaptation_case_studies.id;
+
+
+--
 -- Name: adaptation_documents; Type: TABLE; Schema: knowledge; Owner: -
 --
 
@@ -1346,7 +1384,17 @@ CREATE TABLE knowledge.adaptation_documents (
     source_url text,
     metadata jsonb,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    summary text,
+    summary_embedding public.vector(1536),
+    author text,
+    publication_date date,
+    sector text,
+    geography text,
+    source_type text,
+    adaptation_type text,
+    case_studies text,
+    licensing_status text
 );
 
 
@@ -1382,7 +1430,9 @@ CREATE TABLE knowledge.adaptation_embeddings (
     content text NOT NULL,
     page_number integer,
     embedding public.vector(1536),
-    metadata jsonb
+    metadata jsonb,
+    search_vector tsvector,
+    heading_path text
 );
 
 
@@ -1407,6 +1457,43 @@ ALTER SEQUENCE knowledge.adaptation_embeddings_id_seq OWNED BY knowledge.adaptat
 
 
 --
+-- Name: adaptation_frameworks; Type: TABLE; Schema: knowledge; Owner: -
+--
+
+CREATE TABLE knowledge.adaptation_frameworks (
+    id integer NOT NULL,
+    document_id integer,
+    name text NOT NULL,
+    organization text,
+    purpose text,
+    applicable_sectors text[] DEFAULT '{}'::text[] NOT NULL,
+    key_steps text,
+    embedding public.vector(1536),
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: adaptation_frameworks_id_seq; Type: SEQUENCE; Schema: knowledge; Owner: -
+--
+
+CREATE SEQUENCE knowledge.adaptation_frameworks_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: adaptation_frameworks_id_seq; Type: SEQUENCE OWNED BY; Schema: knowledge; Owner: -
+--
+
+ALTER SEQUENCE knowledge.adaptation_frameworks_id_seq OWNED BY knowledge.adaptation_frameworks.id;
+
+
+--
 -- Name: adaptation_sessions; Type: TABLE; Schema: knowledge; Owner: -
 --
 
@@ -1418,6 +1505,46 @@ CREATE TABLE knowledge.adaptation_sessions (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
+
+
+--
+-- Name: adaptation_strategies; Type: TABLE; Schema: knowledge; Owner: -
+--
+
+CREATE TABLE knowledge.adaptation_strategies (
+    id integer NOT NULL,
+    document_id integer,
+    name text NOT NULL,
+    description text NOT NULL,
+    target_sectors text[] DEFAULT '{}'::text[] NOT NULL,
+    target_hazards text[] DEFAULT '{}'::text[] NOT NULL,
+    implementation_steps text,
+    cost_level text,
+    timeframe text,
+    effectiveness_indicators text,
+    embedding public.vector(1536),
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: adaptation_strategies_id_seq; Type: SEQUENCE; Schema: knowledge; Owner: -
+--
+
+CREATE SEQUENCE knowledge.adaptation_strategies_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: adaptation_strategies_id_seq; Type: SEQUENCE OWNED BY; Schema: knowledge; Owner: -
+--
+
+ALTER SEQUENCE knowledge.adaptation_strategies_id_seq OWNED BY knowledge.adaptation_strategies.id;
 
 
 --
@@ -2785,6 +2912,13 @@ CREATE VIEW pf_public.view_user_access_request AS
 
 
 --
+-- Name: adaptation_case_studies id; Type: DEFAULT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_case_studies ALTER COLUMN id SET DEFAULT nextval('knowledge.adaptation_case_studies_id_seq'::regclass);
+
+
+--
 -- Name: adaptation_documents id; Type: DEFAULT; Schema: knowledge; Owner: -
 --
 
@@ -2799,6 +2933,20 @@ ALTER TABLE ONLY knowledge.adaptation_embeddings ALTER COLUMN id SET DEFAULT nex
 
 
 --
+-- Name: adaptation_frameworks id; Type: DEFAULT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_frameworks ALTER COLUMN id SET DEFAULT nextval('knowledge.adaptation_frameworks_id_seq'::regclass);
+
+
+--
+-- Name: adaptation_strategies id; Type: DEFAULT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_strategies ALTER COLUMN id SET DEFAULT nextval('knowledge.adaptation_strategies_id_seq'::regclass);
+
+
+--
 -- Name: posts id; Type: DEFAULT; Schema: knowledge; Owner: -
 --
 
@@ -2810,6 +2958,14 @@ ALTER TABLE ONLY knowledge.posts ALTER COLUMN id SET DEFAULT nextval('knowledge.
 --
 
 ALTER TABLE ONLY knowledge.posts_embeddings ALTER COLUMN id SET DEFAULT nextval('knowledge.posts_embeddings_id_seq'::regclass);
+
+
+--
+-- Name: adaptation_case_studies adaptation_case_studies_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_case_studies
+    ADD CONSTRAINT adaptation_case_studies_pkey PRIMARY KEY (id);
 
 
 --
@@ -2829,11 +2985,27 @@ ALTER TABLE ONLY knowledge.adaptation_embeddings
 
 
 --
+-- Name: adaptation_frameworks adaptation_frameworks_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_frameworks
+    ADD CONSTRAINT adaptation_frameworks_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: adaptation_sessions adaptation_sessions_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
 --
 
 ALTER TABLE ONLY knowledge.adaptation_sessions
     ADD CONSTRAINT adaptation_sessions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: adaptation_strategies adaptation_strategies_pkey; Type: CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_strategies
+    ADD CONSTRAINT adaptation_strategies_pkey PRIMARY KEY (id);
 
 
 --
@@ -3141,6 +3313,20 @@ ALTER TABLE ONLY pf_public.pf_warming_scenarios
 
 
 --
+-- Name: adaptation_case_studies_hazards_idx; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX adaptation_case_studies_hazards_idx ON knowledge.adaptation_case_studies USING gin (hazards_addressed);
+
+
+--
+-- Name: adaptation_documents_geography_idx; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX adaptation_documents_geography_idx ON knowledge.adaptation_documents USING btree (geography);
+
+
+--
 -- Name: adaptation_documents_record_file_idx; Type: INDEX; Schema: knowledge; Owner: -
 --
 
@@ -3148,10 +3334,59 @@ CREATE UNIQUE INDEX adaptation_documents_record_file_idx ON knowledge.adaptation
 
 
 --
+-- Name: adaptation_documents_sector_idx; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX adaptation_documents_sector_idx ON knowledge.adaptation_documents USING btree (sector);
+
+
+--
+-- Name: adaptation_documents_summary_embedding_idx; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX adaptation_documents_summary_embedding_idx ON knowledge.adaptation_documents USING ivfflat (summary_embedding public.vector_cosine_ops) WITH (lists='100');
+
+
+--
 -- Name: adaptation_embeddings_embedding_idx; Type: INDEX; Schema: knowledge; Owner: -
 --
 
 CREATE INDEX adaptation_embeddings_embedding_idx ON knowledge.adaptation_embeddings USING ivfflat (embedding public.vector_cosine_ops) WITH (lists='100');
+
+
+--
+-- Name: adaptation_embeddings_fts_idx; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX adaptation_embeddings_fts_idx ON knowledge.adaptation_embeddings USING gin (search_vector);
+
+
+--
+-- Name: adaptation_frameworks_sectors_idx; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX adaptation_frameworks_sectors_idx ON knowledge.adaptation_frameworks USING gin (applicable_sectors);
+
+
+--
+-- Name: adaptation_strategies_embedding_idx; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX adaptation_strategies_embedding_idx ON knowledge.adaptation_strategies USING ivfflat (embedding public.vector_cosine_ops) WITH (lists='50');
+
+
+--
+-- Name: adaptation_strategies_hazards_idx; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX adaptation_strategies_hazards_idx ON knowledge.adaptation_strategies USING gin (target_hazards);
+
+
+--
+-- Name: adaptation_strategies_sectors_idx; Type: INDEX; Schema: knowledge; Owner: -
+--
+
+CREATE INDEX adaptation_strategies_sectors_idx ON knowledge.adaptation_strategies USING gin (target_sectors);
 
 
 --
@@ -3540,11 +3775,35 @@ COMMENT ON TRIGGER _200_set_cell ON pf_public.pf_grid_coordinates IS 'Set cell f
 
 
 --
+-- Name: adaptation_case_studies adaptation_case_studies_document_id_fkey; Type: FK CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_case_studies
+    ADD CONSTRAINT adaptation_case_studies_document_id_fkey FOREIGN KEY (document_id) REFERENCES knowledge.adaptation_documents(id) ON DELETE CASCADE;
+
+
+--
 -- Name: adaptation_embeddings adaptation_embeddings_document_id_fkey; Type: FK CONSTRAINT; Schema: knowledge; Owner: -
 --
 
 ALTER TABLE ONLY knowledge.adaptation_embeddings
     ADD CONSTRAINT adaptation_embeddings_document_id_fkey FOREIGN KEY (document_id) REFERENCES knowledge.adaptation_documents(id) ON DELETE CASCADE;
+
+
+--
+-- Name: adaptation_frameworks adaptation_frameworks_document_id_fkey; Type: FK CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_frameworks
+    ADD CONSTRAINT adaptation_frameworks_document_id_fkey FOREIGN KEY (document_id) REFERENCES knowledge.adaptation_documents(id) ON DELETE CASCADE;
+
+
+--
+-- Name: adaptation_strategies adaptation_strategies_document_id_fkey; Type: FK CONSTRAINT; Schema: knowledge; Owner: -
+--
+
+ALTER TABLE ONLY knowledge.adaptation_strategies
+    ADD CONSTRAINT adaptation_strategies_document_id_fkey FOREIGN KEY (document_id) REFERENCES knowledge.adaptation_documents(id) ON DELETE CASCADE;
 
 
 --
