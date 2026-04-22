@@ -53,7 +53,7 @@ const bottomStyledGroupsCss = css`
 `;
 
 const shareStyledGroupCss = css`
-  bottom: 40px;
+  bottom: 80px;
 
   @media (min-width: ${size.laptop}) {
     bottom: 30px;

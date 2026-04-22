@@ -115,6 +115,8 @@ export default function Dropdown({
       isLoading={loading}
       placeholder={placeholder}
       formatOptionLabel={formatOptionLabel}
+      menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+      menuPosition="fixed"
     />
   );
 }

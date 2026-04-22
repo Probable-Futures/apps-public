@@ -36,10 +36,10 @@ const MapKeyWrapper = styled.div<MapKeyWrapperProps>`
   gap: 10px;
 
   @media (min-width: ${size.tablet}) and (max-width: ${size.tabletMax}) {
-    top: 0;
+    top: 63px;
     z-index: 3;
-    right: unset
-    width: auto;
+    right: unset;
+    width: 100%;
   }
 
   @media (min-width: ${size.laptop}) {

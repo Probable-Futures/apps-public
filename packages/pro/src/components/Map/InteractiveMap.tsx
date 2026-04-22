@@ -136,8 +136,8 @@ const DegreesMobileContainer = styled.div`
   bottom: 0;
   box-sizing: content-box;
   z-index: 4;
-  width: 100%;
   left: 40px;
+  right: 0;
 `;
 
 const InteractiveMap = (props: PropsFromRedux) => {

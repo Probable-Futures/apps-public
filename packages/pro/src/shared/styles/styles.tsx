@@ -120,9 +120,13 @@ export const getDropDownStyles = (isOpen: boolean, theme: Theme) => {
       backgroundColor: theme === Theme.DARK ? colors.secondaryBlack : colors.white,
       borderTopColor: theme === Theme.DARK ? "" : "#D8D8D8",
       boxShadow: "none",
-      zIndex: "5",
+      zIndex: 1000,
       fontFamily: "LinearSans",
       maxHeight: 181,
+    }),
+    menuPortal: (provided: any) => ({
+      ...provided,
+      zIndex: 9999,
     }),
     menuList: (provided: any) => ({
       ...provided,
