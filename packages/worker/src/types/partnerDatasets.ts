@@ -17,7 +17,9 @@ export interface NearbyCoordinateResult {
 
 export type CoordinateGridModel = "GCM" | "RCM";
 
-export type NearbyCoordinatesGridResults = Record<CoordinateGridModel, NearbyCoordinateResult>;
+export type NearbyCoordinatesGridResults = Partial<
+  Record<CoordinateGridModel, NearbyCoordinateResult>
+>;
 
 type RowId = string;
 

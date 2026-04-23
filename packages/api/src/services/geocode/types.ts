@@ -3,9 +3,11 @@ export type Geodata = "latLon" | "cityCountry" | "fullAddress";
 export type City = string;
 export type Address = string;
 export type Country = string;
+export type State = string;
 export type GeocodeRequest = {
   country?: Country;
   city?: City;
+  state?: State;
   address?: Address;
 };
 

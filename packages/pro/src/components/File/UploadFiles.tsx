@@ -173,6 +173,7 @@ const Container = styled.div<{ isEditing?: boolean }>`
         display: flex;
         flex-direction: column;
         gap: 2px;
+        margin-right: 20px;
 
         .uppy-Dashboard-Item-action {
           width: 100%;

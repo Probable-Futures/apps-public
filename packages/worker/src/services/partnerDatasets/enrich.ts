@@ -59,10 +59,11 @@ export const updateStatusToFailed = ({ id, errors }: { id: string; errors: strin
     id,
   );
 
-export const selectProcessedCoordinatesFile = (id: string) =>
+export const selectProcessedCoordinatesFile = (partnerDatasetId: string, uploadId: string) =>
   format(
-    "select processed_with_coordinates_file from pf_private.pf_partner_dataset_uploads where partner_dataset_id = %L and processed_with_coordinates_file is not null",
-    id,
+    "select processed_with_coordinates_file from pf_private.pf_partner_dataset_uploads where partner_dataset_id = %L and id = %L and processed_with_coordinates_file is not null",
+    partnerDatasetId,
+    uploadId,
   );
 
 export const selectEnrichmentData = ({
@@ -168,6 +169,15 @@ export const createEnrichedFile = async ({
       },
     });
 
+    const unmatchedCount = Object.keys(enrichedCoordinates).length;
+    if (unmatchedCount > 0) {
+      logger.warn("Enrichment rows had no matching CSV row", {
+        partnerDatasetId,
+        pfDatasetId,
+        unmatchedCount,
+      });
+    }
+
     return {
       rowCount,
       errors,
@@ -218,10 +228,13 @@ export const streamEnrichmentData = (
           data["data_3c_high"],
         ],
       };
-      stream.on("end", () => {
-        resolve(enrichedCoordinates);
-      });
-      stream.on("error", reject);
+    });
+    stream.on("end", () => {
+      resolve(enrichedCoordinates);
+    });
+    stream.on("error", (err) => {
+      stream.destroy();
+      reject(err);
     });
   });
 };

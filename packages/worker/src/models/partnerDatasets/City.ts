@@ -5,13 +5,15 @@ import mbxGeocode from "../../services/geocode/geocode";
 
 class City extends Place {
   city: string;
+  state?: string;
   country: string;
   coordinates?: Coordinates;
   requiredFields = ["city", "country"];
 
-  constructor({ city, country }: { city: string; country: string }) {
+  constructor({ city, state, country }: { city: string; state?: string; country: string }) {
     super();
     this.city = city;
+    this.state = state;
     this.country = country;
   }
 
@@ -20,22 +22,26 @@ class City extends Place {
     if (this.city.length === 0) {
       throw new errors.ValidationError({
         message: "Empty city field",
-        invalidData: { city: this.city, country: this.country },
+        invalidData: { city: this.city, state: this.state, country: this.country },
       });
     }
   }
 
   toObject() {
-    return { city: this.city, country: this.country };
+    return { city: this.city, state: this.state, country: this.country };
   }
 
   export() {
-    const { city, country } = this.toObject();
-    return { city, country };
+    const { city, state, country } = this.toObject();
+    return { city, state, country };
   }
 
   async geocode(): Promise<{ latitude: string; longitude: string }> {
-    const { lat, long, place_name } = await mbxGeocode({ country: this.country, city: this.city });
+    const { lat, long, place_name } = await mbxGeocode({
+      country: this.country,
+      city: this.city,
+      state: this.state,
+    });
     return { latitude: lat.toString(), longitude: long.toString() };
   }
 }

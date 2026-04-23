@@ -102,24 +102,37 @@ class ParsedRow extends CsvRow {
 
   private parseCity() {
     const city = this.parsedData[csvPlaceColumns.city];
+    const state = this.parsedData[csvPlaceColumns.state];
     const country = this.parsedData[csvPlaceColumns.country];
     if (city && country) {
+      // Always delete city/state/country from parsedData — even when empty —
+      // so the exported row shape doesn't depend on whether optional fields
+      // were populated. city.export() supplies these keys back downstream.
       delete this.parsedData[csvPlaceColumns.city];
+      delete this.parsedData[csvPlaceColumns.state];
       delete this.parsedData[csvPlaceColumns.country];
-      return new City({ city, country });
+      return new City({ city, state: state || undefined, country });
     }
   }
 
   private parseAddress() {
     const city = this.parsedData[csvPlaceColumns.city];
+    const state = this.parsedData[csvPlaceColumns.state];
     const country = this.parsedData[csvPlaceColumns.country];
     const address = this.parsedData[csvPlaceColumns.address];
-    if (country) {
-      delete this.parsedData[csvPlaceColumns.country];
-    }
     if (address) {
+      // Same reasoning as parseCity: delete unconditionally to keep the
+      // surviving parsedData shape consistent across rows.
+      delete this.parsedData[csvPlaceColumns.city];
+      delete this.parsedData[csvPlaceColumns.state];
+      delete this.parsedData[csvPlaceColumns.country];
       delete this.parsedData[csvPlaceColumns.address];
-      return new Address({ address, country: country || "", city: city || "" });
+      return new Address({
+        address,
+        country: country || "",
+        city: city || "",
+        state: state || undefined,
+      });
     }
   }
 

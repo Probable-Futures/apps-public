@@ -13,11 +13,11 @@ We're using [graphile-worker](https://github.com/graphile/worker) job queue for 
 
 ## **Grapile-worker jobs:**
 
-- ### pf_partner_dataset_upload
+- ### process_partner_dataset
 
   1. #### Description:
 
-     This task will be triggered by the database after inserting a record in the `pf_partner_dataset_upload` table.
+     This task is enqueued by the `_500_upload` trigger on `pf_private.pf_partner_dataset_uploads` AFTER INSERT — but **only when the inserted row has `enrich = true`**. See "The `enrich` flag" below.
 
      The objective of this task is to stream the dataset file uploaded by the users through the pf-pro website, read and validate the file, and push a new copy of the file to s3.
 
@@ -55,7 +55,11 @@ We're using [graphile-worker](https://github.com/graphile/worker) job queue for 
 - ### enrich_partner_dataset
 
   1.  #### Description:
+
       This task assigns the relevant climate data to every row inside the partner dataset.
+
+      Unlike the two tasks above, `enrich_partner_dataset` is **not** enqueued by `add_nearby_pf_coordinates_to_partner_dataset`. It is enqueued by a separate trigger on `pf_private.pf_partner_dataset_enrichments` AFTER INSERT, which fires when the PF Pro UI creates an enrichment record (typically after the user selects a specific PF climate dataset to enrich against).
+
   2.  #### How it works:
 
       1. The first is to select all the data from `partner_dataset_coordinates` and join with `aggregate_pf_dataset_statistics` using the coordinates hash in order to obtain the corresponding climate data.
@@ -65,6 +69,13 @@ We're using [graphile-worker](https://github.com/graphile/worker) job queue for 
       3. Finally, we merge the result of (i) and (ii) into `{partnerId}/enriched/{pfDatasetId}/{uploadId}.csv`, and upload it to S3.
 
   ![Alt text](enrichment-process.png?raw=true "Title")
+
+## **The `enrich` flag on `pf_partner_dataset_uploads`**
+
+The `enrich` boolean column on `pf_private.pf_partner_dataset_uploads` gates whether the `process_partner_dataset` job is auto-enqueued when a row is inserted. The name is historical — despite the name, the flag controls "process this upload on insert", not enrichment itself.
+
+- **`enrich = true`** — the `_500_upload` trigger enqueues `process_partner_dataset`. Used for CSV uploads whose `geodata_type` requires geocoding (`cityCountry`, `fullAddress`, `addressOnly`), and for the deferred processing path triggered from the PF Pro "Enrich" button.
+- **`enrich = false`** — the trigger is a no-op. Used when coordinates are already present (lat/lon uploads) so processing is deferred until the user explicitly enriches, and by admin seeding (`pf_private.add_partner_example_dataset`) so pre-built example datasets don't auto-process.
 
 ## **Error handling**:
 

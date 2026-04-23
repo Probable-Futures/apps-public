@@ -20,7 +20,7 @@ const enrichmentTask: Task = async (payload, { withPgClient, logger }) => {
 
       const { rows } = await pgClient.query<{
         processed_with_coordinates_file: string;
-      }>(selectProcessedCoordinatesFile(partnerDatasetId));
+      }>(selectProcessedCoordinatesFile(partnerDatasetId, uploadId));
 
       if (!rows || !rows[0]) {
         throw Error("Processed file could not be found.");
@@ -51,11 +51,13 @@ const enrichmentTask: Task = async (payload, { withPgClient, logger }) => {
 
       await pgClient.query(updateStatusToSuccessful({ id, rowCount, file, errors }));
     } catch (e: any) {
-      logger.error(e);
-      await pgClient.query(updateStatusToFailed({ id, errors: [e] }));
-      await pgClient.query("ROLLBACK");
-      // TODO: Delete Uploaded File
       logger.error("Failed to enrich file", e);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      try {
+        await pgClient.query(updateStatusToFailed({ id, errors: [errorMessage] }));
+      } catch (statusErr: any) {
+        logger.error("Failed to mark enrichment as failed", statusErr);
+      }
       throw e;
     }
   });

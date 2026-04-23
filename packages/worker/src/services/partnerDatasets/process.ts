@@ -73,6 +73,7 @@ export const createProcessedFile = async ({
   debug("preProcessPartnerDataset");
   try {
     let coordinates: types.PartnerDatasetCoordinates[] = [];
+    let endFlushPromise: Promise<void> = Promise.resolve();
     const { path: filePath } = extractNameAndPath(originalFile);
 
     const { rowCount, invalidRows, headers, errors, writeFileLocation } = await streamCsvDatasets<
@@ -108,34 +109,38 @@ export const createProcessedFile = async ({
               await pgClient.query("BEGIN");
               await insertCoordinatesBatch(coordinates, pgClient);
               await pgClient.query("COMMIT");
-            } catch (e) {
-              debug("db error");
-              const failedRowIds = coordinates.map((c) => c[1]);
-              reasons.push(
-                `Error saving partner coordinates to database. ${failedRowIds.join(",")}`,
-              );
+              coordinates = [];
+            } catch (e: any) {
+              logger.error("Failed to insert coordinate batch", e);
+              return cb(e);
             }
-            coordinates = [];
           }
           return cb(null, valid, reasons.join(" "));
         },
         eventHandlers: {
           data: async (row) => {},
-          end: async () => {
-            if (coordinates.length > 0) {
+          // stream.ts invokes this synchronously and doesn't await it,
+          // so we capture the async flush as endFlushPromise and await it below.
+          end: () => {
+            if (coordinates.length === 0) return;
+            const toFlush = coordinates;
+            coordinates = [];
+            endFlushPromise = (async () => {
               try {
                 await pgClient.query("BEGIN");
-                await insertCoordinatesBatch(coordinates, pgClient);
+                await insertCoordinatesBatch(toFlush, pgClient);
                 await pgClient.query("COMMIT");
-              } catch (e) {
-                debug("db error");
+              } catch (e: any) {
+                logger.error("Failed to insert final coordinate batch", e);
+                throw e;
               }
-              coordinates = [];
-            }
+            })();
           },
         },
       },
     });
+
+    await endFlushPromise;
 
     return {
       coordinates,

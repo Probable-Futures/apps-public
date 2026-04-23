@@ -1,4 +1,6 @@
 import { Task } from "graphile-worker";
+import QueryStream from "pg-query-stream";
+import { PoolClient } from "pg";
 import * as types from "../types";
 import {
   createNearbyCoordinatesFile,
@@ -11,14 +13,35 @@ import {
   insertIntoTempTable,
 } from "../services/partnerDatasets/nearbyCoordinates";
 import { deleteUploadS3Object, updateUploadStatusToFailed } from "../services/partnerDatasets";
-import { NearbyCoordinateResult } from "../types";
+import { NearbyCoordinateResult, CoordinateGridModel } from "../types";
 import { nearByCoordinatesBatchSize } from "../utils/constants";
 
 type CoordinateResults = NearbyCoordinateResult & { row_id: string };
 
+const streamCoordinatesIntoMap = (
+  pgClient: PoolClient,
+  query: string,
+  grid: CoordinateGridModel,
+  target: types.NearbyCoordinatesMap,
+): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const stream = pgClient.query(new QueryStream(query));
+    stream.on("data", (row: CoordinateResults) => {
+      const { row_id, coordinate_hash, latitude, longitude } = row;
+      const existing = target.get(row_id) ?? {};
+      existing[grid] = { coordinate_hash, latitude, longitude };
+      target.set(row_id, existing);
+    });
+    stream.on("end", () => resolve());
+    stream.on("error", (err) => {
+      stream.destroy();
+      reject(err);
+    });
+  });
+
 const addNearbyPFCoordinatesToPartnerDataset: Task = async (payload, { logger, withPgClient }) => {
   await withPgClient(async (pgClient) => {
-    let newFile: string;
+    let newFile: string | undefined;
     const { partnerDatasetId, processedFileLocation, partnerId, uploadId } =
       payload as unknown as types.AddNearbyPFCoordinatesToPartnerDatasetPayload;
     try {
@@ -31,53 +54,43 @@ const addNearbyPFCoordinatesToPartnerDataset: Task = async (payload, { logger, w
         selectCount(partnerDatasetId),
       );
 
-      for (let i = 0; i < totalCount[0].count / nearByCoordinatesBatchSize; i++) {
+      const batchCount = Math.ceil(totalCount[0].count / nearByCoordinatesBatchSize);
+      for (let i = 0; i < batchCount; i++) {
         const startId = i * nearByCoordinatesBatchSize;
         const endId = (i + 1) * nearByCoordinatesBatchSize;
+        await pgClient.query("BEGIN");
         try {
-          await pgClient.query("BEGIN");
           await pgClient.query(
             updatePartnerDatasetCoordinatesWithPFRCMAndGCMCoordinates(startId, endId),
           );
           await pgClient.query("COMMIT");
         } catch (e: any) {
+          await pgClient.query("ROLLBACK");
           logger.error("Failed to update partner_dataset_coordinates", e);
           throw e;
         }
       }
 
       await pgClient.query("drop table pf_partner_dataset_coordinates_to_be_updated;");
-      await pgClient.query("BEGIN");
 
-      const { rows: rcmRows, rowCount: rcmRowCount } = await pgClient.query<CoordinateResults>(
-        selectPFRCMCoordinatesFromPartnerDatasetCoordinates(partnerDatasetId),
-      );
-
-      const { rows: gcmRows, rowCount: gcmRowCount } = await pgClient.query<CoordinateResults>(
-        selectPFGCMCoordinatesFromPartnerDatasetCoordinates(partnerDatasetId),
-      );
-
+      // Stream RCM/GCM results directly into the map instead of materializing two full result
+      // arrays before merging. Halves peak memory on large datasets.
       const nearbyRows: types.NearbyCoordinatesMap = new Map();
+      await streamCoordinatesIntoMap(
+        pgClient,
+        selectPFRCMCoordinatesFromPartnerDatasetCoordinates(partnerDatasetId),
+        "RCM",
+        nearbyRows,
+      );
+      await streamCoordinatesIntoMap(
+        pgClient,
+        selectPFGCMCoordinatesFromPartnerDatasetCoordinates(partnerDatasetId),
+        "GCM",
+        nearbyRows,
+      );
 
-      rcmRows.forEach(({ row_id, coordinate_hash, latitude, longitude }) => {
-        // @ts-ignore
-        nearbyRows.set(row_id, { RCM: { coordinate_hash, latitude, longitude } });
-      });
-
-      gcmRows.forEach(({ row_id, coordinate_hash, latitude, longitude }) => {
-        const rowData = nearbyRows.get(row_id);
-        if (rowData) {
-          rowData["GCM"] = { coordinate_hash, latitude, longitude };
-          nearbyRows.set(row_id, rowData);
-        } else {
-          // @ts-ignore
-          nearbyRows.set(row_id, { GCM: { coordinate_hash, latitude, longitude } });
-        }
-      });
-
-      rcmRows.length = 0;
-      gcmRows.length = 0;
-
+      // S3 I/O is intentionally outside any transaction so PG connections and locks aren't
+      // held across slow uploads.
       const { nearbyCoordinateFileLocation, errors, rowCount } = await createNearbyCoordinatesFile({
         processedFileLocation,
         partnerDatasetId,
@@ -99,25 +112,34 @@ const addNearbyPFCoordinatesToPartnerDataset: Task = async (payload, { logger, w
         errors,
       };
 
-      await pgClient.query(
-        updatePartnerDatasetUploadsWithCoordinates({
-          id: uploadId,
-          file: nearbyCoordinateFileLocation,
-          rowCount,
-          errors: nearbyProcessingErrors,
-          status: "successful",
-        }),
-      );
-
-      logger.info("commit time");
-      await pgClient.query("COMMIT");
-      logger.info("post commit ");
+      await pgClient.query("BEGIN");
+      try {
+        await pgClient.query(
+          updatePartnerDatasetUploadsWithCoordinates({
+            id: uploadId,
+            file: nearbyCoordinateFileLocation,
+            rowCount,
+            errors: nearbyProcessingErrors,
+            status: "successful",
+          }),
+        );
+        await pgClient.query("COMMIT");
+      } catch (e: any) {
+        await pgClient.query("ROLLBACK");
+        throw e;
+      }
     } catch (e: any) {
-      await pgClient.query("ROLLBACK");
-      await pgClient.query(updateUploadStatusToFailed(uploadId));
-      //@ts-ignore
+      try {
+        await pgClient.query(updateUploadStatusToFailed(uploadId));
+      } catch (statusErr: any) {
+        logger.error("Failed to mark upload as failed", statusErr);
+      }
       if (newFile) {
-        await deleteUploadS3Object(newFile);
+        try {
+          await deleteUploadS3Object(newFile);
+        } catch (deleteErr: any) {
+          logger.error("Failed to delete orphaned S3 object", deleteErr);
+        }
       }
       logger.error("Failed to add coordinates to partner dataset", e);
       throw e;

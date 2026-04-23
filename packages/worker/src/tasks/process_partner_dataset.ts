@@ -73,11 +73,23 @@ const processPartnerDataset: Task = async (payload, { withPgClient, logger, addJ
           debug("job added");
         } catch (e: any) {
           debug("db error");
-          await pgClient.query("ROLLBACK");
-          await pgClient.query(updateUploadStatusToFailed(id));
-          // TODO: Delete Uploaded File
-          await deleteUploadS3Object(file);
-          throw { e, processingErrors };
+          try {
+            await pgClient.query("ROLLBACK");
+          } catch (rollbackErr: any) {
+            logger.error("Failed to ROLLBACK after processed dataset save error", rollbackErr);
+          }
+          try {
+            await pgClient.query(updateUploadStatusToFailed(id));
+          } catch (statusErr: any) {
+            logger.error("Failed to mark upload as failed", statusErr);
+          }
+          try {
+            await deleteUploadS3Object(file);
+          } catch (deleteErr: any) {
+            logger.error("Failed to delete orphaned S3 object", deleteErr);
+          }
+          logger.error("Failed to save processed partner dataset", { processingErrors, error: e });
+          throw e;
         }
       } catch (e: any) {
         logger.error("Failed to created processed file", e);

@@ -30,6 +30,7 @@ export const csvHeaders = {
 
 export const csvPlaceColumns = {
   city: "city",
+  state: "state",
   country: "country",
   address: "address",
 };

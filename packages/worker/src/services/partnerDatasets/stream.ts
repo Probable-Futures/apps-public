@@ -137,8 +137,11 @@ export function streamCsvDatasets<I extends csv.ParserRow, O extends types.CsvRo
           if (parse.eventHandlers.data) {
             parse.eventHandlers.data(row);
           }
-          const hashArray = Object.entries(row.export());
-          formatStream.write(hashArray);
+          // Write the plain object so fast-csv matches columns by key.
+          // Passing Object.entries(...) makes fast-csv treat it as a "hash array"
+          // and align values by position, which silently corrupts rows whose
+          // exported key order differs from the first row's.
+          formatStream.write(row.export());
         },
         invalidData: (row, rowNumber, reason) => {
           debug("invalidData row: %o row#: %i, reason: %s", row, rowNumber, reason);

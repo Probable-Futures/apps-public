@@ -4,40 +4,28 @@ import { redisClient } from "../../database";
 
 const debug = require("debug")("geocode");
 
-const KEY = "geocode";
 const CACHE_VERSION = "2";
+const KEY = `geocode:v${CACHE_VERSION}`;
 
 export default async function mbxGeocode(place: types.AddressRow): Promise<types.GeocodeResults> {
   debug("Input: %o", place);
+  const { city, state, country, address } = place;
+
+  const queryToString = [address, city, country, state]
+    .map((part) => (part || "").toLowerCase())
+    .filter(Boolean)
+    .join(",");
+
+  const cached = await redisClient.HGET(KEY, queryToString);
+
   let results: types.GeocodeResults;
-  const { city, country, address } = place;
-  const countryToLower = (country || "").toLowerCase();
-  const cityToLower = (city || "").toLowerCase();
-  const addressToLower = (address || "").toLowerCase();
-
-  const query: string[] = [];
-  if (addressToLower) {
-    query.push(addressToLower);
-  }
-  if (cityToLower) {
-    query.push(cityToLower);
-  }
-  if (countryToLower) {
-    query.push(countryToLower);
-  }
-  const queryToString = query.join(",");
-  const redisKey = `${queryToString} - v${CACHE_VERSION}`;
-
-  const cache = await redisClient.HGETALL(KEY);
-
-  if (!cache[redisKey]) {
-    results = await mapbox.geocodeCity(queryToString);
-    redisClient.HSET(KEY, redisKey, JSON.stringify(results));
+  if (cached) {
+    results = JSON.parse(cached) as types.GeocodeResults;
   } else {
-    results = JSON.parse(cache[redisKey]) as types.GeocodeResults;
+    results = await mapbox.geocodeCity(queryToString);
+    await redisClient.HSET(KEY, queryToString, JSON.stringify(results));
   }
-  const geocoded = { ...results };
 
-  debug("Output: %o", geocoded);
-  return geocoded;
+  debug("Output: %o", results);
+  return results;
 }

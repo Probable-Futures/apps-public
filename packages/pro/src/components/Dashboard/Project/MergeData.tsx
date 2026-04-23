@@ -91,17 +91,11 @@ const StyledInput = styled.input`
 
 const StyledList = styled.ul`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-wrap: wrap;
   list-style-type: none;
   padding: 0;
-  height: 100px;
-  justify-content: flex-start;
-  margin: 0;
-  width: 88%;
-  height: auto;
-  margin-bottom: 16px;
-  margin-top: 25px;
+  margin: 16px 0;
 `;
 
 const Label = styled.label`
@@ -299,14 +293,11 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
     };
     if (uppyFiles && uppyFiles.length > 0) {
       const totalSizeInBytes = uppyFiles.reduce((count, file) => count + (file.size || 0), 0);
-      // Convert total size to MB as we assume every 1 MB will take 0.9 mins
+      // Convert total size to MB as we assume every 1 MB will take 8 mins
       // set a minimum of 0.5 min no matter how small the file since it is going through the process
-      loaderProcessingInfo.time = Math.max((totalSizeInBytes / (1024 * 1024)) * 0.9, 0.5);
-      loaderProcessingInfo.text = `Your file
-        ${uppyFiles.length > 1 ? "s are " : " is "}
-        ${bytesToString(totalSizeInBytes)}. It will take
-        ${Math.round(loaderProcessingInfo.time)} minute(s) to process.
-        Please keep the tab open. Closing the tab will stop the processing.`;
+      loaderProcessingInfo.time = Math.max((totalSizeInBytes / (1024 * 1024)) * 8, 0.5);
+      loaderProcessingInfo.text =
+        "Please keep the tab open. Closing the tab will stop the processing.";
     }
     return loaderProcessingInfo;
   }, []);

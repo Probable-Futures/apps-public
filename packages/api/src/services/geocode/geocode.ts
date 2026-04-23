@@ -10,8 +10,9 @@ const CACHE_VERSION = "2";
 export default async function mbxGeocode(place: types.AddressRow): Promise<types.GeocodeResults> {
   debug("Input: %o", place);
   let results: types.GeocodeResults;
-  const { city, country, address } = place;
+  const { city, state, country, address } = place;
   const countryToLower = (country || "").toLowerCase();
+  const stateToLower = (state || "").toLowerCase();
   const cityToLower = (city || "").toLowerCase();
   const addressToLower = (address || "").toLowerCase();
 
@@ -21,6 +22,9 @@ export default async function mbxGeocode(place: types.AddressRow): Promise<types
   }
   if (cityToLower) {
     query.push(cityToLower);
+  }
+  if (stateToLower) {
+    query.push(stateToLower);
   }
   if (countryToLower) {
     query.push(countryToLower);
