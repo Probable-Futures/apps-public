@@ -50,14 +50,14 @@ class ProcessedRow extends CsvRow {
 
   validate() {
     try {
-      this.coordinates.validate();
-
-      if (!this.coordinates && !this.city && !this.address) {
+      if (!this.coordinates) {
         throw new errors.ValidationError({
           message: "No valid address or coordinates for row",
           invalidData: { ...this.raw },
         });
       }
+
+      this.coordinates.validate();
 
       if (this.parsedData[constants.csvHeaders.validationErrors]) {
         throw this.parsedData[constants.csvHeaders.validationErrors];

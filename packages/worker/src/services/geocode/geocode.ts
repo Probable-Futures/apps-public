@@ -4,14 +4,14 @@ import { redisClient } from "../../database";
 
 const debug = require("debug")("geocode");
 
-const CACHE_VERSION = "2";
+const CACHE_VERSION = "3";
 const KEY = `geocode:v${CACHE_VERSION}`;
 
 export default async function mbxGeocode(place: types.AddressRow): Promise<types.GeocodeResults> {
   debug("Input: %o", place);
   const { city, state, country, address } = place;
 
-  const queryToString = [address, city, country, state]
+  const queryToString = [address, city, state, country]
     .map((part) => (part || "").toLowerCase())
     .filter(Boolean)
     .join(",");

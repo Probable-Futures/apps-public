@@ -52,9 +52,6 @@ async function mbxGeocodePlace(query: string): Promise<types.GeocodeResults> {
 
     return { place_name, long, lat };
   } catch (e: any) {
-    if (e.statusCode === 429) {
-      throw e;
-    }
     console.error(e);
     return {
       place_name: "NOT FOUND",

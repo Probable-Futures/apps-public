@@ -1,5 +1,10 @@
 import * as csv from "fast-csv";
 import AWS from "aws-sdk";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import { pipeline } from "stream/promises";
+import { randomUUID } from "crypto";
 import { env, extendDebugger } from "../../utils";
 import * as aws from "../aws";
 import * as types from "../../types";
@@ -9,16 +14,25 @@ const PARTNER_DATASET_BUCKET = env.AWS_S3_BUCKET;
 const debug = extendDebugger("services:partner:datasets:stream");
 
 type ReadStreamArgs = { file: string };
-const readDatasetStream = ({ file }: ReadStreamArgs) => {
-  debug("readDatasetStream");
+
+// Download the S3 object fully to a local temp file before parsing.
+// Parsing against an S3 read stream can stall the HTTP connection when the
+// CSV transform is slow (e.g., per-row Mapbox geocoding); AWS closes idle
+// connections after ~2 min, which truncates the input and silently ends the
+// parser mid-row. Draining the object to disk decouples download from parse.
+const downloadDatasetToTempFile = async ({ file }: ReadStreamArgs): Promise<string> => {
+  const tempPath = path.join(os.tmpdir(), `pf-dataset-${randomUUID()}.csv`);
+  debug("downloadDatasetToTempFile: %s -> %s", file, tempPath);
+  const readStream = aws.s3.readObjectStream({
+    Bucket: PARTNER_DATASET_BUCKET,
+    Key: file,
+  });
   try {
-    const readStream = aws.s3.readObjectStream({
-      Bucket: PARTNER_DATASET_BUCKET,
-      Key: file,
-    });
-    return readStream;
+    await pipeline(readStream, fs.createWriteStream(tempPath));
+    return tempPath;
   } catch (err) {
-    console.error("Failed to open read stream to file: %s", file);
+    await fs.promises.unlink(tempPath).catch(() => {});
+    console.error("Failed to download dataset to temp file: %s", file);
     console.error(err);
     throw err;
   }
@@ -94,7 +108,7 @@ type StreamDatasetsArgs<I extends csv.ParserRow, O extends types.CsvRow> = {
   parse: ParseCsvStreamArgs<I, O>;
   write: WriteStreamArgs & WriteSteamHandlers;
 };
-export function streamCsvDatasets<I extends csv.ParserRow, O extends types.CsvRow>({
+export async function streamCsvDatasets<I extends csv.ParserRow, O extends types.CsvRow>({
   read,
   parse,
   write,
@@ -106,13 +120,25 @@ export function streamCsvDatasets<I extends csv.ParserRow, O extends types.CsvRo
   writeFileLocation: string;
 }> {
   debug("streamCsvDatasets read: %o", read);
-  return new Promise((resolve, reject) => {
+  const tempPath = await downloadDatasetToTempFile(read);
+  const cleanupTempFile = () =>
+    fs.promises.unlink(tempPath).catch((err) => {
+      debug("failed to remove temp file %s: %o", tempPath, err);
+    });
+
+  return new Promise<{
+    headers: csv.ParserHeaderArray;
+    rowCount: number;
+    invalidRows: types.InvalidRow<types.RawRow>[];
+    errors: any[];
+    writeFileLocation: string;
+  }>((resolve, reject) => {
     let headers: csv.ParserHeaderArray;
     let rowCount: number = 0;
     let invalidRows: types.InvalidRow<types.RawRow>[] = [];
     let errors: any[] = [];
     let writeFileLocation: string;
-    let readStream = readDatasetStream(read);
+    const readStream = fs.createReadStream(tempPath);
 
     const { writeStream, uploadManager } = writeDatasetStream({
       file: write.file,
@@ -186,6 +212,11 @@ export function streamCsvDatasets<I extends csv.ParserRow, O extends types.CsvRo
     //@ts-ignore
     uploadManager.on("httpUploadProgress", write.httpUploadProgress);
 
+    readStream.on("error", (err) => {
+      debug("readStream: error %o", err);
+      reject(err);
+    });
+
     //@ts-ignore
     readStream
       .pipe(parseStream)
@@ -206,5 +237,5 @@ export function streamCsvDatasets<I extends csv.ParserRow, O extends types.CsvRo
       .on("finish", () => {
         debug("formatCsvDatasets: success");
       });
-  });
+  }).finally(cleanupTempFile);
 }
