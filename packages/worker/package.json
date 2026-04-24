@@ -39,7 +39,7 @@
     "pino-pretty": "^5.1.2",
     "redis": "^4.0.2",
     "typescript": "^5.9.2",
-    "uuid": "^8.3.2"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.12",
