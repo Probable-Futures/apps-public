@@ -6,15 +6,41 @@ import {
   appInjector,
   MapPopoverContentFactory,
 } from "@kepler.gl/components";
+import { onLayerClick } from "@kepler.gl/actions";
 import { consts } from "@probable-futures/lib";
 import { MapPopoverProps } from "@kepler.gl/components/dist/map/map-popover";
 import { LayerHoverProp } from "@kepler.gl/reducers";
+import { ReactComponent as CloseIcon } from "@probable-futures/components-lib/src/assets/icons/cancel-circle.svg";
 
 import { useMapData } from "../../../contexts/DataContext";
 import TooltipFeature from "../TooltipFeature";
 import { EmptyFactory } from "../../Common";
 import { getFeature } from "../../../utils/useFeaturePopup";
-import { useAppSelector } from "../../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { MAP_ID } from "../../../consts/MapConsts";
+
+const ContentWrapper = styled.div`
+  position: relative;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: -10px;
+  right: 0;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
 
 const LayerHoverInfoWrapper = styled.div`
   margin-bottom: 11.5px;
@@ -30,8 +56,10 @@ const CustomLayerHoverInfoFactory = () => {
   const LayerHoverInfo = appInjector.get(LayerHoverInfoFactory);
 
   const CustomLayerHoverInfo = (...props: any) => {
+    const dispatch = useAppDispatch();
     const { mapRef, selectedClimateData } = useMapData();
     const degrees = useAppSelector((state) => state.project.mapConfig.pfMapConfig.warmingScenario);
+    const isFrozen = useAppSelector((state) => !!state.keplerGl[MAP_ID]?.visState?.clicked);
     const [{ dataKey }] = consts.degreesOptions.filter((d) => d.value === degrees);
     const coordinate = props[0].coordinate as Array<number>; // dynamic coordinates based on mouse position on the screen
 
@@ -94,12 +122,21 @@ const CustomLayerHoverInfoFactory = () => {
     }, [mapRef, coordinate, dataKey, degrees, selectedClimateData]);
 
     return (
-      <>
+      <ContentWrapper>
+        {isFrozen && (
+          <CloseButton
+            type="button"
+            aria-label="Close"
+            onClick={() => dispatch(onLayerClick(null))}
+          >
+            <CloseIcon />
+          </CloseButton>
+        )}
         <LayerHoverInfoWrapper>
           <LayerHoverInfo {...props[0]} />
         </LayerHoverInfoWrapper>
         {climateData}
-      </>
+      </ContentWrapper>
     );
   };
 

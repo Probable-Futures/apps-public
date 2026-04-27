@@ -71,6 +71,16 @@ export default function useFeaturePopup({
 
   useEffect(() => {
     if (mapRef.current && clickedMapInfo?.x && clickedMapInfo?.y && clickedMapInfo?.coordinate) {
+      // When the click lands on an uploaded data dot, kepler's MapPopover already
+      // renders the PF Pro panel with the same expected-range values, so suppress
+      // the default popup to avoid showing the info twice.
+      if (clickedMapInfo.layer) {
+        if (popupVisible) {
+          setPopupVisible(false);
+        }
+        return;
+      }
+
       const mapBoxMap = mapRef.current.getMap() as mapboxgl.Map;
       const [longitude, latitude] = clickedMapInfo.coordinate;
       const { x, y } = clickedMapInfo;

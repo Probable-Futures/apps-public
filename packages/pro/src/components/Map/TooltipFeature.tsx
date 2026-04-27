@@ -53,6 +53,7 @@ const Title = styled.span`
   font-weight: 600;
   line-height: 11px;
   margin-right: 26px;
+  margin-bottom: 12px;
 `;
 
 export default function TooltipFeature({ feature, dataset, degreesOfWarming }: Props): JSX.Element {
