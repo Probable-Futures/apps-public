@@ -21,6 +21,7 @@ jobs:
       - run: |
           yarn install --frozen-lockfile
       - run: yarn workspace @probable-futures/api typecheck
+      - run: yarn workspace @probable-futures/api test
 
   worker:
     env:
