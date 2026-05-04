@@ -1347,7 +1347,8 @@ CREATE TABLE knowledge.adaptation_case_studies (
     strategies_used text[] DEFAULT '{}'::text[] NOT NULL,
     outcomes text,
     embedding public.vector(1536),
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    ai_name text
 );
 
 
