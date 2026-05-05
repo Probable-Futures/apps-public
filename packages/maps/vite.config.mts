@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig, transformWithOxc, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { transform as svgrTransform } from "@svgr/core";
@@ -131,6 +132,12 @@ export default defineConfig({
       host: "local.probablefutures.org",
       clientPort: 443,
     },
+  },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["src/setupTests.ts"],
+    css: false,
   },
   build: {
     outDir: "build",
