@@ -21,10 +21,17 @@ import { ReactComponent as MoreIcon } from "../assets/icons/more.svg";
 import { ReactComponent as CloseIcon } from "../assets/icons/close-thick.svg";
 import { ReactComponent as GlobeIcon } from "../assets/icons/globe.svg";
 import { ReactComponent as MapIcon } from "../assets/icons/map.svg";
+import { ReactComponent as ThermometerWarmerIcon } from "../assets/icons/thermometer-warmer.svg";
+import { ReactComponent as ThermometerCoolerIcon } from "../assets/icons/thermometer-cooler.svg";
+import { ReactComponent as DeviceThermostatIcon } from "../assets/icons/device-thermostat.svg";
 import ActionsSheet from "./ActionsSheet";
 import { useTranslation } from "../contexts/TranslationContext";
 import { setQueryParam } from "../utils";
-import { colors, customTabletSizeForHeader } from "@probable-futures/lib/src/consts";
+import {
+  colors,
+  customTabletSizeForHeader,
+  datasetsWithMidValuesOnly,
+} from "@probable-futures/lib/src/consts";
 import { Map } from "@probable-futures/lib/src/types";
 import { ReactComponent as VisibilityIcon } from "@probable-futures/components-lib/src/assets/icons/visibility.svg";
 import { ReactComponent as CancelCircleIcon } from "@probable-futures/components-lib/src/assets/icons/cancel-circle.svg";
@@ -156,21 +163,30 @@ const AdjustViewMenuList = styled.ul`
   padding: 0;
 `;
 
-const AdjustViewMenuListItem = styled.li`
+const AdjustViewMenuListItem = styled.li<{ disabled?: boolean; selected?: boolean }>`
   border-radius: 6px;
-  cursor: pointer;
+  cursor: ${({ disabled, selected }) =>
+    disabled ? "not-allowed" : selected ? "default" : "pointer"};
   padding: 7px 5px;
   margin-bottom: 6px;
   display: flex;
   gap: 8px;
   justify-content: start;
   align-items: center;
-  color: ${colors.dimBlack};
+  color: ${({ selected }) => (selected ? colors.purple : colors.dimBlack)};
   font-size: 10px;
+  opacity: ${({ disabled }) => (disabled ? 0.4 : 1)};
+  background-color: ${({ selected }) =>
+    selected ? colors.lightPurpleWithOpacity : "transparent"};
 
   &:hover {
-    background-color: ${colors.lightPurpleWithOpacity};
+    background-color: ${({ disabled, selected }) =>
+      disabled && !selected ? "transparent" : colors.lightPurpleWithOpacity};
   }
+`;
+
+const CenteredThermostatIcon = styled(DeviceThermostatIcon)`
+  transform: translateX(-3px);
 `;
 
 const AdjustViewMenuTitle = styled.div`
@@ -219,6 +235,7 @@ const MapControls = ({
 }: Props) => {
   const [showDownloadTooltip, setShowDownloadTooltip] = useState(false);
   const [showAdjustViewMenu, setShowAdjustViewMenu] = useState(false);
+  const [showYearMenu, setShowYearMenu] = useState(false);
   const [showZoomTooltip, setShowZoomTooltip] = useState(false);
   const [showScreenshotTooltip, setShowScreenshotTooltip] = useState(false);
 
@@ -226,11 +243,18 @@ const MapControls = ({
     moreIsOpen,
     mapProjection,
     showCountryBorders,
+    percentileValue,
+    degrees,
+    isComparisonMapActive,
     setMoreIsOpen,
     setMapProjection,
     setShowCountryBorders,
     setShowAboutMap,
     setSearchIsOpen,
+    setPercentileValue,
+    setIsComparisonMapActive,
+    setComparisonScenarioBefore,
+    setComparisonScenarioAfter,
   } = useMapData();
   const { translate } = useTranslation();
   const { isTourActive, setIsTourActive, setStep, steps } = useTourData();
@@ -275,9 +299,65 @@ const MapControls = ({
     });
   };
 
+  const onPercentileChange = (next: "low" | "mid" | "high") => {
+    setPercentileValue(next);
+    trackMixpanelEvent(AnalyticsEvent.PERCENTILE_VALUE_CHANGED, {
+      map_name: selectedDataset?.name,
+      percentile: next,
+    });
+  };
+  const onShowWarmerYearClick = () => onPercentileChange("high");
+  const onShowCoolerYearClick = () => onPercentileChange("low");
+  const onShowAverageYearClick = () => onPercentileChange("mid");
+
   const tourMessage = isTourActive
     ? translate("mapControl.closeTheTour")
     : translate("mapControl.takeQuickTour");
+
+  const comparisonMessage = isComparisonMapActive
+    ? translate("mapControl.hideComparisonMap")
+    : translate("mapControl.viewComparisonMap");
+
+  const isChangeMap = !!(
+    selectedDataset?.isDiff || selectedDataset?.name.toLowerCase().startsWith("change")
+  );
+
+  const onToggleComparisonMap = () => {
+    if (isComparisonMapActive) {
+      setIsComparisonMapActive(false);
+      setQueryParam({ isComparisonMapActive: false, warmingScenario: degrees });
+      trackMixpanelEvent(AnalyticsEvent.COMPARISON_MAP_VIEW_TOGGLED, {
+        map_name: selectedDataset?.name,
+        visible: false,
+      });
+      return;
+    }
+    let before: number;
+    let after: number;
+    if (isChangeMap) {
+      before = 1;
+      after = degrees === 1 ? 1.5 : degrees;
+    } else if (degrees === 0.5) {
+      before = 0.5;
+      after = 1.5;
+    } else {
+      before = 0.5;
+      after = degrees;
+    }
+    setComparisonScenarioBefore(before);
+    setComparisonScenarioAfter(after);
+    setIsComparisonMapActive(true);
+    setQueryParam({
+      isComparisonMapActive: true,
+      comparisonScenarioBefore: before,
+      comparisonScenarioAfter: after,
+    });
+    trackMixpanelEvent(AnalyticsEvent.COMPARISON_MAP_VIEW_TOGGLED, {
+      map_name: selectedDataset?.name,
+      visible: true,
+      scenarios_compared: `${before}°C vs ${after}°C`,
+    });
+  };
 
   const onCloseTourButtonClick = (event: any) => {
     if (event) {
@@ -323,6 +403,15 @@ const MapControls = ({
   const countryBordersTitle = showCountryBorders
     ? translate("mapControl.hideCountryBorders")
     : translate("mapControl.showCountryBorders");
+  const showWarmerYearTitle = translate("mapControl.showWarmerYear");
+  const showCoolerYearTitle = translate("mapControl.showCoolerYear");
+  const isMedianDataset = selectedDataset?.methodUsedForMid === "median";
+  const showAverageYearTitle = translate(
+    isMedianDataset ? "mapControl.showMedianYear" : "mapControl.showAverageYear",
+  );
+  const yearShownTitle = translate("mapControl.yearShownTitle");
+  const isMidOnlyDataset =
+    !!selectedDataset && datasetsWithMidValuesOnly.includes(selectedDataset.dataset.id);
   return (
     <>
       <MediaQuery maxWidth={size.tabletMax}>
@@ -350,6 +439,9 @@ const MapControls = ({
           mapProjection={mapProjection}
           closeSheet={() => setMoreIsOpen(false)}
           showCountryBorders={showCountryBorders}
+          percentileValue={percentileValue}
+          isMidOnlyDataset={isMidOnlyDataset}
+          isComparisonMapActive={isComparisonMapActive}
           onSearchClick={() => {
             setMoreIsOpen(false);
             setSearchIsOpen(true);
@@ -369,6 +461,19 @@ const MapControls = ({
             onBordersClick();
             setMoreIsOpen(false);
           }}
+          onShowWarmerYearClick={() => {
+            onShowWarmerYearClick();
+            setMoreIsOpen(false);
+          }}
+          onShowCoolerYearClick={() => {
+            onShowCoolerYearClick();
+            setMoreIsOpen(false);
+          }}
+          onShowAverageYearClick={() => {
+            onShowAverageYearClick();
+            setMoreIsOpen(false);
+          }}
+          showAverageYearTitle={showAverageYearTitle}
           handleEmbeddableMapDownload={() => {
             setMoreIsOpen(false);
             handleEmbeddableMapDownload();
@@ -384,6 +489,10 @@ const MapControls = ({
           handleOpenComparisonModal={() => {
             setMoreIsOpen(false);
             handleOpenComparisonModal();
+          }}
+          onToggleComparisonMap={() => {
+            setMoreIsOpen(false);
+            onToggleComparisonMap();
           }}
         />
       </MediaQuery>
@@ -466,6 +575,10 @@ const MapControls = ({
                     {showCountryBorders ? <PublicOffIcon /> : <PublicOnIcon />}
                     {countryBordersTitle}
                   </AdjustViewMenuListItem>
+                  <AdjustViewMenuListItem onClick={onToggleComparisonMap}>
+                    <CompareIcon />
+                    {comparisonMessage}
+                  </AdjustViewMenuListItem>
                   {Object.keys(steps).length > 0 && (
                     <AdjustViewMenuListItem
                       onClick={onTakeTourButtonClick}
@@ -485,7 +598,7 @@ const MapControls = ({
             }
           >
             <styles.ControlButton
-              last
+              last={isMidOnlyDataset}
               disabled={!!!selectedDataset}
               title={adjustViewTitle}
               onMouseEnter={() => setShowAdjustViewMenu(true)}
@@ -495,6 +608,64 @@ const MapControls = ({
               <VisibilityIcon />
             </styles.ControlButton>
           </Popover>
+          {/* Year shown */}
+          {!isMidOnlyDataset && (
+          <Popover
+            isOpen={showYearMenu}
+            positions={["left"]}
+            padding={10}
+            content={
+              <AdjustViewMenu
+                onMouseEnter={() => setShowYearMenu(true)}
+                onMouseLeave={() => setShowYearMenu(false)}
+              >
+                <ArrowContainer />
+                <AdjustViewMenuList>
+                  <AdjustViewMenuListItem
+                    selected={percentileValue === "high"}
+                    onClick={percentileValue === "high" ? undefined : onShowWarmerYearClick}
+                  >
+                    <ThermometerWarmerIcon />
+                    {showWarmerYearTitle}
+                  </AdjustViewMenuListItem>
+                  <AdjustViewMenuListItem
+                    selected={percentileValue === "mid"}
+                    onClick={
+                      percentileValue === "mid" ? undefined : onShowAverageYearClick
+                    }
+                  >
+                    <CenteredThermostatIcon />
+                    {showAverageYearTitle}
+                  </AdjustViewMenuListItem>
+                  <AdjustViewMenuListItem
+                    selected={percentileValue === "low"}
+                    onClick={percentileValue === "low" ? undefined : onShowCoolerYearClick}
+                  >
+                    <ThermometerCoolerIcon />
+                    {showCoolerYearTitle}
+                  </AdjustViewMenuListItem>
+                </AdjustViewMenuList>
+              </AdjustViewMenu>
+            }
+          >
+            <styles.ControlButton
+              last
+              disabled={!!!selectedDataset}
+              title={yearShownTitle}
+              onMouseEnter={() => setShowYearMenu(true)}
+              onMouseLeave={() => setShowYearMenu(false)}
+              active={showYearMenu}
+            >
+              {percentileValue === "high" ? (
+                <ThermometerWarmerIcon />
+              ) : percentileValue === "low" ? (
+                <ThermometerCoolerIcon />
+              ) : (
+                <DeviceThermostatIcon />
+              )}
+            </styles.ControlButton>
+          </Popover>
+          )}
         </StyledGroup>
         <StyledGroup position="bottom">
           <components.ControlsTooltip

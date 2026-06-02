@@ -46,7 +46,14 @@ class Address extends Place {
 
   export() {
     const { city, state, country, address } = this.toObject();
-    return { city, state, country, address };
+    // Only include optional fields the CSV actually provided. fast-csv builds
+    // its column set from the first row's keys, so emitting undefined values
+    // would surface phantom columns (e.g. "state") in downstream popups.
+    const out: { address: string; city?: string; state?: string; country?: string } = { address };
+    if (city) out.city = city;
+    if (state) out.state = state;
+    if (country) out.country = country;
+    return out;
   }
 
   async geocode(): Promise<{ latitude: string; longitude: string }> {

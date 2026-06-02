@@ -31,6 +31,7 @@ import { components, contexts } from "@probable-futures/components-lib";
 import { Feature } from "@probable-futures/components-lib/src/hooks/useGeocoder";
 import useClimateZoneHighlighter from "../../utils/useClimateZoneHighlighter";
 import WarmingScenarioSelection from "../WarmingScenarioSelection";
+import ComparisonMapView, { ComparisonMapHandle } from "./ComparisonMapView";
 import Popup from "../common/Popup";
 import { useDatasetChangeHandler } from "../../utils/useDatasetChangeHandler";
 import { trackMixpanelEvent, trackMapClicked, AnalyticsEvent } from "../../utils/mixpanelAnalytics";
@@ -252,6 +253,7 @@ const InteractiveMap = () => {
   const [showDownloadMapModal, setShowDownloadMapModal] = useState(false);
 
   const mapRef = useRef<MapRef>(null);
+  const comparisonMapRef = useRef<ComparisonMapHandle>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const {
     selectedDataset,
@@ -274,6 +276,8 @@ const InteractiveMap = () => {
     showCountryBorders,
     showAboutMap,
     showAllMapsModal,
+    percentileValue,
+    setPercentileValue,
     setShowAboutMap,
     setPrecipitationUnit,
     setDatasets,
@@ -285,6 +289,12 @@ const InteractiveMap = () => {
     setShowAllMapsModal,
     aboutMapResources,
     setAboutMapResources,
+    isComparisonMapActive,
+    comparisonScenarioBefore,
+    comparisonScenarioAfter,
+    setIsComparisonMapActive,
+    setComparisonScenarioBefore,
+    setComparisonScenarioAfter,
   } = useMapData();
   const {
     isTourActive,
@@ -314,6 +324,9 @@ const InteractiveMap = () => {
     setSelectedDataset,
     setDegrees,
     setMapProjection,
+    setIsComparisonMapActive,
+    setComparisonScenarioBefore,
+    setComparisonScenarioAfter,
   });
   useWPApi({
     selectedDataset,
@@ -373,7 +386,12 @@ const InteractiveMap = () => {
           map.setLayoutProperty(layerId, "text-field", ["get", `name_${lang}`]);
           map.setLayoutProperty(layerId, "visibility", "visible");
         });
-        const dataLayerPaintProperties = utils.getMapLayerColors(binHexColors, stops, degrees);
+        const dataLayerPaintProperties = utils.getMapLayerColors(
+          binHexColors,
+          stops,
+          degrees,
+          percentileValue,
+        );
 
         // Set paint properties for data layers
         layers.forEach(({ id }: { id: string }) => {
@@ -387,7 +405,7 @@ const InteractiveMap = () => {
         });
       }
     },
-    [locale, showCountryBorders],
+    [locale, showCountryBorders, percentileValue],
   );
 
   const onExportSimpleMapClick = async () => {
@@ -397,6 +415,7 @@ const InteractiveMap = () => {
 
     const template = await generateEmbedMap({
       dataset: selectedDataset,
+      mapboxAccessToken: import.meta.env.VITE_EMBEDDABLE_MAPS_MAPBOX_ACCESS_TOKEN,
       tempUnit,
       scenario: degrees,
       viewState:
@@ -404,6 +423,10 @@ const InteractiveMap = () => {
       datasetDescriptionResponse,
       precipitationUnit,
       showBorders: showCountryBorders,
+      showPopupOnFirstLoad: popupVisible,
+      popupLocation: popupVisible
+        ? { latitude: feature.latitude, longitude: feature.longitude }
+        : undefined,
     });
     const fileBlob = new Blob([template], { type: "text/html" });
     downloadFile(fileBlob, `${selectedDataset.name} at ${degreeToString(degrees)}°C`);
@@ -420,6 +443,7 @@ const InteractiveMap = () => {
     }
     const template = await generateEmbedMap({
       dataset: selectedDataset,
+      mapboxAccessToken: import.meta.env.VITE_EMBEDDABLE_MAPS_MAPBOX_ACCESS_TOKEN,
       tempUnit,
       scenario: degrees,
       viewState,
@@ -430,6 +454,10 @@ const InteractiveMap = () => {
       },
       precipitationUnit,
       showBorders: showCountryBorders,
+      showPopupOnFirstLoad: popupVisible,
+      popupLocation: popupVisible
+        ? { latitude: feature.latitude, longitude: feature.longitude }
+        : undefined,
     });
     const fileBlob = new Blob([template], { type: "text/html" });
 
@@ -481,6 +509,16 @@ const InteractiveMap = () => {
       };
     }
   }, [activeClimateZoneLayers?.length, climateZoneBinHexColors, selectedDataset, setPopupVisible]);
+
+  useEffect(() => {
+    if (
+      selectedDataset &&
+      consts.datasetsWithMidValuesOnly.includes(selectedDataset.dataset.id) &&
+      percentileValue !== "mid"
+    ) {
+      setPercentileValue("mid");
+    }
+  }, [selectedDataset, percentileValue, setPercentileValue]);
 
   useEffect(() => {
     if (mapProjection.name === "globe" && mapRef.current) {
@@ -579,11 +617,16 @@ const InteractiveMap = () => {
 
   const changeZoom = (zoom: number) => {
     if (viewState.longitude !== undefined && viewState.latitude !== undefined) {
-      mapRef.current?.flyTo({
-        center: [viewState.longitude, viewState.latitude],
+      const flyToOptions = {
+        center: [viewState.longitude, viewState.latitude] as [number, number],
         zoom,
         duration: 300,
-      });
+      };
+      if (isComparisonMapActive) {
+        comparisonMapRef.current?.flyTo(flyToOptions);
+      } else {
+        mapRef.current?.flyTo(flyToOptions);
+      }
     }
   };
 
@@ -668,6 +711,17 @@ const InteractiveMap = () => {
 
   const onMove = useCallback((evt: ViewStateChangeEvent) => setViewState(evt.viewState), []);
 
+  useEffect(() => {
+    const onHashChange = () => {
+      const parsed = consts.getInitialMapViewState(window.location.hash.replace("#", ""));
+      if (parsed) {
+        setViewState((prev) => ({ ...prev, ...parsed }));
+      }
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
   const mapStyleLink = useMemo(() => {
     if (selectedDataset) {
       const styleBaseURL = `mapbox://styles/${import.meta.env.VITE_MAPBOX_ACCOUNT}`;
@@ -702,6 +756,12 @@ const InteractiveMap = () => {
   const onSourceData = (e: MapSourceDataEvent) => e.tile && setShowLoader(true);
 
   const onIdle = () => setShowLoader(false);
+
+  // Toggling comparison mode unmounts the active MapGL before it fires onIdle,
+  // which can leave the loader stuck. Clear it on the transition.
+  useEffect(() => {
+    setShowLoader(false);
+  }, [isComparisonMapActive]);
 
   const renderBottomLinks = () => {
     if (!selectedDataset) {
@@ -795,10 +855,49 @@ const InteractiveMap = () => {
                   });
                 }}
                 translatedHeader={translatedHeader}
+                percentileValue={percentileValue}
               />
             )}
           </MapKeyContainer>
-          {selectedDataset && (
+          {selectedDataset && isComparisonMapActive && (
+            <ComparisonMapView
+              ref={comparisonMapRef}
+              selectedDataset={selectedDataset}
+              scenarioBefore={comparisonScenarioBefore}
+              scenarioAfter={comparisonScenarioAfter}
+              mapboxAccessToken={mapboxAccessToken}
+              mapStyleUrl={mapStyleLink}
+              showCountryBorders={showCountryBorders}
+              locale={locale}
+              height={mapHeight}
+              viewState={viewState}
+              tempUnit={tempUnit}
+              precipitationUnit={precipitationUnit}
+              datasetDescriptionResponse={datasetDescriptionResponse}
+              mapProjection={mapProjection}
+              percentileValue={percentileValue}
+              activeClimateZoneLayers={activeClimateZoneLayers}
+              climateZoneBinHexColors={climateZoneBinHexColors}
+              onMove={(next) => {
+                setViewState((prev) => ({ ...prev, ...next }));
+                const hash = `${next.zoom.toFixed(2)}/${next.latitude.toFixed(
+                  6,
+                )}/${next.longitude.toFixed(6)}`;
+                window.history.replaceState(
+                  null,
+                  "",
+                  `${window.location.pathname}${window.location.search}#${hash}`,
+                );
+              }}
+              onReadMoreClick={() => {
+                setShowDescriptionModal((show: boolean) => !show);
+                trackMixpanelEvent(AnalyticsEvent.MAP_DESCRIPTION_VIEWED, {
+                  map_name: selectedDataset?.name,
+                });
+              }}
+            />
+          )}
+          {selectedDataset && !isComparisonMapActive && (
             <MapGL
               mapLib={mapboxgl}
               {...viewState}

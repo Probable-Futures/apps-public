@@ -22,7 +22,9 @@ Easily embed any Probable Futures map in a website without touching a single lin
 
 **Params:**
 
+- `mapboxAccessToken` (String, **required**): Your Mapbox access token. The function throws if this is not provided.
 - `datasetId` (Number): The id of the dataset associated to each map. The list can be found in the [docs](https://docs.probablefutures.org/maps-inventory/#maps-inventory)
+- `mapStyleUrl` (String, optional): The base url of the map style to render, in the format `mapbox://styles/{username}/{mapStyleId}`. Because your access token only works with map styles in your own Mapbox account, provide a `mapStyleUrl` pointing to one of your styles. When omitted, it falls back to the dataset's default Probable Futures style.
 - `tempUnit` (`°C` or `°F`): If the map unit is a temperature unit, eg. "Average Tempareture" map, you can choose the initial unit for the map data. Note that unit can still be changed from the map key
 - `scenario` (Number): The warming scenario
 - `viewState` (Object): This is an object which defines the initial view port of the map. The object includes `longitude`, `latitude`, and `zoom`
@@ -40,6 +42,8 @@ import * as fs from "fs";
 
 const htmlTemplate = await generateEmbedMap({
   datasetId: 40101,
+  mapboxAccessToken: MAPBOX_ACCESS_TOKEN,
+  mapStyleUrl: "mapbox://styles/{username}/{mapStyleId}",
   viewState: {
     zoom: 4,
   },
@@ -109,6 +113,8 @@ fs.writeFileSync(fullPath, htmlTemplate);
 
         const htmlTemplate = await ProbableFuturesMapsHTMLGenerator.generateEmbedMap({
           datasetId: 40101,
+          mapboxAccessToken: "YOUR_MAPBOX_ACCESS_TOKEN",
+          mapStyleUrl: "mapbox://styles/{username}/{mapStyleId}",
           viewState: { zoom: 4 },
           scenario: 2,
         });

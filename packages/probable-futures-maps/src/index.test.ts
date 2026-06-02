@@ -12,6 +12,7 @@ describe("generate map module", () => {
   it("should generate html template, write it to file and validate html", async () => {
     const obj = {
       datasetId: 40103,
+      mapboxAccessToken: "pk.test-token",
       viewState: {
         zoom: 5,
         longitude: 35.5018,

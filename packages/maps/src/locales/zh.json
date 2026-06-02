@@ -60,6 +60,10 @@
     "inspector": "检查员位置",
     "latitude": "纬度",
     "longitude": "经度",
+    "inAWarmerYear": "在较暖的年份",
+    "inACoolerYear": "在较凉的年份",
+    "inAnAverageYear": "在平均年份",
+    "inAMedianYear": "在中位年份",
     "binLabels": {
       "muchDrier": "极干燥",
       "drier": "干燥",
@@ -208,12 +212,19 @@
     "behindMapsTitle": "了解更多关于地图",
     "takeQuickTour": "快速浏览",
     "closeTheTour": "关闭浏览",
+    "viewComparisonMap": "查看对比地图",
+    "hideComparisonMap": "隐藏对比地图",
     "maxZoomMessage": "这是最接近的缩放级别",
     "downloadScreenshot": "下载截图",
     "showGlobe": "显示地球视图",
     "showMap": "显示地图视图",
     "hideCountryBorders": "隐藏国界",
-    "showCountryBorders": "显示国界"
+    "showCountryBorders": "显示国界",
+    "showWarmerYear": "查看较暖年份",
+    "showCoolerYear": "查看较凉年份",
+    "showAverageYear": "查看平均年份",
+    "showMedianYear": "查看中位年份",
+    "yearShownTitle": "显示年份"
   },
   "vignette": {
     "climateZone": "气候带",

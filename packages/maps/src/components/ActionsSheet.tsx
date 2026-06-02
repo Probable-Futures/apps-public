@@ -15,6 +15,10 @@ import { ReactComponent as PhotoCameraIcon } from "@probable-futures/components-
 
 import { ReactComponent as GlobeIcon } from "../assets/icons/globe.svg";
 import { ReactComponent as MapIcon } from "../assets/icons/map.svg";
+import { ReactComponent as ThermometerWarmerIcon } from "../assets/icons/thermometer-warmer.svg";
+import { ReactComponent as ThermometerCoolerIcon } from "../assets/icons/thermometer-cooler.svg";
+import { ReactComponent as DeviceThermostatIcon } from "../assets/icons/device-thermostat.svg";
+import { BinningType } from "@probable-futures/lib/src/utils/colors";
 import { colors } from "../consts";
 import { useTranslation } from "../contexts/TranslationContext";
 import { size } from "@probable-futures/lib";
@@ -24,12 +28,20 @@ type Props = {
   isOpen: boolean;
   mapProjection: Projection;
   showCountryBorders: boolean;
+  percentileValue: BinningType;
+  isMidOnlyDataset: boolean;
+  isComparisonMapActive: boolean;
   closeSheet: MouseEventHandler<HTMLDivElement>;
   onSearchClick: MouseEventHandler<HTMLElement>;
   onAboutThisMapClick: MouseEventHandler<HTMLElement>;
   onProjectionChange: MouseEventHandler<HTMLElement>;
   onBordersClick: MouseEventHandler<HTMLElement>;
+  onShowWarmerYearClick: MouseEventHandler<HTMLElement>;
+  onShowCoolerYearClick: MouseEventHandler<HTMLElement>;
+  onShowAverageYearClick: MouseEventHandler<HTMLElement>;
+  showAverageYearTitle: string;
   onTakeScreenshot: MouseEventHandler<HTMLElement>;
+  onToggleComparisonMap: MouseEventHandler<HTMLElement>;
   handleQRCodeDownload: MouseEventHandler<HTMLElement>;
   handleEmbeddableMapDownload: MouseEventHandler<HTMLElement>;
   handleOpenComparisonModal: MouseEventHandler<HTMLElement>;
@@ -78,6 +90,15 @@ const ActionSheetItem = styled.button`
     ${styles.ItemHoverStyles}
   }
 
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+
+    &:hover {
+      background: transparent;
+    }
+  }
+
   &:last-child {
     border-bottom: none;
   }
@@ -87,12 +108,20 @@ const ActionsSheet = ({
   isOpen,
   mapProjection,
   showCountryBorders,
+  percentileValue,
+  isMidOnlyDataset,
+  isComparisonMapActive,
   closeSheet,
   onAboutThisMapClick,
   onSearchClick,
   onProjectionChange,
   onBordersClick,
+  onShowWarmerYearClick,
+  onShowCoolerYearClick,
+  onShowAverageYearClick,
+  showAverageYearTitle,
   onTakeScreenshot,
+  onToggleComparisonMap,
   handleQRCodeDownload,
   handleEmbeddableMapDownload,
   handleOpenComparisonModal,
@@ -122,12 +151,38 @@ const ActionsSheet = ({
               : translate("mapControl.showGlobe")}
           </span>
         </ActionSheetItem>
+        {percentileValue !== "mid" && !isMidOnlyDataset && (
+          <ActionSheetItem onClick={onShowAverageYearClick}>
+            <DeviceThermostatIcon />
+            <span>{showAverageYearTitle}</span>
+          </ActionSheetItem>
+        )}
+        {percentileValue !== "high" && !isMidOnlyDataset && (
+          <ActionSheetItem onClick={onShowWarmerYearClick}>
+            <ThermometerWarmerIcon />
+            <span>{translate("mapControl.showWarmerYear")}</span>
+          </ActionSheetItem>
+        )}
+        {percentileValue !== "low" && !isMidOnlyDataset && (
+          <ActionSheetItem onClick={onShowCoolerYearClick}>
+            <ThermometerCoolerIcon />
+            <span>{translate("mapControl.showCoolerYear")}</span>
+          </ActionSheetItem>
+        )}
         <ActionSheetItem onClick={onBordersClick}>
           {showCountryBorders ? <PublicOffIcon /> : <PublicOnIcon />}
           <span>
             {showCountryBorders
               ? translate("mapControl.hideCountryBorders")
               : translate("mapControl.showCountryBorders")}
+          </span>
+        </ActionSheetItem>
+        <ActionSheetItem onClick={onToggleComparisonMap}>
+          <CompareIcon />
+          <span>
+            {isComparisonMapActive
+              ? translate("mapControl.hideComparisonMap")
+              : translate("mapControl.viewComparisonMap")}
           </span>
         </ActionSheetItem>
         <MediaQuery minWidth={size.tablet} maxWidth={size.tabletMax}>

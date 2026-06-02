@@ -23,6 +23,9 @@ export const MAP_PROJECTION_QUERY_PARAM = "view";
 export const OLD_WARMING_SCENARIO_QUERY_PARAM = "warming_scenario";
 export const WARMING_SCENARIO_QUERY_PARAM = "scenario";
 
+export const SCENARIO_BEFORE_QUERY_PARAM = "scenario_before";
+export const SCENARIO_AFTER_QUERY_PARAM = "scenario_after";
+
 export const VOLUME_QUERY_PARAM = "volume"; // not used anymore, kept here in order to remove from the url if it exists.
 
 export const POPUP_DEFAULT_LOCATION: [number, number] = [77.98, 32.175];

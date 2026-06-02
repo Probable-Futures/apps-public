@@ -131,12 +131,14 @@ const Link = styled.a`
   bottom: ${({ bottom }: LinkProps) => bottom ?? 0};
 `;
 
-const DegreesMobileContainer = styled.div`
+const DegreesMobileContainer = styled.div<{ isSharedProject: boolean }>`
   position: absolute;
   bottom: 0;
   box-sizing: content-box;
   z-index: 4;
-  left: 40px;
+  /* Reserve 40px on the left for Kepler's side panel collapse stub. The
+     shared view has no side panel, so anchor flush left instead. */
+  left: ${({ isSharedProject }) => (isSharedProject ? "0" : "40px")};
   right: 0;
 `;
 
@@ -551,7 +553,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
         {selectedClimateData && (
           <contexts.ThemeProvider theme="light">
             {isTablet ? (
-              <DegreesMobileContainer>
+              <DegreesMobileContainer isSharedProject={isSharedProject}>
                 <components.DegreesFooter
                   degrees={degrees}
                   warmingScenarioDescs={warmingScenarioDescs}

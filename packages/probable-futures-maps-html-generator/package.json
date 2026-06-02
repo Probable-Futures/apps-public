@@ -1,6 +1,6 @@
 {
   "name": "@probable-futures/probable-futures-maps-html-generator",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "This package empowers developers to seamlessly integrate dynamic and interactive climate maps into their web applications",
   "main": "dist/probable-futures-maps-html-generator.umd.js",
   "module": "dist/probable-futures-maps-html-generator.esm.js",
@@ -44,7 +44,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@probable-futures/lib": "^1.0.27"
+    "@probable-futures/lib": "^1.0.28"
   },
   "publishConfig": {
     "access": "public",

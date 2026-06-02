@@ -20,6 +20,10 @@ function CustomMapControlFactory() {
 
     const slugId = useAppSelector((state) => state.project.slugId);
 
+    const percentileValue = useAppSelector(
+      (state) => state.project.mapConfig?.pfMapConfig?.percentileValue,
+    );
+
     const isSharedProject = !!projectSharedData;
 
     return (
@@ -32,6 +36,7 @@ function CustomMapControlFactory() {
         setTempUnit={setTempUnit}
         precipitationUnit={precipitationUnit}
         setPrecipitationUnit={setPrecipitationUnit}
+        percentileValue={percentileValue}
       />
     );
   };

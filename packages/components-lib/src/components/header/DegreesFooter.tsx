@@ -21,7 +21,9 @@ import {
 import { useTheme } from "../../contexts/ThemeContext";
 
 type Props = {
-  degrees: number;
+  degrees?: number;
+  degrees2?: number;
+  pendingDegrees?: number;
   warmingScenarioDescs: WarmingScenarioDescs;
   showBaselineModal: boolean;
   tourProps?: TourProps;
@@ -138,16 +140,19 @@ const StyledYearLabel = styled.span`
   font-weight: 400;
 `;
 
+type StyledButtonContainerProps = ButtonContainerProps & { isPending?: boolean };
+
 const StyledButtonContainer = styled(ButtonContainer)`
   flex-basis: 100%;
   flex-grow: 0;
   min-width: 105px;
   border-top: 6px solid transparent;
-  ${({ isActive }: ButtonContainerProps) =>
-    isActive &&
-    `
-    background-color: ${colors.lightPurple};
-  `};
+  ${({ isActive, isPending }: StyledButtonContainerProps) =>
+    isActive
+      ? `background-color: ${colors.lightPurple};`
+      : isPending
+        ? `background-color: ${colors.lightPurpleWithOpacity};`
+        : ""};
 `;
 
 const TourBoxWrapper = styled.div`
@@ -157,6 +162,8 @@ const TourBoxWrapper = styled.div`
 
 const DegreesFooter = ({
   degrees,
+  degrees2,
+  pendingDegrees,
   warmingScenarioDescs,
   showBaselineModal,
   tourProps,
@@ -223,15 +230,20 @@ const DegreesFooter = ({
       <ButtonsWrapper ref={scrollContainerRef}>
         <Buttons style={{ color, backgroundColor }} gradientOpacity={gradientOpacity}>
           {degreesOptions.map(({ label, value, descKey, year }, index) => {
-            const isSelected = showBaselineModal ? value === 0.5 : degrees === value;
+            const isPending = !showBaselineModal && pendingDegrees === value;
+            const isSelected = showBaselineModal
+              ? value === 0.5
+              : !isPending && (degrees === value || degrees2 === value);
+            const nextValue = degreesOptions[index + 1] && degreesOptions[index + 1].value;
             const isNextSelected = showBaselineModal
               ? index === 0 && value === 0.5
-              : degreesOptions[index + 1] && degreesOptions[index + 1].value === degrees;
+              : nextValue !== undefined && (nextValue === degrees || nextValue === degrees2);
             const isLastButton = index === degreesOptions.length - 1;
             return (
               <ButtonAndSeparator key={label}>
                 <StyledButtonContainer
                   isActive={isSelected}
+                  isPending={isPending}
                   ref={isLastButton ? lastButtonRef : undefined}
                 >
                   {value === 1.5 && tourProps ? (

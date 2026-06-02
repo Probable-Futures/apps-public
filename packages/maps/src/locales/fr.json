@@ -60,6 +60,10 @@
     "inspector": "Emplacement de l'inspecteur",
     "latitude": "Latitude",
     "longitude": "Longitude",
+    "inAWarmerYear": "lors d'une année plus chaude",
+    "inACoolerYear": "lors d'une année plus fraîche",
+    "inAnAverageYear": "lors d'une année moyenne",
+    "inAMedianYear": "lors d'une année médiane",
     "binLabels": {
       "muchDrier": "beaucoup plus sec",
       "drier": "plus sec",
@@ -208,12 +212,19 @@
     "behindMapsTitle": "En savoir plus sur les cartes",
     "takeQuickTour": "Faire une visite rapide",
     "closeTheTour": "Fermer la visite",
+    "viewComparisonMap": "Voir la carte de comparaison",
+    "hideComparisonMap": "Masquer la carte de comparaison",
     "maxZoomMessage": "Ceci est le niveau de zoom le plus proche",
     "downloadScreenshot": "Télécharger la capture d'écran",
     "showGlobe": "Afficher la vue globale",
     "showMap": "Afficher la vue carte",
     "hideCountryBorders": "Masquer les frontières des pays",
-    "showCountryBorders": "Afficher les frontières des pays"
+    "showCountryBorders": "Afficher les frontières des pays",
+    "showWarmerYear": "Voir une année plus chaude",
+    "showCoolerYear": "Voir une année plus fraîche",
+    "showAverageYear": "Voir l'année moyenne",
+    "showMedianYear": "Voir l'année médiane",
+    "yearShownTitle": "Année affichée"
   },
   "vignette": {
     "climateZone": "Zone climatique",

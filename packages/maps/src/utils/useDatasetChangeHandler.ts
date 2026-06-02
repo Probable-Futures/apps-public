@@ -6,7 +6,17 @@ import { trackEvent } from "../utils/analytics";
 import { trackMixpanelEvent, AnalyticsEvent } from "../utils/mixpanelAnalytics";
 
 export const useDatasetChangeHandler = (source?: string) => {
-  const { datasets, degrees, setDegrees, setSelectedDataset } = useMapData();
+  const {
+    datasets,
+    degrees,
+    comparisonScenarioBefore,
+    isComparisonMapActive,
+    comparisonScenarioAfter,
+    setDegrees,
+    setSelectedDataset,
+    setComparisonScenarioBefore,
+    setComparisonScenarioAfter,
+  } = useMapData();
 
   return useCallback(
     ({ value }: types.Option) => {
@@ -14,19 +24,36 @@ export const useDatasetChangeHandler = (source?: string) => {
       if (dataset) {
         setSelectedDataset(dataset);
 
+        // Handle the case where the user switches to a change map while having a 0.5 warming scenario selected
         let warmingScenario;
-        if (
-          degrees === 0.5 &&
-          (dataset.isDiff || dataset?.name.toLowerCase().startsWith("change"))
-        ) {
-          setDegrees(defaultDegreesForChangeMaps);
-          warmingScenario = defaultDegreesForChangeMaps;
+        let nextComparisonBefore = comparisonScenarioBefore;
+        let nextComparisonAfter = comparisonScenarioAfter;
+        if (dataset.isDiff || dataset?.name.toLowerCase().startsWith("change")) {
+          if (degrees === 0.5) {
+            setDegrees(defaultDegreesForChangeMaps);
+            warmingScenario = defaultDegreesForChangeMaps;
+          }
+          if (isComparisonMapActive && comparisonScenarioBefore === 0.5) {
+            nextComparisonBefore = defaultDegreesForChangeMaps;
+            setComparisonScenarioBefore(nextComparisonBefore);
+            if (comparisonScenarioAfter === 1) {
+              nextComparisonAfter = 1.5;
+              setComparisonScenarioAfter(nextComparisonAfter);
+            }
+          }
         }
 
         setQueryParam({
           mapSlug: dataset.slug,
           warmingScenario,
           version: "latest",
+          ...(isComparisonMapActive
+            ? {
+                isComparisonMapActive: true,
+                comparisonScenarioBefore: nextComparisonBefore,
+                comparisonScenarioAfter: nextComparisonAfter,
+              }
+            : {}),
         });
 
         trackEvent("Map viewed", { props: { map: dataset.name } });
@@ -37,6 +64,17 @@ export const useDatasetChangeHandler = (source?: string) => {
         });
       }
     },
-    [datasets, degrees, setDegrees, setSelectedDataset, source],
+    [
+      datasets,
+      setSelectedDataset,
+      source,
+      degrees,
+      isComparisonMapActive,
+      comparisonScenarioBefore,
+      setDegrees,
+      setComparisonScenarioBefore,
+      comparisonScenarioAfter,
+      setComparisonScenarioAfter,
+    ],
   );
 };

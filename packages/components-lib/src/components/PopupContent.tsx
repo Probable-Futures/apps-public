@@ -165,7 +165,7 @@ const ToggleDetailsButton = styled.button`
 `;
 
 const ArrowIcon = styled.i`
-  background-image: url(${ArrowDown});
+  background-image: url("${ArrowDown}");
   background-repeat: no-repeat;
   background-size: 100% auto;
   background-position: center;

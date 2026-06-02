@@ -18,6 +18,8 @@ import {
   OLD_MAP_PROJECTION_QUERY_PARAM,
   OLD_MAP_VERSION_QUERY_PARAM,
   OLD_WARMING_SCENARIO_QUERY_PARAM,
+  SCENARIO_AFTER_QUERY_PARAM,
+  SCENARIO_BEFORE_QUERY_PARAM,
   VOLUME_QUERY_PARAM,
   WARMING_SCENARIO_QUERY_PARAM,
 } from "../consts/mapConsts";
@@ -32,6 +34,9 @@ type Props = {
   setBins?: (bins: any) => void;
   setColorScheme?: (binHexColors: any) => void;
   setMidValueShown?: (arg: any) => void;
+  setIsComparisonMapActive?: (arg: boolean) => void;
+  setComparisonScenarioBefore?: (arg: number) => void;
+  setComparisonScenarioAfter?: (arg: number) => void;
 };
 
 const supportedValues = ["0.5", "1", "1.5", "2", "2.5", "3"];
@@ -53,6 +58,9 @@ export default function useMapsApi({
   setBins,
   setColorScheme,
   setMidValueShown,
+  setIsComparisonMapActive,
+  setComparisonScenarioBefore,
+  setComparisonScenarioAfter,
 }: Props) {
   const { data } = useQuery(fetchAllMaps ? mapsQuery : PUBLISHED_MAPS_QUERY);
 
@@ -69,6 +77,8 @@ export default function useMapsApi({
           WARMING_SCENARIO_QUERY_PARAM,
           OLD_WARMING_SCENARIO_QUERY_PARAM,
         );
+        const scenarioBefore = getQueryParam(SCENARIO_BEFORE_QUERY_PARAM);
+        const scenarioAfter = getQueryParam(SCENARIO_AFTER_QUERY_PARAM);
         let mapProjection = getQueryParam(
           MAP_PROJECTION_QUERY_PARAM,
           OLD_MAP_PROJECTION_QUERY_PARAM,
@@ -77,6 +87,16 @@ export default function useMapsApi({
         let warmingScenarioValue = isValidWarmingScenario(warmingScenario)
           ? parseFloat(warmingScenario!)
           : undefined;
+        let scenarioBeforeValue = isValidWarmingScenario(scenarioBefore)
+          ? parseFloat(scenarioBefore!)
+          : undefined;
+        let scenarioAfterValue = isValidWarmingScenario(scenarioAfter)
+          ? parseFloat(scenarioAfter!)
+          : undefined;
+        let comparisonActive =
+          scenarioBeforeValue !== undefined &&
+          scenarioAfterValue !== undefined &&
+          scenarioBeforeValue < scenarioAfterValue;
 
         let selectedMap: types.Map | undefined;
 
@@ -118,26 +138,54 @@ export default function useMapsApi({
         }
         setMapProjection?.({ name: mapProjection } as Projection);
         const selectedDataset = selectedMap || maps[0];
+        const isChangeDataset =
+          selectedDataset.isDiff || selectedDataset?.name.toLowerCase().startsWith("change");
         if (
           !warmingScenarioValue ||
-          (warmingScenarioValue === 0.5 &&
-            (selectedDataset.isDiff || selectedDataset?.name.toLowerCase().startsWith("change")))
+          (warmingScenarioValue === 0.5 && isChangeDataset)
         ) {
-          warmingScenarioValue =
-            selectedDataset.isDiff || selectedDataset?.name.toLowerCase().startsWith("change")
-              ? defaultDegreesForChangeMaps
-              : defaultDegreesForNonChangeMaps;
+          warmingScenarioValue = isChangeDataset
+            ? defaultDegreesForChangeMaps
+            : defaultDegreesForNonChangeMaps;
+        }
+
+        if (comparisonActive && isChangeDataset) {
+          if (scenarioBeforeValue === 0.5) {
+            scenarioBeforeValue = defaultDegreesForChangeMaps;
+          }
+          if (scenarioAfterValue! <= scenarioBeforeValue!) {
+            scenarioAfterValue = scenarioBeforeValue! + 0.5;
+          }
+          if (scenarioAfterValue! > 3) {
+            comparisonActive = false;
+          }
         }
 
         setDatasets(maps);
         setSelectedDataset(selectedDataset);
-        setQueryParam({
-          mapSlug: selectedDataset.slug,
-          warmingScenario: warmingScenarioValue,
-          version: selectedDataset.isLatest ? "latest" : selectedDataset.mapVersion.toString(),
-          mapProjection,
-        });
-        setDegrees(warmingScenarioValue);
+        if (comparisonActive && setIsComparisonMapActive) {
+          setIsComparisonMapActive(true);
+          setComparisonScenarioBefore?.(scenarioBeforeValue!);
+          setComparisonScenarioAfter?.(scenarioAfterValue!);
+          setQueryParam({
+            mapSlug: selectedDataset.slug,
+            version: selectedDataset.isLatest ? "latest" : selectedDataset.mapVersion.toString(),
+            mapProjection,
+            isComparisonMapActive: true,
+            comparisonScenarioBefore: scenarioBeforeValue,
+            comparisonScenarioAfter: scenarioAfterValue,
+          });
+          setDegrees(scenarioBeforeValue!);
+        } else {
+          setQueryParam({
+            mapSlug: selectedDataset.slug,
+            warmingScenario: warmingScenarioValue,
+            version: selectedDataset.isLatest ? "latest" : selectedDataset.mapVersion.toString(),
+            mapProjection,
+            isComparisonMapActive: false,
+          });
+          setDegrees(warmingScenarioValue);
+        }
       }
     }
   }, [
@@ -150,5 +198,8 @@ export default function useMapsApi({
     setBins,
     setColorScheme,
     setMidValueShown,
+    setIsComparisonMapActive,
+    setComparisonScenarioBefore,
+    setComparisonScenarioAfter,
   ]);
 }

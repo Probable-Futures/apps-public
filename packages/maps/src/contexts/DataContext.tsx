@@ -2,6 +2,7 @@ import { createContext, useState, useMemo, useContext, PropsWithChildren } from 
 import { Projection } from "mapbox-gl";
 
 import { types, AboutMapResources } from "@probable-futures/lib";
+import { BinningType } from "@probable-futures/lib/src/utils/colors";
 
 export type SupportedProjectionsType = Extract<Projection["name"], "mercator" | "globe">;
 export const supportedProjections: SupportedProjectionsType[] = ["mercator", "globe"];
@@ -28,6 +29,14 @@ type State = {
   showAboutMap: boolean;
   showAllMapsModal: boolean;
   aboutMapResources?: AboutMapResources;
+  percentileValue: BinningType;
+  isComparisonMapActive: boolean;
+  comparisonScenarioBefore: number;
+  comparisonScenarioAfter: number;
+  setIsComparisonMapActive(arg: boolean): void;
+  setComparisonScenarioBefore(arg: number): void;
+  setComparisonScenarioAfter(arg: number): void;
+  setPercentileValue(arg: BinningType): void;
   setShowAllMapsModal: (arg: boolean) => void;
   setShowAboutMap: (arg: boolean) => void;
   setAboutMapResources: (arg: AboutMapResources) => void;
@@ -71,6 +80,14 @@ const initialState = {
   showAboutMap: false,
   showAllMapsModal: false,
   aboutMapResources: undefined,
+  percentileValue: "mid" as BinningType,
+  isComparisonMapActive: false,
+  comparisonScenarioBefore: defaultDegreesForNonChangeMaps,
+  comparisonScenarioAfter: 1.5,
+  setIsComparisonMapActive: () => {},
+  setComparisonScenarioBefore: () => {},
+  setComparisonScenarioAfter: () => {},
+  setPercentileValue: () => {},
   setShowAllMapsModal: () => {},
   setShowAboutMap: () => {},
   setAboutMapResources: () => {},
@@ -115,6 +132,12 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
   const [showAboutMap, setShowAboutMap] = useState(false);
   const [showAllMapsModal, setShowAllMapsModal] = useState(false);
   const [aboutMapResources, setAboutMapResources] = useState<AboutMapResources>();
+  const [percentileValue, setPercentileValue] = useState<BinningType>("mid");
+  const [isComparisonMapActive, setIsComparisonMapActive] = useState(false);
+  const [comparisonScenarioBefore, setComparisonScenarioBefore] = useState<number>(
+    defaultDegreesForNonChangeMaps,
+  );
+  const [comparisonScenarioAfter, setComparisonScenarioAfter] = useState<number>(1.5);
 
   const value = useMemo(
     () => ({
@@ -156,6 +179,14 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       setShowAllMapsModal,
       aboutMapResources,
       setAboutMapResources,
+      percentileValue,
+      setPercentileValue,
+      isComparisonMapActive,
+      setIsComparisonMapActive,
+      comparisonScenarioBefore,
+      setComparisonScenarioBefore,
+      comparisonScenarioAfter,
+      setComparisonScenarioAfter,
     }),
     [
       datasets,
@@ -177,6 +208,10 @@ export function DataProvider(props: PropsWithChildren<{}>): JSX.Element {
       showAboutMap,
       showAllMapsModal,
       aboutMapResources,
+      percentileValue,
+      isComparisonMapActive,
+      comparisonScenarioBefore,
+      comparisonScenarioAfter,
     ],
   );
 

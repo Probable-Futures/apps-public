@@ -59,7 +59,7 @@ importing and exporting tables from s3 buckets. Here is an example of how to use
 ```sql
 select * from aws_s3.table_import_from_s3(
   'pf_public.pf_dataset_statistics',
-  'dataset_id, coordinate_hash, warming_scenario, low_value, mid_value, high_value',
+  'dataset_id, coordinate_hash, warming_scenario, low_value, mid_value, high_value, mean_value, median_value',
   '(format csv, header)',
   aws_commons.create_s3_uri(
     'global-pf-data-engineering',

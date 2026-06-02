@@ -112,7 +112,14 @@ export const projectSharedData = async (
 
   Object.keys(projectDatasetsMap).forEach((datasetId) => {
     const projectDataset = projectDatasetsMap[datasetId];
-    const url = projectDataset.enriched_dataset_file ?? projectDataset.original_file;
+    // Match the logged-in flow's preference order (see useProjectInit.ts).
+    // Skipping processed_with_coordinates_file caused city/country uploads —
+    // which have no coords in original_file — to render without points when
+    // viewed via /share.
+    const url =
+      projectDataset.enriched_dataset_file ||
+      projectDataset.processed_with_coordinates_file ||
+      projectDataset.original_file;
     if (url) {
       const rootUrl = new URL(url);
       files.push({

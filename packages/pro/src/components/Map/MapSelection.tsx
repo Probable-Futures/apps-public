@@ -37,7 +37,11 @@ const DesktopContainer = styled.div`
   }
 `;
 
-const MobileContainer = styled.div`
+type MobileContainerProps = {
+  isSharedProject: boolean;
+};
+
+const MobileContainer = styled.div<MobileContainerProps>`
   top: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -46,8 +50,11 @@ const MobileContainer = styled.div`
   position: absolute;
   z-index: 5;
   border-radius: 0 0 6px 6px;
-  width: calc(100% - 40px);
-  margin-left: 40px;
+  /* Reserve 40px on the left for Kepler's side panel collapse stub. The
+     shared view has no side panel, so use the full width. */
+  width: ${({ isSharedProject }: MobileContainerProps) =>
+    isSharedProject ? "100%" : "calc(100% - 40px)"};
+  margin-left: ${({ isSharedProject }: MobileContainerProps) => (isSharedProject ? "0" : "40px")};
 `;
 
 const MapSelection = ({
@@ -77,7 +84,7 @@ const MapSelection = ({
     <>
       <contexts.ThemeProvider theme="light">
         {isTablet ? (
-          <MobileContainer>
+          <MobileContainer isSharedProject={isSharedProject}>
             <components.DatasetSelectorForMobile
               value={{
                 value: selectedClimateData?.slug || "",

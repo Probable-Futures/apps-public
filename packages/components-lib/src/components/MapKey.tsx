@@ -11,6 +11,7 @@ import {
   size,
   getBinLabel,
 } from "@probable-futures/lib";
+import { BinningType } from "@probable-futures/lib/src/utils/colors";
 
 import Switch from "./Switch";
 import ClimateZonesKey from "./ClimateZonesKey";
@@ -29,6 +30,7 @@ type Props = {
   precipitationUnit: PrecipitationUnit;
   onAboutMapClick?: () => void;
   translatedHeader?: any;
+  percentileValue?: BinningType;
 };
 
 const Container = styled.div`
@@ -198,6 +200,7 @@ const MapKey = ({
   activateClimateZoneLayer,
   setPrecipitationUnit,
   onAboutMapClick,
+  percentileValue = "mid",
 }: PropsWithChildren<Props>) => {
   const isTablet = useMediaQuery({
     query: `(max-width: ${size.tabletMax})`,
@@ -230,6 +233,8 @@ const MapKey = ({
   const isTempMap = datasetUnit.toLowerCase().includes("temp");
   const isFrequent = selectedDataset.dataset.unit === "x as frequent";
   const isPrecipitationMap = selectedDataset.dataset.unit === "mm";
+  const isMedianDataset = selectedDataset.methodUsedForMid === "median";
+  const midYearText = isMedianDataset ? mapKeyText?.inAMedianYear : mapKeyText?.inAnAverageYear;
 
   const onTempUnitChange = () => setTempUnit(tempUnit === "°C" ? "°F" : "°C");
 
@@ -294,6 +299,13 @@ const MapKey = ({
                 : isPrecipitationMap
                 ? datasetUnit.replace("mm", precipitationUnit)
                 : datasetUnit}
+              {percentileValue === "high" && mapKeyText?.inAWarmerYear
+                ? ` · ${mapKeyText.inAWarmerYear}`
+                : percentileValue === "low" && mapKeyText?.inACoolerYear
+                ? ` · ${mapKeyText.inACoolerYear}`
+                : percentileValue === "mid" && midYearText
+                ? ` · ${midYearText}`
+                : ""}
             </Label>
             {isTablet && (
               <>

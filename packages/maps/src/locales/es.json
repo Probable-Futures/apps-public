@@ -60,6 +60,10 @@
     "inspector": "Ubicación del inspector",
     "latitude": "Latitud",
     "longitude": "Longitud",
+    "inAWarmerYear": "en un año más cálido",
+    "inACoolerYear": "en un año más fresco",
+    "inAnAverageYear": "en un año promedio",
+    "inAMedianYear": "en un año mediano",
     "binLabels": {
       "muchDrier": "mucho más seco",
       "drier": "más seco",
@@ -208,12 +212,19 @@
     "behindMapsTitle": "Obtener más información sobre los mapas",
     "takeQuickTour": "Realizar un recorrido rápido",
     "closeTheTour": "Cerrar el recorrido",
+    "viewComparisonMap": "Ver mapa de comparación",
+    "hideComparisonMap": "Ocultar mapa de comparación",
     "maxZoomMessage": "Este es el nivel de zoom más cercano",
     "downloadScreenshot": "Descargar captura de pantalla",
     "showGlobe": "Mostrar vista del globo",
     "showMap": "Mostrar vista del mapa",
     "hideCountryBorders": "Ocultar fronteras del país",
-    "showCountryBorders": "Mostrar fronteras del país"
+    "showCountryBorders": "Mostrar fronteras del país",
+    "showWarmerYear": "Ver año más cálido",
+    "showCoolerYear": "Ver año más fresco",
+    "showAverageYear": "Ver año promedio",
+    "showMedianYear": "Ver año mediano",
+    "yearShownTitle": "Año mostrado"
   },
   "vignette": {
     "climateZone": "Zona climática",

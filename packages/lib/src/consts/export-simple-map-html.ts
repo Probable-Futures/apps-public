@@ -43,6 +43,7 @@ type Props = {
   };
   showBorders?: boolean;
   showPopupOnFirstLoad?: boolean;
+  popupLocation?: { latitude: number; longitude: number };
   hideTitle?: boolean;
   hideControls?: boolean;
   hideMapLegend?: boolean;
@@ -357,8 +358,8 @@ export const exportSimpleMapToHTML = (options: Props) => {
           });
           map.on("idle", function () {
             if(showPopupOnFirstLoad && !initiallyLoadedInspector) {
-              const lat = ${options.viewState.latitude || 0};
-              const lng = ${options.viewState.longitude || 0};
+              const lat = ${options.popupLocation?.latitude ?? options.viewState.latitude ?? 0};
+              const lng = ${options.popupLocation?.longitude ?? options.viewState.longitude ?? 0};
               setTimeout(() => {
                 map.fire("click", {
                   lngLat: { lng, lat },

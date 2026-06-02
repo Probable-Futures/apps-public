@@ -27,11 +27,19 @@ const MobileContainer = styled.div`
 `;
 
 const WarmingScenarioSelection = () => {
-  const { selectedDataset, degrees, showBaselineModal, warmingScenarioDescs, setShowAboutMap } =
-    useMapData();
+  const {
+    selectedDataset,
+    degrees,
+    showBaselineModal,
+    warmingScenarioDescs,
+    setShowAboutMap,
+    isComparisonMapActive,
+    comparisonScenarioBefore,
+    comparisonScenarioAfter,
+  } = useMapData();
   const { step, steps, isTourActive, onClose, onNext } = useTourData();
   const { translate } = useTranslation();
-  const { onButtonClick } = useDegreesSelector();
+  const { onButtonClick, pendingSide } = useDegreesSelector();
   const isTablet = useMediaQuery({
     query: `(max-width: ${size.tabletMax})`,
   });
@@ -40,12 +48,23 @@ const WarmingScenarioSelection = () => {
     return null;
   }
 
+  const primaryDegrees = isComparisonMapActive ? comparisonScenarioBefore : degrees;
+  const secondaryDegrees = isComparisonMapActive ? comparisonScenarioAfter : undefined;
+  const pendingDegrees =
+    pendingSide === "before"
+      ? comparisonScenarioBefore
+      : pendingSide === "after"
+        ? comparisonScenarioAfter
+        : undefined;
+
   return (
     <>
       {isTablet ? (
         <MobileContainer>
           <components.DegreesFooter
-            degrees={degrees}
+            degrees={primaryDegrees}
+            degrees2={secondaryDegrees}
+            pendingDegrees={pendingDegrees}
             warmingScenarioDescs={warmingScenarioDescs}
             showBaselineModal={showBaselineModal}
             tourProps={{
@@ -62,7 +81,9 @@ const WarmingScenarioSelection = () => {
       ) : (
         <Container>
           <components.Degrees
-            degrees={degrees}
+            degrees={primaryDegrees}
+            degrees2={secondaryDegrees}
+            pendingDegrees={pendingDegrees}
             warmingScenarioDescs={warmingScenarioDescs}
             showBaselineModal={showBaselineModal}
             tourProps={{

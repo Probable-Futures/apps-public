@@ -4,7 +4,7 @@ import { components } from "@probable-futures/components-lib";
 import { useMapData } from "../../contexts/DataContext";
 import { colors, size } from "../../consts";
 import MapKeyExtension from "./MapKeyExtension";
-import { consts, types } from "@probable-futures/lib";
+import { consts, types, utils } from "@probable-futures/lib";
 import { MediaQuery } from "react-responsive";
 
 type Props = {
@@ -14,8 +14,16 @@ type Props = {
   tempUnit: string;
   bins?: number[];
   precipitationUnit: types.PrecipitationUnit;
+  percentileValue?: utils.BinningType;
   setTempUnit: (arg: any) => void;
   setPrecipitationUnit: (arg: any) => void;
+};
+
+const mapKeyText = {
+  inAWarmerYear: "in a warmer year",
+  inACoolerYear: "in a cooler year",
+  inAnAverageYear: "in an average year",
+  inAMedianYear: "in a median year",
 };
 
 type MapKeyWrapperProps = {
@@ -26,7 +34,9 @@ type MapKeyWrapperProps = {
 const MapKeyWrapper = styled.div<MapKeyWrapperProps>`
   position: absolute;
   ${({ activeSidePanel }: MapKeyWrapperProps) => !activeSidePanel && "transition: left 250ms;"}
-  left: 40px;
+  /* Mobile reserves 40px on the left for Kepler's side panel collapse stub.
+     Shared view has no side panel, so anchor flush left instead. */
+  left: ${({ isSharedProject }: MapKeyWrapperProps) => (isSharedProject ? "0" : "40px")};
   top: ${consts.HEADER_HEIGHT};
   right: 0;
   z-index: 1;
@@ -121,6 +131,7 @@ const MapKey = ({
   bins,
   tempUnit,
   precipitationUnit,
+  percentileValue,
   setTempUnit,
   setPrecipitationUnit,
 }: Props) => {
@@ -142,6 +153,8 @@ const MapKey = ({
           datasetDescriptionResponse={datasetDescriptionResponse}
           precipitationUnit={precipitationUnit}
           setPrecipitationUnit={setPrecipitationUnit}
+          percentileValue={percentileValue}
+          mapKeyText={mapKeyText}
         />
       )}
       <MediaQuery minWidth={size.laptop}>

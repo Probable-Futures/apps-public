@@ -4,6 +4,8 @@ import { climateZonesDescriptions, datasets } from "@probable-futures/lib";
 export type ExportProps = {
   datasetId?: number;
   dataset?: types.Map;
+  mapboxAccessToken: string;
+  mapStyleUrl?: string;
   tempUnit?: "°C" | "°F";
   scenario?: number;
   viewState: Partial<{ longitude: number; latitude: number; zoom: number }>;
@@ -15,6 +17,7 @@ export type ExportProps = {
   precipitationUnit?: types.PrecipitationUnit;
   showBorders?: boolean;
   showPopupOnFirstLoad?: boolean;
+  popupLocation?: { latitude: number; longitude: number };
   overrideUIStyles?: { selector: string; styles: any }[];
   hideTitle?: boolean;
   hideControls?: boolean;
@@ -22,12 +25,11 @@ export type ExportProps = {
   hideResetMapButton?: boolean;
 };
 
-const embedAccessToken =
-  "pk.eyJ1IjoicHJvYmFibGVmdXR1cmVzIiwiYSI6ImNsaThxcXF1YjA5ajgzZHBnemJtNGptMnAifQ.PnPUBROiVfA8wwulm3lghQ";
-
 export const exportMapAsHTML = async ({
   datasetId,
   dataset,
+  mapboxAccessToken,
+  mapStyleUrl,
   tempUnit = "°C",
   viewState,
   compare,
@@ -36,6 +38,7 @@ export const exportMapAsHTML = async ({
   precipitationUnit = "mm",
   showBorders,
   showPopupOnFirstLoad,
+  popupLocation,
   overrideUIStyles,
   hideControls,
   hideMapLegend,
@@ -50,8 +53,12 @@ export const exportMapAsHTML = async ({
   if (!selectedDataset) {
     throw Error("Either the dataset or datasetId fields must be valid.");
   }
+  if (!mapboxAccessToken) {
+    throw Error("A valid mapboxAccessToken must be provided.");
+  }
 
-  const mapStyleLink = `mapbox://styles/probablefutures/${selectedDataset.mapStyleId}`;
+  const mapStyleLink =
+    mapStyleUrl ?? `mapbox://styles/probablefutures/${selectedDataset.mapStyleId}`;
 
   const isCompare = compare?.scenarioAfter !== undefined && compare?.scenarioBefore !== undefined;
 
@@ -78,7 +85,7 @@ export const exportMapAsHTML = async ({
       }
     : undefined;
   const data = {
-    mapboxAccessToken: embedAccessToken || "",
+    mapboxAccessToken,
     mapStyle: mapStyleLink,
     mapStyleConfigs: {
       dataLayerPaintProperties: utils.getMapLayerColors(
@@ -97,6 +104,7 @@ export const exportMapAsHTML = async ({
     datasetDescriptionResponse,
     showBorders,
     showPopupOnFirstLoad,
+    popupLocation,
     overrideUIStyles,
     hideControls,
     hideMapLegend,

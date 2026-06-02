@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { consts, types } from "@probable-futures/lib";
+import { getDataByKey } from "../utils";
 
 export default function useFeaturePopup(selectedDegreesWarming: number) {
   const [popupVisible, setPopupVisible] = useState<boolean>(false);
@@ -53,9 +54,6 @@ export default function useFeaturePopup(selectedDegreesWarming: number) {
     },
     [dataKey, popupVisible],
   );
-
-  const getDataByKey = <T extends types.PopupFeature, U extends keyof T>(feature: T, key: U) =>
-    feature ? feature[key] : undefined;
 
   return { popupVisible, setPopupVisible, feature, setPopupFeature };
 }

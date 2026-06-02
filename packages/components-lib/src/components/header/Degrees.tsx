@@ -20,7 +20,9 @@ import { useTheme } from "../../contexts";
 import { ReactComponent as InfoIcon } from "../../assets/icons/info.svg";
 
 type Props = {
-  degrees: number;
+  degrees?: number;
+  degrees2?: number;
+  pendingDegrees?: number;
   warmingScenarioDescs: WarmingScenarioDescs;
   showBaselineModal: boolean;
   tourProps?: TourProps;
@@ -79,14 +81,17 @@ const StyledButton = styled(Button)`
       : `border-top: 1px solid ${colors.grey};`}
 `;
 
+type StyledButtonContainerProps = ButtonContainerProps & { isPending?: boolean };
+
 const StyledButtonContainer = styled(ButtonContainer)`
   flex: 1;
 
-  ${({ isActive }: ButtonContainerProps) =>
-    isActive &&
-    `
-    background-color: ${colors.lightPurple};
-  `};
+  ${({ isActive, isPending }: StyledButtonContainerProps) =>
+    isActive
+      ? `background-color: ${colors.lightPurple};`
+      : isPending
+        ? `background-color: ${colors.lightPurpleWithOpacity};`
+        : ""};
 `;
 
 const AboutThisMap = styled.div`
@@ -145,6 +150,8 @@ const YearLabel = styled.span`
 
 const Degrees = ({
   degrees,
+  degrees2,
+  pendingDegrees,
   warmingScenarioDescs,
   showBaselineModal,
   tourProps,
@@ -201,10 +208,13 @@ const Degrees = ({
       </DegreesHeader>
       <ButtonWrapper>
         {degreesOptions.map(({ label, value, descKey, year }, index) => {
-          const isSelected = showBaselineModal ? value === 0.5 : degrees === value;
+          const isPending = !showBaselineModal && pendingDegrees === value;
+          const isSelected = showBaselineModal
+            ? value === 0.5
+            : !isPending && (degrees === value || degrees2 === value);
           return (
             <ButtonAndSeparator key={label}>
-              <StyledButtonContainer isActive={isSelected}>
+              <StyledButtonContainer isActive={isSelected} isPending={isPending}>
                 {value === 1.5 && tourProps ? (
                   <TourBox
                     show={tourProps.isTourActive && tourProps.step === 2}

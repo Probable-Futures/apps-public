@@ -60,6 +60,10 @@
     "inspector": "Inspector Location",
     "latitude": "Latitude",
     "longitude": "Longitude",
+    "inAWarmerYear": "in a warmer year",
+    "inACoolerYear": "in a cooler year",
+    "inAnAverageYear": "in an average year",
+    "inAMedianYear": "in a median year",
     "binLabels": {
       "muchDrier": "much drier",
       "drier": "drier",
@@ -208,12 +212,19 @@
     "behindMapsTitle": "Learn more about the maps",
     "takeQuickTour": "Take a quick tour",
     "closeTheTour": "Close the tour",
+    "viewComparisonMap": "View comparison map",
+    "hideComparisonMap": "Hide comparison map",
     "maxZoomMessage": "This is the closest zoom level",
     "downloadScreenshot": "Download screenshot",
     "showGlobe": "Show globe view",
     "showMap": "Show map view",
     "hideCountryBorders": "Hide country borders",
-    "showCountryBorders": "Show country borders"
+    "showCountryBorders": "Show country borders",
+    "showWarmerYear": "View warmer year",
+    "showCoolerYear": "View cooler year",
+    "showAverageYear": "View average year",
+    "showMedianYear": "View median year",
+    "yearShownTitle": "Year shown"
   },
   "vignette": {
     "climateZone": "Climate zone",
