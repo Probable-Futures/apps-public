@@ -9,6 +9,7 @@
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --files --exit-child --inspect=0.0.0.0 -- src/main.ts",
     "start": "node dist/main.js",
     "delete-inactive-auth-applications": "ts-node-dev src/routes/auth/deleteInactiveAuth0Clients.ts",
+    "generate-data-users-report": "ts-node-dev --files src/scripts/generateDataUsersReport.ts",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:unit": "jest --selectProjects unit",

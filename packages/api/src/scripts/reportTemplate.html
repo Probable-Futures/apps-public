@@ -1,0 +1,1233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Probable Futures — Data Users Report</title>
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <style>
+      :root {
+        --bg: #f8f9f3;
+        --surface: #ffffff;
+        --ink: #221026;
+        --ink-soft: #5a4f5c;
+        --ink-faint: #948a96;
+        --line: #e4e1dc;
+        --accent: #2a172c;
+        --accent-soft: #ece3ed;
+        --accent-ink: #2a172c;
+        --warn: #b75727;
+        --warn-soft: #fbe6da;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+        border-bottom: 1px solid currentColor;
+      }
+
+      .container {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 48px 24px 96px;
+      }
+
+      /* ---------- Page header ---------- */
+      .page-header {
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 32px;
+        margin-bottom: 48px;
+      }
+      .page-header .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--accent);
+      }
+      .page-header h1 {
+        margin: 8px 0 12px;
+        font-size: 2.4rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+      }
+      .page-header .meta {
+        color: var(--ink-soft);
+        font-size: 0.95rem;
+      }
+      .page-header .meta span + span::before {
+        content: "·";
+        margin: 0 10px;
+        color: var(--ink-faint);
+      }
+
+      /* ---------- Sections ---------- */
+      .section {
+        padding: 56px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .section:last-of-type {
+        border-bottom: none;
+      }
+      .section .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--accent);
+      }
+      .section h2 {
+        margin: 8px 0 8px;
+        font-size: 1.7rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .section .lede {
+        margin: 0 0 32px;
+        color: var(--ink-soft);
+        font-size: 1.05rem;
+        max-width: 60ch;
+      }
+
+      /* ---------- Stat tiles ---------- */
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+      .stat-grid--3 { grid-template-columns: repeat(3, 1fr); }
+      .stat-grid--2 { grid-template-columns: repeat(2, 1fr); }
+      @media (max-width: 800px) {
+        .stat-grid,
+        .stat-grid--3,
+        .stat-grid--2 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 480px) {
+        .stat-grid,
+        .stat-grid--3,
+        .stat-grid--2 {
+          grid-template-columns: 1fr;
+        }
+      }
+      .stat-tile {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 20px 22px;
+      }
+      .stat-tile .value {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+      }
+      .stat-tile .label {
+        margin-top: 6px;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-soft);
+      }
+      .stat-tile .delta {
+        margin-top: 10px;
+        font-size: 0.85rem;
+        color: var(--ink-faint);
+      }
+
+      /* ---------- Cards ---------- */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 24px;
+      }
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      @media (max-width: 800px) {
+        .card-grid { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (max-width: 480px) {
+        .card-grid { grid-template-columns: 1fr; }
+      }
+
+      .org-card h3 {
+        margin: 0 0 6px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+      }
+      .org-card .org-meta {
+        font-size: 0.86rem;
+        color: var(--ink-soft);
+      }
+      .org-card .org-meta span + span::before {
+        content: "·";
+        margin: 0 8px;
+        color: var(--ink-faint);
+      }
+      .badge {
+        display: inline-block;
+        padding: 3px 9px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-ink);
+        text-transform: uppercase;
+      }
+      .badge--neutral { background: #eceae3; color: #4a4a3f; }
+      .badge--warn { background: var(--warn-soft); color: var(--warn); }
+
+      /* ---------- Quote ---------- */
+      .quote-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 28px;
+        position: relative;
+      }
+      .quote-card::before {
+        content: "“";
+        position: absolute;
+        top: -8px;
+        left: 16px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 4rem;
+        line-height: 1;
+        color: var(--accent);
+        opacity: 0.35;
+      }
+      .quote-card blockquote {
+        margin: 0;
+        font-size: 1.05rem;
+        font-style: italic;
+        color: var(--ink);
+      }
+      .quote-card cite {
+        display: block;
+        margin-top: 14px;
+        font-style: normal;
+        font-size: 0.85rem;
+        color: var(--ink-soft);
+      }
+
+      /* ---------- Callout ---------- */
+      .callout {
+        background: var(--accent-soft);
+        border-radius: 12px;
+        padding: 22px 24px;
+      }
+      .callout h3 {
+        margin: 0 0 6px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--accent-ink);
+      }
+      .callout p {
+        margin: 0;
+        color: var(--ink);
+      }
+
+      /* ---------- Tag pills ---------- */
+      .tag-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .tag-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #f1efe6;
+        border: 1px solid var(--line);
+        font-size: 0.9rem;
+        color: var(--ink);
+      }
+      .tag-pill .count {
+        background: var(--accent);
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 999px;
+      }
+
+      /* ---------- Bar breakdown ---------- */
+      .breakdown-bar {
+        display: flex;
+        height: 14px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: var(--line);
+        margin-bottom: 14px;
+      }
+      .breakdown-bar > span {
+        display: block;
+        height: 100%;
+      }
+      .breakdown-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: 0.88rem;
+        color: var(--ink-soft);
+      }
+      .breakdown-legend .sw {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        margin-right: 6px;
+        vertical-align: -2px;
+      }
+
+      /* ---------- Chart container ---------- */
+      .chart-container {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 20px 22px 24px;
+      }
+      .chart-container .chart-title {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-soft);
+        margin-bottom: 12px;
+      }
+      .chart-canvas-wrap {
+        position: relative;
+        height: 260px;
+      }
+
+      /* ---------- Map ---------- */
+      .map-container {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 24px;
+      }
+      .map-container .chart-title {
+        padding: 20px 22px 0;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-soft);
+      }
+      #map {
+        height: 480px;
+        margin-top: 12px;
+      }
+
+      /* ---------- Region list ---------- */
+      .region-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+      }
+      @media (max-width: 700px) {
+        .region-grid { grid-template-columns: 1fr; }
+      }
+      .region-block h4 {
+        margin: 0 0 10px;
+        font-size: 0.92rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+      }
+
+      /* ---------- Tables ---------- */
+      details.org-table {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 16px 20px;
+      }
+      details.org-table summary {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--ink);
+      }
+      table.data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 14px;
+        font-size: 0.9rem;
+      }
+      table.data-table th,
+      table.data-table td {
+        padding: 8px 10px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+      }
+      table.data-table th {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-soft);
+        font-weight: 600;
+      }
+
+      /* ---------- Two-col layout helper ---------- */
+      .split {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 24px;
+        align-items: start;
+      }
+      @media (max-width: 800px) {
+        .split { grid-template-columns: 1fr; }
+      }
+
+      /* ---------- Notes ---------- */
+      .data-note {
+        margin-top: 12px;
+        font-style: italic;
+        color: var(--ink-faint);
+        font-size: 0.85rem;
+      }
+
+      /* ---------- Footer ---------- */
+      footer.page-footer {
+        margin-top: 64px;
+        padding-top: 24px;
+        border-top: 1px solid var(--line);
+        font-size: 0.85rem;
+        color: var(--ink-faint);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- ==================== PAGE HEADER ==================== -->
+      <header class="page-header">
+        <div class="eyebrow">Probable Futures</div>
+        <h1>Data Users Report</h1>
+        <div class="meta">
+          <span>Window: {{WINDOW_LABEL}}</span>
+          <span>Generated {{GENERATED_AT}}</span>
+        </div>
+      </header>
+
+      <!-- ==================== TOP STAT STRIP ==================== -->
+      <section class="section" id="stats" style="border-bottom: 1px solid var(--line); padding-top: 0;">
+        <div class="eyebrow">At a glance</div>
+        <h2>How people use Probable Futures</h2>
+        <p class="lede">
+          <!-- LLM: 1–2 sentence prose summary of the period covered and what changed. -->
+          A brief summary of the period covered by this report.
+        </p>
+
+        <div class="stat-grid">
+          <div class="stat-tile">
+            <div class="value">{{TOTAL_FORM_SUBMISSIONS}}</div>
+            <div class="label">Access requests</div>
+          </div>
+          <div class="stat-tile">
+            <div class="value">{{TOTAL_UNIQUE_ORGS}}</div>
+            <div class="label">Unique organizations</div>
+          </div>
+          <div class="stat-tile">
+            <div class="value">{{TOTAL_ACTIVE_PRO_USERS}}</div>
+            <div class="label">Active Pro users</div>
+          </div>
+          <div class="stat-tile">
+            <div class="value">{{TOTAL_ADAPTATION_SESSIONS}}</div>
+            <div class="label">Adaptation sessions</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ORGANIZATIONS ==================== -->
+      <section class="section" id="orgs">
+        <div class="eyebrow">Section 01</div>
+        <h2>Organizations</h2>
+        <p class="lede">
+          <!-- LLM: 2–3 sentence summary of who's using PF (for-profit vs nonprofit/NGO/academic/gov mix, and the standout names). -->
+          A short overview of the kinds of organizations represented in the data.
+        </p>
+
+        <div class="card" style="margin-bottom: 32px;">
+          <div class="chart-title" style="margin-bottom: 12px;">Sector breakdown</div>
+          <!-- LLM: set widths and labels below from the for-profit/nonprofit/NGO/academic/gov split you computed. -->
+          <div class="breakdown-bar">
+            <span style="width: 50%; background: var(--accent);"></span>
+            <span style="width: 25%; background: #5a3d5e;"></span>
+            <span style="width: 15%; background: #8a6b8e;"></span>
+            <span style="width: 6%; background: #b8a3bb;"></span>
+            <span style="width: 4%; background: #948a96;"></span>
+          </div>
+          <div class="breakdown-legend">
+            <span><span class="sw" style="background: var(--accent);"></span>For-profit {{PCT_FOR_PROFIT}}%</span>
+            <span><span class="sw" style="background: #5a3d5e;"></span>Nonprofit {{PCT_NONPROFIT}}%</span>
+            <span><span class="sw" style="background: #8a6b8e;"></span>Academic {{PCT_ACADEMIC}}%</span>
+            <span><span class="sw" style="background: #b8a3bb;"></span>NGO {{PCT_NGO}}%</span>
+            <span><span class="sw" style="background: #948a96;"></span>Government {{PCT_GOV}}%</span>
+          </div>
+        </div>
+
+        <h3 style="margin: 24px 0 12px; font-size: 1.05rem;">Notable organizations</h3>
+        <div class="card-grid" id="notable-orgs">
+          <!-- LLM: emit 5–15+ .org-card blocks below. Pattern: -->
+          <div class="card org-card">
+            <h3>Example Organization</h3>
+            <span class="badge">For-profit</span>
+            <div class="org-meta" style="margin-top: 10px;">
+              <span>2 people</span>
+              <span>Cambridge, MA</span>
+              <span>Senior Researcher, Director</span>
+            </div>
+          </div>
+          <div class="card org-card">
+            <h3>Example University</h3>
+            <span class="badge">Academic</span>
+            <div class="org-meta" style="margin-top: 10px;">
+              <span>1 person</span>
+              <span>Nairobi, Kenya</span>
+              <span>Lecturer</span>
+            </div>
+          </div>
+          <div class="card org-card">
+            <h3>Example Foundation</h3>
+            <span class="badge badge--neutral">Nonprofit</span>
+            <div class="org-meta" style="margin-top: 10px;">
+              <span>1 person</span>
+              <span>Bogotá, Colombia</span>
+              <span>Program Officer</span>
+            </div>
+          </div>
+        </div>
+
+        <details class="org-table" style="margin-top: 24px;">
+          <summary>All organizations ({{TOTAL_UNIQUE_ORGS}})</summary>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Organization</th>
+                <th>People</th>
+                <th>Locations</th>
+                <th>Roles</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- LLM: emit one <tr> per row in formSubmissions.orgs.rows. -->
+              <tr>
+                <td>Example Organization</td>
+                <td>2</td>
+                <td>Cambridge, MA</td>
+                <td>Senior Researcher, Director</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+      </section>
+
+      <!-- ==================== TITLES ==================== -->
+      <section class="section" id="titles">
+        <div class="eyebrow">Section 02</div>
+        <h2>Titles &amp; roles</h2>
+        <p class="lede">
+          <!-- LLM: short prose summary of the types of roles requesting access — e.g., "Researchers and analysts dominate, with a meaningful tail of policy and finance roles." -->
+          A summary of the kinds of roles represented across submissions.
+        </p>
+
+        <div class="tag-cloud">
+          <!-- LLM: emit one .tag-pill per entry in formSubmissions.titles.rows, top 40 or so. -->
+          <span class="tag-pill">Researcher <span class="count">12</span></span>
+          <span class="tag-pill">Analyst <span class="count">9</span></span>
+          <span class="tag-pill">Director <span class="count">7</span></span>
+          <span class="tag-pill">Consultant <span class="count">6</span></span>
+          <span class="tag-pill">Student <span class="count">5</span></span>
+          <span class="tag-pill">Program Officer <span class="count">4</span></span>
+        </div>
+      </section>
+
+      <!-- ==================== INDUSTRIES (optional) ==================== -->
+      <section class="section" id="industries">
+        <div class="eyebrow">Section 03</div>
+        <h2>Industries represented</h2>
+        <p class="lede">
+          <!-- LLM: if formSubmissions.industries exists, summarize. Otherwise hide this whole <section>. -->
+          A summary of the industries our users come from.
+        </p>
+
+        <div class="tag-cloud">
+          <!-- LLM: emit tag-pills per industry, or remove this section. -->
+          <span class="tag-pill">Climate research <span class="count">14</span></span>
+          <span class="tag-pill">Finance <span class="count">8</span></span>
+          <span class="tag-pill">Insurance <span class="count">6</span></span>
+          <span class="tag-pill">Public sector <span class="count">5</span></span>
+        </div>
+      </section>
+
+      <!-- ==================== LOCATIONS ==================== -->
+      <section class="section" id="locations">
+        <div class="eyebrow">Section 04</div>
+        <h2>Where in the world</h2>
+        <p class="lede">
+          <!-- LLM: short prose summary of geographic distribution and any concentrations of interest. -->
+          A summary of the geographic distribution of users.
+        </p>
+
+        <div class="map-container">
+          <div class="chart-title">User locations</div>
+          <div id="map"></div>
+        </div>
+
+        <div class="region-grid">
+          <!-- LLM: emit one .region-block per continent with country sub-pills.
+               Group by continent → country. List unrecognized / ambiguous locations under "Other". -->
+          <div class="region-block">
+            <h4>North America</h4>
+            <div class="tag-cloud">
+              <span class="tag-pill">United States <span class="count">24</span></span>
+              <span class="tag-pill">Canada <span class="count">4</span></span>
+            </div>
+          </div>
+          <div class="region-block">
+            <h4>Europe</h4>
+            <div class="tag-cloud">
+              <span class="tag-pill">United Kingdom <span class="count">8</span></span>
+              <span class="tag-pill">Germany <span class="count">5</span></span>
+              <span class="tag-pill">Netherlands <span class="count">3</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== HOW PEOPLE FIND US ==================== -->
+      <section class="section" id="how-found">
+        <div class="eyebrow">Section 05</div>
+        <h2>How people find us</h2>
+        <p class="lede">
+          <!-- LLM: 2–3 sentence summary of the dominant referral themes. Call out Spencer Glendon / Alison Smart / WNY / SBR / En-roads / Think Parallax / The Epicenter / The Resiliency Company explicitly if they appear. -->
+          A summary of the most common ways people hear about Probable Futures.
+        </p>
+
+        <div class="card-grid" style="margin-bottom: 32px;">
+          <!-- LLM: emit 3–6 .callout cards, one per theme (Conferences, Word-of-mouth, Press, Search, Newsletter, Direct collaboration, etc). -->
+          <div class="callout">
+            <h3>Conferences</h3>
+            <p>Many users discovered PF through climate-focused gatherings.</p>
+          </div>
+          <div class="callout">
+            <h3>Word of mouth</h3>
+            <p>Colleagues and professors are a common referral path.</p>
+          </div>
+          <div class="callout">
+            <h3>Newsletters &amp; press</h3>
+            <p>Coverage and newsletter mentions surface PF to new audiences.</p>
+          </div>
+        </div>
+
+        <div class="card-grid">
+          <!-- LLM: emit 2–4 .quote-card blocks pulling from formSubmissions.howFoundUs.rawRows. Shorten with … as needed; attribute by title + company. -->
+          <div class="quote-card">
+            <blockquote>"Heard Spencer speak at a climate conference and the framing stuck with me…"</blockquote>
+            <cite>— Director of Research, Climate Foundation</cite>
+          </div>
+          <div class="quote-card">
+            <blockquote>"A colleague forwarded The Epicenter newsletter and I clicked through from there."</blockquote>
+            <cite>— Analyst, Reinsurance firm</cite>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== USE CASES ==================== -->
+      <section class="section" id="use-cases">
+        <div class="eyebrow">Section 06</div>
+        <h2>What people are using it for</h2>
+        <p class="lede">
+          <!-- LLM: 1–2 sentence summary of dominant use-case patterns (e.g., physical risk modeling, scenario planning, education). -->
+          A summary of the use cases users described in their own words.
+        </p>
+
+        <div class="card-grid">
+          <!-- LLM: emit 8–15 .quote-card blocks. Pull from useCases.usingPFToolsForRaw and useCases.anythingElseRaw. Shorten quotes with … per standard journalistic practice. -->
+          <div class="quote-card">
+            <blockquote>"Trying to integrate physical-risk pathways into a credit model for a regional bank…"</blockquote>
+            <cite>— Quant Lead, Bank</cite>
+          </div>
+          <div class="quote-card">
+            <blockquote>"Teaching a graduate seminar on climate adaptation; PF is the most accessible framing I've found."</blockquote>
+            <cite>— Assistant Professor, University</cite>
+          </div>
+          <div class="quote-card">
+            <blockquote>"Helping a city draft its 2030 adaptation plan; we need defensible regional projections."</blockquote>
+            <cite>— Sustainability Director, Municipal government</cite>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== EMAIL OPT-IN ==================== -->
+      <section class="section" id="email-optin">
+        <div class="eyebrow">Section 07</div>
+        <h2>Email opt-in</h2>
+        <p class="lede">
+          <!-- LLM: 1 sentence summary, e.g. "X% of people who answered chose to opt in to email updates." -->
+          A summary of how many users opt in to email updates.
+        </p>
+
+        <div class="split">
+          <div class="chart-container">
+            <div class="chart-title">Opt-in vs opt-out</div>
+            <div class="chart-canvas-wrap">
+              <canvas id="emailOptInChart"></canvas>
+            </div>
+          </div>
+          <div class="stat-grid stat-grid--2">
+            <div class="stat-tile">
+              <div class="value">{{EMAIL_OPT_IN_PCT}}%</div>
+              <div class="label">Opted in</div>
+            </div>
+            <div class="stat-tile">
+              <div class="value">{{EMAIL_OPT_IN_TOTAL_ANSWERS}}</div>
+              <div class="label">Answered</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== DATA RESOURCES REQUESTED ==================== -->
+      <section class="section" id="data-resources">
+        <div class="eyebrow">Section 08</div>
+        <h2>Data resources requested</h2>
+        <p class="lede">
+          <!-- LLM: 1–2 sentence summary of which resources are most in demand. -->
+          A summary of the resources users ask for when they request access.
+        </p>
+
+        <div class="chart-container">
+          <div class="chart-title">Selections per resource (multi-select)</div>
+          <div class="chart-canvas-wrap">
+            <canvas id="dataResourcesChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PRO USAGE ==================== -->
+      <section class="section" id="pro-usage">
+        <div class="eyebrow">Section 09</div>
+        <h2>Probable Futures Pro</h2>
+        <p class="lede">
+          <!-- LLM: 2 sentence summary of Pro activity — projects, uploads, enrichments — and any standout users (without naming individuals unless they're obviously public-facing). -->
+          A summary of how users are engaging with Probable Futures Pro.
+        </p>
+
+        <div class="stat-grid stat-grid--3" style="margin-bottom: 24px;">
+          <div class="stat-tile">
+            <div class="value">{{PRO_TOTAL_PROJECTS}}</div>
+            <div class="label">Projects created</div>
+          </div>
+          <div class="stat-tile">
+            <div class="value">{{PRO_TOTAL_UPLOADS}}</div>
+            <div class="label">Dataset uploads</div>
+          </div>
+          <div class="stat-tile">
+            <div class="value">{{PRO_TOTAL_ENRICHMENTS}}</div>
+            <div class="label">Successful enrichments</div>
+          </div>
+        </div>
+
+        <div class="chart-container" style="margin-bottom: 24px;">
+          <div class="chart-title">Pro activity per month</div>
+          <div class="chart-canvas-wrap">
+            <canvas id="proActivityChart"></canvas>
+          </div>
+        </div>
+
+        <details class="org-table" open>
+          <summary>Top Pro users</summary>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Projects</th>
+                <th>Uploads</th>
+                <th>Enrichments</th>
+              </tr>
+            </thead>
+            <tbody id="pro-top-users">
+              <!-- LLM: emit one <tr> per top-20 row of proUsage.userActivitySummary
+                   (sorted by project_count). Use name, falling back to email. -->
+              <tr>
+                <td>Example User</td>
+                <td>8</td>
+                <td>5</td>
+                <td>3</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+      </section>
+
+      <!-- ==================== API USAGE ==================== -->
+      <section class="section" id="api-usage">
+        <div class="eyebrow">Section 10</div>
+        <h2>API usage</h2>
+        <p class="lede">
+          <!-- LLM: 1–2 sentence summary of API traffic. Note that retention is ~180 days so this is necessarily a recent-window view. -->
+          A summary of API consumption across the window covered by retention.
+        </p>
+
+        <div class="stat-grid stat-grid--2" style="margin-bottom: 24px;">
+          <div class="stat-tile">
+            <div class="value">{{API_TOTAL_CALLS}}</div>
+            <div class="label">Total calls</div>
+          </div>
+          <div class="stat-tile">
+            <div class="value">{{API_UNIQUE_CLIENTS}}</div>
+            <div class="label">Unique clients</div>
+          </div>
+        </div>
+
+        <div class="chart-container" style="margin-bottom: 24px;">
+          <div class="chart-title">Unique active clients per month</div>
+          <div class="chart-canvas-wrap">
+            <canvas id="apiMonthlyChart"></canvas>
+          </div>
+        </div>
+
+        <details class="org-table" open>
+          <summary>Top API users</summary>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Calls</th>
+              </tr>
+            </thead>
+            <tbody id="api-top-users">
+              <!-- LLM: emit one <tr> per top-20 row of apiUsage.topClients (sorted by
+                   call_count). Show clientName with the "API Access for " prefix
+                   stripped; when clientName is null, show an elided user_sub. -->
+              <tr>
+                <td>Example Client</td>
+                <td>1,240</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+
+        <p class="data-note">{{API_DATA_NOTE}}</p>
+      </section>
+
+      <!-- ==================== RAW DATA DOWNLOADS ==================== -->
+      <section class="section" id="raw-data">
+        <div class="eyebrow">Section 11</div>
+        <h2>Raw data downloads</h2>
+        <p class="lede">
+          <!-- LLM: 1 sentence summary of raw climate-statistics downloads and the trend. -->
+          A summary of raw climate-statistics file downloads for specific places.
+        </p>
+
+        <div class="split">
+          <div class="chart-container">
+            <div class="chart-title">Successful downloads per month</div>
+            <div class="chart-canvas-wrap">
+              <canvas id="rawDataChart"></canvas>
+            </div>
+          </div>
+          <div class="stat-grid stat-grid--2">
+            <div class="stat-tile">
+              <div class="value">{{RAW_TOTAL_DOWNLOADS}}</div>
+              <div class="label">Successful downloads</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ADAPTATION TOOL ==================== -->
+      <section class="section" id="adaptation">
+        <div class="eyebrow">Section 12</div>
+        <h2>Adaptation tool</h2>
+        <p class="lede">
+          <!-- LLM: 2 sentence summary — how many sessions, how far users typically get (current_step), and the patterns you read out of session_data. -->
+          A summary of how users engage with the adaptation tool.
+        </p>
+
+        <div class="stat-grid stat-grid--3" style="margin-bottom: 24px;">
+          <div class="stat-tile">
+            <div class="value">{{ADAPT_TOTAL_SESSIONS}}</div>
+            <div class="label">Sessions</div>
+          </div>
+          <div class="stat-tile">
+            <div class="value">{{ADAPT_UNIQUE_USERS}}</div>
+            <div class="label">Unique users</div>
+          </div>
+          <div class="stat-tile">
+            <div class="value">{{ADAPT_FURTHEST_STEP}}</div>
+            <div class="label">Furthest step reached</div>
+          </div>
+        </div>
+
+        <div class="chart-container" style="margin-bottom: 24px;">
+          <div class="chart-title">Session count by step (rough funnel)</div>
+          <div class="chart-canvas-wrap">
+            <canvas id="adaptationFunnelChart"></canvas>
+          </div>
+        </div>
+
+        <details class="org-table" open style="margin-bottom: 24px;">
+          <summary>Top adaptation-tool users</summary>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Sessions</th>
+                <th>Furthest step</th>
+              </tr>
+            </thead>
+            <tbody id="adapt-top-users">
+              <!-- LLM: emit one <tr> per top-20 row of adaptationTool.perUser (sorted by
+                   session_count). Show username; elide it if it's an obvious raw auth0 sub. -->
+              <tr>
+                <td>example@org.com</td>
+                <td>6</td>
+                <td>4</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+
+        <div class="card-grid">
+          <!-- LLM: emit 3–5 .callout cards summarizing what users tried the tool for, derived from session_data JSONB. -->
+          <div class="callout">
+            <h3>Sector vignette</h3>
+            <p>A short plain-language summary of what a user was trying to do.</p>
+          </div>
+          <div class="callout">
+            <h3>Hazard vignette</h3>
+            <p>Another short summary of a different user's session.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== INSIGHTS ==================== -->
+      <section class="section" id="insights">
+        <div class="eyebrow">Section 13</div>
+        <h2>Other notable insights</h2>
+        <p class="lede">
+          <!-- LLM: 1 sentence framing for the patterns you'll list below. -->
+          Patterns worth flagging that aren't obvious from a single section above.
+        </p>
+
+        <div class="card-grid">
+          <!-- LLM: emit 3–6 .callout cards. Each is one specific, evidence-backed pattern (cite a number or comparison). -->
+          <div class="callout">
+            <h3>Insight headline</h3>
+            <p>One- to two-sentence pattern with a supporting number.</p>
+          </div>
+          <div class="callout">
+            <h3>Insight headline</h3>
+            <p>Another pattern with supporting evidence.</p>
+          </div>
+          <div class="callout">
+            <h3>Insight headline</h3>
+            <p>Another pattern with supporting evidence.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== FOOTER ==================== -->
+      <footer class="page-footer">
+        <p>
+          Generated from <code>pf_user_access_requests</code>, <code>pf_partner_*</code>,
+          <code>pf_audit</code>, <code>pf_geo_place_statistics</code>, and
+          <code>knowledge.adaptation_sessions</code>. Qualitative themes synthesized from
+          free-text submission fields; quotes shortened with standard journalistic ellipses
+          where noted. Map pin coordinates are best-effort approximations.
+        </p>
+      </footer>
+    </div>
+
+    <!-- ============================ SCRIPTS ============================ -->
+    <script>
+      // The LLM should replace the data inside REPORT_DATA with values pulled from REPORT_JSON.
+      // The structure here is the contract: keep keys and array shapes the same.
+      const REPORT_DATA = {
+        emailOptIn: { optedIn: 18, optedOut: 7 },
+        dataResources: {
+          labels: ["PF Pro", "PF API", "Raw data", "Customizable maps"],
+          counts: [22, 14, 19, 11],
+        },
+        proPerMonth: {
+          months: ["2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01"],
+          projects: [3, 5, 4, 7, 6, 8],
+          uploads: [2, 4, 5, 6, 5, 7],
+          enrichments: [1, 3, 4, 5, 6, 6],
+        },
+        apiMonthly: {
+          months: ["2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01"],
+          uniqueClients: [4, 6, 5, 7, 8, 9],
+        },
+        adaptationFunnel: {
+          steps: [0, 1, 2, 3, 4, 5],
+          counts: [42, 31, 22, 14, 8, 4],
+        },
+        rawDataPerMonth: {
+          months: ["2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01"],
+          counts: [5, 8, 6, 9, 7, 11],
+        },
+        // LLM: emit one entry per unique location in formSubmissions.locations.rows
+        // that you can confidently place. label is the raw string, count from rows.
+        mapPins: [
+          { label: "Cambridge, MA", lat: 42.3736, lon: -71.1097, count: 3 },
+          { label: "London, UK", lat: 51.5074, lon: -0.1278, count: 5 },
+          { label: "Nairobi, Kenya", lat: -1.2921, lon: 36.8219, count: 1 },
+          { label: "Bogotá, Colombia", lat: 4.711, lon: -74.0721, count: 1 },
+        ],
+      };
+
+      // -------- Chart.js global defaults --------
+      Chart.defaults.font.family =
+        "-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif";
+      Chart.defaults.color = "#5a4f5c";
+      Chart.defaults.borderColor = "#e4e1dc";
+
+      const ACCENT = "#2a172c";
+      const ACCENT_2 = "#6e4d72";
+      const ACCENT_3 = "#a98bad";
+      const ACCENT_4 = "#b8a3bb";
+
+      // -------- Email opt-in (doughnut) --------
+      new Chart(document.getElementById("emailOptInChart"), {
+        type: "doughnut",
+        data: {
+          labels: ["Opted in", "Opted out"],
+          datasets: [
+            {
+              data: [REPORT_DATA.emailOptIn.optedIn, REPORT_DATA.emailOptIn.optedOut],
+              backgroundColor: [ACCENT, "#cdbccf"],
+              borderWidth: 0,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "62%",
+          plugins: { legend: { position: "bottom" } },
+        },
+      });
+
+      // -------- Data resources (horizontal bar) --------
+      new Chart(document.getElementById("dataResourcesChart"), {
+        type: "bar",
+        data: {
+          labels: REPORT_DATA.dataResources.labels,
+          datasets: [
+            {
+              label: "Selections",
+              data: REPORT_DATA.dataResources.counts,
+              backgroundColor: ACCENT,
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: "#f1efe6" } },
+            y: { grid: { display: false } },
+          },
+        },
+      });
+
+      // -------- Pro activity per month (line) --------
+      new Chart(document.getElementById("proActivityChart"), {
+        type: "line",
+        data: {
+          labels: REPORT_DATA.proPerMonth.months,
+          datasets: [
+            {
+              label: "Projects",
+              data: REPORT_DATA.proPerMonth.projects,
+              borderColor: ACCENT,
+              backgroundColor: "rgba(42,23,44,0.12)",
+              tension: 0.3,
+              fill: false,
+            },
+            {
+              label: "Uploads",
+              data: REPORT_DATA.proPerMonth.uploads,
+              borderColor: ACCENT_2,
+              tension: 0.3,
+              fill: false,
+            },
+            {
+              label: "Enrichments",
+              data: REPORT_DATA.proPerMonth.enrichments,
+              borderColor: ACCENT_3,
+              tension: 0.3,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom" } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, grid: { color: "#f1efe6" } },
+          },
+        },
+      });
+
+      // -------- API monthly unique clients (line) --------
+      new Chart(document.getElementById("apiMonthlyChart"), {
+        type: "line",
+        data: {
+          labels: REPORT_DATA.apiMonthly.months,
+          datasets: [
+            {
+              label: "Unique clients",
+              data: REPORT_DATA.apiMonthly.uniqueClients,
+              borderColor: ACCENT,
+              backgroundColor: "rgba(42,23,44,0.12)",
+              tension: 0.3,
+              fill: true,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, grid: { color: "#f1efe6" } },
+          },
+        },
+      });
+
+      // -------- Adaptation funnel (bar) --------
+      new Chart(document.getElementById("adaptationFunnelChart"), {
+        type: "bar",
+        data: {
+          labels: REPORT_DATA.adaptationFunnel.steps.map((s) => "Step " + s),
+          datasets: [
+            {
+              label: "Sessions",
+              data: REPORT_DATA.adaptationFunnel.counts,
+              backgroundColor: ACCENT,
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, grid: { color: "#f1efe6" } },
+          },
+        },
+      });
+
+      // -------- Raw data downloads per month (bar) --------
+      new Chart(document.getElementById("rawDataChart"), {
+        type: "bar",
+        data: {
+          labels: REPORT_DATA.rawDataPerMonth.months,
+          datasets: [
+            {
+              label: "Downloads",
+              data: REPORT_DATA.rawDataPerMonth.counts,
+              backgroundColor: ACCENT,
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, grid: { color: "#f1efe6" } },
+          },
+        },
+      });
+
+      // -------- Leaflet map --------
+      const map = L.map("map", {
+        worldCopyJump: true,
+        zoomControl: true,
+        scrollWheelZoom: false,
+      }).setView([20, 0], 2);
+
+      L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 8,
+        }
+      ).addTo(map);
+
+      REPORT_DATA.mapPins.forEach((pin) => {
+        const marker = L.circleMarker([pin.lat, pin.lon], {
+          radius: Math.max(5, Math.min(14, 4 + Math.sqrt(pin.count) * 3)),
+          color: ACCENT,
+          fillColor: ACCENT,
+          fillOpacity: 0.55,
+          weight: 1,
+        }).addTo(map);
+        marker.bindPopup(
+          "<strong>" + pin.label + "</strong><br>" + pin.count + " " +
+            (pin.count === 1 ? "person" : "people")
+        );
+      });
+    </script>
+  </body>
+</html>

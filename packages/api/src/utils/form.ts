@@ -1,6 +1,6 @@
 import { isProd } from "./env";
 
-enum FormFields {
+export enum FormFields {
   FirstName = "firstName",
   LastName = "lastName",
   Email = "email",
@@ -36,7 +36,7 @@ const formFieldsNameIdMapDev: Record<FormFields, string> = {
   [FormFields.EmailList]: "fldxQbeUjmdlU93Lc",
 };
 
-const formFieldsNameIdMapProd: Record<FormFields, string> = {
+export const formFieldsNameIdMapProd: Record<FormFields, string> = {
   [FormFields.FirstName]: "fldUF40ZB8gUYh8iY",
   [FormFields.LastName]: "fldAAYWSbPEk4QRRi",
   [FormFields.Email]: "fldBjdKZSEGbakGLe",
