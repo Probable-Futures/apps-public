@@ -842,7 +842,10 @@ const InteractiveMap = () => {
                 selectedDataset={selectedDataset}
                 tempUnit={tempUnit}
                 setTempUnit={setTempUnit}
-                mapKeyText={{ ...translate("key"), ...{ datasets: translatedHeader?.datasets } }}
+                mapKeyText={{
+                  ...translate("key"),
+                  ...{ datasets: translatedHeader?.datasets, year: translate("mapPopover.year") },
+                }}
                 datasetDescriptionResponse={datasetDescriptionResponse!}
                 activateClimateZoneLayer={debounceActivateClimateZoneLayer}
                 activeClimateZoneLayers={activeClimateZoneLayers}

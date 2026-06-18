@@ -233,8 +233,23 @@ const MapKey = ({
   const isTempMap = datasetUnit.toLowerCase().includes("temp");
   const isFrequent = selectedDataset.dataset.unit === "x as frequent";
   const isPrecipitationMap = selectedDataset.dataset.unit === "mm";
-  const isMedianDataset = selectedDataset.methodUsedForMid === "median";
-  const midYearText = isMedianDataset ? mapKeyText?.inAMedianYear : mapKeyText?.inAnAverageYear;
+  const yearLabelIndex =
+    percentileValue === "high"
+      ? 2
+      : percentileValue === "low"
+      ? 0
+      : percentileValue === "mid"
+      ? 1
+      : -1;
+  const yearLabelRaw =
+    yearLabelIndex >= 0 ? selectedDataset.dataLabels?.[yearLabelIndex] : undefined;
+  const yearNoun = yearLabelRaw
+    ? (mapKeyText?.year?.[camelcase(yearLabelRaw)] || yearLabelRaw).toLowerCase()
+    : "";
+  const yearArticle = /^[aeiou]/i.test(yearNoun) ? mapKeyText?.articleAn : mapKeyText?.articleA;
+  const yearSuffix = yearNoun
+    ? [mapKeyText?.inYear, yearArticle, yearNoun].filter(Boolean).join(" ")
+    : "";
 
   const onTempUnitChange = () => setTempUnit(tempUnit === "°C" ? "°F" : "°C");
 
@@ -299,13 +314,7 @@ const MapKey = ({
                 : isPrecipitationMap
                 ? datasetUnit.replace("mm", precipitationUnit)
                 : datasetUnit}
-              {percentileValue === "high" && mapKeyText?.inAWarmerYear
-                ? ` · ${mapKeyText.inAWarmerYear}`
-                : percentileValue === "low" && mapKeyText?.inACoolerYear
-                ? ` · ${mapKeyText.inACoolerYear}`
-                : percentileValue === "mid" && midYearText
-                ? ` · ${midYearText}`
-                : ""}
+              {yearSuffix ? ` · ${yearSuffix}` : ""}
             </Label>
             {isTablet && (
               <>

@@ -15,9 +15,7 @@ import { ReactComponent as PhotoCameraIcon } from "@probable-futures/components-
 
 import { ReactComponent as GlobeIcon } from "../assets/icons/globe.svg";
 import { ReactComponent as MapIcon } from "../assets/icons/map.svg";
-import { ReactComponent as ThermometerWarmerIcon } from "../assets/icons/thermometer-warmer.svg";
-import { ReactComponent as ThermometerCoolerIcon } from "../assets/icons/thermometer-cooler.svg";
-import { ReactComponent as DeviceThermostatIcon } from "../assets/icons/device-thermostat.svg";
+import { YearIcons } from "../utils/yearIcons";
 import { BinningType } from "@probable-futures/lib/src/utils/colors";
 import { colors } from "../consts";
 import { useTranslation } from "../contexts/TranslationContext";
@@ -40,6 +38,9 @@ type Props = {
   onShowCoolerYearClick: MouseEventHandler<HTMLElement>;
   onShowAverageYearClick: MouseEventHandler<HTMLElement>;
   showAverageYearTitle: string;
+  showWarmerYearTitle: string;
+  showCoolerYearTitle: string;
+  yearIcons: YearIcons;
   onTakeScreenshot: MouseEventHandler<HTMLElement>;
   onToggleComparisonMap: MouseEventHandler<HTMLElement>;
   handleQRCodeDownload: MouseEventHandler<HTMLElement>;
@@ -120,6 +121,9 @@ const ActionsSheet = ({
   onShowCoolerYearClick,
   onShowAverageYearClick,
   showAverageYearTitle,
+  showWarmerYearTitle,
+  showCoolerYearTitle,
+  yearIcons,
   onTakeScreenshot,
   onToggleComparisonMap,
   handleQRCodeDownload,
@@ -127,6 +131,7 @@ const ActionsSheet = ({
   handleOpenComparisonModal,
 }: Props) => {
   const { translate } = useTranslation();
+  const { high: HighYearIcon, mid: MidYearIcon, low: LowYearIcon } = yearIcons;
 
   const downloadScreenshotTitle = translate("mapControl.downloadScreenshot");
 
@@ -153,20 +158,20 @@ const ActionsSheet = ({
         </ActionSheetItem>
         {percentileValue !== "mid" && !isMidOnlyDataset && (
           <ActionSheetItem onClick={onShowAverageYearClick}>
-            <DeviceThermostatIcon />
+            <MidYearIcon />
             <span>{showAverageYearTitle}</span>
           </ActionSheetItem>
         )}
         {percentileValue !== "high" && !isMidOnlyDataset && (
           <ActionSheetItem onClick={onShowWarmerYearClick}>
-            <ThermometerWarmerIcon />
-            <span>{translate("mapControl.showWarmerYear")}</span>
+            <HighYearIcon />
+            <span>{showWarmerYearTitle}</span>
           </ActionSheetItem>
         )}
         {percentileValue !== "low" && !isMidOnlyDataset && (
           <ActionSheetItem onClick={onShowCoolerYearClick}>
-            <ThermometerCoolerIcon />
-            <span>{translate("mapControl.showCoolerYear")}</span>
+            <LowYearIcon />
+            <span>{showCoolerYearTitle}</span>
           </ActionSheetItem>
         )}
         <ActionSheetItem onClick={onBordersClick}>

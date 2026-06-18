@@ -348,7 +348,10 @@ const InteractiveMap = () => {
             stops={dynamicStyleVariables?.bins}
             binHexColors={dynamicStyleVariables?.binHexColors}
             setTempUnit={setTempUnit}
-            mapKeyText={{ ...translate("key"), ...{ datasets: translate("header.datasets") } }}
+            mapKeyText={{
+              ...translate("key"),
+              ...{ datasets: translate("header.datasets"), year: translate("mapPopover.year") },
+            }}
             datasetDescriptionResponse={datasetDescriptionResponse}
             precipitationUnit={precipitationUnit}
             setPrecipitationUnit={setPrecipitationUnit}

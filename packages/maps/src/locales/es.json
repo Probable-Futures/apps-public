@@ -64,6 +64,9 @@
     "inACoolerYear": "en un año más fresco",
     "inAnAverageYear": "en un año promedio",
     "inAMedianYear": "en un año mediano",
+    "inYear": "en un",
+    "articleA": "",
+    "articleAn": "",
     "binLabels": {
       "muchDrier": "mucho más seco",
       "drier": "más seco",
@@ -220,6 +223,7 @@
     "showMap": "Mostrar vista del mapa",
     "hideCountryBorders": "Ocultar fronteras del país",
     "showCountryBorders": "Mostrar fronteras del país",
+    "viewYear": "Ver",
     "showWarmerYear": "Ver año más cálido",
     "showCoolerYear": "Ver año más fresco",
     "showAverageYear": "Ver año promedio",

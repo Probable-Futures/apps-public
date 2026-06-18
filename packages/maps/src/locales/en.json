@@ -64,6 +64,9 @@
     "inACoolerYear": "in a cooler year",
     "inAnAverageYear": "in an average year",
     "inAMedianYear": "in a median year",
+    "inYear": "in",
+    "articleA": "a",
+    "articleAn": "an",
     "binLabels": {
       "muchDrier": "much drier",
       "drier": "drier",
@@ -220,6 +223,7 @@
     "showMap": "Show map view",
     "hideCountryBorders": "Hide country borders",
     "showCountryBorders": "Show country borders",
+    "viewYear": "View",
     "showWarmerYear": "View warmer year",
     "showCoolerYear": "View cooler year",
     "showAverageYear": "View average year",
