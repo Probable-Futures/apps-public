@@ -1,3 +1,4 @@
+import Papa from "papaparse";
 import { utils } from "@probable-futures/lib";
 import { SavedConfigV1, Viewport } from "@kepler.gl/types";
 import { ParsedLayer, ParsedConfig, TooltipField } from "@kepler.gl/types";
@@ -192,20 +193,52 @@ export const filterDatasetsWithMultipleEnrichments = (
   );
 };
 
+// The worker appends the nearest PF grid coordinates (RCM + GCM) as their own
+// lat/lon columns next to each row's real lat/lon. Kepler auto-creates a point
+// layer for every lat/lon column pair it detects, so leaving these in renders
+// two extra duplicate points stacked on each row. Drop the grid lat/lon columns
+// before Kepler ingests the file; the matching hash columns stay for downstream use.
+const NEARBY_COORDINATE_POINT_COLUMNS = [
+  "__pf_rcm_coordinate_lat",
+  "__pf_rcm_coordinate_lon",
+  "__pf_gcm_coordinate_lat",
+  "__pf_gcm_coordinate_lon",
+];
+
+const stripNearbyCoordinateColumns = (csvText: string): string => {
+  const parsed = Papa.parse<Record<string, unknown>>(csvText, {
+    header: true,
+    skipEmptyLines: true,
+  });
+  const fields = parsed.meta.fields ?? [];
+  const remainingFields = fields.filter(
+    (field) => !NEARBY_COORDINATE_POINT_COLUMNS.includes(field),
+  );
+  if (remainingFields.length === fields.length) {
+    return csvText;
+  }
+  const rows = parsed.data.map((row) => {
+    NEARBY_COORDINATE_POINT_COLUMNS.forEach((column) => delete row[column]);
+    return row;
+  });
+  return Papa.unparse(rows, { columns: remainingFields });
+};
+
 export const fetchDatasets = async (datasets: PartnerDataset[]) => {
   const files: File[] = [];
   for (let i = 0; i < datasets.length; i++) {
     const dataset = datasets[i];
-    const file = await fetch(dataset.url, {
+    const response = await fetch(dataset.url, {
       method: "GET",
     });
-    const blob = await file.blob();
     const url = new URL(dataset.url);
-    files.push(
-      new File([blob], dataset.name, {
-        type: url.searchParams.get("response-content-type") ?? "text/csv",
-      }),
-    );
+    const type = url.searchParams.get("response-content-type") ?? "text/csv";
+    if (type.includes("csv")) {
+      const csvText = stripNearbyCoordinateColumns(await response.text());
+      files.push(new File([csvText], dataset.name, { type }));
+    } else {
+      files.push(new File([await response.blob()], dataset.name, { type }));
+    }
   }
 
   return files;

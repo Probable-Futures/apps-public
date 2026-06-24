@@ -20,10 +20,9 @@ type Props = {
 };
 
 const mapKeyText = {
-  inAWarmerYear: "in a warmer year",
-  inACoolerYear: "in a cooler year",
-  inAnAverageYear: "in an average year",
-  inAMedianYear: "in a median year",
+  inYear: "in",
+  articleA: "a",
+  articleAn: "an",
 };
 
 type MapKeyWrapperProps = {
