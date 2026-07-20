@@ -6,9 +6,9 @@ type Object = {
 };
 
 export const baseUrl = window.pfInteractiveMap?.wpApiUrl || `${import.meta.env.VITE_WP_API}/`;
-export const headers = {
-  Authorization: `Basic ${import.meta.env.VITE_WP_AUTH}`,
-};
+export const headers: Record<string, string> = import.meta.env.VITE_WP_AUTH
+  ? { Authorization: `Basic ${import.meta.env.VITE_WP_AUTH}` }
+  : {};
 
 type Props = {
   selectedDataset?: types.Map;

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import { colors, Option, TourProps, Map } from "@probable-futures/lib";
 import * as S from "../../styles/datasetSelectorStyles";
 
@@ -19,37 +19,26 @@ type Props = {
   onChange?: (option: Option) => void;
 };
 
-const fadeInAnimation = keyframes`
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-`;
-
-const AccordionWrapper = styled.div<{ showScrollbar: boolean }>`
+const AccordionWrapper = styled.div`
   width: 220px;
   border: 1px solid ${colors.grey};
   border-radius: 6px;
   background-color: ${colors.white};
   user-select: none;
   color: ${colors.dimBlack};
+  overflow: hidden;
+`;
+
+const AccordionScroll = styled.div<{ showScrollbar: boolean }>`
+  background-color: ${colors.white};
   overflow-x: hidden;
   ${({ showScrollbar }) =>
     showScrollbar
       ? ` max-height: 80vh; overflow-y: scroll;
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* IE and Edge */
           ::-webkit-scrollbar {
-              width: 3px;
-          }
-
-          ::-webkit-scrollbar-thumb {
-              background-color: rgb(150, 150, 150);
-              border-radius: 2px;
-          }
-
-          ::-webkit-scrollbar-track {
-              background: transparent;
+              display: none;
           }`
       : "overflow: hidden;"}
 `;
@@ -169,10 +158,9 @@ const SvgIcon = styled.svg`
   stroke-width: 1;
 `;
 
-const Title = styled.span<{ animate: boolean }>`
+const Title = styled.span`
   display: inline-block;
-  opacity: ${({ animate }) => (animate ? 0 : 0.8)};
-  animation: ${({ animate }) => (animate ? fadeInAnimation : "none")} 0.3s ease-out forwards;
+  opacity: 0.8;
 `;
 
 export const PlusIcon = () => (
@@ -200,7 +188,6 @@ const DatasetSelector = ({
   setSelectMode,
 }: Props) => {
   const [openSection, setOpenSection] = useState<string>("");
-  const [animateAccordionTitle, setAnimateAccordionTitle] = useState(false);
 
   const groupedDatasets = useMemo(() => {
     const translatedDatasets = translatedHeader?.datasets || {};
@@ -220,12 +207,6 @@ const DatasetSelector = ({
   };
 
   useEffect(() => {
-    setAnimateAccordionTitle(true);
-    const timeout = setTimeout(() => setAnimateAccordionTitle(false), 400);
-    return () => clearTimeout(timeout);
-  }, [selectMode]);
-
-  useEffect(() => {
     if (tourProps?.isTourActive) {
       setSelectMode(true);
     }
@@ -233,58 +214,55 @@ const DatasetSelector = ({
 
   const renderContent = () => {
     return (
-      <AccordionWrapper
-        showScrollbar={selectMode && !isTakingScreenshot}
-        className="pf-dataset-selector__wrapper"
-      >
-        <MainTitle onClick={toggleAllSections}>
-          <Title animate={animateAccordionTitle}>
-            {translatedHeader?.selectMap || "Select a map"}
-          </Title>
-          <ExpandCollapseIcon isOpen={selectMode} />
-        </MainTitle>
+      <AccordionWrapper className="pf-dataset-selector__wrapper">
+        <AccordionScroll showScrollbar={selectMode && !isTakingScreenshot}>
+          <MainTitle onClick={toggleAllSections}>
+            <Title>{translatedHeader?.selectMap || "Select a map"}</Title>
+            <ExpandCollapseIcon isOpen={selectMode} />
+          </MainTitle>
 
-        <AllContent isVisible={selectMode}>
-          {groupedDatasets.map((section, index) => (
-            <Section key={section.label} isFirstChild={index === 0}>
-              <AccordionTitle
-                isCollapsed={openSection === section.label}
-                onClick={() => toggleSection(section.label)}
-              >
-                <span>{section.label}</span>
-                <S.SignButton>
-                  {openSection === section.label ? <MinusIcon /> : <PlusIcon />}
-                </S.SignButton>
-              </AccordionTitle>
-              <AccordionContent isVisible={openSection === section.label}>
-                {section.options?.map((option) => (
-                  <Label
-                    key={option.value}
-                    onClick={() => {
-                      if (tourProps?.isTourActive) {
-                        setSelectMode(true);
-                      } else {
-                        setSelectMode((s) => !s);
-                      }
-                      if (onChange) {
-                        onChange(option);
-                      }
-                    }}
-                    isSelected={value.value === option.value}
-                  >
-                    {option.label}
-                  </Label>
-                ))}
-              </AccordionContent>
+          <AllContent isVisible={selectMode}>
+            {groupedDatasets.map((section, index) => (
+              <Section key={section.label} isFirstChild={index === 0}>
+                <AccordionTitle
+                  isCollapsed={openSection === section.label}
+                  onClick={() => toggleSection(section.label)}
+                >
+                  <span>{section.label}</span>
+                  <S.SignButton>
+                    {openSection === section.label ? <MinusIcon /> : <PlusIcon />}
+                  </S.SignButton>
+                </AccordionTitle>
+                <AccordionContent isVisible={openSection === section.label}>
+                  {section.options?.map((option) => (
+                    <Label
+                      key={option.value}
+                      onClick={() => {
+                        if (tourProps?.isTourActive) {
+                          setSelectMode(true);
+                        } else {
+                          setSelectMode((s) => !s);
+                        }
+                        if (onChange) {
+                          onChange(option);
+                        }
+                      }}
+                      isSelected={value.value === option.value}
+                    >
+                      {option.label}
+                    </Label>
+                  ))}
+                </AccordionContent>
+              </Section>
+            ))}
+            <Section isFirstChild={false}>
+              <ViewAllMaps onClick={() => setShowAllMapsModal && setShowAllMapsModal(true)}>
+                {translatedHeader?.viewAllMaps || "View all maps"}
+              </ViewAllMaps>
             </Section>
-          ))}
-          <Section isFirstChild={false}>
-            <ViewAllMaps onClick={() => setShowAllMapsModal && setShowAllMapsModal(true)}>
-              {translatedHeader?.viewAllMaps || "View all maps"}
-            </ViewAllMaps>
-          </Section>
-        </AllContent>
-        <SelectedMapWrapper isVisible={!selectMode}>{value.label}</SelectedMapWrapper>
+          </AllContent>
+          <SelectedMapWrapper isVisible={!selectMode}>{value.label}</SelectedMapWrapper>
+        </AccordionScroll>
       </AccordionWrapper>
     );
   };

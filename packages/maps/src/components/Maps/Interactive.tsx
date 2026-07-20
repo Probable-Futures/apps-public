@@ -724,7 +724,9 @@ const InteractiveMap = () => {
 
   const mapStyleLink = useMemo(() => {
     if (selectedDataset) {
-      const styleBaseURL = `mapbox://styles/${import.meta.env.VITE_MAPBOX_ACCOUNT}`;
+      const mapboxAccount =
+        window.pfInteractiveMap?.mapboxAccount || import.meta.env.VITE_MAPBOX_ACCOUNT;
+      const styleBaseURL = `mapbox://styles/${mapboxAccount}`;
       return `${styleBaseURL}/${selectedDataset.mapStyleId}`;
     }
     return "";

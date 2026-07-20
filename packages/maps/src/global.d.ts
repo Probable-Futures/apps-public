@@ -6,6 +6,7 @@ declare global {
       appSelector: string;
       wpApiUrl: string;
       mapboxAccessToken: string | null;
+      mapboxAccount: string | null;
       pfApiUrl: string | null;
       pfApiKey: string | null;
     };
