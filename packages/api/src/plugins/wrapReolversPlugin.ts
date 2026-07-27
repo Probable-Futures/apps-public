@@ -12,7 +12,7 @@ export const WrapReolversPlugin = makeWrapResolversPlugin({
       async resolve(resolve: any, _source, args, context: any, _resolveInfo) {
         const { pgClient } = context;
         try {
-          if (isProd && context.rateLimitThreshold > 80) {
+          if (isProd && context.rateLimitThreshold === 90) {
             sendRateLimitWarning(context.rateLimitThreshold, context.userSub);
           }
           let argsInput = { ...args.input };
