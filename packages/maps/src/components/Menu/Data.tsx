@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { types } from "@probable-futures/lib";
 import camelcase from "lodash.camelcase";
@@ -6,21 +6,20 @@ import camelcase from "lodash.camelcase";
 import Dropdown from "../common/Dropdown";
 import CustomSwitch from "../common/CustomSwitch";
 import { ChangeMapDisplayOptionType, useMenu } from "../../components/Menu";
-import { Title } from "./Menu.styled";
+import { Section, Title } from "./Menu.styled";
 import useMapsApi from "../../utils/useMapsApi";
 import { colors } from "../../consts";
 import { useTranslation } from "../../contexts/TranslationContext";
 import useWPApi from "../../utils/useWPApi";
+import {
+  getDefaultVersionPair,
+  getVersionLabel,
+  getVersionsOfDataset,
+} from "../../utils/mapVersions";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-`;
-
-const Section = styled.div`
-  padding: 12px 20px 12px 52px;
-  ${({ showBorder = true }: { showBorder?: boolean }) =>
-    showBorder && `border-bottom: 1px solid ${colors.lightGrey}`};
 `;
 
 const Option = styled.div`
@@ -35,6 +34,21 @@ const SwitchLabel = styled.span`
   font-size: 14px;
   letter-spacing: 0;
   line-height: 16px;
+`;
+
+const Hint = styled.p`
+  color: ${colors.lightGrey2};
+  font-size: 12px;
+  letter-spacing: 0;
+  line-height: 15px;
+  margin: 8px 0 0;
+`;
+
+const VersionFields = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
 `;
 
 export default function Data(): JSX.Element {
@@ -56,6 +70,12 @@ export default function Data(): JSX.Element {
       setDatasets,
       setDegrees,
       setWpDatasetDescriptionResponse,
+      isVersionComparisonActive,
+      versionBefore,
+      versionAfter,
+      setIsVersionComparisonActive,
+      setVersionBefore,
+      setVersionAfter,
     },
     mapStyle: { dynamicStyleVariables, setDynamicStyleVariables },
   } = useMenu();
@@ -136,6 +156,81 @@ export default function Data(): JSX.Element {
     );
     return options;
   }, [datasets, translate]);
+
+  const versionsOfSelectedDataset = useMemo(
+    () => getVersionsOfDataset(datasets, selectedDataset),
+    [datasets, selectedDataset],
+  );
+
+  const canCompareVersions = versionsOfSelectedDataset.length > 1;
+
+  const buildVersionOptions = useCallback(
+    (excluded?: types.Map) =>
+      versionsOfSelectedDataset
+        .filter((map) => map.mapVersion !== excluded?.mapVersion)
+        .map((map) => ({ value: map.mapVersion, label: getVersionLabel(map) })),
+    [versionsOfSelectedDataset],
+  );
+
+  // Re-resolving each side against the current version list is what makes a
+  // mid-value-method change move both sides too. Resolving to the identical entry
+  // is a no-op, so this settles after one pass instead of looping.
+  useEffect(() => {
+    if (!isVersionComparisonActive) {
+      return;
+    }
+    const pair = getDefaultVersionPair(versionsOfSelectedDataset, selectedDataset);
+    if (!pair) {
+      setIsVersionComparisonActive(false);
+      setVersionBefore(undefined);
+      setVersionAfter(undefined);
+      return;
+    }
+    const resolve = (map?: types.Map) =>
+      map && map.dataset.id === selectedDataset?.dataset.id
+        ? versionsOfSelectedDataset.find(({ mapVersion }) => mapVersion === map.mapVersion)
+        : undefined;
+    const nextBefore = resolve(versionBefore) ?? pair.before;
+    const nextAfter = resolve(versionAfter) ?? pair.after;
+    if (nextBefore !== versionBefore) {
+      setVersionBefore(nextBefore);
+    }
+    if (nextAfter !== versionAfter) {
+      setVersionAfter(nextAfter);
+    }
+  }, [
+    isVersionComparisonActive,
+    versionsOfSelectedDataset,
+    selectedDataset,
+    versionBefore,
+    versionAfter,
+    setIsVersionComparisonActive,
+    setVersionBefore,
+    setVersionAfter,
+  ]);
+
+  const onToggleVersionComparison = (checked: boolean) => {
+    setIsVersionComparisonActive(checked);
+    if (!checked) {
+      setVersionBefore(undefined);
+      setVersionAfter(undefined);
+    }
+  };
+
+  const onVersionChange =
+    (side: "before" | "after") => (option: { label: string; value: string | number }) => {
+      const map = versionsOfSelectedDataset.find(
+        ({ mapVersion }) => mapVersion === Number(option.value),
+      );
+      if (!map) {
+        return;
+      }
+      if (side === "before") {
+        setVersionBefore(map);
+      } else {
+        setVersionAfter(map);
+      }
+    };
 
   const onDatasetChange = (option?: { label: String; value: String }, dataset?: types.Map) => {
     let finalDataset = dataset;
@@ -244,6 +339,49 @@ export default function Data(): JSX.Element {
           />
         </Option>
       </Section>
+      {canCompareVersions && (
+        <Section showBorder={false}>
+          <Option>
+            <SwitchLabel>
+              {translate("menu.data.compareVersions", "Compare map versions")}
+            </SwitchLabel>
+            <CustomSwitch
+              name="compare_versions"
+              label={translate(
+                isVersionComparisonActive ? "menu.mapStyle.on" : "menu.mapStyle.off",
+              )}
+              checked={isVersionComparisonActive}
+              onChange={onToggleVersionComparison}
+            />
+          </Option>
+          {isVersionComparisonActive && versionBefore && versionAfter && (
+            <VersionFields>
+              <div>
+                <Title>{translate("menu.data.versionOnLeft", "Version on the left")}</Title>
+                <Dropdown
+                  value={{ value: versionBefore.mapVersion, label: getVersionLabel(versionBefore) }}
+                  options={buildVersionOptions(versionAfter)}
+                  onChange={onVersionChange("before")}
+                />
+              </div>
+              <div>
+                <Title>{translate("menu.data.versionOnRight", "Version on the right")}</Title>
+                <Dropdown
+                  value={{ value: versionAfter.mapVersion, label: getVersionLabel(versionAfter) }}
+                  options={buildVersionOptions(versionBefore)}
+                  onChange={onVersionChange("after")}
+                />
+              </div>
+              <Hint>
+                {translate(
+                  "menu.data.compareVersionsHint",
+                  "Both sides share the legend bins and colours below, so any difference you see is a difference in the data.",
+                )}
+              </Hint>
+            </VersionFields>
+          )}
+        </Section>
+      )}
       {(selectedDataset?.name.toLowerCase().startsWith("change") || selectedDataset?.isDiff) && (
         <Section showBorder={false}>
           <Title>Change map display option </Title>

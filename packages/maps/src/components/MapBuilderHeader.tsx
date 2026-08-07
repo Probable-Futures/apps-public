@@ -28,10 +28,15 @@ const Container = styled.div`
   }
 `;
 
+const Versions = styled.span`
+  font-family: "RelativeMono";
+  color: ${colors.lightGrey2};
+`;
+
 const MapBuilderHeader = () => {
   const {
     sidebar,
-    data: { selectedDataset },
+    data: { selectedDataset, isVersionComparisonActive, versionBefore, versionAfter },
   } = useMenu();
   const { translate } = useTranslation();
 
@@ -39,11 +44,19 @@ const MapBuilderHeader = () => {
     return null;
   }
 
+  const isComparing = isVersionComparisonActive && versionBefore && versionAfter;
+
   return (
     <Container sidebarOpen={sidebar.isVisible}>
       <p>
         {translate(`header.datasets.${camelcase(selectedDataset.slug)}`, selectedDataset.name)} -{" "}
         {selectedDataset.dataset.model}
+        {isComparing && (
+          <Versions>
+            {" — "}
+            {`v${versionBefore.mapVersion} vs v${versionAfter.mapVersion}`}
+          </Versions>
+        )}
       </p>
     </Container>
   );

@@ -3,17 +3,11 @@ import InputColor, { Color } from "react-input-color";
 
 import { useMenu } from "../../components/Menu";
 import CustomSwitch from "../common/CustomSwitch";
-import { Container, Title } from "./Menu.styled";
+import { Container, Section, Title } from "./Menu.styled";
 import { colors } from "../../consts";
 import Dropdown from "../common/Dropdown";
 import { useTranslation } from "../../contexts/TranslationContext";
 import { Projection } from "mapbox-gl";
-
-const Section = styled(Container)`
-  padding: 12px 20px 12px 52px;
-  ${({ showBorder = true }: { showBorder?: boolean }) =>
-    showBorder && `border-bottom: 1px solid ${colors.lightGrey}`};
-`;
 
 const ColorPicker = styled.div`
   width: 32px;

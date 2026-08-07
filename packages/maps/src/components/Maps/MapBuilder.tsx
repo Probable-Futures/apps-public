@@ -8,7 +8,7 @@ import MapGL, {
 } from "react-map-gl";
 import styled from "styled-components";
 import { components } from "@probable-futures/components-lib";
-import { utils, consts } from "@probable-futures/lib";
+import { utils, consts, types } from "@probable-futures/lib";
 import mapboxgl, { MapboxEvent, Map } from "mapbox-gl";
 
 import { useMenu } from "../Menu";
@@ -19,8 +19,10 @@ import PlusIcon from "../../assets/icons/plus.svg";
 import MinusIcon from "../../assets/icons/minus.svg";
 import MapBuilderHeader from "../MapBuilderHeader";
 import { colors, size } from "../../consts";
+import { getMapBuilderMinZoom } from "../../consts/mapConsts";
 import { useTranslation } from "../../contexts/TranslationContext";
 import useGlobeLines, { LINE_LAYER_LABEL_PREFIX } from "../../utils/useGlobeLines";
+import VersionComparisonMapView, { VersionComparisonMapHandle } from "./VersionComparisonMapView";
 
 const Container = styled.div`
   position: relative;
@@ -105,6 +107,7 @@ const InteractiveMap = () => {
     () => consts.getInitialMapViewState(window.location.hash.replace("#", "")) || defaultViewState,
   );
   const mapRef = useRef<MapRef>(null);
+  const comparisonMapRef = useRef<VersionComparisonMapHandle>(null);
   const {
     sidebar,
     data: {
@@ -118,6 +121,9 @@ const InteractiveMap = () => {
       precipitationUnit,
       setPrecipitationUnit,
       setMidValueShown,
+      isVersionComparisonActive,
+      versionBefore,
+      versionAfter,
     },
     mapStyle: {
       landColor,
@@ -267,15 +273,19 @@ const InteractiveMap = () => {
 
   const onMove = useCallback((evt: ViewStateChangeEvent) => setViewState(evt.viewState), []);
 
-  const mapStyleLink = useMemo(() => {
-    if (selectedDataset) {
-      const mapboxAccount =
-        window.pfInteractiveMap?.mapboxAccount || import.meta.env.VITE_MAPBOX_ACCOUNT;
-      const styleBaseURL = `mapbox://styles/${mapboxAccount}`;
-      return `${styleBaseURL}/${selectedDataset.mapStyleId}`;
+  const getMapStyleLink = useCallback((dataset?: types.Map) => {
+    if (!dataset) {
+      return "";
     }
-    return "";
-  }, [selectedDataset]);
+    const mapboxAccount =
+      window.pfInteractiveMap?.mapboxAccount || import.meta.env.VITE_MAPBOX_ACCOUNT;
+    return `mapbox://styles/${mapboxAccount}/${dataset.mapStyleId}`;
+  }, []);
+
+  const mapStyleLink = useMemo(
+    () => getMapStyleLink(selectedDataset),
+    [selectedDataset, getMapStyleLink],
+  );
 
   const onLoad = useCallback(
     (e: MapboxEvent) => {
@@ -293,9 +303,48 @@ const InteractiveMap = () => {
   const showKey =
     selectedDataset?.dataset.unit === "class" ? !!datasetDescriptionResponse?.climate_zones : true;
 
+  const isComparing = !!(isVersionComparisonActive && versionBefore && versionAfter);
+
   return (
     <Container>
-      {selectedDataset && (
+      {isComparing && (
+        <VersionComparisonMapView
+          ref={comparisonMapRef}
+          datasetBefore={versionBefore!}
+          datasetAfter={versionAfter!}
+          mapStyleUrlBefore={getMapStyleLink(versionBefore)}
+          mapStyleUrlAfter={getMapStyleLink(versionAfter)}
+          mapboxAccessToken={
+            window.pfInteractiveMap?.mapboxAccessToken || import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
+          }
+          degrees={degrees}
+          bins={dynamicStyleVariables?.bins}
+          binHexColors={dynamicStyleVariables?.binHexColors}
+          landColor={landColor}
+          oceanColor={oceanColor}
+          showBoundaries={showBoundaries}
+          showLabels={showLabels}
+          showInspector={showInspector}
+          mapProjection={mapProjection}
+          height="100vh"
+          viewState={viewState}
+          tempUnit={tempUnit}
+          precipitationUnit={precipitationUnit}
+          datasetDescriptionResponse={datasetDescriptionResponse}
+          onMove={(next) => {
+            setViewState((prev) => ({ ...prev, ...next }));
+            const hash = `${next.zoom.toFixed(2)}/${next.latitude.toFixed(
+              6,
+            )}/${next.longitude.toFixed(6)}`;
+            window.history.replaceState(
+              null,
+              "",
+              `${window.location.pathname}${window.location.search}#${hash}`,
+            );
+          }}
+        />
+      )}
+      {selectedDataset && !isComparing && (
         <MapGL
           mapLib={mapboxgl}
           {...viewState}
@@ -303,11 +352,7 @@ const InteractiveMap = () => {
             window.pfInteractiveMap?.mapboxAccessToken || import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
           }
           style={{ width: "100vw", height: "100vh" }}
-          minZoom={
-            mapProjection.name === "mercator" || mapProjection.name === "globe"
-              ? consts.MIN_ZOOM
-              : consts.MIN_ZOOM_3
-          }
+          minZoom={getMapBuilderMinZoom(mapProjection.name)}
           hash={true}
           onMove={onMove}
           onClick={onMapClick}

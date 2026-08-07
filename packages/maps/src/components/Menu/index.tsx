@@ -80,6 +80,9 @@ interface DataState {
   midValueShown: string;
   datasetDescriptionResponse?: types.DatasetDescriptionResponse;
   precipitationUnit: types.PrecipitationUnit;
+  isVersionComparisonActive: boolean;
+  versionBefore?: types.Map;
+  versionAfter?: types.Map;
   setDatasets(datasets: any): void;
   setSelectedDataset(dataset: any): void;
   setDegrees(degrees: any): void;
@@ -93,6 +96,9 @@ interface DataState {
     datasetDescriptionResponse: types.DatasetDescriptionResponse,
   ): void;
   setPrecipitationUnit(arg: types.PrecipitationUnit): void;
+  setIsVersionComparisonActive(active: boolean): void;
+  setVersionBefore(dataset?: types.Map): void;
+  setVersionAfter(dataset?: types.Map): void;
 }
 
 const MenuContext = createContext(getInitialState());
@@ -218,6 +224,9 @@ function getInitialState(): MenuState {
       tempUnit: "°C",
       datasetDescriptionResponse: undefined,
       precipitationUnit: "mm",
+      isVersionComparisonActive: false,
+      versionBefore: undefined,
+      versionAfter: undefined,
       setDatasets: () => {},
       setSelectedDataset: () => {},
       setDegrees: () => {},
@@ -229,6 +238,9 @@ function getInitialState(): MenuState {
       setMidValueShown: () => {},
       setWpDatasetDescriptionResponse: () => {},
       setPrecipitationUnit: () => {},
+      setIsVersionComparisonActive: () => {},
+      setVersionBefore: () => {},
+      setVersionAfter: () => {},
     },
   };
 }
@@ -296,6 +308,9 @@ function useData(): DataState {
   const [datasetDescriptionResponse, setWpDatasetDescriptionResponse] =
     useState<types.DatasetDescriptionResponse>();
   const [precipitationUnit, setPrecipitationUnit] = useState("mm" as types.PrecipitationUnit);
+  const [isVersionComparisonActive, setIsVersionComparisonActive] = useState(false);
+  const [versionBefore, setVersionBefore] = useState<types.Map | undefined>();
+  const [versionAfter, setVersionAfter] = useState<types.Map | undefined>();
 
   return useMemo(
     () => ({
@@ -321,6 +336,12 @@ function useData(): DataState {
       setPrecipitationUnit,
       changeMapDisplayOption,
       setChangeMapDisplayOption,
+      isVersionComparisonActive,
+      setIsVersionComparisonActive,
+      versionBefore,
+      setVersionBefore,
+      versionAfter,
+      setVersionAfter,
     }),
     [
       datasets,
@@ -334,6 +355,9 @@ function useData(): DataState {
       datasetDescriptionResponse,
       precipitationUnit,
       changeMapDisplayOption,
+      isVersionComparisonActive,
+      versionBefore,
+      versionAfter,
     ],
   );
 }

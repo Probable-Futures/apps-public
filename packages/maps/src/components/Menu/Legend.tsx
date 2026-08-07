@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import { components, contexts } from "@probable-futures/components-lib";
 import { utils } from "@probable-futures/lib";
 
-import { Container, Title } from "./Menu.styled";
+import { Container, SIDEBAR_GUTTER, Title } from "./Menu.styled";
 import InputColor, { Color } from "react-input-color";
 import { useMenu } from "../../components/Menu";
 import { colors } from "../../consts";
@@ -11,12 +11,12 @@ import Collapsible from "../../components/common/Collapsible";
 import { useTranslation } from "../../contexts/TranslationContext";
 
 const MainContent = styled.div`
-  padding: 15px 20px 0 52px;
+  padding: 14px ${SIDEBAR_GUTTER}px 0;
 `;
 
 const EditColorsContent = styled.div`
   background-color: #e7e7e7;
-  padding: 12px 40px 21px 74px;
+  padding: 12px ${SIDEBAR_GUTTER}px 21px;
 `;
 
 const ClearColorStyles = css`
@@ -36,19 +36,29 @@ const ColorPicker = styled.div`
   ${ClearColorStyles};
 `;
 
+// These are inline field labels and helper text, not section labels, so they opt
+// back out of Title's uppercase micro-label treatment.
 const Subtitle = styled(Title)`
   align-self: center;
   margin-left: 15px;
   margin-bottom: 0;
+  color: ${colors.darkPurple};
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
 `;
 
 const InputLabel = styled(Subtitle)`
   margin-left: 10px;
 `;
 
-const Paragraph = styled(Title)`
+const Paragraph = styled(Subtitle)`
+  align-self: flex-start;
+  margin-left: 0;
   font-size: 12px;
   margin-top: 8px;
+  color: ${colors.lightGrey2};
 `;
 
 const ListItem = styled(Container)`

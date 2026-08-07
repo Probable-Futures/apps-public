@@ -1,6 +1,17 @@
 import styled from "styled-components";
 import { colors } from "../../consts";
 
+/**
+ * The sidebar is always SIDEBAR_WIDTH wide and slides left until only
+ * SIDEBAR_RAIL_WIDTH shows, so the section icons are sized to exactly fill that
+ * rail — see the Icon transform in DrawerItem.
+ */
+export const SIDEBAR_WIDTH = 256;
+export const SIDEBAR_RAIL_WIDTH = 52;
+export const SIDEBAR_GUTTER = 20;
+
+export const dividerColor = "#e4e4e4";
+
 type ContainerProps = {
   flexDirection?: "row" | "column";
 };
@@ -11,11 +22,24 @@ export const Container = styled.div`
 `;
 
 export const Title = styled.h3`
-  margin: 0 0 5px 0;
-  font-size: 14px;
+  margin: 0 0 6px 0;
+  color: ${colors.lightGrey2};
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   line-height: 1.15;
+`;
+
+/**
+ * Shared by every panel so their contents line up on one gutter. Indented to
+ * SIDEBAR_GUTTER rather than to the section title, which buys ~32px of width —
+ * enough to stop the switch labels wrapping onto three lines.
+ */
+export const Section = styled(Container)`
+  padding: 14px ${SIDEBAR_GUTTER}px;
+  ${({ showBorder = true }: { showBorder?: boolean }) =>
+    showBorder && `border-bottom: 1px solid ${dividerColor}`};
 `;
 
 type SquareImageButtonProps = {

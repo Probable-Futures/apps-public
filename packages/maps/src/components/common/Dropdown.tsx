@@ -14,13 +14,14 @@ type IconProps = {
   menuIsOpen: boolean;
 };
 
+// The asset points up, so it is the closed state that gets rotated.
 const ArrowIcon = styled.i`
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 12px;
   height: 12px;
-  transform: ${({ menuIsOpen }: IconProps) => (menuIsOpen ? "rotate(180deg);" : "rotate(0);")};
+  transform: ${({ menuIsOpen }: IconProps) => (menuIsOpen ? "rotate(0);" : "rotate(180deg);")};
 
   svg {
     width: 12px;
@@ -71,16 +72,20 @@ export default function Dropdown({
     }),
     control: () => ({
       display: "flex",
-      outlineColor: colors.purple,
-      border: `1px solid ${colors.black}`,
-      borderBottomColor: !isOpen ? colors.black : "transparent",
+      border: `1px solid ${isOpen ? colors.purple : colors.lightGrey}`,
+      borderRadius: "6px",
+      boxShadow: isOpen ? `0 0 0 3px rgba(133, 31, 255, 0.12)` : "none",
       backgroundColor: colors.white,
       padding: "0",
       fontSize: "14px",
       letterSpacing: 0,
       lineHeight: 1.3,
       cursor: "pointer",
+      transition: "border-color 0.15s ease, box-shadow 0.15s ease",
       BoxSizing: "border-box",
+      ":hover": {
+        borderColor: isOpen ? colors.purple : colors.lightGrey2,
+      },
     }),
     input: (provided: any) => ({ ...provided, margin: 0 }),
     singleValue: (provided: any) => ({
@@ -95,11 +100,11 @@ export default function Dropdown({
     }),
     menu: (provided: any) => ({
       ...provided,
-      marginTop: 0,
-      borderRadius: 0,
-      border: `1px solid ${colors.black}`,
-      borderTopColor: "#D8D8D8",
-      boxShadow: "none",
+      marginTop: "4px",
+      borderRadius: "6px",
+      overflow: "hidden",
+      border: `1px solid ${colors.lightGrey}`,
+      boxShadow: "0 6px 16px rgba(42, 23, 45, 0.12)",
     }),
     indicatorSeparator: () => ({ display: "none" }),
   };

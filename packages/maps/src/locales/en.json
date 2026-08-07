@@ -23,7 +23,11 @@
         "mean": "Mean",
         "median": "Median"
       },
-      "midValueShown": "Mid value shown"
+      "midValueShown": "Mid value shown",
+      "compareVersions": "Compare map versions",
+      "versionOnLeft": "Version on the left",
+      "versionOnRight": "Version on the right",
+      "compareVersionsHint": "Both sides share the legend bins and colours below, so any difference you see is a difference in the data."
     },
     "mapStyle": {
       "title": "Map Style",
