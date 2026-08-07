@@ -51,21 +51,22 @@ router.post("/perspectives", async (req, res) => {
 
     const formData = await validateFormData(req.body);
 
-    if (isProd) {
-      try {
-        await sendSlackNotification(
-          buildSlackMessage(formData),
-          SLACK_CHANNEL,
-          SLACK_WEBHOOK_SSM_PARAM,
-        );
-      } catch (e) {
-        console.error("Failed to send Slack notification:", e);
-      }
-    }
-
     const request = await submitToAirtable(formData);
 
     if (request.ok) {
+      // Notify Slack only once the submission is recorded.
+      if (isProd) {
+        try {
+          await sendSlackNotification(
+            buildSlackMessage(formData),
+            SLACK_CHANNEL,
+            SLACK_WEBHOOK_SSM_PARAM,
+          );
+        } catch (e) {
+          console.error("Failed to send Slack notification:", e);
+        }
+      }
+
       res
         .status(200)
         .send({ success: true, message: "Impact tracking data submitted successfully." });
