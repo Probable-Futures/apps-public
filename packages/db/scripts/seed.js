@@ -139,7 +139,7 @@ const baseImports = [
   },
   {
     tableName: "pf_public.geo_places",
-    tableColumns: "name, iso_a2, iso_a3, geo_place_type, wkb_geometry",
+    tableColumns: "name, iso_a2, iso_a3, wkb_geometry, geo_place_type, properties",
     fileName: "pf_public.geo_places.csv",
   },
 ];
