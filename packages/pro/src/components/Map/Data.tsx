@@ -442,7 +442,7 @@ const Data = ({ onShowDatasetTable }: Props) => {
     if (!description9010 && !description955) {
       return defaultPercentileDescription;
     }
-    if (activeClimateDataset?.dataLabels[0] === "5th percentile") {
+    if (activeClimateDataset?.dataLabels?.[0] === "5th percentile") {
       return description955;
     }
     return description9010;

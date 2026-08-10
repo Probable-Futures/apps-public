@@ -436,7 +436,7 @@ const InteractiveMap = (props: PropsFromRedux) => {
   const yearType = useMemo(() => {
     if (selectedClimateData) {
       const index = percentileValue === "low" ? 0 : percentileValue === "high" ? 2 : 1;
-      const year = selectedClimateData.dataLabels[index];
+      const year = selectedClimateData.dataLabels?.[index] ?? "";
       return consts.datasetsWithMidValuesOnly.indexOf(selectedClimateData.dataset.id) === -1
         ? year
         : "";

@@ -22,7 +22,7 @@ export type YearIcons = {
 type Theme = "temp" | "water" | "snow";
 type Polarity = "more" | "less" | "neutral";
 
-const getTheme = (dataLabels?: string[]): Theme => {
+const getTheme = (dataLabels?: string[] | null): Theme => {
   const all = (dataLabels || []).join(" ").toLowerCase();
   if (all.includes("warm") || all.includes("cool")) return "temp";
   if (all.includes("snow")) return "snow";
@@ -42,7 +42,7 @@ const getPolarity = (label?: string): Polarity => {
   return "neutral";
 };
 
-const iconForSlot = (theme: Theme, dataLabels: string[] | undefined, index: 0 | 1 | 2) => {
+const iconForSlot = (theme: Theme, dataLabels: string[] | null | undefined, index: 0 | 1 | 2) => {
   const polarity = getPolarity(dataLabels?.[index]);
   if (theme === "temp") {
     return polarity === "more"
@@ -66,7 +66,7 @@ const iconForSlot = (theme: Theme, dataLabels: string[] | undefined, index: 0 | 
  * stay accurate for wetter/drier, snowier, percentile, etc. maps instead of always
  * showing thermometers. Falls back to thermometers when no labels are available.
  */
-export const getYearIcons = (dataLabels?: string[]): YearIcons => {
+export const getYearIcons = (dataLabels?: string[] | null): YearIcons => {
   if (!dataLabels || dataLabels.length === 0) {
     return { low: TempLessIcon, mid: TempNeutralIcon, high: TempMoreIcon };
   }

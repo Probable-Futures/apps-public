@@ -406,7 +406,7 @@ const MapControls = ({
     label ? translate(`mapPopover.year.${camelcase(label)}`, label).toLowerCase() : "";
   const yearTitle = (index: number, fallbackKey: string) =>
     dataLabels?.[index]
-      ? `${viewYearVerb} ${getYearNoun(dataLabels[index])}`
+      ? `${viewYearVerb} ${getYearNoun(dataLabels?.[index])}`
       : translate(fallbackKey);
   const showWarmerYearTitle = yearTitle(2, "mapControl.showWarmerYear");
   const showCoolerYearTitle = yearTitle(0, "mapControl.showCoolerYear");

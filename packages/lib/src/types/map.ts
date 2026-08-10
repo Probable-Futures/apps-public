@@ -37,7 +37,7 @@ export type Map = {
   isLatest: boolean;
   createdAt?: Date;
   updatedAt?: Date;
-  dataLabels: string[];
+  dataLabels: string[] | null;
   methodUsedForMid: string;
 };
 

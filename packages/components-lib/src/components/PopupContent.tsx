@@ -321,7 +321,8 @@ const PopupContent = ({
               <ValueWithNumber>{getValue(lowValue)}</ValueWithNumber>
             )}
             <Label>
-              {mapPopoverText?.year[camelcase(dataset?.dataLabels[0])] || dataset?.dataLabels[0]}
+              {mapPopoverText?.year[camelcase(dataset?.dataLabels?.[0])] ||
+                dataset?.dataLabels?.[0]}
             </Label>
           </ValueContainer>
         )}
@@ -338,7 +339,8 @@ const PopupContent = ({
             )}
             {showMidValueLabel && (
               <Label>
-                {mapPopoverText?.year[camelcase(dataset?.dataLabels[1])] || dataset?.dataLabels[1]}
+                {mapPopoverText?.year[camelcase(dataset?.dataLabels?.[1])] ||
+                  dataset?.dataLabels?.[1]}
               </Label>
             )}
           </ValueContainer>
@@ -351,7 +353,8 @@ const PopupContent = ({
               <ValueWithNumber>{getValue(highValue)}</ValueWithNumber>
             )}
             <Label>
-              {mapPopoverText?.year[camelcase(dataset?.dataLabels[2])] || dataset?.dataLabels[2]}
+              {mapPopoverText?.year[camelcase(dataset?.dataLabels?.[2])] ||
+                dataset?.dataLabels?.[2]}
             </Label>
           </ValueContainer>
         )}

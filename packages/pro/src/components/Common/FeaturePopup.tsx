@@ -363,7 +363,7 @@ const FeaturePopup = ({
             ) : (
               <ValueWithNumber>{getValue(lowValue)}</ValueWithNumber>
             )}
-            <Label>{dataset?.dataLabels[0]}</Label>
+            <Label>{dataset?.dataLabels?.[0]}</Label>
           </ValueContainer>
         )}
         {meanValue !== undefined && (
@@ -376,7 +376,7 @@ const FeaturePopup = ({
               </AvgValue>
             )}
             {(!dataset?.isDiff || lowValue !== undefined || highValue !== undefined) && (
-              <Label>{dataset?.dataLabels[1]}</Label>
+              <Label>{dataset?.dataLabels?.[1]}</Label>
             )}
           </ValueContainer>
         )}
@@ -387,7 +387,7 @@ const FeaturePopup = ({
             ) : (
               <ValueWithNumber>{getValue(highValue)}</ValueWithNumber>
             )}
-            <Label>{dataset?.dataLabels[2]}</Label>
+            <Label>{dataset?.dataLabels?.[2]}</Label>
           </ValueContainer>
         )}
       </RowContainer>

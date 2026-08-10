@@ -27,6 +27,9 @@ const daysAboveFunc = ({ place, valueLow, valueMid, valueHigh, degree, datasetId
     dataLabels,
     dataset: { unit },
   } = mapObject;
+  if (!dataLabels) {
+    throw Error(`Dataset ${datasetId} has no data labels`);
+  }
 
   return `${
     degree === 0.5 ? "Between 1970 and 2000" : `In a ${degree}°C warming scenario`
