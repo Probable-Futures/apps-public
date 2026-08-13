@@ -22,6 +22,7 @@ const Sidebar = styled.div`
   box-sizing: border-box;
   border-right: 1px solid ${colors.lightGrey};
   background: ${colors.white};
+  z-index: 2;
   transition: transform 0.7s ease;
   transform: ${({ sidebarOpen }: SidebarProps) =>
     sidebarOpen ? "translateX(0)" : `translateX(calc(-100% + ${SIDEBAR_RAIL_WIDTH}px))`};

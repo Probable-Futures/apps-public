@@ -14,8 +14,7 @@ const Container = styled.div`
   height: 52px;
   background-color: ${colors.white};
   border-bottom: 1px solid ${colors.lightGrey};
-  /* No border-left: the sidebar's border-right now covers this edge full height,
-     and keeping both renders a doubled line across the header. */
+  z-index: 2;
   transition: transform 0.7s ease;
   box-sizing: border-box;
   transform: ${({ sidebarOpen }: { sidebarOpen: boolean }) =>
@@ -28,6 +27,8 @@ const Container = styled.div`
     padding: 16px 50px;
   }
 `;
+
+const MODEL_HIDDEN_MAP_VERSION = 4;
 
 const Versions = styled.span`
   font-family: "RelativeMono";
@@ -46,19 +47,19 @@ const MapBuilderHeader = () => {
   }
 
   const isComparing = isVersionComparisonActive && versionBefore && versionAfter;
+  const showModel = !isComparing && selectedDataset.mapVersion !== MODEL_HIDDEN_MAP_VERSION;
 
   return (
     <Container sidebarOpen={sidebar.isVisible}>
       <p>
         {translate(`header.datasets.${camelcase(selectedDataset.slug)}`, selectedDataset.name)}
-        {isComparing ? (
+        {isComparing && (
           <Versions>
             {" — "}
             {`v${versionBefore.mapVersion} vs v${versionAfter.mapVersion}`}
           </Versions>
-        ) : (
-          ` - ${selectedDataset.dataset.model}`
         )}
+        {showModel && ` - ${selectedDataset.dataset.model}`}
       </p>
     </Container>
   );
