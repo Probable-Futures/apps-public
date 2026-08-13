@@ -251,7 +251,10 @@ const InteractiveMap = () => {
         binHexColors: selectedDataset.binHexColors,
         bins: selectedDataset.stops,
       });
-      setQueryParam({ mapSlug: selectedDataset.slug });
+      setQueryParam({
+        mapSlug: selectedDataset.slug,
+        version: selectedDataset.isLatest ? "latest" : selectedDataset.mapVersion.toString(),
+      });
       setMidValueShown(selectedDataset.methodUsedForMid);
     }
   }, [selectedDataset, setDynamicStyleVariables, setMidValueShown]);

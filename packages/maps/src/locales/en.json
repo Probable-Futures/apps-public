@@ -27,7 +27,12 @@
       "compareVersions": "Compare map versions",
       "versionOnLeft": "Version on the left",
       "versionOnRight": "Version on the right",
-      "compareVersionsHint": "Both sides share the legend bins and colours below, so any difference you see is a difference in the data."
+      "compareVersionsHint": "Both sides share the legend bins and colours below, so any difference you see is a difference in the data.",
+      "version": "Version",
+      "subCategory": "Sub-category",
+      "subCategoryOptions": {
+        "all": "All sub-categories"
+      }
     },
     "mapStyle": {
       "title": "Map Style",

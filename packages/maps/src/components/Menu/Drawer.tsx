@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { colors } from "../../consts";
 import { ReactComponent as CaretRightIcon } from "../../assets/icons/sidebar-caret-right.svg";
+import { SIDEBAR_RAIL_WIDTH, SIDEBAR_WIDTH } from "./Menu.styled";
 
 type SidebarProps = {
   sidebarOpen: boolean;
@@ -14,12 +15,16 @@ const Sidebar = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  width: 256px;
+  width: ${SIDEBAR_WIDTH}px;
   bottom: 0;
+  /* border-box keeps the box exactly SIDEBAR_WIDTH, which the collapsed
+     transform and the section icons' rail offset are both measured against. */
+  box-sizing: border-box;
+  border-right: 1px solid ${colors.lightGrey};
   background: ${colors.white};
   transition: transform 0.7s ease;
   transform: ${({ sidebarOpen }: SidebarProps) =>
-    sidebarOpen ? "translateX(0)" : "translateX(calc(-100% + 52px))"};
+    sidebarOpen ? "translateX(0)" : `translateX(calc(-100% + ${SIDEBAR_RAIL_WIDTH}px))`};
 `;
 
 const SidebarButton = styled.button`
@@ -27,7 +32,7 @@ const SidebarButton = styled.button`
   cursor: pointer;
   top: 0;
   right: 0;
-  width: 52px;
+  width: ${SIDEBAR_RAIL_WIDTH}px;
   height: 100%;
   background-color: transparent;
   border: none;

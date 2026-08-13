@@ -74,6 +74,7 @@ interface DataState {
   degrees: number;
   filterByStatus: string;
   filterByCategory: string;
+  filterBySubCategory: string;
   showInspector: boolean;
   changeMapDisplayOption: ChangeMapDisplayOptionType;
   tempUnit: types.TempUnit;
@@ -88,6 +89,7 @@ interface DataState {
   setDegrees(degrees: any): void;
   setFilterByStatus(filter: any): void;
   setFilterByCategory(filter: any): void;
+  setFilterBySubCategory(filter: any): void;
   setShowInspector(show: boolean): void;
   setChangeMapDisplayOption(option: ChangeMapDisplayOptionType): void;
   setTempUnit(arg: any): void;
@@ -218,6 +220,7 @@ function getInitialState(): MenuState {
       degrees: defaultDegreesForNonChangeMaps,
       filterByStatus: "published",
       filterByCategory: "all",
+      filterBySubCategory: "all",
       showInspector: false,
       changeMapDisplayOption: "original",
       midValueShown: "",
@@ -232,6 +235,7 @@ function getInitialState(): MenuState {
       setDegrees: () => {},
       setFilterByStatus: () => {},
       setFilterByCategory: () => {},
+      setFilterBySubCategory: () => {},
       setShowInspector: () => {},
       setChangeMapDisplayOption: () => {},
       setTempUnit: () => {},
@@ -300,6 +304,7 @@ function useData(): DataState {
   const [degrees, setDegrees] = useState(defaultDegreesForNonChangeMaps);
   const [filterByStatus, setFilterByStatus] = useState("published");
   const [filterByCategory, setFilterByCategory] = useState("all");
+  const [filterBySubCategory, setFilterBySubCategory] = useState("all");
   const [showInspector, setShowInspector] = useState(false);
   const [changeMapDisplayOption, setChangeMapDisplayOption] =
     useState<ChangeMapDisplayOptionType>("original");
@@ -324,6 +329,8 @@ function useData(): DataState {
       setFilterByStatus,
       filterByCategory,
       setFilterByCategory,
+      filterBySubCategory,
+      setFilterBySubCategory,
       showInspector,
       setShowInspector,
       tempUnit,
@@ -349,6 +356,7 @@ function useData(): DataState {
       degrees,
       filterByStatus,
       filterByCategory,
+      filterBySubCategory,
       showInspector,
       tempUnit,
       midValueShown,

@@ -70,6 +70,8 @@ export default function Data(): JSX.Element {
       setDatasets,
       setDegrees,
       setWpDatasetDescriptionResponse,
+      filterBySubCategory,
+      setFilterBySubCategory,
       isVersionComparisonActive,
       versionBefore,
       versionAfter,
@@ -105,18 +107,51 @@ export default function Data(): JSX.Element {
     setWpDatasetDescriptionResponse,
     locale,
   });
-  const datasetOptions = useMemo(() => {
-    return datasets
-      .filter(({ isLatest }) => isLatest)
-      .filter(({ status }) => (filterByStatus === "all" ? true : status === filterByStatus))
-      .filter(({ dataset: { pfDatasetParentCategoryByParentCategory: category } }) =>
-        filterByCategory === "all" ? true : category.name === filterByCategory,
-      )
-      .map(({ slug, dataset, name }) => ({
-        label: `${translate(`header.datasets.${camelcase(slug)}`, name)} - ${dataset.model}`,
-        value: slug,
-      }));
-  }, [datasets, filterByStatus, filterByCategory, translate]);
+  const datasetsMatchingFilters = useMemo(
+    () =>
+      datasets
+        .filter(({ isLatest }) => isLatest)
+        .filter(({ status }) => (filterByStatus === "all" ? true : status === filterByStatus))
+        .filter(({ dataset: { pfDatasetParentCategoryByParentCategory: category } }) =>
+          filterByCategory === "all" ? true : category.name === filterByCategory,
+        ),
+    [datasets, filterByStatus, filterByCategory],
+  );
+
+  const subCategoryOptions = useMemo(() => {
+    const uniqueSubCategories = [
+      ...new Set(
+        datasetsMatchingFilters
+          .map(({ dataset }) => dataset.subCategory)
+          .filter((subCategory): subCategory is string => !!subCategory),
+      ),
+    ].sort();
+    return [
+      { label: translate("menu.data.subCategoryOptions.all", "All sub-categories"), value: "all" },
+      ...uniqueSubCategories.map((subCategory) => ({ label: subCategory, value: subCategory })),
+    ];
+  }, [datasetsMatchingFilters, translate]);
+
+  const effectiveSubCategory = useMemo(
+    () =>
+      subCategoryOptions.some(({ value }) => value === filterBySubCategory)
+        ? filterBySubCategory
+        : "all",
+    [subCategoryOptions, filterBySubCategory],
+  );
+
+  const datasetOptions = useMemo(
+    () =>
+      datasetsMatchingFilters
+        .filter(({ dataset }) =>
+          effectiveSubCategory === "all" ? true : dataset.subCategory === effectiveSubCategory,
+        )
+        .map(({ slug, name }) => ({
+          label: translate(`header.datasets.${camelcase(slug)}`, name),
+          value: slug,
+        })),
+    [datasetsMatchingFilters, effectiveSubCategory, translate],
+  );
   const defaultValue = { value: "", label: "" };
   const filterOptions = [
     { label: translate("menu.data.filterOptions.all"), value: "all" },
@@ -246,12 +281,26 @@ export default function Data(): JSX.Element {
     setChangeMapDisplayOption("original");
   };
 
+  const onSelectedVersionChange = (option: { label: string; value: string | number }) => {
+    const map = versionsOfSelectedDataset.find(
+      ({ mapVersion }) => mapVersion === Number(option.value),
+    );
+    if (map) {
+      setSelectedDataset(map);
+    }
+  };
+
   const onFilterChange = (option: { label: String; value: String }) => {
     setFilterByStatus(option.value);
   };
 
   const onCategoryChange = (option: { label: String; value: String }) => {
     setFilterByCategory(option.value);
+    setFilterBySubCategory("all");
+  };
+
+  const onSubCategoryChange = (option: { label: String; value: String }) => {
+    setFilterBySubCategory(option.value);
   };
 
   const onMidValueShownChange = (option: { label: String; value: String }) => {
@@ -301,10 +350,10 @@ export default function Data(): JSX.Element {
             selectedDataset
               ? {
                   value: selectedDataset.slug,
-                  label: `${translate(
+                  label: translate(
                     `header.datasets.${camelcase(selectedDataset.slug)}`,
                     selectedDataset.name,
-                  )} - ${selectedDataset.dataset.model}`,
+                  ),
                 }
               : defaultValue
           }
@@ -312,6 +361,22 @@ export default function Data(): JSX.Element {
           onChange={onDatasetChange}
         />
       </Section>
+      {selectedDataset && canCompareVersions && !isVersionComparisonActive && (
+        <Section showBorder={false}>
+          <Title>{translate("menu.data.version", "Version")}</Title>
+          <Dropdown
+            value={{
+              value: selectedDataset.mapVersion,
+              label: getVersionLabel(selectedDataset),
+            }}
+            options={versionsOfSelectedDataset.map((map) => ({
+              value: map.mapVersion,
+              label: `${getVersionLabel(map)}${map.isLatest ? " · latest" : ""}`,
+            }))}
+            onChange={onSelectedVersionChange}
+          />
+        </Section>
+      )}
       <Section showBorder={false}>
         <Title>{translate("menu.data.mapStatus")}</Title>
         <Dropdown
@@ -320,7 +385,7 @@ export default function Data(): JSX.Element {
           onChange={onFilterChange}
         />
       </Section>
-      <Section>
+      <Section showBorder={subCategoryOptions.length <= 1}>
         <Title>{translate("menu.data.volume")}</Title>
         <Dropdown
           value={volumeOptions.find((option) => option.value === filterByCategory) || defaultValue}
@@ -328,6 +393,19 @@ export default function Data(): JSX.Element {
           onChange={onCategoryChange}
         />
       </Section>
+      {subCategoryOptions.length > 1 && (
+        <Section>
+          <Title>{translate("menu.data.subCategory", "Sub-category")}</Title>
+          <Dropdown
+            value={
+              subCategoryOptions.find((option) => option.value === effectiveSubCategory) ||
+              subCategoryOptions[0]
+            }
+            options={subCategoryOptions}
+            onChange={onSubCategoryChange}
+          />
+        </Section>
+      )}
       <Section showBorder={false}>
         <Option>
           <SwitchLabel>{translate("menu.data.showInspector")}</SwitchLabel>

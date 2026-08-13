@@ -14,7 +14,8 @@ const Container = styled.div`
   height: 52px;
   background-color: ${colors.white};
   border-bottom: 1px solid ${colors.lightGrey};
-  border-left: 1px solid ${colors.lightGrey};
+  /* No border-left: the sidebar's border-right now covers this edge full height,
+     and keeping both renders a doubled line across the header. */
   transition: transform 0.7s ease;
   box-sizing: border-box;
   transform: ${({ sidebarOpen }: { sidebarOpen: boolean }) =>
@@ -49,13 +50,14 @@ const MapBuilderHeader = () => {
   return (
     <Container sidebarOpen={sidebar.isVisible}>
       <p>
-        {translate(`header.datasets.${camelcase(selectedDataset.slug)}`, selectedDataset.name)} -{" "}
-        {selectedDataset.dataset.model}
-        {isComparing && (
+        {translate(`header.datasets.${camelcase(selectedDataset.slug)}`, selectedDataset.name)}
+        {isComparing ? (
           <Versions>
             {" — "}
             {`v${versionBefore.mapVersion} vs v${versionAfter.mapVersion}`}
           </Versions>
+        ) : (
+          ` - ${selectedDataset.dataset.model}`
         )}
       </p>
     </Container>
