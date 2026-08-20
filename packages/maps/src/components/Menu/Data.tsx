@@ -1,21 +1,33 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { types } from "@probable-futures/lib";
 import camelcase from "lodash.camelcase";
 
 import Dropdown from "../common/Dropdown";
 import CustomSwitch from "../common/CustomSwitch";
+import SegmentedControl, { Segment } from "../common/SegmentedControl";
 import { ChangeMapDisplayOptionType, useMenu } from "../../components/Menu";
 import { Section, Title } from "./Menu.styled";
 import useMapsApi from "../../utils/useMapsApi";
 import { colors } from "../../consts";
+import {
+  COMPARE_MODE_QUERY_PARAM,
+  ComparisonMode,
+  parseComparisonMode,
+  VERSION_AFTER_QUERY_PARAM,
+  VERSION_BEFORE_QUERY_PARAM,
+} from "../../consts/mapConsts";
+import { getQueryParam, setQueryParam } from "../../utils";
 import { useTranslation } from "../../contexts/TranslationContext";
 import useWPApi from "../../utils/useWPApi";
 import {
+  getAvailableDiffPairs,
+  getDefaultDiffPair,
   getDefaultVersionPair,
   getVersionLabel,
   getVersionsOfDataset,
 } from "../../utils/mapVersions";
+import { getDiffPairLabel } from "../../consts/versionDiffMaps";
 
 const Container = styled.div`
   display: flex;
@@ -72,10 +84,10 @@ export default function Data(): JSX.Element {
       setWpDatasetDescriptionResponse,
       filterBySubCategory,
       setFilterBySubCategory,
-      isVersionComparisonActive,
+      comparisonMode,
       versionBefore,
       versionAfter,
-      setIsVersionComparisonActive,
+      setComparisonMode,
       setVersionBefore,
       setVersionAfter,
     },
@@ -207,16 +219,56 @@ export default function Data(): JSX.Element {
     [versionsOfSelectedDataset],
   );
 
+  const diffPairs = useMemo(
+    () => getAvailableDiffPairs(versionsOfSelectedDataset, selectedDataset?.dataset.id),
+    [versionsOfSelectedDataset, selectedDataset],
+  );
+
+  const canShowDiff = diffPairs.length > 0;
+
+  const activeDiffPair = useMemo(
+    () =>
+      diffPairs.find(
+        ({ diffMap }) =>
+          diffMap.baseVersion === versionBefore?.mapVersion &&
+          diffMap.targetVersion === versionAfter?.mapVersion,
+      ),
+    [diffPairs, versionBefore, versionAfter],
+  );
+
   // Re-resolving each side against the current version list is what makes a
   // mid-value-method change move both sides too. Resolving to the identical entry
   // is a no-op, so this settles after one pass instead of looping.
   useEffect(() => {
-    if (!isVersionComparisonActive) {
+    if (comparisonMode === "none") {
       return;
     }
+
+    if (comparisonMode === "diff") {
+      const pair = getDefaultDiffPair(
+        versionsOfSelectedDataset,
+        selectedDataset?.dataset.id,
+        versionBefore,
+        versionAfter,
+      );
+      if (!pair) {
+        setComparisonMode("none");
+        setVersionBefore(undefined);
+        setVersionAfter(undefined);
+        return;
+      }
+      if (pair.before !== versionBefore) {
+        setVersionBefore(pair.before);
+      }
+      if (pair.after !== versionAfter) {
+        setVersionAfter(pair.after);
+      }
+      return;
+    }
+
     const pair = getDefaultVersionPair(versionsOfSelectedDataset, selectedDataset);
     if (!pair) {
-      setIsVersionComparisonActive(false);
+      setComparisonMode("none");
       setVersionBefore(undefined);
       setVersionAfter(undefined);
       return;
@@ -234,21 +286,95 @@ export default function Data(): JSX.Element {
       setVersionAfter(nextAfter);
     }
   }, [
-    isVersionComparisonActive,
+    comparisonMode,
     versionsOfSelectedDataset,
     selectedDataset,
     versionBefore,
     versionAfter,
-    setIsVersionComparisonActive,
+    setComparisonMode,
     setVersionBefore,
     setVersionAfter,
   ]);
 
-  const onToggleVersionComparison = (checked: boolean) => {
-    setIsVersionComparisonActive(checked);
-    if (!checked) {
+  const hasRestoredComparisonFromUrl = useRef(false);
+  useEffect(() => {
+    if (hasRestoredComparisonFromUrl.current || datasets.length === 0) {
+      return;
+    }
+    hasRestoredComparisonFromUrl.current = true;
+
+    const mode = parseComparisonMode(getQueryParam(COMPARE_MODE_QUERY_PARAM));
+    if (!mode) {
+      setQueryParam({ comparisonMode: "none" });
+      return;
+    }
+    const findVersion = (param: string) => {
+      const value = getQueryParam(param);
+      return value
+        ? versionsOfSelectedDataset.find(({ mapVersion }) => mapVersion === Number(value))
+        : undefined;
+    };
+    const before = findVersion(VERSION_BEFORE_QUERY_PARAM);
+    const after = findVersion(VERSION_AFTER_QUERY_PARAM);
+    if (before && after && before.mapVersion !== after.mapVersion) {
+      setVersionBefore(before);
+      setVersionAfter(after);
+    }
+    setComparisonMode(mode);
+  }, [datasets, versionsOfSelectedDataset, setComparisonMode, setVersionBefore, setVersionAfter]);
+
+  useEffect(() => {
+    if (!hasRestoredComparisonFromUrl.current) {
+      return;
+    }
+    setQueryParam({
+      comparisonMode,
+      versionBefore: versionBefore?.mapVersion,
+      versionAfter: versionAfter?.mapVersion,
+    });
+  }, [comparisonMode, versionBefore, versionAfter]);
+
+  const comparisonSegments: Segment<ComparisonMode>[] = [
+    { value: "none", label: translate("menu.data.comparisonModes.none", "Single") },
+    { value: "swipe", label: translate("menu.data.comparisonModes.swipe", "Side by side") },
+    {
+      value: "diff",
+      label: translate("menu.data.comparisonModes.diff", "Difference"),
+      disabled: !canShowDiff,
+      hint: canShowDiff
+        ? undefined
+        : translate(
+            "menu.data.noDiffMapHint",
+            "No difference map has been published for this dataset.",
+          ),
+    },
+  ];
+
+  const onComparisonModeChange = (mode: ComparisonMode) => {
+    if (mode === "none") {
       setVersionBefore(undefined);
       setVersionAfter(undefined);
+    } else if (mode === "diff") {
+      const pair = getDefaultDiffPair(
+        versionsOfSelectedDataset,
+        selectedDataset?.dataset.id,
+        versionBefore,
+        versionAfter,
+      );
+      if (!pair) {
+        return;
+      }
+      setVersionBefore(pair.before);
+      setVersionAfter(pair.after);
+    }
+    setComparisonMode(mode);
+  };
+
+  const onDiffPairChange = (option: { label: string; value: string | number }) => {
+    const pair = diffPairs.find(({ diffMap }) => diffMap.mapStyleId === option.value);
+    if (pair) {
+      setVersionBefore(pair.before);
+      setVersionAfter(pair.after);
     }
   };
 
@@ -361,7 +487,7 @@ export default function Data(): JSX.Element {
           onChange={onDatasetChange}
         />
       </Section>
-      {selectedDataset && canCompareVersions && !isVersionComparisonActive && (
+      {selectedDataset && canCompareVersions && comparisonMode === "none" && (
         <Section showBorder={false}>
           <Title>{translate("menu.data.version", "Version")}</Title>
           <Dropdown
@@ -419,20 +545,15 @@ export default function Data(): JSX.Element {
       </Section>
       {canCompareVersions && (
         <Section showBorder={false}>
-          <Option>
-            <SwitchLabel>
-              {translate("menu.data.compareVersions", "Compare map versions")}
-            </SwitchLabel>
-            <CustomSwitch
-              name="compare_versions"
-              label={translate(
-                isVersionComparisonActive ? "menu.mapStyle.on" : "menu.mapStyle.off",
-              )}
-              checked={isVersionComparisonActive}
-              onChange={onToggleVersionComparison}
-            />
-          </Option>
-          {isVersionComparisonActive && versionBefore && versionAfter && (
+          <Title>{translate("menu.data.comparison", "Comparison")}</Title>
+          <SegmentedControl
+            name={translate("menu.data.comparison", "Comparison")}
+            value={comparisonMode}
+            segments={comparisonSegments}
+            onChange={onComparisonModeChange}
+            orientation="vertical"
+          />
+          {comparisonMode === "swipe" && versionBefore && versionAfter && (
             <VersionFields>
               <div>
                 <Title>{translate("menu.data.versionOnLeft", "Version on the left")}</Title>
@@ -454,6 +575,32 @@ export default function Data(): JSX.Element {
                 {translate(
                   "menu.data.compareVersionsHint",
                   "Both sides share the legend bins and colours below, so any difference you see is a difference in the data.",
+                )}
+              </Hint>
+            </VersionFields>
+          )}
+          {comparisonMode === "diff" && activeDiffPair && (
+            <VersionFields>
+              {diffPairs.length > 1 && (
+                <div>
+                  <Title>{translate("menu.data.differencePair", "Versions compared")}</Title>
+                  <Dropdown
+                    value={{
+                      value: activeDiffPair.diffMap.mapStyleId,
+                      label: getDiffPairLabel(activeDiffPair.diffMap),
+                    }}
+                    options={diffPairs.map(({ diffMap }) => ({
+                      value: diffMap.mapStyleId,
+                      label: getDiffPairLabel(diffMap),
+                    }))}
+                    onChange={onDiffPairChange}
+                  />
+                </div>
+              )}
+              <Hint>
+                {translate(
+                  "menu.data.differenceHint",
+                  "Red where the newer version is higher than the older one, blue where it is lower. Values are differences, so they are shown in the map's own unit and never converted.",
                 )}
               </Hint>
             </VersionFields>

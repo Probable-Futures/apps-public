@@ -21,7 +21,7 @@ import Data from "./Data";
 import Legend from "./Legend";
 import MapStyle from "./MapStyle";
 import UserInfo from "./UserInfo";
-import { indexForMap } from "../../consts/mapConsts";
+import { ComparisonMode, indexForMap } from "../../consts/mapConsts";
 import PfIcon from "../../assets/icons/pf-icon.svg";
 import DatabaseIcon from "../../assets/icons/database.svg";
 import PaintIcon from "../../assets/icons/paint.svg";
@@ -50,6 +50,8 @@ interface DynamicStyleVariables {
 }
 
 export type ChangeMapDisplayOptionType = "original" | "withBaseline" | "allAbsolute";
+
+export type { ComparisonMode } from "../../consts/mapConsts";
 
 interface MapStyleState {
   binsType: string;
@@ -81,7 +83,7 @@ interface DataState {
   midValueShown: string;
   datasetDescriptionResponse?: types.DatasetDescriptionResponse;
   precipitationUnit: types.PrecipitationUnit;
-  isVersionComparisonActive: boolean;
+  comparisonMode: ComparisonMode;
   versionBefore?: types.Map;
   versionAfter?: types.Map;
   setDatasets(datasets: any): void;
@@ -98,7 +100,7 @@ interface DataState {
     datasetDescriptionResponse: types.DatasetDescriptionResponse,
   ): void;
   setPrecipitationUnit(arg: types.PrecipitationUnit): void;
-  setIsVersionComparisonActive(active: boolean): void;
+  setComparisonMode(mode: ComparisonMode): void;
   setVersionBefore(dataset?: types.Map): void;
   setVersionAfter(dataset?: types.Map): void;
 }
@@ -227,7 +229,7 @@ function getInitialState(): MenuState {
       tempUnit: "°C",
       datasetDescriptionResponse: undefined,
       precipitationUnit: "mm",
-      isVersionComparisonActive: false,
+      comparisonMode: "none",
       versionBefore: undefined,
       versionAfter: undefined,
       setDatasets: () => {},
@@ -242,7 +244,7 @@ function getInitialState(): MenuState {
       setMidValueShown: () => {},
       setWpDatasetDescriptionResponse: () => {},
       setPrecipitationUnit: () => {},
-      setIsVersionComparisonActive: () => {},
+      setComparisonMode: () => {},
       setVersionBefore: () => {},
       setVersionAfter: () => {},
     },
@@ -313,7 +315,7 @@ function useData(): DataState {
   const [datasetDescriptionResponse, setWpDatasetDescriptionResponse] =
     useState<types.DatasetDescriptionResponse>();
   const [precipitationUnit, setPrecipitationUnit] = useState("mm" as types.PrecipitationUnit);
-  const [isVersionComparisonActive, setIsVersionComparisonActive] = useState(false);
+  const [comparisonMode, setComparisonMode] = useState<ComparisonMode>("none");
   const [versionBefore, setVersionBefore] = useState<types.Map | undefined>();
   const [versionAfter, setVersionAfter] = useState<types.Map | undefined>();
 
@@ -343,8 +345,8 @@ function useData(): DataState {
       setPrecipitationUnit,
       changeMapDisplayOption,
       setChangeMapDisplayOption,
-      isVersionComparisonActive,
-      setIsVersionComparisonActive,
+      comparisonMode,
+      setComparisonMode,
       versionBefore,
       setVersionBefore,
       versionAfter,
@@ -363,7 +365,7 @@ function useData(): DataState {
       datasetDescriptionResponse,
       precipitationUnit,
       changeMapDisplayOption,
-      isVersionComparisonActive,
+      comparisonMode,
       versionBefore,
       versionAfter,
     ],

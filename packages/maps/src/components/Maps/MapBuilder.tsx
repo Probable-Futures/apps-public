@@ -9,6 +9,7 @@ import MapGL, {
 import styled from "styled-components";
 import { components } from "@probable-futures/components-lib";
 import { utils, consts, types } from "@probable-futures/lib";
+import camelcase from "lodash.camelcase";
 import mapboxgl, { MapboxEvent, Map } from "mapbox-gl";
 
 import { useMenu } from "../Menu";
@@ -20,9 +21,12 @@ import MinusIcon from "../../assets/icons/minus.svg";
 import MapBuilderHeader from "../MapBuilderHeader";
 import { colors, size } from "../../consts";
 import { getMapBuilderMinZoom } from "../../consts/mapConsts";
+import { getDiffMapBinHexColors, getDiffMapForPair } from "../../consts/versionDiffMaps";
 import { useTranslation } from "../../contexts/TranslationContext";
 import useGlobeLines, { LINE_LAYER_LABEL_PREFIX } from "../../utils/useGlobeLines";
 import VersionComparisonMapView, { VersionComparisonMapHandle } from "./VersionComparisonMapView";
+import DiffMapKey from "./DiffMapKey";
+import DiffPopupContent from "./DiffPopupContent";
 
 const Container = styled.div`
   position: relative;
@@ -94,6 +98,31 @@ const KeyWrapper = styled.div`
   .map-key-container {
     padding-right: 16px;
   }
+
+  .diff-map-key-container {
+    border: 1px solid ${colors.darkPurple};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 14px 22px;
+    min-height: 104px;
+  }
+`;
+
+const StyleErrorBanner = styled.div`
+  position: absolute;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  max-width: 520px;
+  padding: 10px 16px;
+  background-color: ${colors.white};
+  border: 1px solid ${colors.red};
+  border-radius: 6px;
+  color: ${colors.darkPurple};
+  font-size: 13px;
+  line-height: 1.35;
 `;
 
 const defaultViewState = {
@@ -121,7 +150,7 @@ const InteractiveMap = () => {
       precipitationUnit,
       setPrecipitationUnit,
       setMidValueShown,
-      isVersionComparisonActive,
+      comparisonMode,
       versionBefore,
       versionAfter,
     },
@@ -148,6 +177,19 @@ const InteractiveMap = () => {
   });
   const { translate } = useTranslation();
   const { drawGlobeLines, removeGlobeLayers } = useGlobeLines(mapProjection, mapRef.current);
+  const [hasStyleError, setHasStyleError] = useState(false);
+
+  const activeDiffMap = useMemo(
+    () =>
+      comparisonMode === "diff"
+        ? getDiffMapForPair(
+            selectedDataset?.dataset.id,
+            versionBefore?.mapVersion,
+            versionAfter?.mapVersion,
+          )
+        : undefined,
+    [comparisonMode, selectedDataset, versionBefore, versionAfter],
+  );
 
   const updateMapStyles = useCallback((map: Map) => {
     if (mapGeneralStyles.current.binHexColors && mapGeneralStyles.current.bins) {
@@ -234,7 +276,7 @@ const InteractiveMap = () => {
     if (selectedDataset) {
       setPopupVisible(false);
     }
-  }, [selectedDataset, setPopupVisible]);
+  }, [selectedDataset, comparisonMode, setPopupVisible]);
 
   useEffect(() => {
     if (mapProjection.name !== "mercator" && mapProjection.name !== "globe") {
@@ -247,17 +289,30 @@ const InteractiveMap = () => {
 
   useEffect(() => {
     if (selectedDataset) {
-      setDynamicStyleVariables({
-        binHexColors: selectedDataset.binHexColors,
-        bins: selectedDataset.stops,
-      });
       setQueryParam({
         mapSlug: selectedDataset.slug,
         version: selectedDataset.isLatest ? "latest" : selectedDataset.mapVersion.toString(),
       });
       setMidValueShown(selectedDataset.methodUsedForMid);
     }
-  }, [selectedDataset, setDynamicStyleVariables, setMidValueShown]);
+  }, [selectedDataset, setMidValueShown]);
+
+  // The difference view swaps in the registry's diverging ramp, which keeps the
+  // legend editor and the paint expression working on it exactly as they do on a
+  // regular map. Leaving the view restores the dataset's own ramp.
+  useEffect(() => {
+    if (activeDiffMap) {
+      setDynamicStyleVariables({
+        binHexColors: getDiffMapBinHexColors(activeDiffMap),
+        bins: activeDiffMap.stops,
+      });
+    } else if (selectedDataset) {
+      setDynamicStyleVariables({
+        binHexColors: selectedDataset.binHexColors,
+        bins: selectedDataset.stops,
+      });
+    }
+  }, [selectedDataset, activeDiffMap, setDynamicStyleVariables]);
 
   const onMapClick = useCallback(
     (e: MapLayerMouseEvent) => {
@@ -266,12 +321,19 @@ const InteractiveMap = () => {
         return;
       }
 
+      // `e.features` is filtered by the fixed interactiveLayerIds list. The
+      // red/blue styles are authored separately, so their data layers are queried
+      // straight off the map instead — the same approach the swipe view takes.
+      const features = activeDiffMap
+        ? mapRef.current?.getMap().queryRenderedFeatures([e.point.x, e.point.y])
+        : e.features;
+
       setPopupFeature({
-        features: e.features,
+        features,
         lngLat: [e.lngLat.lng, e.lngLat.lat],
       });
     },
-    [setPopupFeature],
+    [setPopupFeature, activeDiffMap],
   );
 
   const onMove = useCallback((evt: ViewStateChangeEvent) => setViewState(evt.viewState), []);
@@ -285,10 +347,30 @@ const InteractiveMap = () => {
     return `mapbox://styles/${mapboxAccount}/${dataset.mapStyleId}`;
   }, []);
 
-  const mapStyleLink = useMemo(
-    () => getMapStyleLink(selectedDataset),
-    [selectedDataset, getMapStyleLink],
-  );
+  const mapStyleLink = useMemo(() => {
+    if (activeDiffMap) {
+      const mapboxAccount =
+        window.pfInteractiveMap?.mapboxAccount || import.meta.env.VITE_MAPBOX_ACCOUNT;
+      return `mapbox://styles/${mapboxAccount}/${activeDiffMap.mapStyleId}`;
+    }
+    return getMapStyleLink(selectedDataset);
+  }, [activeDiffMap, selectedDataset, getMapStyleLink]);
+
+  useEffect(() => {
+    setHasStyleError(false);
+  }, [mapStyleLink]);
+
+  /**
+   * Mapbox reports transient tile failures through the same event, so only an
+   * error raised before the style has loaded counts — that is the shape a style
+   * id which no longer resolves takes. Scoped to the difference view because it
+   * is the only one whose style ids come from a hand-maintained registry.
+   */
+  const onError = useCallback(() => {
+    if (activeDiffMap && !mapRef.current?.getMap().isStyleLoaded()) {
+      setHasStyleError(true);
+    }
+  }, [activeDiffMap]);
 
   const onLoad = useCallback(
     (e: MapboxEvent) => {
@@ -306,10 +388,18 @@ const InteractiveMap = () => {
   const showKey =
     selectedDataset?.dataset.unit === "class" ? !!datasetDescriptionResponse?.climate_zones : true;
 
-  const isComparing = !!(isVersionComparisonActive && versionBefore && versionAfter);
+  const isComparing = !!(comparisonMode === "swipe" && versionBefore && versionAfter);
 
   return (
     <Container>
+      {hasStyleError && (
+        <StyleErrorBanner role="alert">
+          {translate(
+            "menu.data.diffMapUnavailable",
+            "This map style could not be loaded from Mapbox. Check that the style id in the difference-map registry is still published.",
+          )}
+        </StyleErrorBanner>
+      )}
       {isComparing && (
         <VersionComparisonMapView
           ref={comparisonMapRef}
@@ -349,6 +439,7 @@ const InteractiveMap = () => {
       )}
       {selectedDataset && !isComparing && (
         <MapGL
+          onError={onError}
           mapLib={mapboxgl}
           {...viewState}
           mapboxAccessToken={
@@ -376,22 +467,48 @@ const InteractiveMap = () => {
           <NavigationControl showZoom showCompass={false} />
           {popupVisible && (
             <Popup feature={feature} onClose={() => setPopupVisible(false)}>
-              <components.PopupContent
-                feature={feature}
-                dataset={selectedDataset}
-                degreesOfWarming={degrees}
-                showInspector={showInspector}
-                tempUnit={tempUnit}
-                datasetDescriptionResponse={datasetDescriptionResponse}
-                precipitationUnit={precipitationUnit}
-                isExperiment
-              />
+              {activeDiffMap ? (
+                <DiffPopupContent
+                  feature={feature}
+                  diffMap={activeDiffMap}
+                  datasetName={translate(
+                    `header.datasets.${camelcase(selectedDataset.slug)}`,
+                    selectedDataset.name,
+                  )}
+                  degrees={degrees}
+                  showInspector={showInspector}
+                />
+              ) : (
+                <components.PopupContent
+                  feature={feature}
+                  dataset={selectedDataset}
+                  degreesOfWarming={degrees}
+                  showInspector={showInspector}
+                  tempUnit={tempUnit}
+                  datasetDescriptionResponse={datasetDescriptionResponse}
+                  precipitationUnit={precipitationUnit}
+                  isExperiment
+                />
+              )}
             </Popup>
           )}
         </MapGL>
       )}
       <KeyWrapper sidebarOpen={sidebar.isVisible} unit={selectedDataset?.dataset.unit}>
-        {showKey && (
+        {activeDiffMap && selectedDataset && dynamicStyleVariables?.bins && (
+          <DiffMapKey
+            diffMap={activeDiffMap}
+            title={translate(
+              `header.datasets.${camelcase(selectedDataset.slug)}`,
+              selectedDataset.name,
+            )}
+            stops={dynamicStyleVariables.bins}
+            binHexColors={
+              dynamicStyleVariables.binHexColors ?? getDiffMapBinHexColors(activeDiffMap)
+            }
+          />
+        )}
+        {showKey && !activeDiffMap && (
           <components.MapKey
             selectedDataset={selectedDataset}
             tempUnit={tempUnit}

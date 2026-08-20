@@ -1,10 +1,14 @@
 import { PopupFeature } from "@probable-futures/lib";
 import {
+  COMPARE_MODE_QUERY_PARAM,
+  ComparisonMode,
   MAP_PROJECTION_QUERY_PARAM,
   MAP_QUERY_PARAM,
   MAP_VERSION_QUERY_PARAM,
   SCENARIO_AFTER_QUERY_PARAM,
   SCENARIO_BEFORE_QUERY_PARAM,
+  VERSION_AFTER_QUERY_PARAM,
+  VERSION_BEFORE_QUERY_PARAM,
   WARMING_SCENARIO_QUERY_PARAM,
 } from "../consts/mapConsts";
 
@@ -16,6 +20,9 @@ type SetQueryParam = {
   isComparisonMapActive?: boolean;
   comparisonScenarioBefore?: number;
   comparisonScenarioAfter?: number;
+  comparisonMode?: ComparisonMode;
+  versionBefore?: number;
+  versionAfter?: number;
 };
 
 export const setQueryParam = ({
@@ -26,6 +33,9 @@ export const setQueryParam = ({
   isComparisonMapActive,
   comparisonScenarioBefore,
   comparisonScenarioAfter,
+  comparisonMode,
+  versionBefore,
+  versionAfter,
 }: SetQueryParam) => {
   const params = new window.URLSearchParams(window.location.search);
 
@@ -55,6 +65,18 @@ export const setQueryParam = ({
     }
   } else if (warmingScenario !== null && warmingScenario !== undefined) {
     params.set(WARMING_SCENARIO_QUERY_PARAM, warmingScenario.toString());
+  }
+
+  if (comparisonMode === "none") {
+    params.delete(COMPARE_MODE_QUERY_PARAM);
+    params.delete(VERSION_BEFORE_QUERY_PARAM);
+    params.delete(VERSION_AFTER_QUERY_PARAM);
+  } else if (comparisonMode !== undefined) {
+    params.set(COMPARE_MODE_QUERY_PARAM, comparisonMode);
+    if (versionBefore !== undefined && versionAfter !== undefined) {
+      params.set(VERSION_BEFORE_QUERY_PARAM, versionBefore.toString());
+      params.set(VERSION_AFTER_QUERY_PARAM, versionAfter.toString());
+    }
   }
 
   window.history.replaceState(null, "", `?${params.toString()}${window.location.hash}`);

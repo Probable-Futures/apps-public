@@ -1,5 +1,7 @@
 import { types } from "@probable-futures/lib";
 
+import { getDiffMapsForDataset, versionDiffMaps, VersionDiffMap } from "../consts/versionDiffMaps";
+
 /**
  * One entry per map version, ascending. A dataset has a row per version *per*
  * mid-value method, so the row matching `selectedDataset.methodUsedForMid` wins.
@@ -53,3 +55,34 @@ export const getDefaultVersionPair = (
 
 export const getVersionLabel = (map: types.Map): string =>
   `v${map.mapVersion}${map.status && map.status !== "published" ? ` (${map.status})` : ""}`;
+
+export const getAvailableDiffPairs = (
+  versions: types.Map[],
+  datasetId?: number,
+  registry: VersionDiffMap[] = versionDiffMaps,
+): { diffMap: VersionDiffMap; before: types.Map; after: types.Map }[] =>
+  getDiffMapsForDataset(datasetId, registry)
+    .map((diffMap) => {
+      const before = versions.find(({ mapVersion }) => mapVersion === diffMap.baseVersion);
+      const after = versions.find(({ mapVersion }) => mapVersion === diffMap.targetVersion);
+      return before && after ? { diffMap, before, after } : undefined;
+    })
+    .filter((pair): pair is { diffMap: VersionDiffMap; before: types.Map; after: types.Map } =>
+      Boolean(pair),
+    )
+    .sort((a, b) => a.diffMap.targetVersion - b.diffMap.targetVersion);
+
+export const getDefaultDiffPair = (
+  versions: types.Map[],
+  datasetId?: number,
+  before?: types.Map,
+  after?: types.Map,
+  registry: VersionDiffMap[] = versionDiffMaps,
+) => {
+  const pairs = getAvailableDiffPairs(versions, datasetId, registry);
+  const current = pairs.find(
+    ({ diffMap }) =>
+      diffMap.baseVersion === before?.mapVersion && diffMap.targetVersion === after?.mapVersion,
+  );
+  return current ?? pairs[pairs.length - 1];
+};
