@@ -1,6 +1,6 @@
 {
   "name": "@probable-futures/probable-futures-maps-html-generator",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "This package empowers developers to seamlessly integrate dynamic and interactive climate maps into their web applications",
   "main": "dist/probable-futures-maps-html-generator.umd.js",
   "module": "dist/probable-futures-maps-html-generator.esm.js",
@@ -15,11 +15,11 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "dev": "yarn run build && node dist/index.js",
     "clean": "rm -rf dist",
-    "publish": "yarn publish --access=public --force",
+    "prepublishOnly": "yarn run build",
+    "publish": "yarn run build && yarn publish --access=public --force",
     "lint": "eslint src/**/*.ts",
     "typecheck": "tsc --noEmit"
   },
-  "prepublish": "yarn run build",
   "keywords": [],
   "author": "Probable Futures",
   "license": "ISC",
