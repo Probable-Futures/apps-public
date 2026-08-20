@@ -3,6 +3,8 @@ import { consts, types } from "@probable-futures/lib";
 
 import {
   DEFAULT_DIFF_BIN_HEX_COLORS,
+  Z_SCORE_DECIMALS,
+  formatDiffValue,
   DIFF_UNIT_FAMILIES,
   NO_DATA_HEX_COLORS,
   VersionDiffMap,
@@ -56,6 +58,7 @@ const makeDiffMap = (overrides: Partial<VersionDiffMap> = {}): VersionDiffMap =>
   baseVersion: 3,
   targetVersion: 4,
   mapStyleId: "diff-v4-v3",
+  unitFamily: "days",
   stops: [-30, -15, -5, 5, 15, 30],
   unitLabel: "days",
   ...overrides,
@@ -282,5 +285,33 @@ describe("formatDelta", () => {
 
   it("leaves zero unsigned", () => {
     expect(formatDelta(0)).toBe("0");
+  });
+});
+
+describe("formatDiffValue", () => {
+  it("drops a count to a whole unit, the precision the data publishes at", () => {
+    expect(formatDiffValue(12.7, "days")).toBe(12);
+    expect(formatDiffValue(-4.2, "millimeters")).toBe(-4);
+    expect(formatDiffValue(3.9, "percent")).toBe(3);
+  });
+
+  it("truncates toward zero, matching the importer's int() rather than rounding", () => {
+    expect(formatDiffValue(-3.7, "days")).toBe(-3);
+    expect(formatDiffValue(3.7, "days")).toBe(3);
+  });
+
+  it("never yields a negative zero", () => {
+    expect(Object.is(formatDiffValue(-0.4, "days"), -0)).toBe(false);
+    expect(Object.is(formatDiffValue(-0.001, "zScore"), -0)).toBe(false);
+  });
+
+  it("keeps z-scores at the precision their stops resolve to", () => {
+    expect(formatDiffValue(-0.153, "zScore")).toBe(-0.15);
+    expect(Z_SCORE_DECIMALS).toBe(2);
+  });
+
+  it("collapses a non-finite value, which is ocean or an unplaceable cell", () => {
+    expect(formatDiffValue(NaN, "days")).toBeUndefined();
+    expect(formatDiffValue(Infinity, "zScore")).toBeUndefined();
   });
 });

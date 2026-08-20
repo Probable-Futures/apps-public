@@ -4,6 +4,7 @@ export type VersionDiffMap = {
   baseVersion: number;
   targetVersion: number;
   mapStyleId: string;
+  unitFamily: DiffUnitFamily;
   stops: number[];
   binHexColors?: string[];
   unitLabel: string;
@@ -50,6 +51,7 @@ const diffMap = (
   baseVersion,
   targetVersion,
   mapStyleId,
+  unitFamily,
   stops: DIFF_UNIT_FAMILIES[unitFamily].stops,
   unitLabel: unitLabel ?? DIFF_UNIT_FAMILIES[unitFamily].unitLabel,
 });
@@ -119,3 +121,15 @@ export const getDiffMapBinHexColors = (diffMap: VersionDiffMap): string[] =>
 
 export const getDiffPairLabel = ({ baseVersion, targetVersion }: VersionDiffMap): string =>
   `v${targetVersion} − v${baseVersion}`;
+
+export const Z_SCORE_DECIMALS = 2;
+
+export const formatDiffValue = (value: number, unitFamily: DiffUnitFamily): number | undefined => {
+  if (!Number.isFinite(value)) {
+    return undefined;
+  }
+  if (unitFamily === "zScore") {
+    return Number(value.toFixed(Z_SCORE_DECIMALS)) + 0;
+  }
+  return Math.trunc(value) + 0;
+};

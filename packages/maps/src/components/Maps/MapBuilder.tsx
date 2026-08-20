@@ -471,12 +471,9 @@ const InteractiveMap = () => {
                 <DiffPopupContent
                   feature={feature}
                   diffMap={activeDiffMap}
-                  datasetName={translate(
-                    `header.datasets.${camelcase(selectedDataset.slug)}`,
-                    selectedDataset.name,
-                  )}
-                  degrees={degrees}
+                  dataset={selectedDataset}
                   showInspector={showInspector}
+                  yearLabels={translate("mapPopover.year")}
                 />
               ) : (
                 <components.PopupContent

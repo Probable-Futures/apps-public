@@ -34,7 +34,7 @@
       },
       "comparison": "Comparison",
       "comparisonModes": {
-        "none": "Single",
+        "none": "Off",
         "swipe": "Side by side",
         "diff": "Difference"
       },

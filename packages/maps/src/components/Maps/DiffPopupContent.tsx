@@ -1,21 +1,23 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import camelcase from "lodash.camelcase";
 import { consts, types } from "@probable-futures/lib";
 
 import { colors } from "../../consts";
-import { VersionDiffMap, getDiffPairLabel } from "../../consts/versionDiffMaps";
+import { VersionDiffMap, formatDiffValue, getDiffPairLabel } from "../../consts/versionDiffMaps";
 import { formatDelta } from "./DiffMapKey";
 
 type Props = {
   feature: types.PopupFeature;
   diffMap: VersionDiffMap;
-  datasetName: string;
-  degrees: number;
+  dataset: types.Map;
   showInspector: boolean;
+  yearLabels?: Record<string, string>;
 };
 
-const Body = styled.div`
-  padding-bottom: 16px;
-  min-width: 200px;
+const textStyles = css`
+  color: ${colors.black};
+  font-weight: 600;
+  letter-spacing: 0;
 `;
 
 const Title = styled.span`
@@ -26,100 +28,141 @@ const Title = styled.span`
   font-weight: 600;
   line-height: 14px;
   margin-right: 25px;
+
+  &:first-letter {
+    text-transform: uppercase;
+  }
 `;
 
-const PairLabel = styled.div`
-  font-family: "RelativeMono", Courier, monospace;
-  font-size: 12px;
-  color: ${colors.lightGrey2};
-  letter-spacing: 0;
-  margin: 6px 0 12px;
+const Inspector = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  font-style: italic;
+  margin-bottom: 10px;
+  margin-top: 2px;
+
+  p {
+    margin: 0;
+  }
 `;
 
-const Value = styled.div`
-  font-family: "RelativeMono", Courier, monospace;
-  font-size: 26px;
-  line-height: 1;
-  letter-spacing: 0;
-  color: ${({ sign }: { sign: number }) =>
-    sign > 0 ? colors.red : sign < 0 ? colors.blue : colors.darkPurple};
-`;
-
-const Unit = styled.span`
-  font-size: 13px;
-  color: ${colors.lightGrey2};
-  margin-left: 6px;
-`;
-
-const Range = styled.div`
-  font-family: "RelativeMono", Courier, monospace;
-  font-size: 11px;
-  color: ${colors.lightGrey2};
-  letter-spacing: 0;
-  margin-top: 8px;
-`;
-
-const Coordinates = styled.div`
-  font-family: "RelativeMono", Courier, monospace;
-  font-size: 11px;
-  color: ${colors.lightGrey2};
-  letter-spacing: 0;
+const NoDataText = styled.span`
+  display: block;
+  ${textStyles};
+  text-align: center;
   margin-top: 10px;
+  margin-bottom: 16px;
+  font-size: 20px;
 `;
 
-const NoData = styled.div`
-  font-size: 13px;
-  color: ${colors.lightGrey2};
+const RowContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  padding-bottom: 18px;
+  text-align: center;
+  gap: 20px;
+`;
+
+const ValueContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  gap: 5px;
+`;
+
+const ValueWithNumber = styled.span`
+  display: block;
+  ${textStyles};
+  margin: 18px 0 4px;
+  font-size: 20px;
+`;
+
+const AvgValue = styled.span`
+  display: block;
+  ${textStyles};
+  font-size: 40px;
+  line-height: 1.2;
+`;
+
+const Label = styled.span`
+  display: block;
+  max-width: 80px;
+  color: ${colors.black};
+  font-size: 10px;
+  letter-spacing: 0;
+  line-height: 10px;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 0px 4px;
+
+  &:first-letter {
+    text-transform: lowercase;
+  }
 `;
 
 const asNumber = (value: unknown): number | undefined =>
   typeof value === "number" && Number.isFinite(value) ? value : undefined;
 
-/**
- * The red/blue tiles carry the delta only, not the two source values, so this
- * deliberately does not reuse `PopupContent` — its copy ("12 days above 32°C")
- * would read an absolute claim off a difference. Deltas are also never unit
- * converted: `cToF` adds the 32° offset, which is wrong for a difference.
- */
 const DiffPopupContent = ({
   feature,
   diffMap,
-  datasetName,
-  degrees,
+  dataset,
   showInspector,
+  yearLabels,
 }: Props): JSX.Element => {
-  const [{ label: degreesLabel }] = consts.degreesOptions.filter((d) => d.value === degrees);
-  const mid = asNumber(feature.selectedData?.mid);
-  const low = asNumber(feature.selectedData?.low);
-  const high = asNumber(feature.selectedData?.high);
+  const rawMid = asNumber(feature.selectedData?.mid);
+  const isMidValid =
+    rawMid !== undefined && rawMid !== consts.ERROR_VALUE && rawMid !== consts.BARREN_LAND_VALUE;
+
+  const readValue = (raw: unknown) => {
+    const value = asNumber(raw);
+    return value === undefined || value === consts.ERROR_VALUE || value === consts.BARREN_LAND_VALUE
+      ? undefined
+      : formatDiffValue(value, diffMap.unitFamily);
+  };
+
+  const label = (index: number) => {
+    const raw = dataset.dataLabels?.[index];
+    return raw ? yearLabels?.[camelcase(raw)] || raw : undefined;
+  };
+
+  const values = [
+    { value: readValue(feature.selectedData?.low), label: label(0), isMid: false },
+    { value: readValue(feature.selectedData?.mid), label: label(1), isMid: true },
+    { value: readValue(feature.selectedData?.high), label: label(2), isMid: false },
+  ].filter(({ value }) => value !== undefined);
 
   return (
-    <Body>
-      <Title>
-        {datasetName} — difference at {degreesLabel}
-      </Title>
-      <PairLabel>{getDiffPairLabel(diffMap)}</PairLabel>
-      {mid === undefined ? (
-        <NoData>No data at this location</NoData>
-      ) : (
-        <>
-          <Value sign={Math.sign(mid)}>
-            {formatDelta(mid)}
-            <Unit>{diffMap.unitLabel}</Unit>
-          </Value>
-          {low !== undefined && high !== undefined && (
-            <Range>
-              {formatDelta(low)} to {formatDelta(high)} across the range
-            </Range>
-          )}
-        </>
-      )}
+    <div>
+      <Title>{`Difference ${getDiffPairLabel(diffMap)} (${diffMap.unitLabel})`}</Title>
       {showInspector && (
-        <Coordinates>
-          {feature.latitude.toFixed(4)}, {feature.longitude.toFixed(4)}
-        </Coordinates>
+        <Inspector>
+          <p>
+            Latitude: {Math.trunc(feature.latitude * 100) / 100} | Longitude:{" "}
+            {Math.trunc(feature.longitude * 100) / 100}
+          </p>
+        </Inspector>
       )}
-    </Body>
+      {!isMidValid ? (
+        <NoDataText>No data here</NoDataText>
+      ) : (
+        <RowContainer>
+          {values.map(({ value, label, isMid }, index) => (
+            <ValueContainer key={label ?? index}>
+              {isMid ? (
+                <AvgValue>{formatDelta(value!)}</AvgValue>
+              ) : (
+                <ValueWithNumber>{formatDelta(value!)}</ValueWithNumber>
+              )}
+              {label && <Label>{label}</Label>}
+            </ValueContainer>
+          ))}
+        </RowContainer>
+      )}
+    </div>
   );
 };
 

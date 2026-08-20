@@ -9,6 +9,11 @@ import SegmentedControl, { Segment } from "./common/SegmentedControl";
 import { getAvailableDiffPairs, getVersionsOfDataset } from "../utils/mapVersions";
 import { useTranslation } from "../contexts/TranslationContext";
 
+const SIDEBAR_OPEN_OFFSET = 256;
+const SIDEBAR_RAIL_OFFSET = 52;
+
+const TITLE_RESERVED_SPACE = 50 + 320;
+
 const Container = styled.div`
   width: 100%;
   position: absolute;
@@ -21,23 +26,32 @@ const Container = styled.div`
   z-index: 2;
   transition: transform 0.7s ease;
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding-right: 66px;
   transform: ${({ sidebarOpen }: { sidebarOpen: boolean }) =>
-    sidebarOpen ? "translateX(256px)" : "translateX(52px)"};
+    sidebarOpen ? `translateX(${SIDEBAR_OPEN_OFFSET}px)` : `translateX(${SIDEBAR_RAIL_OFFSET}px)`};
 
   p {
     font-size: 18px;
     line-height: 22px;
     margin: 0;
     padding: 16px 50px;
+    /* Capped against the viewport, not the bar, whose right edge is off screen.
+       Worst case is the sidebar open, so reserve from that offset. */
+    max-width: calc(100vw - ${SIDEBAR_OPEN_OFFSET + TITLE_RESERVED_SPACE}px);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    box-sizing: border-box;
   }
+`;
+
+const HeaderControls = styled.div`
+  position: absolute;
+  top: 0;
+  right: 20px;
+  height: 52px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
 `;
 
 const MODEL_HIDDEN_MAP_VERSION = 4;
@@ -88,7 +102,7 @@ const MapBuilderHeader = () => {
     !isSwiping && !activeDiffMap && selectedDataset.mapVersion !== MODEL_HIDDEN_MAP_VERSION;
 
   const segments: Segment<ComparisonMode>[] = [
-    { value: "none", label: translate("menu.data.comparisonModes.none", "Single") },
+    { value: "none", label: translate("menu.data.comparisonModes.none", "Off") },
     { value: "swipe", label: translate("menu.data.comparisonModes.swipe", "Side by side") },
     {
       value: "diff",
@@ -125,35 +139,39 @@ const MapBuilderHeader = () => {
   };
 
   return (
-    <Container sidebarOpen={sidebar.isVisible}>
-      <p>
-        {translate(`header.datasets.${camelcase(selectedDataset.slug)}`, selectedDataset.name)}
-        {isSwiping && (
-          <Versions>
-            {" — "}
-            {`v${versionBefore.mapVersion} vs v${versionAfter.mapVersion}`}
-          </Versions>
-        )}
-        {activeDiffMap && (
-          <Versions>
-            {" — "}
-            {translate("menu.data.difference", "difference")} {getDiffPairLabel(activeDiffMap)}
-          </Versions>
-        )}
-        {showModel && ` - ${selectedDataset.dataset.model}`}
-      </p>
+    <>
+      <Container sidebarOpen={sidebar.isVisible}>
+        <p>
+          {translate(`header.datasets.${camelcase(selectedDataset.slug)}`, selectedDataset.name)}
+          {isSwiping && (
+            <Versions>
+              {" — "}
+              {`v${versionBefore.mapVersion} vs v${versionAfter.mapVersion}`}
+            </Versions>
+          )}
+          {activeDiffMap && (
+            <Versions>
+              {" — "}
+              {translate("menu.data.difference", "difference")} {getDiffPairLabel(activeDiffMap)}
+            </Versions>
+          )}
+          {showModel && ` - ${selectedDataset.dataset.model}`}
+        </p>
+      </Container>
       {canCompareVersions && (
-        <ModeSwitch>
-          <SegmentedControl
-            name={translate("menu.data.comparison", "Comparison")}
-            value={comparisonMode}
-            segments={segments}
-            onChange={onModeChange}
-            compact
-          />
-        </ModeSwitch>
+        <HeaderControls>
+          <ModeSwitch>
+            <SegmentedControl
+              name={translate("menu.data.comparison", "Comparison")}
+              value={comparisonMode}
+              segments={segments}
+              onChange={onModeChange}
+              compact
+            />
+          </ModeSwitch>
+        </HeaderControls>
       )}
-    </Container>
+    </>
   );
 };
 

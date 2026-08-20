@@ -335,7 +335,7 @@ export default function Data(): JSX.Element {
   }, [comparisonMode, versionBefore, versionAfter]);
 
   const comparisonSegments: Segment<ComparisonMode>[] = [
-    { value: "none", label: translate("menu.data.comparisonModes.none", "Single") },
+    { value: "none", label: translate("menu.data.comparisonModes.none", "Off") },
     { value: "swipe", label: translate("menu.data.comparisonModes.swipe", "Side by side") },
     {
       value: "diff",
