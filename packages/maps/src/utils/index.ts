@@ -4,6 +4,7 @@ import {
   ComparisonMode,
   MAP_PROJECTION_QUERY_PARAM,
   MAP_QUERY_PARAM,
+  MAP_STATUS_QUERY_PARAM,
   MAP_VERSION_QUERY_PARAM,
   SCENARIO_AFTER_QUERY_PARAM,
   SCENARIO_BEFORE_QUERY_PARAM,
@@ -16,6 +17,7 @@ type SetQueryParam = {
   mapSlug?: string;
   warmingScenario?: number;
   version?: string;
+  status?: string;
   mapProjection?: string;
   isComparisonMapActive?: boolean;
   comparisonScenarioBefore?: number;
@@ -29,6 +31,7 @@ export const setQueryParam = ({
   mapSlug,
   warmingScenario,
   version,
+  status,
   mapProjection,
   isComparisonMapActive,
   comparisonScenarioBefore,
@@ -44,6 +47,9 @@ export const setQueryParam = ({
   }
   if (version !== null && version !== undefined) {
     params.set(MAP_VERSION_QUERY_PARAM, version);
+  }
+  if (status !== null && status !== undefined) {
+    params.set(MAP_STATUS_QUERY_PARAM, status);
   }
   if (mapProjection !== null && mapProjection !== undefined) {
     params.set(MAP_PROJECTION_QUERY_PARAM, mapProjection);
@@ -90,11 +96,7 @@ export const deleteQueryParam = (param: string) => {
   const queryParams = new window.URLSearchParams(window.location.search);
   if (queryParams.has(param)) {
     queryParams.delete(param);
-    window.history.replaceState(
-      null,
-      "",
-      `?${queryParams.toString()}${window.localStorage.hash || ""}`,
-    );
+    window.history.replaceState(null, "", `?${queryParams.toString()}${window.location.hash}`);
   }
 };
 

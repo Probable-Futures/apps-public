@@ -94,7 +94,12 @@ const Direction = styled.div`
   color: ${colors.lightGrey2};
 `;
 
-export const formatDelta = (value: number): string => (value > 0 ? `+${value}` : value.toString());
+export const formatDelta = (value?: number): string => {
+  if (value === undefined || !Number.isFinite(value)) {
+    return "";
+  }
+  return value > 0 ? `+${value}` : value.toString();
+};
 
 const DiffMapKey = ({ diffMap, title, stops, binHexColors }: Props): JSX.Element => {
   const renderBinLabel = (index: number) => {

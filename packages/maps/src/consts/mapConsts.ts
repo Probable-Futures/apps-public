@@ -18,9 +18,31 @@ export const MAP_QUERY_PARAM = "selected_map";
 
 export const OLD_MAP_VERSION_QUERY_PARAM = "map_version";
 export const MAP_VERSION_QUERY_PARAM = "version";
+export const LATEST_MAP_VERSION = "latest";
+
+export const MAP_STATUS_QUERY_PARAM = "status";
+export const MAP_STATUS_FILTERS = ["all", "draft", "published", "archive"] as const;
+export type MapStatusFilter = (typeof MAP_STATUS_FILTERS)[number];
+export const DEFAULT_MAP_STATUS: MapStatusFilter = "published";
+
+export const parseMapStatus = (value: string | null): MapStatusFilter | undefined =>
+  MAP_STATUS_FILTERS.find((status) => status === value);
 
 export const OLD_MAP_PROJECTION_QUERY_PARAM = "map_projection";
 export const MAP_PROJECTION_QUERY_PARAM = "view";
+
+export const mapBuilderProjections = [
+  { label: "Mercator", value: "mercator" },
+  { label: "Globe", value: "globe" },
+  { label: "Albers", value: "albers" },
+  { label: "Equal Earth", value: "equalEarth" },
+  { label: "Equirectangular", value: "equirectangular" },
+  { label: "Lambert Conformal Conic", value: "lambertConformalConic" },
+  { label: "Natural Earth", value: "naturalEarth" },
+  { label: "Winkel Tripel", value: "winkelTripel" },
+];
+
+export const mapBuilderProjectionNames = mapBuilderProjections.map(({ value }) => value);
 
 export const OLD_WARMING_SCENARIO_QUERY_PARAM = "warming_scenario";
 export const WARMING_SCENARIO_QUERY_PARAM = "scenario";

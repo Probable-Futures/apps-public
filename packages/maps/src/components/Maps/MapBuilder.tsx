@@ -20,8 +20,10 @@ import PlusIcon from "../../assets/icons/plus.svg";
 import MinusIcon from "../../assets/icons/minus.svg";
 import MapBuilderHeader from "../MapBuilderHeader";
 import { colors, size } from "../../consts";
-import { getMapBuilderMinZoom } from "../../consts/mapConsts";
-import { getDiffMapBinHexColors, getDiffMapForPair } from "../../consts/versionDiffMaps";
+import { getMapBuilderMinZoom, LATEST_MAP_VERSION } from "../../consts/mapConsts";
+import { getDiffMapBinHexColors } from "../../consts/versionDiffMaps";
+import { isLatestMapForSlug } from "../../utils/mapSelection";
+import useActiveDiffMap, { getActiveMapStyleId } from "../../utils/useActiveDiffMap";
 import { useTranslation } from "../../contexts/TranslationContext";
 import useGlobeLines, { LINE_LAYER_LABEL_PREFIX } from "../../utils/useGlobeLines";
 import VersionComparisonMapView, { VersionComparisonMapHandle } from "./VersionComparisonMapView";
@@ -140,6 +142,8 @@ const InteractiveMap = () => {
   const {
     sidebar,
     data: {
+      datasets,
+      filterByStatus,
       selectedDataset,
       degrees,
       showInspector,
@@ -151,6 +155,7 @@ const InteractiveMap = () => {
       setPrecipitationUnit,
       setMidValueShown,
       comparisonMode,
+      comparisonRestored,
       versionBefore,
       versionAfter,
     },
@@ -179,17 +184,7 @@ const InteractiveMap = () => {
   const { drawGlobeLines, removeGlobeLayers } = useGlobeLines(mapProjection, mapRef.current);
   const [hasStyleError, setHasStyleError] = useState(false);
 
-  const activeDiffMap = useMemo(
-    () =>
-      comparisonMode === "diff"
-        ? getDiffMapForPair(
-            selectedDataset?.dataset.id,
-            versionBefore?.mapVersion,
-            versionAfter?.mapVersion,
-          )
-        : undefined,
-    [comparisonMode, selectedDataset, versionBefore, versionAfter],
-  );
+  const activeDiffMap = useActiveDiffMap();
 
   const updateMapStyles = useCallback((map: Map) => {
     if (mapGeneralStyles.current.binHexColors && mapGeneralStyles.current.bins) {
@@ -291,11 +286,13 @@ const InteractiveMap = () => {
     if (selectedDataset) {
       setQueryParam({
         mapSlug: selectedDataset.slug,
-        version: selectedDataset.isLatest ? "latest" : selectedDataset.mapVersion.toString(),
+        version: isLatestMapForSlug(datasets, selectedDataset, filterByStatus)
+          ? LATEST_MAP_VERSION
+          : selectedDataset.mapVersion.toString(),
       });
       setMidValueShown(selectedDataset.methodUsedForMid);
     }
-  }, [selectedDataset, setMidValueShown]);
+  }, [selectedDataset, setMidValueShown, datasets, filterByStatus]);
 
   // The difference view swaps in the registry's diverging ramp, which keeps the
   // legend editor and the paint expression working on it exactly as they do on a
@@ -348,13 +345,14 @@ const InteractiveMap = () => {
   }, []);
 
   const mapStyleLink = useMemo(() => {
-    if (activeDiffMap) {
-      const mapboxAccount =
-        window.pfInteractiveMap?.mapboxAccount || import.meta.env.VITE_MAPBOX_ACCOUNT;
-      return `mapbox://styles/${mapboxAccount}/${activeDiffMap.mapStyleId}`;
+    const styleId = getActiveMapStyleId(selectedDataset, activeDiffMap);
+    if (!styleId) {
+      return "";
     }
-    return getMapStyleLink(selectedDataset);
-  }, [activeDiffMap, selectedDataset, getMapStyleLink]);
+    const mapboxAccount =
+      window.pfInteractiveMap?.mapboxAccount || import.meta.env.VITE_MAPBOX_ACCOUNT;
+    return `mapbox://styles/${mapboxAccount}/${styleId}`;
+  }, [activeDiffMap, selectedDataset]);
 
   useEffect(() => {
     setHasStyleError(false);
@@ -390,6 +388,8 @@ const InteractiveMap = () => {
 
   const isComparing = !!(comparisonMode === "swipe" && versionBefore && versionAfter);
 
+  const canRenderMap = !!selectedDataset && comparisonRestored;
+
   return (
     <Container>
       {hasStyleError && (
@@ -400,7 +400,7 @@ const InteractiveMap = () => {
           )}
         </StyleErrorBanner>
       )}
-      {isComparing && (
+      {canRenderMap && isComparing && (
         <VersionComparisonMapView
           ref={comparisonMapRef}
           datasetBefore={versionBefore!}
@@ -437,7 +437,7 @@ const InteractiveMap = () => {
           }}
         />
       )}
-      {selectedDataset && !isComparing && (
+      {canRenderMap && !isComparing && (
         <MapGL
           onError={onError}
           mapLib={mapboxgl}

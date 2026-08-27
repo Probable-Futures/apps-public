@@ -6,8 +6,10 @@ import {
   useMemo,
   createRef,
   ComponentType,
+  Dispatch,
   PropsWithChildren,
   RefObject,
+  SetStateAction,
 } from "react";
 import { createPortal } from "react-dom";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -67,7 +69,7 @@ interface MapStyleState {
   mapProjection: Projection;
   setMapProjection(projection: Projection): void;
   dynamicStyleVariables?: DynamicStyleVariables;
-  setDynamicStyleVariables(dynamicStyleVariables: DynamicStyleVariables): void;
+  setDynamicStyleVariables: Dispatch<SetStateAction<DynamicStyleVariables | undefined>>;
 }
 
 interface DataState {
@@ -84,8 +86,10 @@ interface DataState {
   datasetDescriptionResponse?: types.DatasetDescriptionResponse;
   precipitationUnit: types.PrecipitationUnit;
   comparisonMode: ComparisonMode;
+  comparisonRestored: boolean;
   versionBefore?: types.Map;
   versionAfter?: types.Map;
+  setComparisonRestored(restored: boolean): void;
   setDatasets(datasets: any): void;
   setSelectedDataset(dataset: any): void;
   setDegrees(degrees: any): void;
@@ -230,8 +234,10 @@ function getInitialState(): MenuState {
       datasetDescriptionResponse: undefined,
       precipitationUnit: "mm",
       comparisonMode: "none",
+      comparisonRestored: false,
       versionBefore: undefined,
       versionAfter: undefined,
+      setComparisonRestored: () => {},
       setDatasets: () => {},
       setSelectedDataset: () => {},
       setDegrees: () => {},
@@ -316,6 +322,7 @@ function useData(): DataState {
     useState<types.DatasetDescriptionResponse>();
   const [precipitationUnit, setPrecipitationUnit] = useState("mm" as types.PrecipitationUnit);
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>("none");
+  const [comparisonRestored, setComparisonRestored] = useState(false);
   const [versionBefore, setVersionBefore] = useState<types.Map | undefined>();
   const [versionAfter, setVersionAfter] = useState<types.Map | undefined>();
 
@@ -347,6 +354,8 @@ function useData(): DataState {
       setChangeMapDisplayOption,
       comparisonMode,
       setComparisonMode,
+      comparisonRestored,
+      setComparisonRestored,
       versionBefore,
       setVersionBefore,
       versionAfter,
@@ -366,6 +375,7 @@ function useData(): DataState {
       precipitationUnit,
       changeMapDisplayOption,
       comparisonMode,
+      comparisonRestored,
       versionBefore,
       versionAfter,
     ],

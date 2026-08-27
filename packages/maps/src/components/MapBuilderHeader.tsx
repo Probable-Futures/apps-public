@@ -3,10 +3,11 @@ import camelcase from "lodash.camelcase";
 
 import { colors } from "../consts";
 import { ComparisonMode } from "../consts/mapConsts";
-import { getDiffMapForPair, getDiffPairLabel } from "../consts/versionDiffMaps";
+import { getDiffPairLabel } from "../consts/versionDiffMaps";
 import { useMenu } from "./Menu";
 import SegmentedControl, { Segment } from "./common/SegmentedControl";
 import { getAvailableDiffPairs, getVersionsOfDataset } from "../utils/mapVersions";
+import useActiveDiffMap from "../utils/useActiveDiffMap";
 import { useTranslation } from "../contexts/TranslationContext";
 
 const SIDEBAR_OPEN_OFFSET = 256;
@@ -81,6 +82,7 @@ const MapBuilderHeader = () => {
     },
   } = useMenu();
   const { translate } = useTranslation();
+  const activeDiffMap = useActiveDiffMap();
 
   if (!selectedDataset) {
     return null;
@@ -89,14 +91,6 @@ const MapBuilderHeader = () => {
   const versions = getVersionsOfDataset(datasets, selectedDataset);
   const canCompareVersions = versions.length > 1;
   const diffPairs = getAvailableDiffPairs(versions, selectedDataset.dataset.id);
-  const activeDiffMap =
-    comparisonMode === "diff"
-      ? getDiffMapForPair(
-          selectedDataset.dataset.id,
-          versionBefore?.mapVersion,
-          versionAfter?.mapVersion,
-        )
-      : undefined;
   const isSwiping = comparisonMode === "swipe" && versionBefore && versionAfter;
   const showModel =
     !isSwiping && !activeDiffMap && selectedDataset.mapVersion !== MODEL_HIDDEN_MAP_VERSION;

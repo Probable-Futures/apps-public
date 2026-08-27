@@ -1,0 +1,434 @@
+[
+  {
+    "mapStyleId": "clhyqgvkg004i01obb8pm9zto",
+    "name": "Average temperature",
+    "stops": [
+      1,
+      8,
+      15,
+      26,
+      32
+    ],
+    "binHexColors": [
+      "#515866",
+      "#0ed5a3",
+      "#0099e4",
+      "#8be1ff",
+      "#ff45d0",
+      "#d70066"
+    ],
+    "status": "published",
+    "isDiff": false,
+    "step": 1,
+    "binLabels": null,
+    "binningType": "range",
+    "slug": "average_temperature",
+    "mapVersion": 3,
+    "isLatest": true,
+    "dataLabels": [
+      "Cooler year",
+      "Average year",
+      "Warmer year"
+    ],
+    "methodUsedForMid": "mean",
+    "dataset": {
+      "id": 40101,
+      "name": "Average Temperature",
+      "model": "global RegCM and REMO",
+      "unit": "\u00b0C",
+      "minValue": -30,
+      "maxValue": 60,
+      "dataVariables": [
+        "5th percentile",
+        "average",
+        "95th percentile"
+      ],
+      "pfDatasetUnitByUnit": {
+        "unitLong": "Temperature (\u00b0C)"
+      },
+      "pfDatasetParentCategoryByParentCategory": {
+        "name": "heat",
+        "label": "Maps of temperature"
+      },
+      "subCategory": "increasing heat"
+    }
+  },
+  {
+    "mapStyleId": "cmsnfp9q0015201sd9o0l24d1",
+    "name": "Average temperature",
+    "stops": [
+      1,
+      8,
+      15,
+      26,
+      32
+    ],
+    "binHexColors": [
+      "#515866",
+      "#0ed5a3",
+      "#0099e4",
+      "#8be1ff",
+      "#ff45d0",
+      "#d70066"
+    ],
+    "status": "draft",
+    "isDiff": false,
+    "step": 1,
+    "binLabels": null,
+    "binningType": "range",
+    "slug": "average_temperature",
+    "mapVersion": 4,
+    "isLatest": true,
+    "dataLabels": [
+      "Cooler year",
+      "Average year",
+      "Warmer year"
+    ],
+    "methodUsedForMid": "mean",
+    "dataset": {
+      "id": 40101,
+      "name": "Average Temperature",
+      "model": "global RegCM and REMO",
+      "unit": "\u00b0C",
+      "minValue": -30,
+      "maxValue": 60,
+      "dataVariables": [
+        "5th percentile",
+        "average",
+        "95th percentile"
+      ],
+      "pfDatasetUnitByUnit": {
+        "unitLong": "Temperature (\u00b0C)"
+      },
+      "pfDatasetParentCategoryByParentCategory": {
+        "name": "heat",
+        "label": "Maps of temperature"
+      },
+      "subCategory": "increasing heat"
+    }
+  },
+  {
+    "mapStyleId": "cl59gpzny00e814llii4s2wlu",
+    "name": "Average temperature",
+    "stops": [
+      1,
+      8,
+      15,
+      26,
+      32
+    ],
+    "binHexColors": [
+      "#515866",
+      "#0ed5a3",
+      "#0099e4",
+      "#8be1ff",
+      "#ff45d0",
+      "#d70066"
+    ],
+    "status": "published",
+    "isDiff": false,
+    "step": 1,
+    "binLabels": null,
+    "binningType": "range",
+    "slug": "average_temperature",
+    "mapVersion": 1,
+    "isLatest": false,
+    "dataLabels": [
+      "Cooler year",
+      "Average year",
+      "Warmer year"
+    ],
+    "methodUsedForMid": "mean",
+    "dataset": {
+      "id": 40101,
+      "name": "Average Temperature",
+      "model": "global RegCM and REMO",
+      "unit": "\u00b0C",
+      "minValue": -30,
+      "maxValue": 60,
+      "dataVariables": [
+        "5th percentile",
+        "average",
+        "95th percentile"
+      ],
+      "pfDatasetUnitByUnit": {
+        "unitLong": "Temperature (\u00b0C)"
+      },
+      "pfDatasetParentCategoryByParentCategory": {
+        "name": "heat",
+        "label": "Maps of temperature"
+      },
+      "subCategory": "increasing heat"
+    }
+  },
+  {
+    "mapStyleId": "cle5ethd3000x01qtrgko6fmv",
+    "name": "Average temperature",
+    "stops": [
+      1,
+      8,
+      15,
+      26,
+      32
+    ],
+    "binHexColors": [
+      "#515866",
+      "#0ed5a3",
+      "#0099e4",
+      "#8be1ff",
+      "#ff45d0",
+      "#d70066"
+    ],
+    "status": "published",
+    "isDiff": false,
+    "step": 1,
+    "binLabels": null,
+    "binningType": "range",
+    "slug": "average_temperature",
+    "mapVersion": 2,
+    "isLatest": false,
+    "dataLabels": [
+      "Cooler year",
+      "Average year",
+      "Warmer year"
+    ],
+    "methodUsedForMid": "mean",
+    "dataset": {
+      "id": 40101,
+      "name": "Average Temperature",
+      "model": "global RegCM and REMO",
+      "unit": "\u00b0C",
+      "minValue": -30,
+      "maxValue": 60,
+      "dataVariables": [
+        "5th percentile",
+        "average",
+        "95th percentile"
+      ],
+      "pfDatasetUnitByUnit": {
+        "unitLong": "Temperature (\u00b0C)"
+      },
+      "pfDatasetParentCategoryByParentCategory": {
+        "name": "heat",
+        "label": "Maps of temperature"
+      },
+      "subCategory": "increasing heat"
+    }
+  },
+  {
+    "mapStyleId": "cli004t7p02av01quclg5aoqe",
+    "name": "Days above 30\u00b0C (86\u00b0F) wet-bulb",
+    "stops": [
+      1,
+      4,
+      8,
+      15,
+      29
+    ],
+    "binHexColors": [
+      "#515866",
+      "#0ed5a3",
+      "#0099e4",
+      "#8be1ff",
+      "#ff45d0",
+      "#d70066"
+    ],
+    "status": "published",
+    "isDiff": false,
+    "step": 1,
+    "binLabels": null,
+    "binningType": "range",
+    "slug": "days_above_30c_wet-bulb",
+    "mapVersion": 3,
+    "isLatest": true,
+    "dataLabels": [
+      "Cooler year",
+      "Average year",
+      "Warmer year"
+    ],
+    "methodUsedForMid": "mean",
+    "dataset": {
+      "id": 40303,
+      "name": "Number of days maximum wet-bulb temperature above 30\u00b0C",
+      "model": "global RegCM and REMO",
+      "unit": "days",
+      "minValue": 0,
+      "maxValue": 365,
+      "dataVariables": [
+        "5th percentile",
+        "average",
+        "95th percentile"
+      ],
+      "pfDatasetUnitByUnit": {
+        "unitLong": "Number of days per year"
+      },
+      "pfDatasetParentCategoryByParentCategory": {
+        "name": "heat",
+        "label": "Maps of temperature"
+      },
+      "subCategory": "heat and humidity"
+    }
+  },
+  {
+    "mapStyleId": "cle8k6mxy001401nzqjb2i47s",
+    "name": "Days above 30\u00b0C (86\u00b0F) wet-bulb",
+    "stops": [
+      1,
+      4,
+      8,
+      15,
+      29
+    ],
+    "binHexColors": [
+      "#515866",
+      "#0ed5a3",
+      "#0099e4",
+      "#8be1ff",
+      "#ff45d0",
+      "#d70066"
+    ],
+    "status": "published",
+    "isDiff": false,
+    "step": 1,
+    "binLabels": null,
+    "binningType": "range",
+    "slug": "days_above_30c_wet-bulb",
+    "mapVersion": 2,
+    "isLatest": false,
+    "dataLabels": [
+      "Cooler year",
+      "Average year",
+      "Warmer year"
+    ],
+    "methodUsedForMid": "mean",
+    "dataset": {
+      "id": 40303,
+      "name": "Number of days maximum wet-bulb temperature above 30\u00b0C",
+      "model": "global RegCM and REMO",
+      "unit": "days",
+      "minValue": 0,
+      "maxValue": 365,
+      "dataVariables": [
+        "5th percentile",
+        "average",
+        "95th percentile"
+      ],
+      "pfDatasetUnitByUnit": {
+        "unitLong": "Number of days per year"
+      },
+      "pfDatasetParentCategoryByParentCategory": {
+        "name": "heat",
+        "label": "Maps of temperature"
+      },
+      "subCategory": "heat and humidity"
+    }
+  },
+  {
+    "mapStyleId": "cmsyinukc007p01qy7kgpbmb2",
+    "name": "Days above 30\u00b0C (86\u00b0F) wet-bulb",
+    "stops": [
+      1,
+      4,
+      8,
+      15,
+      29
+    ],
+    "binHexColors": [
+      "#515866",
+      "#0ed5a3",
+      "#0099e4",
+      "#8be1ff",
+      "#ff45d0",
+      "#d70066"
+    ],
+    "status": "draft",
+    "isDiff": false,
+    "step": 1,
+    "binLabels": null,
+    "binningType": "range",
+    "slug": "days_above_30c_wet-bulb",
+    "mapVersion": 4,
+    "isLatest": true,
+    "dataLabels": [
+      "Cooler year",
+      "Average year",
+      "Warmer year"
+    ],
+    "methodUsedForMid": "mean",
+    "dataset": {
+      "id": 40303,
+      "name": "Number of days maximum wet-bulb temperature above 30\u00b0C",
+      "model": "global RegCM and REMO",
+      "unit": "days",
+      "minValue": 0,
+      "maxValue": 365,
+      "dataVariables": [
+        "5th percentile",
+        "average",
+        "95th percentile"
+      ],
+      "pfDatasetUnitByUnit": {
+        "unitLong": "Number of days per year"
+      },
+      "pfDatasetParentCategoryByParentCategory": {
+        "name": "heat",
+        "label": "Maps of temperature"
+      },
+      "subCategory": "heat and humidity"
+    }
+  },
+  {
+    "mapStyleId": "cl5an7fl4000216nv693x0atj",
+    "name": "Days above 30\u00b0C (86\u00b0F) wet-bulb",
+    "stops": [
+      1,
+      4,
+      8,
+      15,
+      29
+    ],
+    "binHexColors": [
+      "#515866",
+      "#0ed5a3",
+      "#0099e4",
+      "#8be1ff",
+      "#ff45d0",
+      "#d70066"
+    ],
+    "status": "published",
+    "isDiff": false,
+    "step": 1,
+    "binLabels": null,
+    "binningType": "range",
+    "slug": "days_above_30c_wet-bulb",
+    "mapVersion": 1,
+    "isLatest": false,
+    "dataLabels": [
+      "Cooler year",
+      "Average year",
+      "Warmer year"
+    ],
+    "methodUsedForMid": "mean",
+    "dataset": {
+      "id": 40303,
+      "name": "Number of days maximum wet-bulb temperature above 30\u00b0C",
+      "model": "global RegCM and REMO",
+      "unit": "days",
+      "minValue": 0,
+      "maxValue": 365,
+      "dataVariables": [
+        "5th percentile",
+        "average",
+        "95th percentile"
+      ],
+      "pfDatasetUnitByUnit": {
+        "unitLong": "Number of days per year"
+      },
+      "pfDatasetParentCategoryByParentCategory": {
+        "name": "heat",
+        "label": "Maps of temperature"
+      },
+      "subCategory": "heat and humidity"
+    }
+  }
+]

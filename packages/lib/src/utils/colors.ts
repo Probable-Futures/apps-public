@@ -37,13 +37,14 @@ const getDataAttribute = (degrees: number, percentileValue: BinningType) => {
 };
 
 export const getMapLayerColors = (
-  colors: string[],
+  allColors: string[],
   bins: number[],
   degrees: number,
   percentileValue: BinningType = "mid",
 ) => {
   const dataAttribute = getDataAttribute(degrees, percentileValue);
   const startIndex = 5;
+  const colors = allColors.slice(0, bins.length + 1);
   const additionalBins = colors
     .slice(startIndex)
     .map((_, index) => [bins[startIndex + index - 1], colors[startIndex + index]]);

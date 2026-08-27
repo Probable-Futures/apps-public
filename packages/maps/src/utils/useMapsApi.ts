@@ -11,13 +11,18 @@ import {
 import { PUBLISHED_MAPS_QUERY } from "../graphql/queries/maps";
 import mapsQuery from "../graphql/queries/maps";
 import { setQueryParam, getQueryParam, deleteQueryParam } from "./index";
+import { findDefaultMap, findMapForParams, isLatestMapForSlug } from "./mapSelection";
 import {
+  DEFAULT_MAP_STATUS,
+  LATEST_MAP_VERSION,
   MAP_PROJECTION_QUERY_PARAM,
   MAP_QUERY_PARAM,
+  MAP_STATUS_QUERY_PARAM,
   MAP_VERSION_QUERY_PARAM,
   OLD_MAP_PROJECTION_QUERY_PARAM,
   OLD_MAP_VERSION_QUERY_PARAM,
   OLD_WARMING_SCENARIO_QUERY_PARAM,
+  parseMapStatus,
   SCENARIO_AFTER_QUERY_PARAM,
   SCENARIO_BEFORE_QUERY_PARAM,
   VOLUME_QUERY_PARAM,
@@ -34,6 +39,8 @@ type Props = {
   setBins?: (bins: any) => void;
   setColorScheme?: (binHexColors: any) => void;
   setMidValueShown?: (arg: any) => void;
+  setFilterByStatus?: (arg: string) => void;
+  allowedProjections?: string[];
   setIsComparisonMapActive?: (arg: boolean) => void;
   setComparisonScenarioBefore?: (arg: number) => void;
   setComparisonScenarioAfter?: (arg: number) => void;
@@ -58,6 +65,8 @@ export default function useMapsApi({
   setBins,
   setColorScheme,
   setMidValueShown,
+  setFilterByStatus,
+  allowedProjections = supportedProjections,
   setIsComparisonMapActive,
   setComparisonScenarioBefore,
   setComparisonScenarioAfter,
@@ -73,6 +82,8 @@ export default function useMapsApi({
 
         const mapQueryParam = getQueryParam(MAP_QUERY_PARAM);
         const version = getQueryParam(MAP_VERSION_QUERY_PARAM, OLD_MAP_VERSION_QUERY_PARAM);
+        const mapStatus =
+          parseMapStatus(getQueryParam(MAP_STATUS_QUERY_PARAM)) ?? DEFAULT_MAP_STATUS;
         const warmingScenario = getQueryParam(
           WARMING_SCENARIO_QUERY_PARAM,
           OLD_WARMING_SCENARIO_QUERY_PARAM,
@@ -98,41 +109,27 @@ export default function useMapsApi({
           scenarioAfterValue !== undefined &&
           scenarioBeforeValue < scenarioAfterValue;
 
-        let selectedMap: types.Map | undefined;
-
-        if (mapQueryParam) {
-          /**
-            MAP_QUERY_PARAM used to point to map_style_id,
-            so check if users are still assiging map_style_id
-            instead of the map slug
-          */
-          selectedMap = maps.find(({ mapStyleId }) => mapQueryParam === mapStyleId);
-          if (!selectedMap) {
-            // if the version param is provided find the map with the specified version
-            if (version) {
-              selectedMap = maps.find(
-                ({ slug, mapVersion }) =>
-                  slug === mapQueryParam && mapVersion.toString() === version,
-              );
-            }
-            // fallback to the latest version of the selected map
-            if (!selectedMap) {
-              selectedMap = maps.find(({ slug, isLatest }) => slug === mapQueryParam && isLatest);
-            }
-          }
-        }
+        /**
+          MAP_QUERY_PARAM used to point to map_style_id,
+          so check if users are still assiging map_style_id
+          instead of the map slug
+        */
+        let selectedMap = findMapForParams(maps, {
+          slug: mapQueryParam,
+          version,
+          status: mapStatus,
+        });
         if (!selectedMap) {
-          selectedMap = maps.find(({ dataset, isLatest }) => {
-            if (volume) {
-              return dataset.pfDatasetParentCategoryByParentCategory.name === volume && isLatest;
-            } else {
-              return isLatest;
-            }
-          });
+          const mapsInVolume = volume
+            ? maps.filter(
+                ({ dataset }) => dataset.pfDatasetParentCategoryByParentCategory.name === volume,
+              )
+            : maps;
+          selectedMap = findDefaultMap(mapsInVolume, mapStatus);
         }
         if (
           !mapProjection ||
-          !supportedProjections.find((projection) => mapProjection === projection)
+          !allowedProjections.find((projection) => mapProjection === projection)
         ) {
           mapProjection = "mercator";
         }
@@ -140,10 +137,7 @@ export default function useMapsApi({
         const selectedDataset = selectedMap || maps[0];
         const isChangeDataset =
           selectedDataset.isDiff || selectedDataset?.name.toLowerCase().startsWith("change");
-        if (
-          !warmingScenarioValue ||
-          (warmingScenarioValue === 0.5 && isChangeDataset)
-        ) {
+        if (!warmingScenarioValue || (warmingScenarioValue === 0.5 && isChangeDataset)) {
           warmingScenarioValue = isChangeDataset
             ? defaultDegreesForChangeMaps
             : defaultDegreesForNonChangeMaps;
@@ -161,15 +155,22 @@ export default function useMapsApi({
           }
         }
 
+        const versionForUrl = isLatestMapForSlug(maps, selectedDataset, mapStatus)
+          ? LATEST_MAP_VERSION
+          : selectedDataset.mapVersion.toString();
+        const statusForUrl = setFilterByStatus ? mapStatus : undefined;
+
         setDatasets(maps);
         setSelectedDataset(selectedDataset);
+        setFilterByStatus?.(mapStatus);
         if (comparisonActive && setIsComparisonMapActive) {
           setIsComparisonMapActive(true);
           setComparisonScenarioBefore?.(scenarioBeforeValue!);
           setComparisonScenarioAfter?.(scenarioAfterValue!);
           setQueryParam({
             mapSlug: selectedDataset.slug,
-            version: selectedDataset.isLatest ? "latest" : selectedDataset.mapVersion.toString(),
+            version: versionForUrl,
+            status: statusForUrl,
             mapProjection,
             isComparisonMapActive: true,
             comparisonScenarioBefore: scenarioBeforeValue,
@@ -180,7 +181,8 @@ export default function useMapsApi({
           setQueryParam({
             mapSlug: selectedDataset.slug,
             warmingScenario: warmingScenarioValue,
-            version: selectedDataset.isLatest ? "latest" : selectedDataset.mapVersion.toString(),
+            version: versionForUrl,
+            status: statusForUrl,
             mapProjection,
             isComparisonMapActive: false,
           });
@@ -198,6 +200,8 @@ export default function useMapsApi({
     setBins,
     setColorScheme,
     setMidValueShown,
+    setFilterByStatus,
+    allowedProjections,
     setIsComparisonMapActive,
     setComparisonScenarioBefore,
     setComparisonScenarioAfter,

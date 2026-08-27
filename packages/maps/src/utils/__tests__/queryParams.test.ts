@@ -56,6 +56,12 @@ describe("deleteQueryParam", () => {
     deleteQueryParam("scenario");
     expect(window.history.replaceState).not.toHaveBeenCalled();
   });
+
+  it("keeps the map position in the hash", () => {
+    setSearch("?map_version=3&foo=bar#2.48/42.31/56.36");
+    deleteQueryParam("map_version");
+    expect(lastReplaceStateUrl()).toBe("?foo=bar#2.48/42.31/56.36");
+  });
 });
 
 describe("getQueryParam", () => {

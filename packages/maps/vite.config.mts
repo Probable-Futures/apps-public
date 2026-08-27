@@ -138,6 +138,18 @@ export default defineConfig({
     globals: true,
     setupFiles: ["src/setupTests.ts"],
     css: false,
+    // The workspace packages publish from dist/, which is not built when running
+    // tests, so resolve their bare specifiers to source instead.
+    alias: [
+      {
+        find: /^@probable-futures\/lib$/,
+        replacement: path.resolve(import.meta.dirname, "../lib/index.ts"),
+      },
+      {
+        find: /^@probable-futures\/components-lib$/,
+        replacement: path.resolve(import.meta.dirname, "../components-lib/src/index.ts"),
+      },
+    ],
   },
   build: {
     outDir: "build",

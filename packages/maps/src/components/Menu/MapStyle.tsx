@@ -5,7 +5,9 @@ import { useMenu } from "../../components/Menu";
 import CustomSwitch from "../common/CustomSwitch";
 import { Container, Section, Title } from "./Menu.styled";
 import { colors } from "../../consts";
+import { mapBuilderProjections } from "../../consts/mapConsts";
 import Dropdown from "../common/Dropdown";
+import { setQueryParam } from "../../utils";
 import { useTranslation } from "../../contexts/TranslationContext";
 import { Projection } from "mapbox-gl";
 
@@ -41,16 +43,6 @@ const SwitchLabel = styled(OptionLabel)`
   margin-left: 0;
 `;
 
-const mapProjections = [
-  { label: "Mercator", value: "mercator" },
-  { label: "Globe", value: "globe" },
-  { label: "Albers", value: "albers" },
-  { label: "Equal Earth", value: "equalEarth" },
-  { label: "Equirectangular", value: "equirectangular" },
-  { label: "Lambert Conformal Conic", value: "lambertConformalConic" },
-  { label: "Natural Earth", value: "naturalEarth" },
-  { label: "Winkel Tripel", value: "winkelTripel" },
-];
 const defaultMapProjectionValue = { value: "", label: "" };
 
 export default function MapStyle(): JSX.Element {
@@ -88,13 +80,14 @@ export default function MapStyle(): JSX.Element {
         <Title>{translate("menu.mapStyle.projection")}</Title>
         <Dropdown
           value={
-            mapProjections.find((projection) => projection.value === mapProjection.name) ||
+            mapBuilderProjections.find((projection) => projection.value === mapProjection.name) ||
             defaultMapProjectionValue
           }
-          options={mapProjections}
-          onChange={({ value }: { value: string }) =>
-            setMapProjection({ name: value as Extract<Projection["name"], "mercator" | "globe"> })
-          }
+          options={mapBuilderProjections}
+          onChange={({ value }: { value: string }) => {
+            setMapProjection({ name: value as Extract<Projection["name"], "mercator" | "globe"> });
+            setQueryParam({ mapProjection: value });
+          }}
         />
       </Section>
       <Section>

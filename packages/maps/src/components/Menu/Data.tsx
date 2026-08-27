@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { types } from "@probable-futures/lib";
 import camelcase from "lodash.camelcase";
@@ -13,11 +13,13 @@ import { colors } from "../../consts";
 import {
   COMPARE_MODE_QUERY_PARAM,
   ComparisonMode,
+  mapBuilderProjectionNames,
   parseComparisonMode,
   VERSION_AFTER_QUERY_PARAM,
   VERSION_BEFORE_QUERY_PARAM,
 } from "../../consts/mapConsts";
 import { getQueryParam, setQueryParam } from "../../utils";
+import { findMapForSlug } from "../../utils/mapSelection";
 import { useTranslation } from "../../contexts/TranslationContext";
 import useWPApi from "../../utils/useWPApi";
 import {
@@ -85,22 +87,24 @@ export default function Data(): JSX.Element {
       filterBySubCategory,
       setFilterBySubCategory,
       comparisonMode,
+      comparisonRestored,
       versionBefore,
       versionAfter,
       setComparisonMode,
+      setComparisonRestored,
       setVersionBefore,
       setVersionAfter,
     },
-    mapStyle: { dynamicStyleVariables, setDynamicStyleVariables },
+    mapStyle: { setDynamicStyleVariables, setMapProjection },
   } = useMenu();
 
   const { translate, locale } = useTranslation();
 
   const setColorScheme = (binHexColors: any) => {
-    setDynamicStyleVariables({ ...dynamicStyleVariables, binHexColors });
+    setDynamicStyleVariables((previous) => ({ ...previous, binHexColors }));
   };
   const setBins = (bins: any) => {
-    setDynamicStyleVariables({ ...dynamicStyleVariables, bins });
+    setDynamicStyleVariables((previous) => ({ ...previous, bins }));
   };
 
   useMapsApi({
@@ -112,6 +116,9 @@ export default function Data(): JSX.Element {
     setColorScheme,
     setBins,
     setMidValueShown,
+    setFilterByStatus,
+    setMapProjection,
+    allowedProjections: mapBuilderProjectionNames,
   });
   useWPApi({
     selectedDataset,
@@ -152,18 +159,22 @@ export default function Data(): JSX.Element {
     [subCategoryOptions, filterBySubCategory],
   );
 
-  const datasetOptions = useMemo(
-    () =>
-      datasetsMatchingFilters
-        .filter(({ dataset }) =>
-          effectiveSubCategory === "all" ? true : dataset.subCategory === effectiveSubCategory,
-        )
-        .map(({ slug, name }) => ({
-          label: translate(`header.datasets.${camelcase(slug)}`, name),
-          value: slug,
-        })),
-    [datasetsMatchingFilters, effectiveSubCategory, translate],
-  );
+  const datasetOptions = useMemo(() => {
+    const optionsBySlug = new Map<string, { label: string; value: string }>();
+    datasetsMatchingFilters
+      .filter(({ dataset }) =>
+        effectiveSubCategory === "all" ? true : dataset.subCategory === effectiveSubCategory,
+      )
+      .forEach(({ slug, name }) => {
+        if (!optionsBySlug.has(slug)) {
+          optionsBySlug.set(slug, {
+            label: translate(`header.datasets.${camelcase(slug)}`, name),
+            value: slug,
+          });
+        }
+      });
+    return [...optionsBySlug.values()];
+  }, [datasetsMatchingFilters, effectiveSubCategory, translate]);
   const defaultValue = { value: "", label: "" };
   const filterOptions = [
     { label: translate("menu.data.filterOptions.all"), value: "all" },
@@ -296,12 +307,11 @@ export default function Data(): JSX.Element {
     setVersionAfter,
   ]);
 
-  const hasRestoredComparisonFromUrl = useRef(false);
   useEffect(() => {
-    if (hasRestoredComparisonFromUrl.current || datasets.length === 0) {
+    if (comparisonRestored || datasets.length === 0) {
       return;
     }
-    hasRestoredComparisonFromUrl.current = true;
+    setComparisonRestored(true);
 
     const mode = parseComparisonMode(getQueryParam(COMPARE_MODE_QUERY_PARAM));
     if (!mode) {
@@ -316,15 +326,41 @@ export default function Data(): JSX.Element {
     };
     const before = findVersion(VERSION_BEFORE_QUERY_PARAM);
     const after = findVersion(VERSION_AFTER_QUERY_PARAM);
-    if (before && after && before.mapVersion !== after.mapVersion) {
-      setVersionBefore(before);
-      setVersionAfter(after);
+    const linked =
+      before && after && before.mapVersion !== after.mapVersion ? { before, after } : undefined;
+    // Resolved here rather than left to the effect above so the mode and both
+    // versions land together: the map reads them to pick the style it is created
+    // with, and a style swapped in a render later is dropped by Mapbox while the
+    // first one is still loading.
+    const pair =
+      mode === "diff"
+        ? getDefaultDiffPair(
+            versionsOfSelectedDataset,
+            selectedDataset?.dataset.id,
+            linked?.before,
+            linked?.after,
+          )
+        : linked ?? getDefaultVersionPair(versionsOfSelectedDataset, selectedDataset);
+    if (!pair) {
+      setQueryParam({ comparisonMode: "none" });
+      return;
     }
+    setVersionBefore(pair.before);
+    setVersionAfter(pair.after);
     setComparisonMode(mode);
-  }, [datasets, versionsOfSelectedDataset, setComparisonMode, setVersionBefore, setVersionAfter]);
+  }, [
+    datasets,
+    versionsOfSelectedDataset,
+    selectedDataset,
+    comparisonRestored,
+    setComparisonRestored,
+    setComparisonMode,
+    setVersionBefore,
+    setVersionAfter,
+  ]);
 
   useEffect(() => {
-    if (!hasRestoredComparisonFromUrl.current) {
+    if (!comparisonRestored) {
       return;
     }
     setQueryParam({
@@ -332,7 +368,7 @@ export default function Data(): JSX.Element {
       versionBefore: versionBefore?.mapVersion,
       versionAfter: versionAfter?.mapVersion,
     });
-  }, [comparisonMode, versionBefore, versionAfter]);
+  }, [comparisonRestored, comparisonMode, versionBefore, versionAfter]);
 
   const comparisonSegments: Segment<ComparisonMode>[] = [
     { value: "none", label: translate("menu.data.comparisonModes.none", "Off") },
@@ -396,10 +432,10 @@ export default function Data(): JSX.Element {
   const onDatasetChange = (option?: { label: String; value: String }, dataset?: types.Map) => {
     let finalDataset = dataset;
     if (!finalDataset && option) {
-      finalDataset = datasets.find(
-        ({ slug, isLatest, status }) =>
-          slug === option.value && isLatest && status === filterByStatus,
-      );
+      finalDataset = findMapForSlug(datasets, {
+        slug: option.value as string,
+        status: filterByStatus,
+      });
     }
     if (finalDataset) {
       setSelectedDataset(finalDataset);
@@ -418,6 +454,7 @@ export default function Data(): JSX.Element {
 
   const onFilterChange = (option: { label: String; value: String }) => {
     setFilterByStatus(option.value);
+    setQueryParam({ status: option.value as string });
   };
 
   const onCategoryChange = (option: { label: String; value: String }) => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { components, contexts } from "@probable-futures/components-lib";
 import { utils } from "@probable-futures/lib";
@@ -7,7 +7,9 @@ import { Container, SIDEBAR_GUTTER, Title } from "./Menu.styled";
 import InputColor, { Color } from "react-input-color";
 import { useMenu } from "../../components/Menu";
 import { colors } from "../../consts";
+import { getDiffMapBinHexColors } from "../../consts/versionDiffMaps";
 import Collapsible from "../../components/common/Collapsible";
+import useActiveDiffMap from "../../utils/useActiveDiffMap";
 import { useTranslation } from "../../contexts/TranslationContext";
 
 const MainContent = styled.div`
@@ -75,6 +77,18 @@ export default function Legend(): JSX.Element | null {
   const [endColor, setEndColor] = useState<Color>();
   const [mapBins, setMapBins] = useState(dynamicStyleVariables?.bins);
   const { translate } = useTranslation();
+  const activeDiffMap = useActiveDiffMap();
+
+  const editedDataset = useMemo(() => {
+    if (!selectedDataset || !activeDiffMap) {
+      return selectedDataset;
+    }
+    return {
+      ...selectedDataset,
+      stops: activeDiffMap.stops,
+      binHexColors: getDiffMapBinHexColors(activeDiffMap),
+    };
+  }, [selectedDataset, activeDiffMap]);
 
   // Update bins on dataset change
   useEffect(() => {
@@ -83,33 +97,52 @@ export default function Legend(): JSX.Element | null {
     }
   }, [dynamicStyleVariables?.bins]);
 
-  useEffect(() => {
-    if (dynamicStyleVariables?.binHexColors && startColor && endColor) {
-      if (
-        startColor.hex !== dynamicStyleVariables?.binHexColors[0] ||
-        endColor.hex !==
-          dynamicStyleVariables?.binHexColors[dynamicStyleVariables?.binHexColors.length - 1]
-      ) {
-        setDynamicStyleVariables({
-          ...dynamicStyleVariables,
-          binHexColors: utils.interpolateColors(startColor, endColor),
-        });
+  /**
+   * `InputColor` calls onChange on mount and again whenever its initialValue
+   * changes, echoing back the colour it was rendered with. Those echoes are not
+   * edits: applying one overwrites whichever ramp is in state by the time it
+   * arrives, which is what left the difference view painted with the plain map's
+   * colours. A colour is only an edit when it differs from the rendered one.
+   */
+  const onPickBoundaryColor =
+    (rendered: string, setColor: (color: Color) => void) => (color: Color) => {
+      if (color.hex !== rendered) {
+        setColor(color);
       }
+    };
+
+  useEffect(() => {
+    if (!startColor || !endColor) {
+      return;
     }
+    setDynamicStyleVariables((previous) => ({
+      ...previous,
+      binHexColors: utils.interpolateColors(startColor, endColor),
+    }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startColor, endColor]);
 
   const updateColorScheme = (currentScheme: string[], color: Color, index: number) => {
-    const newColorScheme = [...currentScheme];
-    newColorScheme[index] = color.hex;
-    setDynamicStyleVariables({ ...dynamicStyleVariables, binHexColors: newColorScheme });
+    if (currentScheme[index] === color.hex) {
+      return;
+    }
+    setDynamicStyleVariables((previous) => {
+      const scheme = previous?.binHexColors ?? currentScheme;
+      if (scheme[index] === color.hex) {
+        return previous;
+      }
+      const newColorScheme = [...scheme];
+      newColorScheme[index] = color.hex;
+      return { ...previous, binHexColors: newColorScheme };
+    });
   };
 
-  const resetColorScheme = () => {
-    setDynamicStyleVariables({
-      ...dynamicStyleVariables,
-      binHexColors: selectedDataset?.binHexColors,
-    });
+  const resetLegend = () => {
+    setDynamicStyleVariables((previous) => ({
+      ...previous,
+      bins: editedDataset?.stops,
+      binHexColors: editedDataset?.binHexColors,
+    }));
   };
 
   const updateBins = (e: any) => {
@@ -129,7 +162,7 @@ export default function Legend(): JSX.Element | null {
         incrementFunction,
         selectedDataset.dataset.maxValue,
       );
-      setDynamicStyleVariables({ ...dynamicStyleVariables, bins: newBins });
+      setDynamicStyleVariables((previous) => ({ ...previous, bins: newBins }));
 
       setMapBins(newBins);
       setBinsType(e.currentTarget.value);
@@ -158,7 +191,7 @@ export default function Legend(): JSX.Element | null {
   }
 
   const onCommitChange = (bins: any) =>
-    setDynamicStyleVariables({ ...dynamicStyleVariables, bins });
+    setDynamicStyleVariables((previous) => ({ ...previous, bins }));
 
   return (
     <Container>
@@ -167,18 +200,18 @@ export default function Legend(): JSX.Element | null {
         <contexts.ThemeProvider theme="light">
           <components.Binning
             mapBins={mapBins}
-            bins={selectedDataset?.stops}
+            bins={editedDataset?.stops}
             binHexColors={dynamicStyleVariables.binHexColors}
-            selectedDataset={selectedDataset}
+            selectedDataset={editedDataset}
             isPro={false}
             updateColorScheme={updateColorScheme}
             onCommitChange={onCommitChange}
             setMapbins={setMapBins}
             binningText={translate("binning")}
-            resetColorScheme={resetColorScheme}
+            resetColorScheme={resetLegend}
           />
         </contexts.ThemeProvider>
-        {!selectedDataset?.isDiff && (
+        {!selectedDataset?.isDiff && !activeDiffMap && (
           <>
             <br />
             <ListItem flexDirection="row">
@@ -211,7 +244,10 @@ export default function Legend(): JSX.Element | null {
             <ColorPicker>
               <InputColor
                 initialValue={dynamicStyleVariables.binHexColors[0]}
-                onChange={setStartColor}
+                onChange={onPickBoundaryColor(
+                  dynamicStyleVariables.binHexColors[0],
+                  setStartColor,
+                )}
               />
             </ColorPicker>
             <Subtitle>{translate("menu.legend.colors.firstColor")}</Subtitle>
@@ -222,7 +258,10 @@ export default function Legend(): JSX.Element | null {
                 initialValue={
                   dynamicStyleVariables.binHexColors[dynamicStyleVariables.binHexColors.length - 1]
                 }
-                onChange={setEndColor}
+                onChange={onPickBoundaryColor(
+                  dynamicStyleVariables.binHexColors[dynamicStyleVariables.binHexColors.length - 1],
+                  setEndColor,
+                )}
               />
             </ColorPicker>
             <Subtitle>{translate("menu.legend.colors.lastColor")}</Subtitle>
