@@ -2,6 +2,7 @@ import { PopupFeature } from "@probable-futures/lib";
 import {
   COMPARE_MODE_QUERY_PARAM,
   ComparisonMode,
+  ERA5_QUERY_PARAM,
   MAP_PROJECTION_QUERY_PARAM,
   MAP_QUERY_PARAM,
   MAP_STATUS_QUERY_PARAM,
@@ -23,8 +24,10 @@ type SetQueryParam = {
   comparisonScenarioBefore?: number;
   comparisonScenarioAfter?: number;
   comparisonMode?: ComparisonMode;
-  versionBefore?: number;
-  versionAfter?: number;
+  /** A version number, or `era5` for the observational side. */
+  versionBefore?: number | string;
+  versionAfter?: number | string;
+  showEra5?: boolean;
 };
 
 export const setQueryParam = ({
@@ -39,6 +42,7 @@ export const setQueryParam = ({
   comparisonMode,
   versionBefore,
   versionAfter,
+  showEra5,
 }: SetQueryParam) => {
   const params = new window.URLSearchParams(window.location.search);
 
@@ -83,6 +87,12 @@ export const setQueryParam = ({
       params.set(VERSION_BEFORE_QUERY_PARAM, versionBefore.toString());
       params.set(VERSION_AFTER_QUERY_PARAM, versionAfter.toString());
     }
+  }
+
+  if (showEra5 === true) {
+    params.set(ERA5_QUERY_PARAM, "1");
+  } else if (showEra5 === false) {
+    params.delete(ERA5_QUERY_PARAM);
   }
 
   window.history.replaceState(null, "", `?${params.toString()}${window.location.hash}`);

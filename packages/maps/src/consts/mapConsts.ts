@@ -56,6 +56,8 @@ export const COMPARE_MODE_QUERY_PARAM = "compare";
 export const VERSION_BEFORE_QUERY_PARAM = "version_before";
 export const VERSION_AFTER_QUERY_PARAM = "version_after";
 
+export const ERA5_QUERY_PARAM = "era5";
+
 export const parseComparisonMode = (value: string | null): ComparisonMode | undefined =>
   value === "swipe" || value === "diff" ? value : undefined;
 

@@ -3,11 +3,14 @@ import { types } from "@probable-futures/lib";
 
 import { useMenu } from "../components/Menu";
 import { getDiffMapForPair, VersionDiffMap } from "../consts/versionDiffMaps";
+import { Era5Map } from "../consts/era5Maps";
 
 export const getActiveMapStyleId = (
   selectedDataset?: types.Map,
   activeDiffMap?: VersionDiffMap,
-): string | undefined => activeDiffMap?.mapStyleId ?? selectedDataset?.mapStyleId;
+  activeEra5Map?: Era5Map,
+): string | undefined =>
+  activeDiffMap?.mapStyleId ?? activeEra5Map?.mapStyleId ?? selectedDataset?.mapStyleId;
 
 export default function useActiveDiffMap(): VersionDiffMap | undefined {
   const {

@@ -22,13 +22,18 @@ import MapBuilderHeader from "../MapBuilderHeader";
 import { colors, size } from "../../consts";
 import { getMapBuilderMinZoom, LATEST_MAP_VERSION } from "../../consts/mapConsts";
 import { getDiffMapBinHexColors } from "../../consts/versionDiffMaps";
+import { ERA5_MAX_DEGREES, isEra5Map } from "../../consts/era5Maps";
 import { isLatestMapForSlug } from "../../utils/mapSelection";
+import { getComparisonSideLabel } from "../../utils/mapVersions";
 import useActiveDiffMap, { getActiveMapStyleId } from "../../utils/useActiveDiffMap";
+import useActiveEra5Map from "../../utils/useActiveEra5Map";
 import { useTranslation } from "../../contexts/TranslationContext";
 import useGlobeLines, { LINE_LAYER_LABEL_PREFIX } from "../../utils/useGlobeLines";
 import VersionComparisonMapView, { VersionComparisonMapHandle } from "./VersionComparisonMapView";
 import DiffMapKey from "./DiffMapKey";
 import DiffPopupContent from "./DiffPopupContent";
+
+const DEFAULT_MAX_DEGREES = 3;
 
 const Container = styled.div`
   position: relative;
@@ -185,6 +190,23 @@ const InteractiveMap = () => {
   const [hasStyleError, setHasStyleError] = useState(false);
 
   const activeDiffMap = useActiveDiffMap();
+  const activeEra5Map = useActiveEra5Map();
+
+  /** True whenever an ERA5 map is on screen, on its own or as a comparison side. */
+  const era5Active =
+    !!activeEra5Map ||
+    (comparisonMode === "swipe" && (isEra5Map(versionBefore) || isEra5Map(versionAfter)));
+
+  const maxDegrees = era5Active ? ERA5_MAX_DEGREES : DEFAULT_MAX_DEGREES;
+
+  // ERA5 tiles have no properties above 1°C, so a higher level would paint the
+  // map blank rather than merely look wrong.
+  useEffect(() => {
+    if (era5Active && degrees > ERA5_MAX_DEGREES) {
+      setDegrees(ERA5_MAX_DEGREES);
+      setQueryParam({ warmingScenario: ERA5_MAX_DEGREES });
+    }
+  }, [era5Active, degrees, setDegrees]);
 
   const updateMapStyles = useCallback((map: Map) => {
     if (mapGeneralStyles.current.binHexColors && mapGeneralStyles.current.bins) {
@@ -345,14 +367,14 @@ const InteractiveMap = () => {
   }, []);
 
   const mapStyleLink = useMemo(() => {
-    const styleId = getActiveMapStyleId(selectedDataset, activeDiffMap);
+    const styleId = getActiveMapStyleId(selectedDataset, activeDiffMap, activeEra5Map);
     if (!styleId) {
       return "";
     }
     const mapboxAccount =
       window.pfInteractiveMap?.mapboxAccount || import.meta.env.VITE_MAPBOX_ACCOUNT;
     return `mapbox://styles/${mapboxAccount}/${styleId}`;
-  }, [activeDiffMap, selectedDataset]);
+  }, [activeDiffMap, activeEra5Map, selectedDataset]);
 
   useEffect(() => {
     setHasStyleError(false);
@@ -361,14 +383,14 @@ const InteractiveMap = () => {
   /**
    * Mapbox reports transient tile failures through the same event, so only an
    * error raised before the style has loaded counts — that is the shape a style
-   * id which no longer resolves takes. Scoped to the difference view because it
-   * is the only one whose style ids come from a hand-maintained registry.
+   * id which no longer resolves takes. Scoped to the difference and ERA5 views
+   * because theirs are the style ids that come from a hand-maintained registry.
    */
   const onError = useCallback(() => {
-    if (activeDiffMap && !mapRef.current?.getMap().isStyleLoaded()) {
+    if ((activeDiffMap || activeEra5Map) && !mapRef.current?.getMap().isStyleLoaded()) {
       setHasStyleError(true);
     }
-  }, [activeDiffMap]);
+  }, [activeDiffMap, activeEra5Map]);
 
   const onLoad = useCallback(
     (e: MapboxEvent) => {
@@ -394,10 +416,15 @@ const InteractiveMap = () => {
     <Container>
       {hasStyleError && (
         <StyleErrorBanner role="alert">
-          {translate(
-            "menu.data.diffMapUnavailable",
-            "This map style could not be loaded from Mapbox. Check that the style id in the difference-map registry is still published.",
-          )}
+          {activeEra5Map
+            ? translate(
+                "menu.data.era5MapUnavailable",
+                "This ERA5 map style could not be loaded from Mapbox. Check that the style id in the ERA5 registry is still published.",
+              )
+            : translate(
+                "menu.data.diffMapUnavailable",
+                "This map style could not be loaded from Mapbox. Check that the style id in the difference-map registry is still published.",
+              )}
         </StyleErrorBanner>
       )}
       {canRenderMap && isComparing && (
@@ -405,6 +432,8 @@ const InteractiveMap = () => {
           ref={comparisonMapRef}
           datasetBefore={versionBefore!}
           datasetAfter={versionAfter!}
+          labelBefore={getComparisonSideLabel(versionBefore!)}
+          labelAfter={getComparisonSideLabel(versionAfter!)}
           mapStyleUrlBefore={getMapStyleLink(versionBefore)}
           mapStyleUrlAfter={getMapStyleLink(versionAfter)}
           mapboxAccessToken={
@@ -524,7 +553,15 @@ const InteractiveMap = () => {
         <components.DegreeSlider
           degrees={degrees}
           min={0.5}
-          max={3}
+          max={maxDegrees}
+          hint={
+            era5Active
+              ? translate(
+                  "slider.era5DegreesHint",
+                  "ERA5 only has observed data for 0.5°C and 1°C.",
+                )
+              : undefined
+          }
           title={translate("slider.title")}
           onChangeCommitted={(e, value) => {
             setDegrees(value);

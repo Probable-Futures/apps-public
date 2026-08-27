@@ -89,6 +89,7 @@ interface DataState {
   comparisonRestored: boolean;
   versionBefore?: types.Map;
   versionAfter?: types.Map;
+  showEra5: boolean;
   setComparisonRestored(restored: boolean): void;
   setDatasets(datasets: any): void;
   setSelectedDataset(dataset: any): void;
@@ -107,6 +108,7 @@ interface DataState {
   setComparisonMode(mode: ComparisonMode): void;
   setVersionBefore(dataset?: types.Map): void;
   setVersionAfter(dataset?: types.Map): void;
+  setShowEra5(show: boolean): void;
 }
 
 const MenuContext = createContext(getInitialState());
@@ -237,7 +239,9 @@ function getInitialState(): MenuState {
       comparisonRestored: false,
       versionBefore: undefined,
       versionAfter: undefined,
+      showEra5: false,
       setComparisonRestored: () => {},
+      setShowEra5: () => {},
       setDatasets: () => {},
       setSelectedDataset: () => {},
       setDegrees: () => {},
@@ -325,6 +329,7 @@ function useData(): DataState {
   const [comparisonRestored, setComparisonRestored] = useState(false);
   const [versionBefore, setVersionBefore] = useState<types.Map | undefined>();
   const [versionAfter, setVersionAfter] = useState<types.Map | undefined>();
+  const [showEra5, setShowEra5] = useState(false);
 
   return useMemo(
     () => ({
@@ -360,6 +365,8 @@ function useData(): DataState {
       setVersionBefore,
       versionAfter,
       setVersionAfter,
+      showEra5,
+      setShowEra5,
     }),
     [
       datasets,
@@ -378,6 +385,7 @@ function useData(): DataState {
       comparisonRestored,
       versionBefore,
       versionAfter,
+      showEra5,
     ],
   );
 }

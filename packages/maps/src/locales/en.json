@@ -42,7 +42,15 @@
       "differencePair": "Versions compared",
       "differenceHint": "Red where the newer version is higher than the older one, blue where it is lower. Values are differences, so they are shown in the map's own unit and never converted.",
       "noDiffMapHint": "No difference map has been published for this dataset.",
-      "diffMapUnavailable": "This map style could not be loaded from Mapbox. Check that the style id in the difference-map registry is still published."
+      "diffMapUnavailable": "This map style could not be loaded from Mapbox. Check that the style id in the difference-map registry is still published.",
+      "mapSource": "Map source",
+      "mapSourceOptions": {
+        "model": "Model",
+        "era5": "Observations (ERA5)"
+      },
+      "era5VersionLabel": "ERA5 (observed)",
+      "era5Hint": "ERA5 is reanalysis — observations gridded into a best estimate of what actually happened. It only reaches the 0.5°C and 1°C warming levels, and has no data for Antarctica.",
+      "era5MapUnavailable": "This ERA5 map style could not be loaded from Mapbox. Check that the style id in the ERA5 registry is still published."
     },
     "mapStyle": {
       "title": "Map Style",
@@ -70,7 +78,8 @@
     }
   },
   "slider": {
-    "title": "Warming Scenario"
+    "title": "Warming Scenario",
+    "era5DegreesHint": "ERA5 only has observed data for 0.5°C and 1°C."
   },
   "title": "Map Builder",
   "key": {

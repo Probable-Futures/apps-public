@@ -21,7 +21,9 @@ import { purpleFilter } from "@probable-futures/components-lib/src/styles/common
 
 import { colors } from "../../consts";
 import { getMapBuilderMinZoom } from "../../consts/mapConsts";
+import { isEra5Map } from "../../consts/era5Maps";
 import { getDataByKey } from "../../utils";
+import { getComparisonSideLabel } from "../../utils/mapVersions";
 import useGlobeLines, { LINE_LAYER_LABEL_PREFIX } from "../../utils/useGlobeLines";
 
 const COMPARE_POPUP_CLASS = "pf-version-compare-popup";
@@ -31,6 +33,9 @@ type Side = "before" | "after";
 type Props = {
   datasetBefore: types.Map;
   datasetAfter: types.Map;
+  /** What each side is called on the divider. Not a version number — a side may be ERA5. */
+  labelBefore: string;
+  labelAfter: string;
   mapStyleUrlBefore: string;
   mapStyleUrlAfter: string;
   mapboxAccessToken: string;
@@ -58,8 +63,8 @@ export type VersionComparisonMapHandle = {
 
 const ComparisonContainer = styled.div<{
   height: number | string;
-  versionBefore: number;
-  versionAfter: number;
+  labelBefore: string;
+  labelAfter: string;
 }>`
   position: relative;
   width: 100vw;
@@ -90,12 +95,12 @@ const ComparisonContainer = styled.div<{
     }
 
     ::before {
-      content: ${({ versionBefore }) => `"v${versionBefore}"`};
+      content: ${({ labelBefore }) => `"${labelBefore}"`};
       left: -91px;
     }
 
     ::after {
-      content: ${({ versionAfter }) => `"v${versionAfter}"`};
+      content: ${({ labelAfter }) => `"${labelAfter}"`};
       right: -89px;
     }
   }
@@ -272,6 +277,8 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
     {
       datasetBefore,
       datasetAfter,
+      labelBefore,
+      labelAfter,
       mapStyleUrlBefore,
       mapStyleUrlAfter,
       mapboxAccessToken,
@@ -375,6 +382,10 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
           return;
         }
         const dataset = side === "before" ? datasetBefore : datasetAfter;
+        // ERA5 is not a database row, so it has no status to name beside its label.
+        const versionLabel = isEra5Map(dataset)
+          ? getComparisonSideLabel(dataset)
+          : `${getComparisonSideLabel(dataset)} · ${dataset.status ?? ""}`;
         const popupFeature = buildPopupFeature(features, lngLat, dataKey);
 
         let popup = side === "before" ? beforePopupRef.current : afterPopupRef.current;
@@ -411,7 +422,7 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
               <CloseButton onClick={closePopups} aria-label="Close">
                 <CloseIcon />
               </CloseButton>
-              <VersionLabel>{`v${dataset.mapVersion} · ${dataset.status ?? ""}`}</VersionLabel>
+              <VersionLabel>{versionLabel}</VersionLabel>
               <components.PopupContent
                 feature={popupFeature}
                 dataset={dataset}
@@ -629,8 +640,8 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
         <ComparisonContainer
           ref={compareContainerRef}
           height={height}
-          versionBefore={datasetBefore.mapVersion}
-          versionAfter={datasetAfter.mapVersion}
+          labelBefore={labelBefore}
+          labelAfter={labelAfter}
         >
           <MapDiv ref={beforeContainerRef} />
           <MapDiv ref={afterContainerRef} />

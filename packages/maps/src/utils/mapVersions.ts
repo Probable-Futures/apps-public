@@ -1,6 +1,7 @@
 import { types } from "@probable-futures/lib";
 
 import { getDiffMapsForDataset, versionDiffMaps, VersionDiffMap } from "../consts/versionDiffMaps";
+import { ERA5_LABEL, isEra5Map } from "../consts/era5Maps";
 
 /**
  * One entry per map version, ascending. A dataset has a row per version *per*
@@ -55,6 +56,33 @@ export const getDefaultVersionPair = (
 
 export const getVersionLabel = (map: types.Map): string =>
   `v${map.mapVersion}${map.status && map.status !== "published" ? ` (${map.status})` : ""}`;
+
+/**
+ * The reserved ERA5 version number must never reach a label, so every place that
+ * names a comparison side goes through here rather than reading `mapVersion`.
+ */
+export const getComparisonSideLabel = (map: types.Map): string =>
+  isEra5Map(map) ? ERA5_LABEL : getVersionLabel(map);
+
+/**
+ * The pair the side-by-side view opens on. Falls back to pairing the newest
+ * version against ERA5 when the dataset has too few versions to pair among
+ * themselves — 40607 has ERA5 but no v4, and would otherwise never be
+ * comparable at all. Takes the ERA5 side already built so the caller can keep a
+ * stable object across renders, which is what lets the reconcile effect settle.
+ */
+export const getDefaultSwipePair = (
+  versions: types.Map[],
+  selectedDataset?: types.Map,
+  era5Map?: types.Map,
+): { before: types.Map; after: types.Map } | undefined => {
+  const versionPair = getDefaultVersionPair(versions, selectedDataset);
+  if (versionPair) {
+    return versionPair;
+  }
+  const newest = versions[versions.length - 1];
+  return newest && era5Map ? { before: newest, after: era5Map } : undefined;
+};
 
 export const getAvailableDiffPairs = (
   versions: types.Map[],

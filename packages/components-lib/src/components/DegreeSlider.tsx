@@ -9,18 +9,20 @@ type Props = {
   title: string;
   min: number;
   max: number;
+  /** Explains a narrowed range, e.g. why the higher warming levels are missing. */
+  hint?: string;
   onChangeCommitted?:
     | ((event: SyntheticEvent<HTMLInputElement>, value: number) => void)
     | undefined;
   onChange?: ((event: SyntheticEvent<HTMLInputElement>, value: number) => void) | undefined;
 };
 
-const Container = styled.div`
+const Container = styled.div<{ hasHint: boolean }>`
   background-color: ${colors.white};
   border: 1px solid ${colors.darkPurple};
   padding: 16px 18px;
   max-width: 310px;
-  max-height: 100px;
+  max-height: ${({ hasHint }) => (hasHint ? "150px" : "100px")};
 `;
 
 const Title = styled.span`
@@ -89,7 +91,15 @@ const MarkLabel = styled.span<{ position: number }>`
   cursor: pointer;
 `;
 
-const DegreeSlider = ({ degrees, title, onChange, onChangeCommitted, min, max }: Props) => {
+/* Clears the mark labels, which are absolutely positioned inside the track. */
+const Hint = styled.p`
+  margin: 34px 0 0;
+  color: ${colors.darkPurple};
+  font-size: 11px;
+  line-height: 14px;
+`;
+
+const DegreeSlider = ({ degrees, title, onChange, onChangeCommitted, min, max, hint }: Props) => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(event.target.value);
     if (onChange) onChange(event, value);
@@ -101,7 +111,7 @@ const DegreeSlider = ({ degrees, title, onChange, onChangeCommitted, min, max }:
   };
 
   return (
-    <Container>
+    <Container hasHint={!!hint}>
       <Title>{title}</Title>
       <SliderContainer>
         <StyledInput
@@ -113,16 +123,20 @@ const DegreeSlider = ({ degrees, title, onChange, onChangeCommitted, min, max }:
           onChange={handleInputChange}
           onMouseUp={handleInputMouseUp}
         />
-        {degreesOptions.map((mark) => {
-          const position = ((mark.value - min) / (max - min)) * 100;
-          return (
-            <React.Fragment key={mark.value}>
-              <Mark position={position} />
-              <MarkLabel position={position}>{mark.label}</MarkLabel>
-            </React.Fragment>
-          );
-        })}
+        {/* Filtered to the range: an out-of-range mark places past the end of the track. */}
+        {degreesOptions
+          .filter((mark) => mark.value >= min && mark.value <= max)
+          .map((mark) => {
+            const position = ((mark.value - min) / (max - min)) * 100;
+            return (
+              <React.Fragment key={mark.value}>
+                <Mark position={position} />
+                <MarkLabel position={position}>{mark.label}</MarkLabel>
+              </React.Fragment>
+            );
+          })}
       </SliderContainer>
+      {hint && <Hint>{hint}</Hint>}
     </Container>
   );
 };

@@ -1,7 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { types } from "@probable-futures/lib";
 
-import { getDefaultVersionPair, getVersionLabel, getVersionsOfDataset } from "../mapVersions";
+import {
+  getComparisonSideLabel,
+  getDefaultSwipePair,
+  getDefaultVersionPair,
+  getVersionLabel,
+  getVersionsOfDataset,
+} from "../mapVersions";
+import { buildEra5Map } from "../../consts/era5Maps";
 
 type MapOverrides = {
   datasetId?: number;
@@ -150,5 +157,61 @@ describe("getVersionLabel", () => {
   it("calls out a non-published status", () => {
     expect(getVersionLabel(makeMap({ mapVersion: 3, status: "archive" }))).toBe("v3 (archive)");
     expect(getVersionLabel(makeMap({ mapVersion: 4, status: "draft" }))).toBe("v4 (draft)");
+  });
+});
+
+const era5MapFor = (map: types.Map) =>
+  buildEra5Map(map, { datasetId: 40104, slug: "days-above-32c", mapStyleId: "era5-style" });
+
+describe("getComparisonSideLabel", () => {
+  it("names an ERA5 side by what it is, never by its reserved version number", () => {
+    const label = getComparisonSideLabel(era5MapFor(makeMap({ mapVersion: 4 })));
+
+    expect(label).toBe("ERA5");
+    expect(label).not.toContain("0");
+  });
+
+  it("labels a real side exactly as the version picker does", () => {
+    expect(getComparisonSideLabel(makeMap({ mapVersion: 3 }))).toBe("v3");
+    expect(getComparisonSideLabel(makeMap({ mapVersion: 4, status: "draft" }))).toBe("v4 (draft)");
+  });
+});
+
+describe("getDefaultSwipePair", () => {
+  it("pairs two versions among themselves and leaves ERA5 out of it", () => {
+    const versions = [makeMap({ mapVersion: 3 }), makeMap({ mapVersion: 4 })];
+    const pair = getDefaultSwipePair(versions, versions[1], era5MapFor(versions[1]))!;
+
+    expect(pair.before.mapVersion).toBe(3);
+    expect(pair.after.mapVersion).toBe(4);
+  });
+
+  // 40607 has ERA5 but no v4, so without this it would never be comparable.
+  it("pairs a lone version against ERA5, which is the only thing left to compare with", () => {
+    const versions = [makeMap({ mapVersion: 3 })];
+    const era5 = era5MapFor(versions[0]);
+    const pair = getDefaultSwipePair(versions, versions[0], era5)!;
+
+    expect(pair.before).toBe(versions[0]);
+    expect(pair.after).toBe(era5);
+  });
+
+  it("returns the same ERA5 object it was handed, so the caller's memo settles", () => {
+    const versions = [makeMap({ mapVersion: 3 })];
+    const era5 = era5MapFor(versions[0]);
+
+    expect(getDefaultSwipePair(versions, versions[0], era5)?.after).toBe(
+      getDefaultSwipePair(versions, versions[0], era5)?.after,
+    );
+  });
+
+  it("gives up when a lone version has no ERA5 to pair with", () => {
+    const versions = [makeMap({ mapVersion: 3 })];
+
+    expect(getDefaultSwipePair(versions, versions[0], undefined)).toBeUndefined();
+  });
+
+  it("gives up when there is nothing to pair at all", () => {
+    expect(getDefaultSwipePair([], undefined, undefined)).toBeUndefined();
   });
 });

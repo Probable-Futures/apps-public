@@ -6,8 +6,14 @@ import { ComparisonMode } from "../consts/mapConsts";
 import { getDiffPairLabel } from "../consts/versionDiffMaps";
 import { useMenu } from "./Menu";
 import SegmentedControl, { Segment } from "./common/SegmentedControl";
-import { getAvailableDiffPairs, getVersionsOfDataset } from "../utils/mapVersions";
+import {
+  getAvailableDiffPairs,
+  getComparisonSideLabel,
+  getVersionsOfDataset,
+} from "../utils/mapVersions";
 import useActiveDiffMap from "../utils/useActiveDiffMap";
+import useActiveEra5Map from "../utils/useActiveEra5Map";
+import { ERA5_LABEL, getEra5MapForDataset } from "../consts/era5Maps";
 import { useTranslation } from "../contexts/TranslationContext";
 
 const SIDEBAR_OPEN_OFFSET = 256;
@@ -83,17 +89,23 @@ const MapBuilderHeader = () => {
   } = useMenu();
   const { translate } = useTranslation();
   const activeDiffMap = useActiveDiffMap();
+  const activeEra5Map = useActiveEra5Map();
 
   if (!selectedDataset) {
     return null;
   }
 
   const versions = getVersionsOfDataset(datasets, selectedDataset);
-  const canCompareVersions = versions.length > 1;
+  // ERA5 is comparable even against a lone version, so it widens the gate.
+  const canCompare = versions.length > 1 || !!getEra5MapForDataset(selectedDataset.dataset.id);
   const diffPairs = getAvailableDiffPairs(versions, selectedDataset.dataset.id);
   const isSwiping = comparisonMode === "swipe" && versionBefore && versionAfter;
+  // ERA5 is observations, so naming a model beneath it would be wrong.
   const showModel =
-    !isSwiping && !activeDiffMap && selectedDataset.mapVersion !== MODEL_HIDDEN_MAP_VERSION;
+    !isSwiping &&
+    !activeDiffMap &&
+    !activeEra5Map &&
+    selectedDataset.mapVersion !== MODEL_HIDDEN_MAP_VERSION;
 
   const segments: Segment<ComparisonMode>[] = [
     { value: "none", label: translate("menu.data.comparisonModes.none", "Off") },
@@ -140,7 +152,15 @@ const MapBuilderHeader = () => {
           {isSwiping && (
             <Versions>
               {" — "}
-              {`v${versionBefore.mapVersion} vs v${versionAfter.mapVersion}`}
+              {`${getComparisonSideLabel(versionBefore)} vs ${getComparisonSideLabel(
+                versionAfter,
+              )}`}
+            </Versions>
+          )}
+          {activeEra5Map && (
+            <Versions>
+              {" — "}
+              {ERA5_LABEL}
             </Versions>
           )}
           {activeDiffMap && (
@@ -152,7 +172,7 @@ const MapBuilderHeader = () => {
           {showModel && ` - ${selectedDataset.dataset.model}`}
         </p>
       </Container>
-      {canCompareVersions && (
+      {canCompare && (
         <HeaderControls>
           <ModeSwitch>
             <SegmentedControl

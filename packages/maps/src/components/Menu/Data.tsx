@@ -13,6 +13,7 @@ import { colors } from "../../consts";
 import {
   COMPARE_MODE_QUERY_PARAM,
   ComparisonMode,
+  ERA5_QUERY_PARAM,
   mapBuilderProjectionNames,
   parseComparisonMode,
   VERSION_AFTER_QUERY_PARAM,
@@ -25,11 +26,18 @@ import useWPApi from "../../utils/useWPApi";
 import {
   getAvailableDiffPairs,
   getDefaultDiffPair,
-  getDefaultVersionPair,
+  getDefaultSwipePair,
   getVersionLabel,
   getVersionsOfDataset,
 } from "../../utils/mapVersions";
 import { getDiffPairLabel } from "../../consts/versionDiffMaps";
+import {
+  buildEra5Map,
+  ERA5_MAX_DEGREES,
+  ERA5_VERSION_QUERY_VALUE,
+  getEra5MapForDataset,
+  isEra5Map,
+} from "../../consts/era5Maps";
 
 const Container = styled.div`
   display: flex;
@@ -75,6 +83,7 @@ export default function Data(): JSX.Element {
       showInspector,
       changeMapDisplayOption,
       midValueShown,
+      degrees,
       setSelectedDataset,
       setFilterByStatus,
       setFilterByCategory,
@@ -90,10 +99,12 @@ export default function Data(): JSX.Element {
       comparisonRestored,
       versionBefore,
       versionAfter,
+      showEra5,
       setComparisonMode,
       setComparisonRestored,
       setVersionBefore,
       setVersionAfter,
+      setShowEra5,
     },
     mapStyle: { setDynamicStyleVariables, setMapProjection },
   } = useMenu();
@@ -222,12 +233,40 @@ export default function Data(): JSX.Element {
 
   const canCompareVersions = versionsOfSelectedDataset.length > 1;
 
+  const era5Entry = useMemo(
+    () => getEra5MapForDataset(selectedDataset?.dataset.id),
+    [selectedDataset],
+  );
+
+  const hasEra5 = !!era5Entry;
+
+  /**
+   * Memoized so an ERA5 comparison side is the same object across renders. The
+   * reconcile effect below settles by identity, and a fresh object each pass
+   * would make it loop forever.
+   */
+  const era5Map = useMemo(
+    () => (selectedDataset && era5Entry ? buildEra5Map(selectedDataset, era5Entry) : undefined),
+    [selectedDataset, era5Entry],
+  );
+
+  // ERA5 gives a dataset something to compare against even when it has a single
+  // version, so the side-by-side gate is wider than the version-picker one.
+  const canCompare = canCompareVersions || hasEra5;
+
+  const era5VersionLabel = translate("menu.data.era5VersionLabel", "ERA5 (observed)");
+
   const buildVersionOptions = useCallback(
-    (excluded?: types.Map) =>
-      versionsOfSelectedDataset
+    (excluded?: types.Map) => {
+      const options: { value: string | number; label: string }[] = versionsOfSelectedDataset
         .filter((map) => map.mapVersion !== excluded?.mapVersion)
-        .map((map) => ({ value: map.mapVersion, label: getVersionLabel(map) })),
-    [versionsOfSelectedDataset],
+        .map((map) => ({ value: map.mapVersion, label: getVersionLabel(map) }));
+      if (hasEra5 && !isEra5Map(excluded)) {
+        options.push({ value: ERA5_VERSION_QUERY_VALUE, label: era5VersionLabel });
+      }
+      return options;
+    },
+    [versionsOfSelectedDataset, hasEra5, era5VersionLabel],
   );
 
   const diffPairs = useMemo(
@@ -277,17 +316,24 @@ export default function Data(): JSX.Element {
       return;
     }
 
-    const pair = getDefaultVersionPair(versionsOfSelectedDataset, selectedDataset);
+    const pair = getDefaultSwipePair(versionsOfSelectedDataset, selectedDataset, era5Map);
     if (!pair) {
       setComparisonMode("none");
       setVersionBefore(undefined);
       setVersionAfter(undefined);
       return;
     }
-    const resolve = (map?: types.Map) =>
-      map && map.dataset.id === selectedDataset?.dataset.id
+    // An ERA5 side has no row to re-find, so it resolves to the memoized
+    // synthetic map instead — which also drops it if the new dataset has no
+    // ERA5, falling the side back onto `pair`.
+    const resolve = (map?: types.Map) => {
+      if (isEra5Map(map)) {
+        return era5Map;
+      }
+      return map && map.dataset.id === selectedDataset?.dataset.id
         ? versionsOfSelectedDataset.find(({ mapVersion }) => mapVersion === map.mapVersion)
         : undefined;
+    };
     const nextBefore = resolve(versionBefore) ?? pair.before;
     const nextAfter = resolve(versionAfter) ?? pair.after;
     if (nextBefore !== versionBefore) {
@@ -302,6 +348,7 @@ export default function Data(): JSX.Element {
     selectedDataset,
     versionBefore,
     versionAfter,
+    era5Map,
     setComparisonMode,
     setVersionBefore,
     setVersionAfter,
@@ -315,14 +362,21 @@ export default function Data(): JSX.Element {
 
     const mode = parseComparisonMode(getQueryParam(COMPARE_MODE_QUERY_PARAM));
     if (!mode) {
-      setQueryParam({ comparisonMode: "none" });
+      // ERA5 is a property of the main map, so it only survives the round trip
+      // while no comparison is open.
+      const wantsEra5 = getQueryParam(ERA5_QUERY_PARAM) === "1" && hasEra5;
+      setShowEra5(wantsEra5);
+      setQueryParam({ comparisonMode: "none", showEra5: wantsEra5 });
       return;
     }
     const findVersion = (param: string) => {
       const value = getQueryParam(param);
-      return value
-        ? versionsOfSelectedDataset.find(({ mapVersion }) => mapVersion === Number(value))
-        : undefined;
+      if (!value) {
+        return undefined;
+      }
+      return value === ERA5_VERSION_QUERY_VALUE
+        ? era5Map
+        : versionsOfSelectedDataset.find(({ mapVersion }) => mapVersion === Number(value));
     };
     const before = findVersion(VERSION_BEFORE_QUERY_PARAM);
     const after = findVersion(VERSION_AFTER_QUERY_PARAM);
@@ -340,7 +394,7 @@ export default function Data(): JSX.Element {
             linked?.before,
             linked?.after,
           )
-        : linked ?? getDefaultVersionPair(versionsOfSelectedDataset, selectedDataset);
+        : linked ?? getDefaultSwipePair(versionsOfSelectedDataset, selectedDataset, era5Map);
     if (!pair) {
       setQueryParam({ comparisonMode: "none" });
       return;
@@ -348,27 +402,50 @@ export default function Data(): JSX.Element {
     setVersionBefore(pair.before);
     setVersionAfter(pair.after);
     setComparisonMode(mode);
+    // Clamped here as well as in the map so a shared ERA5 link opens coherent:
+    // the map reads `degrees` on its first paint, and the url should not go on
+    // claiming a level the tiles have no data for.
+    if ((isEra5Map(pair.before) || isEra5Map(pair.after)) && degrees > ERA5_MAX_DEGREES) {
+      setDegrees(ERA5_MAX_DEGREES);
+      setQueryParam({ warmingScenario: ERA5_MAX_DEGREES });
+    }
   }, [
     datasets,
     versionsOfSelectedDataset,
     selectedDataset,
     comparisonRestored,
+    era5Map,
+    hasEra5,
+    degrees,
     setComparisonRestored,
     setComparisonMode,
     setVersionBefore,
     setVersionAfter,
+    setShowEra5,
+    setDegrees,
   ]);
 
   useEffect(() => {
     if (!comparisonRestored) {
       return;
     }
+    const serializeSide = (map?: types.Map) =>
+      map && (isEra5Map(map) ? ERA5_VERSION_QUERY_VALUE : map.mapVersion);
     setQueryParam({
       comparisonMode,
-      versionBefore: versionBefore?.mapVersion,
-      versionAfter: versionAfter?.mapVersion,
+      versionBefore: serializeSide(versionBefore),
+      versionAfter: serializeSide(versionAfter),
+      showEra5: comparisonMode === "none" && showEra5,
     });
-  }, [comparisonRestored, comparisonMode, versionBefore, versionAfter]);
+  }, [comparisonRestored, comparisonMode, versionBefore, versionAfter, showEra5]);
+
+  // A dataset without ERA5 cannot show it, and neither can a comparison — each
+  // side carries its own style there.
+  useEffect(() => {
+    if (showEra5 && (!hasEra5 || comparisonMode !== "none")) {
+      setShowEra5(false);
+    }
+  }, [showEra5, hasEra5, comparisonMode, setShowEra5]);
 
   const comparisonSegments: Segment<ComparisonMode>[] = [
     { value: "none", label: translate("menu.data.comparisonModes.none", "Off") },
@@ -406,6 +483,17 @@ export default function Data(): JSX.Element {
     setComparisonMode(mode);
   };
 
+  /** Matches the option built by `buildVersionOptions`, so the dropdown shows a selection. */
+  const versionOption = (map: types.Map) =>
+    isEra5Map(map)
+      ? { value: ERA5_VERSION_QUERY_VALUE, label: era5VersionLabel }
+      : { value: map.mapVersion, label: getVersionLabel(map) };
+
+  const mapSourceSegments: Segment<"model" | "era5">[] = [
+    { value: "model", label: translate("menu.data.mapSourceOptions.model", "Model") },
+    { value: "era5", label: translate("menu.data.mapSourceOptions.era5", "Observations (ERA5)") },
+  ];
+
   const onDiffPairChange = (option: { label: string; value: string | number }) => {
     const pair = diffPairs.find(({ diffMap }) => diffMap.mapStyleId === option.value);
     if (pair) {
@@ -416,9 +504,10 @@ export default function Data(): JSX.Element {
 
   const onVersionChange =
     (side: "before" | "after") => (option: { label: string; value: string | number }) => {
-      const map = versionsOfSelectedDataset.find(
-        ({ mapVersion }) => mapVersion === Number(option.value),
-      );
+      const map =
+        option.value === ERA5_VERSION_QUERY_VALUE
+          ? era5Map
+          : versionsOfSelectedDataset.find(({ mapVersion }) => mapVersion === Number(option.value));
       if (!map) {
         return;
       }
@@ -540,6 +629,26 @@ export default function Data(): JSX.Element {
           />
         </Section>
       )}
+      {hasEra5 && comparisonMode === "none" && (
+        <Section showBorder={false}>
+          <Title>{translate("menu.data.mapSource", "Map source")}</Title>
+          <SegmentedControl
+            name={translate("menu.data.mapSource", "Map source")}
+            value={showEra5 ? "era5" : "model"}
+            segments={mapSourceSegments}
+            onChange={(value) => setShowEra5(value === "era5")}
+            orientation="vertical"
+          />
+          {showEra5 && (
+            <Hint>
+              {translate(
+                "menu.data.era5Hint",
+                "ERA5 is reanalysis — observations gridded into a best estimate of what actually happened. It only reaches the 0.5°C and 1°C warming levels, and has no data for Antarctica.",
+              )}
+            </Hint>
+          )}
+        </Section>
+      )}
       <Section showBorder={false}>
         <Title>{translate("menu.data.mapStatus")}</Title>
         <Dropdown
@@ -580,7 +689,7 @@ export default function Data(): JSX.Element {
           />
         </Option>
       </Section>
-      {canCompareVersions && (
+      {canCompare && (
         <Section showBorder={false}>
           <Title>{translate("menu.data.comparison", "Comparison")}</Title>
           <SegmentedControl
@@ -595,7 +704,7 @@ export default function Data(): JSX.Element {
               <div>
                 <Title>{translate("menu.data.versionOnLeft", "Version on the left")}</Title>
                 <Dropdown
-                  value={{ value: versionBefore.mapVersion, label: getVersionLabel(versionBefore) }}
+                  value={versionOption(versionBefore)}
                   options={buildVersionOptions(versionAfter)}
                   onChange={onVersionChange("before")}
                 />
@@ -603,7 +712,7 @@ export default function Data(): JSX.Element {
               <div>
                 <Title>{translate("menu.data.versionOnRight", "Version on the right")}</Title>
                 <Dropdown
-                  value={{ value: versionAfter.mapVersion, label: getVersionLabel(versionAfter) }}
+                  value={versionOption(versionAfter)}
                   options={buildVersionOptions(versionBefore)}
                   onChange={onVersionChange("after")}
                 />
@@ -614,6 +723,14 @@ export default function Data(): JSX.Element {
                   "Both sides share the legend bins and colours below, so any difference you see is a difference in the data.",
                 )}
               </Hint>
+              {(isEra5Map(versionBefore) || isEra5Map(versionAfter)) && (
+                <Hint>
+                  {translate(
+                    "menu.data.era5Hint",
+                    "ERA5 is reanalysis — observations gridded into a best estimate of what actually happened. It only reaches the 0.5°C and 1°C warming levels, and has no data for Antarctica.",
+                  )}
+                </Hint>
+              )}
             </VersionFields>
           )}
           {comparisonMode === "diff" && activeDiffPair && (
