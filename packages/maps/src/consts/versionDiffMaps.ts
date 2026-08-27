@@ -92,10 +92,10 @@ export const versionDiffMaps: VersionDiffMap[] = [
   ),
   diffMap(40613, "change_in_precipitation_1-in-100_year_storm", "millimeters", ""),
   diffMap(40614, "change_in_snowy_days", "days", "cmszyls2c00c901sdfiaa23ux"),
-  diffMap(40616, "change_in_wettest_90_days", "millimeters", ""),
+  diffMap(40616, "change_in_wettest_90_days", "millimeters", "cmt9xkbyx00h101sc8h6181fx"),
   diffMap(40701, "likelihood_of_year-plus_extreme_drought", "percent", "cmt06ia7j000f01sg5dlafrsa"),
   diffMap(40702, "probability-of-drought", "percent", "cmszywa1300aj01sa7y2v8s50"),
-  diffMap(40703, "change_in_water_balance", "zScore", ""),
+  diffMap(40703, "change_in_water_balance", "zScore", "cmt9xtrqx00gw01qzdyyqcony"),
 ];
 
 export const getDiffMapsForDataset = (
