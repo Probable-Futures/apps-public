@@ -2,9 +2,11 @@
   "menu": {
     "data": {
       "title": "Data",
-      "dataSet": "Data Set",
+      "dataSet": "Select a map",
+      "showFilters": "Show filters",
+      "hideFilters": "Hide filters",
       "mapStatus": "Map Status",
-      "volume": "Volume",
+      "volume": "Map category",
       "showInspector": "Show inspector location",
       "filterOptions": {
         "all": "Show all maps",
@@ -28,7 +30,7 @@
       "versionOnRight": "Version on the right",
       "compareVersionsHint": "Both sides share the legend bins and colours below, so any difference you see is a difference in the data.",
       "version": "Version",
-      "subCategory": "Sub-category",
+      "subCategory": "Map subcategory",
       "subCategoryOptions": {
         "all": "All sub-categories"
       },
@@ -44,12 +46,9 @@
       "noDiffMapHint": "No difference map has been published for this dataset.",
       "diffMapUnavailable": "This map style could not be loaded from Mapbox. Check that the style id in the difference-map registry is still published.",
       "mapSource": "Map source",
-      "mapSourceOptions": {
-        "model": "Model",
-        "era5": "Observations (ERA5)"
-      },
-      "era5VersionLabel": "ERA5 (observed)",
-      "era5Hint": "ERA5 is reanalysis — observations gridded into a best estimate of what actually happened. It only reaches the 0.5°C and 1°C warming levels, and has no data for Antarctica.",
+      "showMoreVersions": "Show more",
+      "showFewerVersions": "Show fewer",
+      "era5Hint": "ERA5 is reanalysis — a gridded best estimate of what actually happened. It only reaches the 0.5°C and 1°C warming levels, and has no data for Antarctica.",
       "era5MapUnavailable": "This ERA5 map style could not be loaded from Mapbox. Check that the style id in the ERA5 registry is still published."
     },
     "mapStyle": {
@@ -79,7 +78,7 @@
   },
   "slider": {
     "title": "Warming Scenario",
-    "era5DegreesHint": "ERA5 only has observed data for 0.5°C and 1°C."
+    "era5DegreesHint": "ERA5 only has data for 0.5°C and 1°C."
   },
   "title": "Map Builder",
   "key": {

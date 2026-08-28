@@ -2,9 +2,7 @@
   "menu": {
     "data": {
       "title": "Datos",
-      "dataSet": "Conjunto de datos",
       "mapStatus": "Estado del mapa",
-      "volume": "Volumen",
       "showInspector": "Mostrar la ubicación del inspector",
       "filterOptions": {
         "all": "Mostrar todos los mapas",

@@ -2,9 +2,7 @@
   "menu": {
     "data": {
       "title": "Données",
-      "dataSet": "Jeu de données",
       "mapStatus": "Statut de la carte",
-      "volume": "Volume",
       "showInspector": "Afficher l'emplacement de l'inspecteur",
       "filterOptions": {
         "all": "Afficher toutes les cartes",

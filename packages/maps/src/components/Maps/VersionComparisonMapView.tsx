@@ -15,12 +15,13 @@ import Compare from "mapbox-gl-compare";
 import styled, { createGlobalStyle } from "styled-components";
 
 import { consts, types, utils } from "@probable-futures/lib";
+import { BinningType } from "@probable-futures/lib/src/utils/colors";
 import { components, contexts } from "@probable-futures/components-lib";
 import { ReactComponent as CloseIcon } from "@probable-futures/components-lib/src/assets/icons/cancel-circle.svg";
 import { purpleFilter } from "@probable-futures/components-lib/src/styles/commonStyles";
 
 import { colors } from "../../consts";
-import { getMapBuilderMinZoom } from "../../consts/mapConsts";
+import { getMapBuilderMinZoom, MAP_BUILDER_MAX_ZOOM } from "../../consts/mapConsts";
 import { isEra5Map } from "../../consts/era5Maps";
 import { getDataByKey } from "../../utils";
 import { getComparisonSideLabel } from "../../utils/mapVersions";
@@ -43,10 +44,9 @@ type Props = {
   /** Shared by both sides, so a colour difference is a data difference. */
   bins?: number[];
   binHexColors?: string[];
+  percentileValue: BinningType;
   landColor: string;
   oceanColor: string;
-  showBoundaries: boolean;
-  showLabels: boolean;
   showInspector: boolean;
   mapProjection: Projection;
   height: number | string;
@@ -59,6 +59,8 @@ type Props = {
 
 export type VersionComparisonMapHandle = {
   flyTo: (options: mapboxgl.CameraOptions & mapboxgl.AnimationOptions) => void;
+  fitBounds: (bounds: mapboxgl.LngLatBoundsLike) => void;
+  zoomTo: (zoom: number) => void;
 };
 
 const ComparisonContainer = styled.div<{
@@ -220,14 +222,10 @@ const applyBuilderStyles = (
     dataLayerPaintProperties,
     landColor,
     oceanColor,
-    showBoundaries,
-    showLabels,
   }: {
     dataLayerPaintProperties: any;
     landColor: string;
     oceanColor: string;
-    showBoundaries: boolean;
-    showLabels: boolean;
   },
 ) => {
   const { layers } = map.getStyle();
@@ -241,13 +239,11 @@ const applyBuilderStyles = (
       map.setPaintProperty(id, "fill-color", dataLayerPaintProperties);
       map.setPaintProperty(id, "fill-antialias", ["step", ["zoom"], false, 6, true]);
       map.setPaintProperty(id, "fill-outline-color", "#ffffff");
-    } else if (id.includes("boundary")) {
-      map.setLayoutProperty(id, "visibility", showBoundaries ? "visible" : "none");
     } else if (
-      (type === "symbol" || id.includes("road")) &&
-      !id.includes(LINE_LAYER_LABEL_PREFIX)
+      id.includes("boundary") ||
+      ((type === "symbol" || id.includes("road")) && !id.includes(LINE_LAYER_LABEL_PREFIX))
     ) {
-      map.setLayoutProperty(id, "visibility", showLabels ? "visible" : "none");
+      map.setLayoutProperty(id, "visibility", "visible");
     }
   });
 };
@@ -285,10 +281,9 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
       degrees,
       bins,
       binHexColors,
+      percentileValue,
       landColor,
       oceanColor,
-      showBoundaries,
-      showLabels,
       showInspector,
       mapProjection,
       height,
@@ -336,8 +331,11 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
     const [{ dataKey }] = consts.degreesOptions.filter((d) => d.value === degrees);
 
     const paint = useMemo(
-      () => (binHexColors && bins ? utils.getMapLayerColors(binHexColors, bins, degrees) : null),
-      [binHexColors, bins, degrees],
+      () =>
+        binHexColors && bins
+          ? utils.getMapLayerColors(binHexColors, bins, degrees, percentileValue)
+          : null,
+      [binHexColors, bins, degrees, percentileValue],
     );
 
     const styleOptions = useMemo(
@@ -345,10 +343,8 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
         dataLayerPaintProperties: paint,
         landColor,
         oceanColor,
-        showBoundaries,
-        showLabels,
       }),
-      [paint, landColor, oceanColor, showBoundaries, showLabels],
+      [paint, landColor, oceanColor],
     );
 
     const closePopups = useCallback(() => {
@@ -471,7 +467,7 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
         center,
         zoom,
         minZoom,
-        maxZoom: consts.MAX_ZOOM,
+        maxZoom: MAP_BUILDER_MAX_ZOOM,
         preserveDrawingBuffer: true,
         projection: mapProjection,
       };
@@ -514,12 +510,13 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mapStyleUrlBefore, mapStyleUrlAfter, mapboxAccessToken]);
 
+    // Only the `before` map is driven: mapbox-gl-compare keeps the other in sync.
     useImperativeHandle(
       ref,
       () => ({
-        flyTo: (options) => {
-          maps?.before.flyTo(options);
-        },
+        flyTo: (options) => maps?.before.flyTo(options),
+        fitBounds: (bounds) => maps?.before.fitBounds(bounds, {}),
+        zoomTo: (zoom) => maps?.before.zoomTo(zoom, { duration: 300 }),
       }),
       [maps],
     );

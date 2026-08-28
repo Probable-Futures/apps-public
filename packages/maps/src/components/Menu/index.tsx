@@ -15,6 +15,7 @@ import { createPortal } from "react-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import styled from "styled-components";
 import { types } from "@probable-futures/lib";
+import { BinningType } from "@probable-futures/lib/src/utils/colors";
 import { Projection } from "mapbox-gl";
 
 import Drawer from "./Drawer";
@@ -27,7 +28,6 @@ import { ComparisonMode, indexForMap } from "../../consts/mapConsts";
 import PfIcon from "../../assets/icons/pf-icon.svg";
 import DatabaseIcon from "../../assets/icons/database.svg";
 import PaintIcon from "../../assets/icons/paint.svg";
-import LegendIcon from "../../assets/icons/legend.svg";
 import { useTranslation } from "../../contexts/TranslationContext";
 import { defaultDegreesForNonChangeMaps } from "../../contexts/DataContext";
 
@@ -62,10 +62,6 @@ interface MapStyleState {
   setLandColor(color: string): void;
   oceanColor: string;
   setOceanColor(color: string): void;
-  showBoundaries: boolean;
-  setShowBoundaries(show: boolean): void;
-  showLabels: boolean;
-  setShowLabels(show: boolean): void;
   mapProjection: Projection;
   setMapProjection(projection: Projection): void;
   dynamicStyleVariables?: DynamicStyleVariables;
@@ -85,6 +81,7 @@ interface DataState {
   midValueShown: string;
   datasetDescriptionResponse?: types.DatasetDescriptionResponse;
   precipitationUnit: types.PrecipitationUnit;
+  percentileValue: BinningType;
   comparisonMode: ComparisonMode;
   comparisonRestored: boolean;
   versionBefore?: types.Map;
@@ -105,6 +102,7 @@ interface DataState {
     datasetDescriptionResponse: types.DatasetDescriptionResponse,
   ): void;
   setPrecipitationUnit(arg: types.PrecipitationUnit): void;
+  setPercentileValue(arg: BinningType): void;
   setComparisonMode(mode: ComparisonMode): void;
   setVersionBefore(dataset?: types.Map): void;
   setVersionAfter(dataset?: types.Map): void;
@@ -168,16 +166,10 @@ export function MenuProvider(props: PropsWithChildren<{}>): JSX.Element {
             icon={PaintIcon}
           >
             <MapStyle />
+            {/* Legend renders null until a ramp exists, which is what used to gate
+                its own drawer section. */}
+            <Legend />
           </DrawerItem>
-          {mapStyle.dynamicStyleVariables?.binHexColors && mapStyle.dynamicStyleVariables.bins && (
-            <DrawerItem
-              open={sidebar.isVisible}
-              title={translate("menu.legend.title")}
-              icon={LegendIcon}
-            >
-              <Legend />
-            </DrawerItem>
-          )}
         </DrawerContent>
         {isAuthenticated && sidebar.isVisible && <UserInfo />}
       </Drawer>
@@ -213,10 +205,6 @@ function getInitialState(): MenuState {
       setLandColor: () => {},
       oceanColor: indexForMap.oceanColor,
       setOceanColor: () => {},
-      showBoundaries: false,
-      setShowBoundaries: () => {},
-      showLabels: false,
-      setShowLabels: () => {},
       mapProjection: { name: "mercator" },
       setMapProjection: () => {},
       dynamicStyleVariables: undefined,
@@ -235,6 +223,7 @@ function getInitialState(): MenuState {
       tempUnit: "°C",
       datasetDescriptionResponse: undefined,
       precipitationUnit: "mm",
+      percentileValue: "mid",
       comparisonMode: "none",
       comparisonRestored: false,
       versionBefore: undefined,
@@ -254,6 +243,7 @@ function getInitialState(): MenuState {
       setMidValueShown: () => {},
       setWpDatasetDescriptionResponse: () => {},
       setPrecipitationUnit: () => {},
+      setPercentileValue: () => {},
       setComparisonMode: () => {},
       setVersionBefore: () => {},
       setVersionAfter: () => {},
@@ -273,8 +263,6 @@ function useMapStyle(): MapStyleState {
   const [binsType, setBinsType] = useState("");
   const [landColor, setLandColor] = useState(indexForMap.landColor);
   const [oceanColor, setOceanColor] = useState(indexForMap.oceanColor);
-  const [showBoundaries, setShowBoundaries] = useState(false);
-  const [showLabels, setShowLabels] = useState(false);
   const [mapProjection, setMapProjection] = useState<Projection>({ name: "mercator" });
 
   return useMemo(
@@ -287,22 +275,10 @@ function useMapStyle(): MapStyleState {
       setLandColor,
       oceanColor,
       setOceanColor,
-      showBoundaries,
-      setShowBoundaries,
-      showLabels,
-      setShowLabels,
       mapProjection,
       setMapProjection,
     }),
-    [
-      dynamicStyleVariables,
-      binsType,
-      landColor,
-      oceanColor,
-      showBoundaries,
-      showLabels,
-      mapProjection,
-    ],
+    [dynamicStyleVariables, binsType, landColor, oceanColor, mapProjection],
   );
 }
 
@@ -325,6 +301,7 @@ function useData(): DataState {
   const [datasetDescriptionResponse, setWpDatasetDescriptionResponse] =
     useState<types.DatasetDescriptionResponse>();
   const [precipitationUnit, setPrecipitationUnit] = useState("mm" as types.PrecipitationUnit);
+  const [percentileValue, setPercentileValue] = useState<BinningType>("mid");
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>("none");
   const [comparisonRestored, setComparisonRestored] = useState(false);
   const [versionBefore, setVersionBefore] = useState<types.Map | undefined>();
@@ -355,6 +332,8 @@ function useData(): DataState {
       setWpDatasetDescriptionResponse,
       precipitationUnit,
       setPrecipitationUnit,
+      percentileValue,
+      setPercentileValue,
       changeMapDisplayOption,
       setChangeMapDisplayOption,
       comparisonMode,
@@ -380,6 +359,7 @@ function useData(): DataState {
       midValueShown,
       datasetDescriptionResponse,
       precipitationUnit,
+      percentileValue,
       changeMapDisplayOption,
       comparisonMode,
       comparisonRestored,

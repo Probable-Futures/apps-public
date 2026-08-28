@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { types } from "@probable-futures/lib";
 import camelcase from "lodash.camelcase";
@@ -7,9 +7,10 @@ import Dropdown from "../common/Dropdown";
 import CustomSwitch from "../common/CustomSwitch";
 import SegmentedControl, { Segment } from "../common/SegmentedControl";
 import { ChangeMapDisplayOptionType, useMenu } from "../../components/Menu";
-import { Section, Title } from "./Menu.styled";
+import { dividerColor, Section, SIDEBAR_GUTTER, Title } from "./Menu.styled";
 import useMapsApi from "../../utils/useMapsApi";
 import { colors } from "../../consts";
+import { ReactComponent as CaretRightIcon } from "../../assets/icons/caret-right.svg";
 import {
   COMPARE_MODE_QUERY_PARAM,
   ComparisonMode,
@@ -28,16 +29,23 @@ import {
   getDefaultDiffPair,
   getDefaultSwipePair,
   getVersionLabel,
+  getVersionSourceLabel,
   getVersionsOfDataset,
 } from "../../utils/mapVersions";
 import { getDiffPairLabel } from "../../consts/versionDiffMaps";
 import {
   buildEra5Map,
+  ERA5_LABEL,
   ERA5_MAX_DEGREES,
   ERA5_VERSION_QUERY_VALUE,
   getEra5MapForDataset,
   isEra5Map,
 } from "../../consts/era5Maps";
+
+const FILTERS_CONTENT_ID = "map-builder-data-filters";
+const FILTERS_TRANSITION_MS = 300;
+
+const LEADING_VERSION_COUNT = 2;
 
 const Container = styled.div`
   display: flex;
@@ -71,6 +79,113 @@ const VersionFields = styled.div`
   flex-direction: column;
   gap: 12px;
   margin-top: 12px;
+`;
+
+const FiltersToggle = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 12px ${SIDEBAR_GUTTER}px;
+  border: none;
+  border-bottom: 1px solid ${dividerColor};
+  background-color: ${colors.lightGreyBackground};
+  color: ${colors.lightGrey2};
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+  text-align: left;
+  text-transform: uppercase;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background-color: #e7e7e7;
+    color: ${colors.darkPurple};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.purple};
+    outline-offset: -2px;
+  }
+`;
+
+const ToggleCaret = styled.i`
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+  transform: ${({ expanded }: { expanded: boolean }) => (expanded ? "rotate(90deg)" : "rotate(0)")};
+
+  svg {
+    width: 12px;
+    height: 12px;
+
+    path {
+      fill: currentColor;
+    }
+  }
+`;
+
+const ActiveFilterCount = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  margin-left: auto;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background-color: ${colors.purple};
+  color: ${colors.white};
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+`;
+
+const ShowMoreVersions = styled.button`
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: ${colors.lightGrey2};
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0;
+  line-height: 1.3;
+  text-decoration: underline;
+
+  &:hover {
+    color: ${colors.purple};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.purple};
+    outline-offset: 2px;
+  }
+`;
+
+type FiltersContentProps = {
+  expanded: boolean;
+  settled: boolean;
+};
+
+const FiltersContent = styled.div`
+  overflow: ${({ settled }: FiltersContentProps) => (settled ? "visible" : "hidden")};
+  max-height: ${({ expanded }: FiltersContentProps) => (expanded ? "500px" : "0")};
+  opacity: ${({ expanded }: FiltersContentProps) => (expanded ? 1 : 0)};
+  visibility: ${({ expanded }: FiltersContentProps) => (expanded ? "visible" : "hidden")};
+  transition: max-height ${FILTERS_TRANSITION_MS}ms ease, opacity ${FILTERS_TRANSITION_MS}ms ease,
+    visibility 0s
+      ${({ expanded }: FiltersContentProps) => (expanded ? "0s" : `${FILTERS_TRANSITION_MS}ms`)};
 `;
 
 export default function Data(): JSX.Element {
@@ -110,6 +225,9 @@ export default function Data(): JSX.Element {
   } = useMenu();
 
   const { translate, locale } = useTranslation();
+  const [showFilters, setShowFilters] = useState(false);
+  const [filtersSettled, setFiltersSettled] = useState(false);
+  const [showOlderVersions, setShowOlderVersions] = useState(false);
 
   const setColorScheme = (binHexColors: any) => {
     setDynamicStyleVariables((previous) => ({ ...previous, binHexColors }));
@@ -254,19 +372,17 @@ export default function Data(): JSX.Element {
   // version, so the side-by-side gate is wider than the version-picker one.
   const canCompare = canCompareVersions || hasEra5;
 
-  const era5VersionLabel = translate("menu.data.era5VersionLabel", "ERA5 (observed)");
-
   const buildVersionOptions = useCallback(
     (excluded?: types.Map) => {
       const options: { value: string | number; label: string }[] = versionsOfSelectedDataset
         .filter((map) => map.mapVersion !== excluded?.mapVersion)
         .map((map) => ({ value: map.mapVersion, label: getVersionLabel(map) }));
       if (hasEra5 && !isEra5Map(excluded)) {
-        options.push({ value: ERA5_VERSION_QUERY_VALUE, label: era5VersionLabel });
+        options.push({ value: ERA5_VERSION_QUERY_VALUE, label: ERA5_LABEL });
       }
       return options;
     },
-    [versionsOfSelectedDataset, hasEra5, era5VersionLabel],
+    [versionsOfSelectedDataset, hasEra5],
   );
 
   const diffPairs = useMemo(
@@ -275,6 +391,19 @@ export default function Data(): JSX.Element {
   );
 
   const canShowDiff = diffPairs.length > 0;
+
+  useEffect(() => {
+    if (!showFilters) {
+      setFiltersSettled(false);
+      return;
+    }
+    const timer = setTimeout(() => setFiltersSettled(true), FILTERS_TRANSITION_MS);
+    return () => clearTimeout(timer);
+  }, [showFilters]);
+
+  const activeFilterCount = [filterByStatus, filterByCategory, effectiveSubCategory].filter(
+    (value) => value !== "all",
+  ).length;
 
   const activeDiffPair = useMemo(
     () =>
@@ -286,9 +415,6 @@ export default function Data(): JSX.Element {
     [diffPairs, versionBefore, versionAfter],
   );
 
-  // Re-resolving each side against the current version list is what makes a
-  // mid-value-method change move both sides too. Resolving to the identical entry
-  // is a no-op, so this settles after one pass instead of looping.
   useEffect(() => {
     if (comparisonMode === "none") {
       return;
@@ -362,8 +488,6 @@ export default function Data(): JSX.Element {
 
     const mode = parseComparisonMode(getQueryParam(COMPARE_MODE_QUERY_PARAM));
     if (!mode) {
-      // ERA5 is a property of the main map, so it only survives the round trip
-      // while no comparison is open.
       const wantsEra5 = getQueryParam(ERA5_QUERY_PARAM) === "1" && hasEra5;
       setShowEra5(wantsEra5);
       setQueryParam({ comparisonMode: "none", showEra5: wantsEra5 });
@@ -402,9 +526,6 @@ export default function Data(): JSX.Element {
     setVersionBefore(pair.before);
     setVersionAfter(pair.after);
     setComparisonMode(mode);
-    // Clamped here as well as in the map so a shared ERA5 link opens coherent:
-    // the map reads `degrees` on its first paint, and the url should not go on
-    // claiming a level the tiles have no data for.
     if ((isEra5Map(pair.before) || isEra5Map(pair.after)) && degrees > ERA5_MAX_DEGREES) {
       setDegrees(ERA5_MAX_DEGREES);
       setQueryParam({ warmingScenario: ERA5_MAX_DEGREES });
@@ -486,13 +607,40 @@ export default function Data(): JSX.Element {
   /** Matches the option built by `buildVersionOptions`, so the dropdown shows a selection. */
   const versionOption = (map: types.Map) =>
     isEra5Map(map)
-      ? { value: ERA5_VERSION_QUERY_VALUE, label: era5VersionLabel }
+      ? { value: ERA5_VERSION_QUERY_VALUE, label: ERA5_LABEL }
       : { value: map.mapVersion, label: getVersionLabel(map) };
 
-  const mapSourceSegments: Segment<"model" | "era5">[] = [
-    { value: "model", label: translate("menu.data.mapSourceOptions.model", "Model") },
-    { value: "era5", label: translate("menu.data.mapSourceOptions.era5", "Observations (ERA5)") },
+  const leadingVersions = versionsOfSelectedDataset.slice(-LEADING_VERSION_COUNT);
+  const olderVersions = versionsOfSelectedDataset.slice(0, -LEADING_VERSION_COUNT);
+  const selectedSourceValue = showEra5
+    ? ERA5_VERSION_QUERY_VALUE
+    : String(selectedDataset?.mapVersion ?? "");
+  const selectedIsOlderVersion =
+    !showEra5 && olderVersions.some(({ mapVersion }) => String(mapVersion) === selectedSourceValue);
+  const olderVersionsVisible = showOlderVersions || selectedIsOlderVersion;
+
+  const versionSegment = (map: types.Map): Segment<string> => ({
+    value: String(map.mapVersion),
+    label: getVersionSourceLabel(map),
+  });
+
+  const mapSourceSegments: Segment<string>[] = [
+    ...leadingVersions.map(versionSegment),
+    ...(hasEra5 ? [{ value: ERA5_VERSION_QUERY_VALUE, label: ERA5_LABEL }] : []),
+    ...(olderVersionsVisible ? olderVersions.map(versionSegment) : []),
   ];
+
+  const onMapSourceChange = (value: string) => {
+    if (value === ERA5_VERSION_QUERY_VALUE) {
+      setShowEra5(true);
+      return;
+    }
+    const map = versionsOfSelectedDataset.find(({ mapVersion }) => String(mapVersion) === value);
+    if (map) {
+      setShowEra5(false);
+      setSelectedDataset(map);
+    }
+  };
 
   const onDiffPairChange = (option: { label: string; value: string | number }) => {
     const pair = diffPairs.find(({ diffMap }) => diffMap.mapStyleId === option.value);
@@ -530,15 +678,6 @@ export default function Data(): JSX.Element {
       setSelectedDataset(finalDataset);
     }
     setChangeMapDisplayOption("original");
-  };
-
-  const onSelectedVersionChange = (option: { label: string; value: string | number }) => {
-    const map = versionsOfSelectedDataset.find(
-      ({ mapVersion }) => mapVersion === Number(option.value),
-    );
-    if (map) {
-      setSelectedDataset(map);
-    }
   };
 
   const onFilterChange = (option: { label: String; value: String }) => {
@@ -595,8 +734,57 @@ export default function Data(): JSX.Element {
 
   return (
     <Container>
+      <FiltersToggle
+        type="button"
+        aria-expanded={showFilters}
+        aria-controls={FILTERS_CONTENT_ID}
+        onClick={() => setShowFilters((shown) => !shown)}
+      >
+        <ToggleCaret expanded={showFilters} aria-hidden="true">
+          <CaretRightIcon />
+        </ToggleCaret>
+        {showFilters
+          ? translate("menu.data.hideFilters", "Hide filters")
+          : translate("menu.data.showFilters", "Show filters")}
+        {!showFilters && activeFilterCount > 0 && (
+          <ActiveFilterCount>{activeFilterCount}</ActiveFilterCount>
+        )}
+      </FiltersToggle>
+      <FiltersContent id={FILTERS_CONTENT_ID} expanded={showFilters} settled={filtersSettled}>
+        <Section showBorder={false}>
+          <Title>{translate("menu.data.mapStatus")}</Title>
+          <Dropdown
+            value={filterOptions.find((option) => option.value === filterByStatus) || defaultValue}
+            options={filterOptions}
+            onChange={onFilterChange}
+          />
+        </Section>
+        <Section showBorder={subCategoryOptions.length <= 1}>
+          <Title>{translate("menu.data.volume", "Map category")}</Title>
+          <Dropdown
+            value={
+              volumeOptions.find((option) => option.value === filterByCategory) || defaultValue
+            }
+            options={volumeOptions}
+            onChange={onCategoryChange}
+          />
+        </Section>
+        {subCategoryOptions.length > 1 && (
+          <Section>
+            <Title>{translate("menu.data.subCategory", "Map subcategory")}</Title>
+            <Dropdown
+              value={
+                subCategoryOptions.find((option) => option.value === effectiveSubCategory) ||
+                subCategoryOptions[0]
+              }
+              options={subCategoryOptions}
+              onChange={onSubCategoryChange}
+            />
+          </Section>
+        )}
+      </FiltersContent>
       <Section showBorder={false}>
-        <Title>{translate("menu.data.dataSet")}</Title>
+        <Title>{translate("menu.data.dataSet", "Select a map")}</Title>
         <Dropdown
           value={
             selectedDataset
@@ -613,82 +801,33 @@ export default function Data(): JSX.Element {
           onChange={onDatasetChange}
         />
       </Section>
-      {selectedDataset && canCompareVersions && comparisonMode === "none" && (
-        <Section showBorder={false}>
-          <Title>{translate("menu.data.version", "Version")}</Title>
-          <Dropdown
-            value={{
-              value: selectedDataset.mapVersion,
-              label: getVersionLabel(selectedDataset),
-            }}
-            options={versionsOfSelectedDataset.map((map) => ({
-              value: map.mapVersion,
-              label: `${getVersionLabel(map)}${map.isLatest ? " · latest" : ""}`,
-            }))}
-            onChange={onSelectedVersionChange}
-          />
-        </Section>
-      )}
-      {hasEra5 && comparisonMode === "none" && (
+      {selectedDataset && comparisonMode === "none" && (canCompareVersions || hasEra5) && (
         <Section showBorder={false}>
           <Title>{translate("menu.data.mapSource", "Map source")}</Title>
           <SegmentedControl
             name={translate("menu.data.mapSource", "Map source")}
-            value={showEra5 ? "era5" : "model"}
+            value={selectedSourceValue}
             segments={mapSourceSegments}
-            onChange={(value) => setShowEra5(value === "era5")}
+            onChange={onMapSourceChange}
             orientation="vertical"
           />
+          {olderVersions.length > 0 && !selectedIsOlderVersion && (
+            <ShowMoreVersions type="button" onClick={() => setShowOlderVersions((shown) => !shown)}>
+              {olderVersionsVisible
+                ? translate("menu.data.showFewerVersions", "Show fewer")
+                : translate("menu.data.showMoreVersions", "Show more")}
+            </ShowMoreVersions>
+          )}
           {showEra5 && (
             <Hint>
               {translate(
                 "menu.data.era5Hint",
-                "ERA5 is reanalysis — observations gridded into a best estimate of what actually happened. It only reaches the 0.5°C and 1°C warming levels, and has no data for Antarctica.",
+                "ERA5 is reanalysis — a gridded best estimate of what actually happened. It only reaches the 0.5°C and 1°C warming levels, and has no data for Antarctica.",
               )}
             </Hint>
           )}
         </Section>
       )}
-      <Section showBorder={false}>
-        <Title>{translate("menu.data.mapStatus")}</Title>
-        <Dropdown
-          value={filterOptions.find((option) => option.value === filterByStatus) || defaultValue}
-          options={filterOptions}
-          onChange={onFilterChange}
-        />
-      </Section>
-      <Section showBorder={subCategoryOptions.length <= 1}>
-        <Title>{translate("menu.data.volume")}</Title>
-        <Dropdown
-          value={volumeOptions.find((option) => option.value === filterByCategory) || defaultValue}
-          options={volumeOptions}
-          onChange={onCategoryChange}
-        />
-      </Section>
-      {subCategoryOptions.length > 1 && (
-        <Section>
-          <Title>{translate("menu.data.subCategory", "Sub-category")}</Title>
-          <Dropdown
-            value={
-              subCategoryOptions.find((option) => option.value === effectiveSubCategory) ||
-              subCategoryOptions[0]
-            }
-            options={subCategoryOptions}
-            onChange={onSubCategoryChange}
-          />
-        </Section>
-      )}
-      <Section showBorder={false}>
-        <Option>
-          <SwitchLabel>{translate("menu.data.showInspector")}</SwitchLabel>
-          <CustomSwitch
-            name="show_inspector"
-            label={translate(showInspector ? "menu.mapStyle.on" : "menu.mapStyle.off")}
-            checked={showInspector}
-            onChange={(checked: boolean) => setShowInspector(checked)}
-          />
-        </Option>
-      </Section>
       {canCompare && (
         <Section showBorder={false}>
           <Title>{translate("menu.data.comparison", "Comparison")}</Title>
@@ -727,7 +866,7 @@ export default function Data(): JSX.Element {
                 <Hint>
                   {translate(
                     "menu.data.era5Hint",
-                    "ERA5 is reanalysis — observations gridded into a best estimate of what actually happened. It only reaches the 0.5°C and 1°C warming levels, and has no data for Antarctica.",
+                    "ERA5 is reanalysis — a gridded best estimate of what actually happened. It only reaches the 0.5°C and 1°C warming levels, and has no data for Antarctica.",
                   )}
                 </Hint>
               )}
@@ -781,6 +920,17 @@ export default function Data(): JSX.Element {
           options={midValueOptions}
           onChange={onMidValueShownChange}
         />
+      </Section>
+      <Section showBorder={false}>
+        <Option>
+          <SwitchLabel>{translate("menu.data.showInspector")}</SwitchLabel>
+          <CustomSwitch
+            name="show_inspector"
+            label={translate(showInspector ? "menu.mapStyle.on" : "menu.mapStyle.off")}
+            checked={showInspector}
+            onChange={(checked: boolean) => setShowInspector(checked)}
+          />
+        </Option>
       </Section>
     </Container>
   );

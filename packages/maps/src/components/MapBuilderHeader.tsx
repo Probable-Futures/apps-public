@@ -2,7 +2,7 @@ import styled from "styled-components";
 import camelcase from "lodash.camelcase";
 
 import { colors } from "../consts";
-import { ComparisonMode } from "../consts/mapConsts";
+import { ComparisonMode, MODEL_HIDDEN_MAP_VERSION } from "../consts/mapConsts";
 import { getDiffPairLabel } from "../consts/versionDiffMaps";
 import { useMenu } from "./Menu";
 import SegmentedControl, { Segment } from "./common/SegmentedControl";
@@ -54,14 +54,12 @@ const Container = styled.div`
 const HeaderControls = styled.div`
   position: absolute;
   top: 0;
-  right: 20px;
+  right: 10px;
   height: 52px;
   z-index: 3;
   display: flex;
   align-items: center;
 `;
-
-const MODEL_HIDDEN_MAP_VERSION = 4;
 
 const Versions = styled.span`
   font-family: "RelativeMono";
@@ -100,7 +98,7 @@ const MapBuilderHeader = () => {
   const canCompare = versions.length > 1 || !!getEra5MapForDataset(selectedDataset.dataset.id);
   const diffPairs = getAvailableDiffPairs(versions, selectedDataset.dataset.id);
   const isSwiping = comparisonMode === "swipe" && versionBefore && versionAfter;
-  // ERA5 is observations, so naming a model beneath it would be wrong.
+  // ERA5 is reanalysis, not a model run, so naming a model beneath it would be wrong.
   const showModel =
     !isSwiping &&
     !activeDiffMap &&

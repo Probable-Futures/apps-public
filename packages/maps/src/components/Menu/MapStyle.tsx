@@ -2,7 +2,6 @@ import styled from "styled-components";
 import InputColor, { Color } from "react-input-color";
 
 import { useMenu } from "../../components/Menu";
-import CustomSwitch from "../common/CustomSwitch";
 import { Container, Section, Title } from "./Menu.styled";
 import { colors } from "../../consts";
 import { mapBuilderProjections } from "../../consts/mapConsts";
@@ -38,11 +37,6 @@ const OptionLabel = styled.span`
   margin-left: 9px;
 `;
 
-const SwitchLabel = styled(OptionLabel)`
-  flex: 1;
-  margin-left: 0;
-`;
-
 const defaultMapProjectionValue = { value: "", label: "" };
 
 export default function MapStyle(): JSX.Element {
@@ -52,10 +46,6 @@ export default function MapStyle(): JSX.Element {
       setLandColor,
       oceanColor,
       setOceanColor,
-      showBoundaries,
-      setShowBoundaries,
-      showLabels,
-      setShowLabels,
       mapProjection,
       setMapProjection,
     },
@@ -99,28 +89,6 @@ export default function MapStyle(): JSX.Element {
             <OptionLabel>{title}</OptionLabel>
           </Option>
         ))}
-      </Section>
-      <Section>
-        <Option>
-          <SwitchLabel>{translate("menu.mapStyle.boundaries")}</SwitchLabel>
-          <CustomSwitch
-            name="boundaries"
-            label={translate(showBoundaries ? "menu.mapStyle.on" : "menu.mapStyle.off")}
-            checked={showBoundaries}
-            onChange={(checked: boolean) => setShowBoundaries(checked)}
-          />
-        </Option>
-      </Section>
-      <Section showBorder={false}>
-        <Option>
-          <SwitchLabel>{translate("menu.mapStyle.placeLabels")}</SwitchLabel>
-          <CustomSwitch
-            name="labels"
-            label={translate(showLabels ? "menu.mapStyle.on" : "menu.mapStyle.off")}
-            checked={showLabels}
-            onChange={(checked: boolean) => setShowLabels(checked)}
-          />
-        </Option>
       </Section>
     </Container>
   );

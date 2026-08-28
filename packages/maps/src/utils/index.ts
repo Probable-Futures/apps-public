@@ -24,7 +24,7 @@ type SetQueryParam = {
   comparisonScenarioBefore?: number;
   comparisonScenarioAfter?: number;
   comparisonMode?: ComparisonMode;
-  /** A version number, or `era5` for the observational side. */
+  /** A version number, or `era5` for the ERA5 side. */
   versionBefore?: number | string;
   versionAfter?: number | string;
   showEra5?: boolean;

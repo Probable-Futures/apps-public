@@ -27,6 +27,11 @@ type Props = {
   showBaselineModal: boolean;
   tourProps?: TourProps;
   translatedHeader?: any;
+  /** Highest selectable level. Anything above it is disabled — e.g. ERA5 stops at 1°C. */
+  maxDegrees?: number;
+  /** Explains a narrowed range, shown under the buttons. */
+  hint?: string;
+  showAboutMapLink?: boolean;
   onAboutMapClick?: () => void;
   onWarmingScenarioClick?: (value: number, hasDescription: boolean) => void;
 };
@@ -90,8 +95,8 @@ const StyledButtonContainer = styled(ButtonContainer)`
     isActive
       ? `background-color: ${colors.lightPurple};`
       : isPending
-        ? `background-color: ${colors.lightPurpleWithOpacity};`
-        : ""};
+      ? `background-color: ${colors.lightPurpleWithOpacity};`
+      : ""};
 `;
 
 const AboutThisMap = styled.div`
@@ -148,6 +153,17 @@ const YearLabel = styled.span`
   top: 4px;
 `;
 
+const Hint = styled.p`
+  margin: 0;
+  padding: 8px 10px;
+  border-top: 1px solid ${colors.grey};
+  color: ${colors.dimBlack};
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 14px;
+  opacity: 0.8;
+`;
+
 const Degrees = ({
   degrees,
   degrees2,
@@ -156,10 +172,15 @@ const Degrees = ({
   showBaselineModal,
   tourProps,
   translatedHeader,
+  maxDegrees,
+  hint,
+  showAboutMapLink = true,
   onWarmingScenarioClick,
   onAboutMapClick,
 }: Props) => {
   const { color, backgroundColor } = useTheme();
+
+  const isOutOfRange = (value: number) => maxDegrees !== undefined && value > maxDegrees;
 
   const renderButton = (
     value: number,
@@ -172,7 +193,7 @@ const Degrees = ({
     const showYearLabel = !showBaselineModal;
     return (
       <StyledButton
-        disabled={showBaselineModal && value === 0.5}
+        disabled={(showBaselineModal && value === 0.5) || isOutOfRange(value)}
         onClick={() =>
           onWarmingScenarioClick && onWarmingScenarioClick(value, !!warmingScenarioDescs[descKey])
         }
@@ -201,17 +222,21 @@ const Degrees = ({
         <Label>
           {translatedHeader ? translatedHeader.warmingScenariosTitle : "Select a warming scenario"}
         </Label>
-        <AboutThisMap onClick={onAboutMapClick}>
-          <span>{translatedHeader?.aboutThisMap || "About this map"} </span>
-          <InfoIcon />
-        </AboutThisMap>
+        {showAboutMapLink && (
+          <AboutThisMap onClick={onAboutMapClick}>
+            <span>{translatedHeader?.aboutThisMap || "About this map"} </span>
+            <InfoIcon />
+          </AboutThisMap>
+        )}
       </DegreesHeader>
       <ButtonWrapper>
         {degreesOptions.map(({ label, value, descKey, year }, index) => {
           const isPending = !showBaselineModal && pendingDegrees === value;
-          const isSelected = showBaselineModal
-            ? value === 0.5
-            : !isPending && (degrees === value || degrees2 === value);
+          const isSelected =
+            !isOutOfRange(value) &&
+            (showBaselineModal
+              ? value === 0.5
+              : !isPending && (degrees === value || degrees2 === value));
           return (
             <ButtonAndSeparator key={label}>
               <StyledButtonContainer isActive={isSelected} isPending={isPending}>
@@ -231,6 +256,7 @@ const Degrees = ({
           );
         })}
       </ButtonWrapper>
+      {hint && <Hint>{hint}</Hint>}
     </Container>
   );
 };

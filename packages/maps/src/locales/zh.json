@@ -2,9 +2,7 @@
   "menu": {
     "data": {
       "title": "数据",
-      "dataSet": "数据集",
       "mapStatus": "地图状态",
-      "volume": "音量",
       "showInspector": "显示检查员位置",
       "filterOptions": {
         "all": "显示所有地图",

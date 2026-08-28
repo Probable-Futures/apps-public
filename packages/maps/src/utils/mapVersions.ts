@@ -2,6 +2,7 @@ import { types } from "@probable-futures/lib";
 
 import { getDiffMapsForDataset, versionDiffMaps, VersionDiffMap } from "../consts/versionDiffMaps";
 import { ERA5_LABEL, isEra5Map } from "../consts/era5Maps";
+import { MODEL_HIDDEN_MAP_VERSION } from "../consts/mapConsts";
 
 /**
  * One entry per map version, ascending. A dataset has a row per version *per*
@@ -56,6 +57,16 @@ export const getDefaultVersionPair = (
 
 export const getVersionLabel = (map: types.Map): string =>
   `v${map.mapVersion}${map.status && map.status !== "published" ? ` (${map.status})` : ""}`;
+
+export const getVersionSourceLabel = (map: types.Map): string => {
+  if (isEra5Map(map)) {
+    return ERA5_LABEL;
+  }
+  const model = map.mapVersion === MODEL_HIDDEN_MAP_VERSION ? undefined : map.dataset.model;
+  return [getVersionLabel(map), map.isLatest ? "latest" : undefined, model]
+    .filter(Boolean)
+    .join(" · ");
+};
 
 /**
  * The reserved ERA5 version number must never reach a label, so every place that

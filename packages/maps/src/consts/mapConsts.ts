@@ -65,7 +65,11 @@ export const VOLUME_QUERY_PARAM = "volume"; // not used anymore, kept here in or
 
 export const POPUP_DEFAULT_LOCATION: [number, number] = [77.98, 32.175];
 
+export const MODEL_HIDDEN_MAP_VERSION = 4;
+
 export const MAP_BUILDER_MIN_ZOOM = 0.8;
+
+export const MAP_BUILDER_MAX_ZOOM = 22;
 
 export const getMapBuilderMinZoom = (projectionName?: string) =>
   projectionName === "mercator" || projectionName === "globe"
