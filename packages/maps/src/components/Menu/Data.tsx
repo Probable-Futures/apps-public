@@ -6,7 +6,7 @@ import camelcase from "lodash.camelcase";
 import Dropdown from "../common/Dropdown";
 import CustomSwitch from "../common/CustomSwitch";
 import SegmentedControl, { Segment } from "../common/SegmentedControl";
-import { ChangeMapDisplayOptionType, useMenu } from "../../components/Menu";
+import { useMenu } from "../../components/Menu";
 import { dividerColor, Section, SIDEBAR_GUTTER, Title } from "./Menu.styled";
 import useMapsApi from "../../utils/useMapsApi";
 import { colors } from "../../consts";
@@ -21,7 +21,13 @@ import {
   VERSION_BEFORE_QUERY_PARAM,
 } from "../../consts/mapConsts";
 import { getQueryParam, setQueryParam } from "../../utils";
-import { findMapForSlug } from "../../utils/mapSelection";
+import { findMapForSlug, isChangeMap } from "../../utils/mapSelection";
+import {
+  areComparable,
+  canRenderAbsolute,
+  getMapValueMode,
+  resolveChangeView,
+} from "../../utils/mapValueMode";
 import { useTranslation } from "../../contexts/TranslationContext";
 import useWPApi from "../../utils/useWPApi";
 import {
@@ -44,6 +50,9 @@ import {
 
 const FILTERS_CONTENT_ID = "map-builder-data-filters";
 const FILTERS_TRANSITION_MS = 300;
+const GUIDE_MORE_ID = "map-builder-data-guide-more";
+
+const RECESSED_BACKGROUND = "#e7e7e7";
 
 const LEADING_VERSION_COUNT = 2;
 
@@ -81,6 +90,11 @@ const VersionFields = styled.div`
   margin-top: 12px;
 `;
 
+const FiltersArea = styled.div`
+  background-color: ${RECESSED_BACKGROUND};
+  border-bottom: 2px solid ${dividerColor};
+`;
+
 const FiltersToggle = styled.button`
   display: flex;
   align-items: center;
@@ -90,8 +104,7 @@ const FiltersToggle = styled.button`
   margin: 0;
   padding: 12px ${SIDEBAR_GUTTER}px;
   border: none;
-  border-bottom: 1px solid ${dividerColor};
-  background-color: ${colors.lightGreyBackground};
+  background-color: transparent;
   color: ${colors.lightGrey2};
   cursor: pointer;
   font-family: inherit;
@@ -104,7 +117,7 @@ const FiltersToggle = styled.button`
   transition: background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background-color: #e7e7e7;
+    background-color: rgba(42, 23, 45, 0.05);
     color: ${colors.darkPurple};
   }
 
@@ -149,7 +162,22 @@ const ActiveFilterCount = styled.span`
   letter-spacing: 0;
 `;
 
-const ShowMoreVersions = styled.button`
+/* Reference, not chrome: sized down and set apart so it does not compete with the
+   controls above it. */
+const GuideList = styled.ul`
+  margin: 0;
+  padding-left: 16px;
+  color: ${colors.lightGrey2};
+  font-size: 12px;
+  letter-spacing: 0;
+  line-height: 16px;
+
+  li + li {
+    margin-top: 6px;
+  }
+`;
+
+const InlineTextButton = styled.button`
   align-self: flex-start;
   margin-top: 8px;
   padding: 0;
@@ -196,15 +224,11 @@ export default function Data(): JSX.Element {
       filterByStatus,
       filterByCategory,
       showInspector,
-      changeMapDisplayOption,
-      midValueShown,
       degrees,
       setSelectedDataset,
       setFilterByStatus,
       setFilterByCategory,
       setShowInspector,
-      setChangeMapDisplayOption,
-      setMidValueShown,
       setDatasets,
       setDegrees,
       setWpDatasetDescriptionResponse,
@@ -215,6 +239,9 @@ export default function Data(): JSX.Element {
       versionBefore,
       versionAfter,
       showEra5,
+      showAbsolute,
+      setShowAbsolute,
+      setShowCoverage,
       setComparisonMode,
       setComparisonRestored,
       setVersionBefore,
@@ -228,6 +255,7 @@ export default function Data(): JSX.Element {
   const [showFilters, setShowFilters] = useState(false);
   const [filtersSettled, setFiltersSettled] = useState(false);
   const [showOlderVersions, setShowOlderVersions] = useState(false);
+  const [showFullGuide, setShowFullGuide] = useState(false);
 
   const setColorScheme = (binHexColors: any) => {
     setDynamicStyleVariables((previous) => ({ ...previous, binHexColors }));
@@ -244,7 +272,6 @@ export default function Data(): JSX.Element {
     setDegrees,
     setColorScheme,
     setBins,
-    setMidValueShown,
     setFilterByStatus,
     setMapProjection,
     allowedProjections: mapBuilderProjectionNames,
@@ -312,26 +339,6 @@ export default function Data(): JSX.Element {
     { label: translate("menu.data.filterOptions.archive"), value: "archive" },
   ];
 
-  const optionsForChangeMaps = [
-    { label: "Original", value: "original" },
-    { label: "With Baseline", value: "withBaseline" },
-    { label: "All absolute", value: "allAbsolute" },
-  ];
-  const defaultValueForChangeMapsOptions = optionsForChangeMaps[0];
-
-  const midValueOptions = useMemo(() => {
-    const allDatasets = datasets.filter(
-      (data) =>
-        data.dataset.id === selectedDataset?.dataset.id &&
-        data.mapVersion === selectedDataset.mapVersion,
-    );
-    const uniqueMidValueOptions = [...new Set(allDatasets.map((data) => data.methodUsedForMid))];
-    return uniqueMidValueOptions.map((option) => ({
-      label: translate(`menu.data.midValueOptions.${camelcase(option)}`, option),
-      value: camelcase(option),
-    }));
-  }, [datasets, selectedDataset, translate]);
-
   const volumeOptions = useMemo(() => {
     const options = [{ label: translate("menu.data.volumeOptions.all"), value: "all" }];
     const categories = datasets.map(
@@ -372,12 +379,18 @@ export default function Data(): JSX.Element {
   // version, so the side-by-side gate is wider than the version-picker one.
   const canCompare = canCompareVersions || hasEra5;
 
+  /**
+   * The sides that may be set opposite `excluded`. Both must render the same kind
+   * of value, so a change version cannot be laid against ERA5 unless an absolute
+   * rendering of it exists — see `areComparable`.
+   */
   const buildVersionOptions = useCallback(
     (excluded?: types.Map) => {
       const options: { value: string | number; label: string }[] = versionsOfSelectedDataset
         .filter((map) => map.mapVersion !== excluded?.mapVersion)
+        .filter((map) => !excluded || areComparable(map, excluded))
         .map((map) => ({ value: map.mapVersion, label: getVersionLabel(map) }));
-      if (hasEra5 && !isEra5Map(excluded)) {
+      if (hasEra5 && !isEra5Map(excluded) && canRenderAbsolute(excluded)) {
         options.push({ value: ERA5_VERSION_QUERY_VALUE, label: ERA5_LABEL });
       }
       return options;
@@ -460,8 +473,11 @@ export default function Data(): JSX.Element {
         ? versionsOfSelectedDataset.find(({ mapVersion }) => mapVersion === map.mapVersion)
         : undefined;
     };
-    const nextBefore = resolve(versionBefore) ?? pair.before;
-    const nextAfter = resolve(versionAfter) ?? pair.after;
+    const resolvedBefore = resolve(versionBefore) ?? pair.before;
+    const resolvedAfter = resolve(versionAfter) ?? pair.after;
+    const [nextBefore, nextAfter] = areComparable(resolvedBefore, resolvedAfter)
+      ? [resolvedBefore, resolvedAfter]
+      : [pair.before, pair.after];
     if (nextBefore !== versionBefore) {
       setVersionBefore(nextBefore);
     }
@@ -505,7 +521,9 @@ export default function Data(): JSX.Element {
     const before = findVersion(VERSION_BEFORE_QUERY_PARAM);
     const after = findVersion(VERSION_AFTER_QUERY_PARAM);
     const linked =
-      before && after && before.mapVersion !== after.mapVersion ? { before, after } : undefined;
+      before && after && before.mapVersion !== after.mapVersion && areComparable(before, after)
+        ? { before, after }
+        : undefined;
     // Resolved here rather than left to the effect above so the mode and both
     // versions land together: the map reads them to pick the style it is created
     // with, and a style swapped in a render later is dropped by Mapbox while the
@@ -559,6 +577,24 @@ export default function Data(): JSX.Element {
       showEra5: comparisonMode === "none" && showEra5,
     });
   }, [comparisonRestored, comparisonMode, versionBefore, versionAfter, showEra5]);
+
+  // Only some change maps have an absolute rendering published, and only for some
+  // versions, so the option is gated on the registry rather than on the dataset.
+
+  const changeView = resolveChangeView({
+    comparisonMode,
+    selectedDataset,
+    versionBefore,
+    versionAfter,
+    showEra5,
+    showAbsolute,
+  });
+
+  useEffect(() => {
+    if (showAbsolute && !changeView.canAbsolute) {
+      setShowAbsolute(false);
+    }
+  }, [showAbsolute, changeView.canAbsolute, setShowAbsolute]);
 
   // A dataset without ERA5 cannot show it, and neither can a comparison — each
   // side carries its own style there.
@@ -624,6 +660,34 @@ export default function Data(): JSX.Element {
     label: getVersionSourceLabel(map),
   });
 
+  // A difference map was built from the change values, which is not obvious from
+  // the locked control alone.
+  const changeViewHint =
+    comparisonMode === "diff"
+      ? translate(
+          "menu.data.changeViewDiffLocked",
+          "Difference maps were built from the change values, so the view is fixed.",
+        )
+      : changeView.canAbsolute
+      ? undefined
+      : translate(
+          "menu.data.changeViewHint",
+          "No absolute rendering has been published for every version shown.",
+        );
+
+  const changeViewSegments: Segment<"change" | "absolute">[] = [
+    {
+      value: "change",
+      label: translate("menu.data.changeViewOptions.change", "Change"),
+      disabled: !changeView.canChange,
+    },
+    {
+      value: "absolute",
+      label: translate("menu.data.changeViewOptions.absolute", "Absolute"),
+      disabled: !changeView.canAbsolute,
+    },
+  ];
+
   const mapSourceSegments: Segment<string>[] = [
     ...leadingVersions.map(versionSegment),
     ...(hasEra5 ? [{ value: ERA5_VERSION_QUERY_VALUE, label: ERA5_LABEL }] : []),
@@ -677,7 +741,6 @@ export default function Data(): JSX.Element {
     if (finalDataset) {
       setSelectedDataset(finalDataset);
     }
-    setChangeMapDisplayOption("original");
   };
 
   const onFilterChange = (option: { label: String; value: String }) => {
@@ -694,95 +757,61 @@ export default function Data(): JSX.Element {
     setFilterBySubCategory(option.value);
   };
 
-  const onMidValueShownChange = (option: { label: String; value: String }) => {
-    if (option.value !== midValueShown) {
-      const dataset = datasets.find(
-        (data) =>
-          data.dataset.id === selectedDataset?.dataset.id &&
-          data.methodUsedForMid === option.value &&
-          data.mapVersion === selectedDataset.mapVersion,
-      );
-      if (dataset) {
-        onDatasetChange(undefined, dataset);
-      }
-    }
-  };
-
-  const onChangeAbsoluteClicked = (option: { label: string; value: string }) => {
-    if (!selectedDataset) {
-      return;
-    }
-    let newDataset: types.Map | undefined;
-    if (option.value === "allAbsolute") {
-      newDataset = datasets.find(
-        (dataset) => dataset.mapVersion === 5 && dataset.dataset.id === selectedDataset.dataset.id,
-      );
-    } else if (option.value === "withBaseline") {
-      newDataset = datasets.find(
-        (dataset) => dataset.mapVersion === 4 && dataset.dataset.id === selectedDataset.dataset.id,
-      );
-    } else {
-      newDataset = datasets.find(
-        (dataset) => dataset.mapVersion === 3 && dataset.dataset.id === selectedDataset.dataset.id,
-      );
-    }
-    if (newDataset) {
-      setSelectedDataset(newDataset);
-    }
-    setChangeMapDisplayOption(option.value as ChangeMapDisplayOptionType);
-  };
-
   return (
     <Container>
-      <FiltersToggle
-        type="button"
-        aria-expanded={showFilters}
-        aria-controls={FILTERS_CONTENT_ID}
-        onClick={() => setShowFilters((shown) => !shown)}
-      >
-        <ToggleCaret expanded={showFilters} aria-hidden="true">
-          <CaretRightIcon />
-        </ToggleCaret>
-        {showFilters
-          ? translate("menu.data.hideFilters", "Hide filters")
-          : translate("menu.data.showFilters", "Show filters")}
-        {!showFilters && activeFilterCount > 0 && (
-          <ActiveFilterCount>{activeFilterCount}</ActiveFilterCount>
-        )}
-      </FiltersToggle>
-      <FiltersContent id={FILTERS_CONTENT_ID} expanded={showFilters} settled={filtersSettled}>
-        <Section showBorder={false}>
-          <Title>{translate("menu.data.mapStatus")}</Title>
-          <Dropdown
-            value={filterOptions.find((option) => option.value === filterByStatus) || defaultValue}
-            options={filterOptions}
-            onChange={onFilterChange}
-          />
-        </Section>
-        <Section showBorder={subCategoryOptions.length <= 1}>
-          <Title>{translate("menu.data.volume", "Map category")}</Title>
-          <Dropdown
-            value={
-              volumeOptions.find((option) => option.value === filterByCategory) || defaultValue
-            }
-            options={volumeOptions}
-            onChange={onCategoryChange}
-          />
-        </Section>
-        {subCategoryOptions.length > 1 && (
-          <Section>
-            <Title>{translate("menu.data.subCategory", "Map subcategory")}</Title>
+      <FiltersArea>
+        <FiltersToggle
+          type="button"
+          aria-expanded={showFilters}
+          aria-controls={FILTERS_CONTENT_ID}
+          onClick={() => setShowFilters((shown) => !shown)}
+        >
+          <ToggleCaret expanded={showFilters} aria-hidden="true">
+            <CaretRightIcon />
+          </ToggleCaret>
+          {showFilters
+            ? translate("menu.data.hideFilters", "Hide filters")
+            : translate("menu.data.showFilters", "Show filters")}
+          {!showFilters && activeFilterCount > 0 && (
+            <ActiveFilterCount>{activeFilterCount}</ActiveFilterCount>
+          )}
+        </FiltersToggle>
+        <FiltersContent id={FILTERS_CONTENT_ID} expanded={showFilters} settled={filtersSettled}>
+          <Section showBorder={false}>
+            <Title>{translate("menu.data.mapStatus")}</Title>
             <Dropdown
               value={
-                subCategoryOptions.find((option) => option.value === effectiveSubCategory) ||
-                subCategoryOptions[0]
+                filterOptions.find((option) => option.value === filterByStatus) || defaultValue
               }
-              options={subCategoryOptions}
-              onChange={onSubCategoryChange}
+              options={filterOptions}
+              onChange={onFilterChange}
             />
           </Section>
-        )}
-      </FiltersContent>
+          <Section showBorder={false}>
+            <Title>{translate("menu.data.volume", "Map category")}</Title>
+            <Dropdown
+              value={
+                volumeOptions.find((option) => option.value === filterByCategory) || defaultValue
+              }
+              options={volumeOptions}
+              onChange={onCategoryChange}
+            />
+          </Section>
+          {subCategoryOptions.length > 1 && (
+            <Section showBorder={false}>
+              <Title>{translate("menu.data.subCategory", "Map subcategory")}</Title>
+              <Dropdown
+                value={
+                  subCategoryOptions.find((option) => option.value === effectiveSubCategory) ||
+                  subCategoryOptions[0]
+                }
+                options={subCategoryOptions}
+                onChange={onSubCategoryChange}
+              />
+            </Section>
+          )}
+        </FiltersContent>
+      </FiltersArea>
       <Section showBorder={false}>
         <Title>{translate("menu.data.dataSet", "Select a map")}</Title>
         <Dropdown
@@ -801,6 +830,78 @@ export default function Data(): JSX.Element {
           onChange={onDatasetChange}
         />
       </Section>
+      {selectedDataset && (
+        <Section showBorder={false}>
+          <Title>{translate("menu.data.dataGuide.title", "What this data is")}</Title>
+          <GuideList id={GUIDE_MORE_ID}>
+            <li>
+              {translate(
+                "menu.data.dataGuide.absolute",
+                "Absolute maps show a value. Every warming scenario applies, 0.5°C included.",
+              )}
+            </li>
+            <li>
+              {translate(
+                "menu.data.dataGuide.change",
+                "Change maps show the difference from 0.5°C, so they start at 1°C.",
+              )}
+            </li>
+            <li>
+              {translate(
+                "menu.data.dataGuide.changeView",
+                "Change view switches the same map between the difference and the actual values.",
+              )}
+            </li>
+            <li>
+              {translate(
+                "menu.data.dataGuide.era5",
+                "ERA5 is observed reanalysis. Always absolute, and only reaches 0.5°C and 1°C.",
+              )}
+            </li>
+            <li>
+              {translate(
+                "menu.data.dataGuide.compare",
+                "Side by side needs both maps to be the same kind. Incompatible versions are hidden.",
+              )}
+            </li>
+            {showFullGuide && (
+              <>
+                <li>
+                  {translate(
+                    "menu.data.dataGuide.era5Pairing",
+                    "A change map can pair with ERA5 only when it has an absolute version.",
+                  )}
+                </li>
+                <li>
+                  {translate(
+                    "menu.data.dataGuide.diff",
+                    "Difference maps are built from the change values, so their view is fixed.",
+                  )}
+                </li>
+                <li>
+                  {translate(
+                    "menu.data.dataGuide.availability",
+                    "Absolute versions are published per map and per version, so the option is not always there.",
+                  )}
+                </li>
+              </>
+            )}
+          </GuideList>
+          <InlineTextButton
+            type="button"
+            aria-expanded={showFullGuide}
+            aria-controls={GUIDE_MORE_ID}
+            onClick={() => setShowFullGuide((shown) => !shown)}
+          >
+            {showFullGuide
+              ? translate("menu.data.dataGuide.less", "Read less")
+              : translate("menu.data.dataGuide.more", "Read more")}
+          </InlineTextButton>
+          <InlineTextButton type="button" onClick={() => setShowCoverage(true)}>
+            {translate("menu.data.coverage.link", "See what's available")}
+          </InlineTextButton>
+        </Section>
+      )}
       {selectedDataset && comparisonMode === "none" && (canCompareVersions || hasEra5) && (
         <Section showBorder={false}>
           <Title>{translate("menu.data.mapSource", "Map source")}</Title>
@@ -812,19 +913,11 @@ export default function Data(): JSX.Element {
             orientation="vertical"
           />
           {olderVersions.length > 0 && !selectedIsOlderVersion && (
-            <ShowMoreVersions type="button" onClick={() => setShowOlderVersions((shown) => !shown)}>
+            <InlineTextButton type="button" onClick={() => setShowOlderVersions((shown) => !shown)}>
               {olderVersionsVisible
                 ? translate("menu.data.showFewerVersions", "Show fewer")
                 : translate("menu.data.showMoreVersions", "Show more")}
-            </ShowMoreVersions>
-          )}
-          {showEra5 && (
-            <Hint>
-              {translate(
-                "menu.data.era5Hint",
-                "ERA5 is reanalysis — a gridded best estimate of what actually happened. It only reaches the 0.5°C and 1°C warming levels, and has no data for Antarctica.",
-              )}
-            </Hint>
+            </InlineTextButton>
           )}
         </Section>
       )}
@@ -862,14 +955,6 @@ export default function Data(): JSX.Element {
                   "Both sides share the legend bins and colours below, so any difference you see is a difference in the data.",
                 )}
               </Hint>
-              {(isEra5Map(versionBefore) || isEra5Map(versionAfter)) && (
-                <Hint>
-                  {translate(
-                    "menu.data.era5Hint",
-                    "ERA5 is reanalysis — a gridded best estimate of what actually happened. It only reaches the 0.5°C and 1°C warming levels, and has no data for Antarctica.",
-                  )}
-                </Hint>
-              )}
             </VersionFields>
           )}
           {comparisonMode === "diff" && activeDiffPair && (
@@ -900,27 +985,23 @@ export default function Data(): JSX.Element {
           )}
         </Section>
       )}
-      {(selectedDataset?.name.toLowerCase().startsWith("change") || selectedDataset?.isDiff) && (
+      {isChangeMap(selectedDataset) && (
         <Section showBorder={false}>
-          <Title>Change map display option </Title>
-          <Dropdown
-            value={
-              optionsForChangeMaps.find((option) => option.value === changeMapDisplayOption) ||
-              defaultValueForChangeMapsOptions
-            }
-            options={optionsForChangeMaps}
-            onChange={onChangeAbsoluteClicked}
+          <Title>{translate("menu.data.changeView", "Change view")}</Title>
+          <SegmentedControl
+            name={translate("menu.data.changeView", "Change view")}
+            value={changeView.mode}
+            segments={changeViewSegments}
+            onChange={(value) => {
+              if (!changeView.locked) {
+                setShowAbsolute(value === "absolute");
+              }
+            }}
+            orientation="vertical"
           />
+          {changeViewHint && <Hint>{changeViewHint}</Hint>}
         </Section>
       )}
-      <Section>
-        <Title>{translate("menu.data.midValueShown")}</Title>
-        <Dropdown
-          value={midValueOptions.find((option) => option.value === midValueShown) || defaultValue}
-          options={midValueOptions}
-          onChange={onMidValueShownChange}
-        />
-      </Section>
       <Section showBorder={false}>
         <Option>
           <SwitchLabel>{translate("menu.data.showInspector")}</SwitchLabel>

@@ -51,8 +51,6 @@ interface DynamicStyleVariables {
   bins?: number[];
 }
 
-export type ChangeMapDisplayOptionType = "original" | "withBaseline" | "allAbsolute";
-
 export type { ComparisonMode } from "../../consts/mapConsts";
 
 interface MapStyleState {
@@ -76,9 +74,7 @@ interface DataState {
   filterByCategory: string;
   filterBySubCategory: string;
   showInspector: boolean;
-  changeMapDisplayOption: ChangeMapDisplayOptionType;
   tempUnit: types.TempUnit;
-  midValueShown: string;
   datasetDescriptionResponse?: types.DatasetDescriptionResponse;
   precipitationUnit: types.PrecipitationUnit;
   percentileValue: BinningType;
@@ -87,6 +83,10 @@ interface DataState {
   versionBefore?: types.Map;
   versionAfter?: types.Map;
   showEra5: boolean;
+  /** Show a change map's absolute rendering instead of its change values. */
+  showAbsolute: boolean;
+  /** Whether the published-coverage table is open. */
+  showCoverage: boolean;
   setComparisonRestored(restored: boolean): void;
   setDatasets(datasets: any): void;
   setSelectedDataset(dataset: any): void;
@@ -95,9 +95,7 @@ interface DataState {
   setFilterByCategory(filter: any): void;
   setFilterBySubCategory(filter: any): void;
   setShowInspector(show: boolean): void;
-  setChangeMapDisplayOption(option: ChangeMapDisplayOptionType): void;
   setTempUnit(arg: any): void;
-  setMidValueShown(arg: any): void;
   setWpDatasetDescriptionResponse(
     datasetDescriptionResponse: types.DatasetDescriptionResponse,
   ): void;
@@ -107,6 +105,8 @@ interface DataState {
   setVersionBefore(dataset?: types.Map): void;
   setVersionAfter(dataset?: types.Map): void;
   setShowEra5(show: boolean): void;
+  setShowAbsolute(show: boolean): void;
+  setShowCoverage(show: boolean): void;
 }
 
 const MenuContext = createContext(getInitialState());
@@ -218,8 +218,6 @@ function getInitialState(): MenuState {
       filterByCategory: "all",
       filterBySubCategory: "all",
       showInspector: false,
-      changeMapDisplayOption: "original",
-      midValueShown: "",
       tempUnit: "°C",
       datasetDescriptionResponse: undefined,
       precipitationUnit: "mm",
@@ -229,8 +227,12 @@ function getInitialState(): MenuState {
       versionBefore: undefined,
       versionAfter: undefined,
       showEra5: false,
+      showAbsolute: false,
+      showCoverage: false,
       setComparisonRestored: () => {},
       setShowEra5: () => {},
+      setShowAbsolute: () => {},
+      setShowCoverage: () => {},
       setDatasets: () => {},
       setSelectedDataset: () => {},
       setDegrees: () => {},
@@ -238,9 +240,7 @@ function getInitialState(): MenuState {
       setFilterByCategory: () => {},
       setFilterBySubCategory: () => {},
       setShowInspector: () => {},
-      setChangeMapDisplayOption: () => {},
       setTempUnit: () => {},
-      setMidValueShown: () => {},
       setWpDatasetDescriptionResponse: () => {},
       setPrecipitationUnit: () => {},
       setPercentileValue: () => {},
@@ -294,10 +294,7 @@ function useData(): DataState {
   const [filterByCategory, setFilterByCategory] = useState("all");
   const [filterBySubCategory, setFilterBySubCategory] = useState("all");
   const [showInspector, setShowInspector] = useState(false);
-  const [changeMapDisplayOption, setChangeMapDisplayOption] =
-    useState<ChangeMapDisplayOptionType>("original");
   const [tempUnit, setTempUnit] = useState("°C" as types.TempUnit);
-  const [midValueShown, setMidValueShown] = useState("");
   const [datasetDescriptionResponse, setWpDatasetDescriptionResponse] =
     useState<types.DatasetDescriptionResponse>();
   const [precipitationUnit, setPrecipitationUnit] = useState("mm" as types.PrecipitationUnit);
@@ -307,6 +304,8 @@ function useData(): DataState {
   const [versionBefore, setVersionBefore] = useState<types.Map | undefined>();
   const [versionAfter, setVersionAfter] = useState<types.Map | undefined>();
   const [showEra5, setShowEra5] = useState(false);
+  const [showAbsolute, setShowAbsolute] = useState(false);
+  const [showCoverage, setShowCoverage] = useState(false);
 
   return useMemo(
     () => ({
@@ -326,16 +325,12 @@ function useData(): DataState {
       setShowInspector,
       tempUnit,
       setTempUnit,
-      midValueShown,
-      setMidValueShown,
       datasetDescriptionResponse,
       setWpDatasetDescriptionResponse,
       precipitationUnit,
       setPrecipitationUnit,
       percentileValue,
       setPercentileValue,
-      changeMapDisplayOption,
-      setChangeMapDisplayOption,
       comparisonMode,
       setComparisonMode,
       comparisonRestored,
@@ -346,6 +341,10 @@ function useData(): DataState {
       setVersionAfter,
       showEra5,
       setShowEra5,
+      showAbsolute,
+      setShowAbsolute,
+      showCoverage,
+      setShowCoverage,
     }),
     [
       datasets,
@@ -356,16 +355,16 @@ function useData(): DataState {
       filterBySubCategory,
       showInspector,
       tempUnit,
-      midValueShown,
       datasetDescriptionResponse,
       precipitationUnit,
       percentileValue,
-      changeMapDisplayOption,
       comparisonMode,
       comparisonRestored,
       versionBefore,
       versionAfter,
       showEra5,
+      showAbsolute,
+      showCoverage,
     ],
   );
 }

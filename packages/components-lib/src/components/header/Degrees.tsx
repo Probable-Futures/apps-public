@@ -29,6 +29,8 @@ type Props = {
   translatedHeader?: any;
   /** Highest selectable level. Anything above it is disabled — e.g. ERA5 stops at 1°C. */
   maxDegrees?: number;
+  /** Lowest selectable level. Anything below it is disabled — a change map has no 0.5°C. */
+  minDegrees?: number;
   /** Explains a narrowed range, shown under the buttons. */
   hint?: string;
   showAboutMapLink?: boolean;
@@ -173,6 +175,7 @@ const Degrees = ({
   tourProps,
   translatedHeader,
   maxDegrees,
+  minDegrees,
   hint,
   showAboutMapLink = true,
   onWarmingScenarioClick,
@@ -180,7 +183,9 @@ const Degrees = ({
 }: Props) => {
   const { color, backgroundColor } = useTheme();
 
-  const isOutOfRange = (value: number) => maxDegrees !== undefined && value > maxDegrees;
+  const isOutOfRange = (value: number) =>
+    (maxDegrees !== undefined && value > maxDegrees) ||
+    (minDegrees !== undefined && value < minDegrees);
 
   const renderButton = (
     value: number,

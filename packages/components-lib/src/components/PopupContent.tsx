@@ -268,6 +268,10 @@ const PopupContent = ({
       highValue = checkEdgeCaseForPrecipitationBinsAfterConvertingToInch(high);
       meanValue = checkEdgeCaseForPrecipitationBinsAfterConvertingToInch(mid);
     }
+    if (dataset && consts.datasetsWithMidValuesOnly.includes(dataset.dataset.id)) {
+      lowValue = undefined;
+      highValue = undefined;
+    }
     const showMidValueLabel = !dataset?.isDiff || lowValue !== undefined || highValue !== undefined;
 
     const getMidValue = () => {

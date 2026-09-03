@@ -39,7 +39,9 @@ const era5Map = (datasetId: number, slug: string, mapStyleId: string): Era5Map =
  *
  * There is deliberately no ramp here: ERA5 is an absolute climate map, so it
  * reuses the dataset's own `stops`/`binHexColors` rather than the diverging ramp
- * the difference maps carry.
+ * the difference maps carry. That holds even where the dataset is a change map —
+ * 40601 is "change in total annual precipitation", but its ERA5 map is the
+ * absolute total, which is why the slugs here drop the "change_in" prefix.
  */
 export const era5Maps: Era5Map[] = [
   era5Map(40101, "average_temperature", "cmtcrugjb001n01sg4p607m14"),
@@ -56,16 +58,16 @@ export const era5Maps: Era5Map[] = [
   era5Map(40205, "freezing_days", "cmtct3e47000101s51vrjb7fw"),
   era5Map(40206, "10_hottest_nights", "cmtct7r0n001t01s198jqd1fj"),
   era5Map(40207, "average_winter_temperature", "cmtctdfjo001s01saax88c116"),
-  era5Map(40301, "days_above_26c_wet-bulb", ""),
-  era5Map(40302, "days_above_28c_wet-bulb", ""),
-  era5Map(40303, "days_above_30c_wet-bulb", ""),
-  era5Map(40304, "days_above_32c_wet-bulb", ""),
-  era5Map(40305, "10_hottest_wet-bulb_days", ""),
-  era5Map(40601, "change_in_total_annual_precipitation", "cmtctjbke002901qt5zln33ve"),
-  era5Map(40607, "change_in_dry_hot_days", "cmtctn41q001v01sa7dcug3ta"),
-  era5Map(40613, "change_in_precipitation_1-in-100_year_storm", "cmtctr5hu000401s51jb8f1ga"),
-  era5Map(40614, "change_in_snowy_days", "cmtctursg001x01sg5dobg761"),
-  era5Map(40616, "change_in_wettest_90_days", "cmtctzrrm001w01sa4o6j3km4"),
+  era5Map(40301, "days_above_26c_wet-bulb", "cmth9hhhc008i01qt53pg8jty"),
+  era5Map(40302, "days_above_28c_wet-bulb", "cmth9lorw007z01s10f2h068d"),
+  era5Map(40303, "days_above_30c_wet-bulb", "cmth9v0a7008k01qtcmqa1r61"),
+  era5Map(40304, "days_above_32c_wet-bulb", "cmth9ytm8007z01qufg3j4bac"),
+  era5Map(40305, "10_hottest_wet-bulb_days", "cmth9c5v9006b01s5c3ni4krz"),
+  era5Map(40601, "total_annual_precipitation", "cmthf0wyk006s01s52u11c0dl"),
+  era5Map(40607, "dry_hot_days", "cmthf4eca009301qt9k4w180i"),
+  era5Map(40613, "precipitation_1-in-100_year_storm", "cmthf82qt008w01sghyxvci7o"),
+  era5Map(40614, "snowy_days", "cmthfbvuv008l01s1f2b0a7w9"),
+  era5Map(40616, "wettest_90_days", "cmthffg4i008m01s1037f1gqi"),
 ];
 
 export const getEra5MapForDataset = (

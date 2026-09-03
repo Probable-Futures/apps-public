@@ -24,7 +24,7 @@ import { colors } from "../../consts";
 import { getMapBuilderMinZoom, MAP_BUILDER_MAX_ZOOM } from "../../consts/mapConsts";
 import { isEra5Map } from "../../consts/era5Maps";
 import { getDataByKey } from "../../utils";
-import { getComparisonSideLabel } from "../../utils/mapVersions";
+import { getComparisonSideShortLabel } from "../../utils/mapVersions";
 import useGlobeLines, { LINE_LAYER_LABEL_PREFIX } from "../../utils/useGlobeLines";
 
 const COMPARE_POPUP_CLASS = "pf-version-compare-popup";
@@ -380,8 +380,8 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
         const dataset = side === "before" ? datasetBefore : datasetAfter;
         // ERA5 is not a database row, so it has no status to name beside its label.
         const versionLabel = isEra5Map(dataset)
-          ? getComparisonSideLabel(dataset)
-          : `${getComparisonSideLabel(dataset)} · ${dataset.status ?? ""}`;
+          ? getComparisonSideShortLabel(dataset)
+          : `${getComparisonSideShortLabel(dataset)} · ${dataset.status ?? ""}`;
         const popupFeature = buildPopupFeature(features, lngLat, dataKey);
 
         let popup = side === "before" ? beforePopupRef.current : afterPopupRef.current;

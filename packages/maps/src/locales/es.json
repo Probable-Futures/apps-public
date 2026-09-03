@@ -2,7 +2,11 @@
   "menu": {
     "data": {
       "title": "Datos",
+      "dataSet": "Seleccionar un mapa",
+      "showFilters": "Mostrar filtros",
+      "hideFilters": "Ocultar filtros",
       "mapStatus": "Estado del mapa",
+      "volume": "Categoría de mapa",
       "showInspector": "Mostrar la ubicación del inspector",
       "filterOptions": {
         "all": "Mostrar todos los mapas",
@@ -17,11 +21,38 @@
         "water": "Agua",
         "other": "Otro"
       },
-      "midValueOptions": {
-        "mean": "Mean",
-        "median": "Median"
+      "subCategory": "Subcategoría de mapa",
+      "mapSource": "Fuente del mapa",
+      "showMoreVersions": "Mostrar más",
+      "showFewerVersions": "Mostrar menos",
+      "changeView": "Vista de cambio",
+      "changeViewOptions": {
+        "change": "Cambio",
+        "absolute": "Absoluto"
       },
-      "midValueShown": "Mid value shown"
+      "changeViewHint": "No se ha publicado un renderizado absoluto para todas las versiones mostradas.",
+      "dataGuide": {
+        "title": "Qué son estos datos",
+        "absolute": "Los mapas absolutos muestran un valor. Se aplican todos los escenarios, incluido 0,5 °C.",
+        "change": "Los mapas de cambio muestran la diferencia respecto a 0,5 °C, por lo que empiezan en 1 °C.",
+        "changeView": "La vista de cambio alterna el mismo mapa entre la diferencia y los valores reales.",
+        "era5": "ERA5 es reanálisis observado. Siempre absoluto, y solo llega a 0,5 °C y 1 °C.",
+        "compare": "La comparación requiere dos mapas del mismo tipo. Las versiones incompatibles se ocultan.",
+        "era5Pairing": "Un mapa de cambio solo puede compararse con ERA5 si tiene una versión absoluta.",
+        "diff": "Los mapas de diferencia se construyen a partir de los valores de cambio, por lo que su vista es fija.",
+        "availability": "Las versiones absolutas se publican por mapa y por versión, así que la opción no siempre está.",
+        "more": "Leer más",
+        "less": "Leer menos"
+      },
+      "changeViewDiffLocked": "Los mapas de diferencia se construyeron a partir de los valores de cambio, por lo que la vista es fija.",
+      "coverage": {
+        "title": "Qué está disponible",
+        "link": "Ver qué está disponible",
+        "map": "Mapa",
+        "era5": "ERA5",
+        "available": "disponible",
+        "unavailable": "no disponible"
+      }
     },
     "mapStyle": {
       "title": "Estilo del mapa",
@@ -49,7 +80,8 @@
     }
   },
   "slider": {
-    "title": "Escenario de calentamiento"
+    "title": "Escenario de calentamiento",
+    "changeMapBaselineHint": "Los mapas de cambio miden la diferencia respecto a 0,5 °C, por lo que no es un escenario."
   },
   "title": "Constructor de mapas",
   "key": {

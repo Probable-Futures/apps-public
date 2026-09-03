@@ -8,6 +8,14 @@ export type MapSelectionParams = {
   status?: string;
 };
 
+/**
+ * A change map shows a difference from the 0.5°C baseline rather than an absolute
+ * value, so the baseline is not one of its warming scenarios. The v5 maps dropped
+ * the "Change in" prefix from their names, which is why the flag is checked too.
+ */
+export const isChangeMap = (map?: types.Map): boolean =>
+  !!(map?.isDiff || map?.name.toLowerCase().startsWith("change"));
+
 const STATUS_PREFERENCE: MapStatusFilter[] = ["published", "draft", "archive"];
 
 const statusPreference = (status?: string): MapStatusFilter[] => {

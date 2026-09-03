@@ -21,11 +21,6 @@
         "water": "Water",
         "other": "Other"
       },
-      "midValueOptions": {
-        "mean": "Mean",
-        "median": "Median"
-      },
-      "midValueShown": "Mid value shown",
       "versionOnLeft": "Version on the left",
       "versionOnRight": "Version on the right",
       "compareVersionsHint": "Both sides share the legend bins and colours below, so any difference you see is a difference in the data.",
@@ -48,8 +43,35 @@
       "mapSource": "Map source",
       "showMoreVersions": "Show more",
       "showFewerVersions": "Show fewer",
-      "era5Hint": "ERA5 is reanalysis — a gridded best estimate of what actually happened. It only reaches the 0.5°C and 1°C warming levels, and has no data for Antarctica.",
-      "era5MapUnavailable": "This ERA5 map style could not be loaded from Mapbox. Check that the style id in the ERA5 registry is still published."
+      "era5MapUnavailable": "This ERA5 map style could not be loaded from Mapbox. Check that the style id in the ERA5 registry is still published.",
+      "changeView": "Change view",
+      "changeViewOptions": {
+        "change": "Change",
+        "absolute": "Absolute"
+      },
+      "changeViewHint": "No absolute rendering has been published for every version shown.",
+      "dataGuide": {
+        "title": "What this data is",
+        "absolute": "Absolute maps show a value. Every warming scenario applies, 0.5°C included.",
+        "change": "Change maps show the difference from 0.5°C, so they start at 1°C.",
+        "changeView": "Change view switches the same map between the difference and the actual values.",
+        "era5": "ERA5 is observed reanalysis. Always absolute, and only reaches 0.5°C and 1°C.",
+        "compare": "Side by side needs both maps to be the same kind. Incompatible versions are hidden.",
+        "era5Pairing": "A change map can pair with ERA5 only when it has an absolute version.",
+        "diff": "Difference maps are built from the change values, so their view is fixed.",
+        "availability": "Absolute versions are published per map and per version, so the option is not always there.",
+        "more": "Read more",
+        "less": "Read less"
+      },
+      "changeViewDiffLocked": "Difference maps were built from the change values, so the view is fixed.",
+      "coverage": {
+        "title": "What's available",
+        "link": "See what's available",
+        "map": "Map",
+        "era5": "ERA5",
+        "available": "available",
+        "unavailable": "not available"
+      }
     },
     "mapStyle": {
       "title": "Map Style",
@@ -78,7 +100,8 @@
   },
   "slider": {
     "title": "Warming Scenario",
-    "era5DegreesHint": "ERA5 only has data for 0.5°C and 1°C."
+    "era5DegreesHint": "ERA5 only has data for 0.5°C and 1°C.",
+    "changeMapBaselineHint": "Change maps measure the difference from 0.5°C, so it is not a scenario."
   },
   "title": "Map Builder",
   "key": {

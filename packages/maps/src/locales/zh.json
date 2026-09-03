@@ -2,7 +2,11 @@
   "menu": {
     "data": {
       "title": "数据",
+      "dataSet": "选择地图",
+      "showFilters": "显示筛选条件",
+      "hideFilters": "隐藏筛选条件",
       "mapStatus": "地图状态",
+      "volume": "地图类别",
       "showInspector": "显示检查员位置",
       "filterOptions": {
         "all": "显示所有地图",
@@ -17,11 +21,38 @@
         "water": "水",
         "other": "其他"
       },
-      "midValueOptions": {
-        "mean": "Mean",
-        "median": "Median"
+      "subCategory": "地图子类别",
+      "mapSource": "地图来源",
+      "showMoreVersions": "显示更多",
+      "showFewerVersions": "显示更少",
+      "changeView": "变化视图",
+      "changeViewOptions": {
+        "change": "变化",
+        "absolute": "绝对值"
       },
-      "midValueShown": "Mid value shown"
+      "changeViewHint": "并非所显示的每个版本都已发布绝对值渲染。",
+      "dataGuide": {
+        "title": "数据说明",
+        "absolute": "绝对值地图显示数值，适用于包括 0.5°C 在内的所有升温情景。",
+        "change": "变化地图显示相对于 0.5°C 的差值，因此从 1°C 开始。",
+        "changeView": "变化视图可在差值与实际值之间切换同一张地图。",
+        "era5": "ERA5 为观测再分析数据，始终为绝对值，且仅到 0.5°C 和 1°C。",
+        "compare": "并排比较要求两张地图类型相同，不兼容的版本会被隐藏。",
+        "era5Pairing": "变化地图只有在具备绝对值版本时才能与 ERA5 并排比较。",
+        "diff": "差值地图基于变化值构建，因此其视图是固定的。",
+        "availability": "绝对值版本按地图和版本分别发布，因此该选项并非始终可用。",
+        "more": "了解更多",
+        "less": "收起"
+      },
+      "changeViewDiffLocked": "差值地图基于变化值构建，因此视图是固定的。",
+      "coverage": {
+        "title": "可用数据",
+        "link": "查看可用数据",
+        "map": "地图",
+        "era5": "ERA5",
+        "available": "可用",
+        "unavailable": "不可用"
+      }
     },
     "mapStyle": {
       "title": "地图样式",
@@ -49,7 +80,8 @@
     }
   },
   "slider": {
-    "title": "升温方案"
+    "title": "升温方案",
+    "changeMapBaselineHint": "变化地图衡量相对于 0.5°C 的差值，因此它不是一个情景。"
   },
   "title": "地图构建器",
   "key": {

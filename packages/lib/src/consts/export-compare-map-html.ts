@@ -533,6 +533,11 @@ export const exportCompareMapToHTML = (options: Props) => {
                 highValue = checkEdgeCaseForPrecipitationBinsAfterConvertingToInch(selectedData.high);
                 meanValue = checkEdgeCaseForPrecipitationBinsAfterConvertingToInch(selectedData.mid);
               }
+              // Published as a single expected value, which is what the title says.
+              if (datasetsWithMidValuesOnly.includes(dataset.dataset.id)) {
+                lowValue = undefined;
+                highValue = undefined;
+              }
               let showMidValueLabel = !dataset?.isDiff || lowValue !== undefined || highValue !== undefined;
               function getMidValue() {
                 if (meanValue === undefined) {

@@ -38,7 +38,6 @@ type Props = {
   setMapProjection?: (arg: Projection) => void;
   setBins?: (bins: any) => void;
   setColorScheme?: (binHexColors: any) => void;
-  setMidValueShown?: (arg: any) => void;
   setFilterByStatus?: (arg: string) => void;
   allowedProjections?: string[];
   setIsComparisonMapActive?: (arg: boolean) => void;
@@ -64,7 +63,6 @@ export default function useMapsApi({
   setMapProjection,
   setBins,
   setColorScheme,
-  setMidValueShown,
   setFilterByStatus,
   allowedProjections = supportedProjections,
   setIsComparisonMapActive,
@@ -199,7 +197,6 @@ export default function useMapsApi({
     setMapProjection,
     setBins,
     setColorScheme,
-    setMidValueShown,
     setFilterByStatus,
     allowedProjections,
     setIsComparisonMapActive,

@@ -2,7 +2,11 @@
   "menu": {
     "data": {
       "title": "Données",
+      "dataSet": "Sélectionner une carte",
+      "showFilters": "Afficher les filtres",
+      "hideFilters": "Masquer les filtres",
       "mapStatus": "Statut de la carte",
+      "volume": "Catégorie de carte",
       "showInspector": "Afficher l'emplacement de l'inspecteur",
       "filterOptions": {
         "all": "Afficher toutes les cartes",
@@ -17,11 +21,38 @@
         "water": "Eau",
         "other": "Autre"
       },
-      "midValueOptions": {
-        "mean": "Mean",
-        "median": "Median"
+      "subCategory": "Sous-catégorie de carte",
+      "mapSource": "Source de la carte",
+      "showMoreVersions": "Afficher plus",
+      "showFewerVersions": "Afficher moins",
+      "changeView": "Vue d'évolution",
+      "changeViewOptions": {
+        "change": "Évolution",
+        "absolute": "Absolu"
       },
-      "midValueShown": "Mid value shown"
+      "changeViewHint": "Aucun rendu absolu n'a été publié pour toutes les versions affichées.",
+      "dataGuide": {
+        "title": "Nature de ces données",
+        "absolute": "Les cartes absolues montrent une valeur. Tous les scénarios s'appliquent, 0,5 °C compris.",
+        "change": "Les cartes d'évolution montrent l'écart par rapport à 0,5 °C ; elles commencent donc à 1 °C.",
+        "changeView": "La vue d'évolution bascule la même carte entre l'écart et les valeurs réelles.",
+        "era5": "ERA5 est une réanalyse observée. Toujours absolue, et limitée à 0,5 °C et 1 °C.",
+        "compare": "La comparaison exige deux cartes de même nature. Les versions incompatibles sont masquées.",
+        "era5Pairing": "Une carte d'évolution ne peut être comparée à ERA5 que si elle a une version absolue.",
+        "diff": "Les cartes de différence sont construites à partir des valeurs d'évolution ; leur vue est donc figée.",
+        "availability": "Les versions absolues sont publiées par carte et par version : l'option n'est pas toujours disponible.",
+        "more": "En savoir plus",
+        "less": "Réduire"
+      },
+      "changeViewDiffLocked": "Les cartes de différence ont été construites à partir des valeurs d'évolution ; la vue est donc figée.",
+      "coverage": {
+        "title": "Ce qui est disponible",
+        "link": "Voir ce qui est disponible",
+        "map": "Carte",
+        "era5": "ERA5",
+        "available": "disponible",
+        "unavailable": "non disponible"
+      }
     },
     "mapStyle": {
       "title": "Style de la carte",
@@ -49,7 +80,8 @@
     }
   },
   "slider": {
-    "title": "Scénario de réchauffement"
+    "title": "Scénario de réchauffement",
+    "changeMapBaselineHint": "Les cartes d'évolution mesurent l'écart par rapport à 0,5 °C ; ce n'est donc pas un scénario."
   },
   "title": "Constructeur de carte",
   "key": {

@@ -6,6 +6,7 @@ import {
   getDefaultSwipePair,
   getDefaultVersionPair,
   getVersionLabel,
+  getVersionSourceLabel,
   getVersionsOfDataset,
 } from "../mapVersions";
 import { buildEra5Map } from "../../consts/era5Maps";
@@ -162,6 +163,36 @@ describe("getVersionLabel", () => {
 
 const era5MapFor = (map: types.Map) =>
   buildEra5Map(map, { datasetId: 40104, slug: "days-above-32c", mapStyleId: "era5-style" });
+
+describe("getVersionSourceLabel", () => {
+  it("names a version, whether it is latest, and what produced it", () => {
+    const map = { ...makeMap({ mapVersion: 3 }), isLatest: true };
+    expect(getVersionSourceLabel(map)).toBe("v3 · latest · CORDEX");
+  });
+
+  it("leaves out the latest marker for a superseded version", () => {
+    expect(getVersionSourceLabel(makeMap({ mapVersion: 2 }))).toBe("v2 · CORDEX");
+  });
+
+  it("keeps a non-published status alongside the descriptor", () => {
+    expect(getVersionSourceLabel(makeMap({ mapVersion: 4, status: "draft" }))).toBe(
+      "v4 (draft) · stat. downscaled",
+    );
+  });
+
+  it("names a version with no registry entry by its number alone", () => {
+    expect(getVersionSourceLabel(makeMap({ mapVersion: 9 }))).toBe("v9");
+  });
+
+  it("names an ERA5 side by what it is, never by its reserved version number", () => {
+    const era5 = buildEra5Map(makeMap({ mapVersion: 4 }), {
+      datasetId: 40104,
+      slug: "days-above-32c",
+      mapStyleId: "era5-style",
+    });
+    expect(getVersionSourceLabel(era5)).toBe("ERA5");
+  });
+});
 
 describe("getComparisonSideLabel", () => {
   it("names an ERA5 side by what it is, never by its reserved version number", () => {

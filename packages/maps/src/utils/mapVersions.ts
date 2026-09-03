@@ -2,7 +2,8 @@ import { types } from "@probable-futures/lib";
 
 import { getDiffMapsForDataset, versionDiffMaps, VersionDiffMap } from "../consts/versionDiffMaps";
 import { ERA5_LABEL, isEra5Map } from "../consts/era5Maps";
-import { MODEL_HIDDEN_MAP_VERSION } from "../consts/mapConsts";
+import { getVersionDescriptor } from "../consts/versionDescriptors";
+import { areComparable, canRenderAbsolute } from "./mapValueMode";
 
 /**
  * One entry per map version, ascending. A dataset has a row per version *per*
@@ -45,14 +46,19 @@ export const getDefaultVersionPair = (
   const selected =
     versions.find(({ mapVersion }) => mapVersion === selectedDataset.mapVersion) ??
     versions[versions.length - 1];
-  const previous = [...versions]
+  // Only a side rendering the same kind of value can be paired with it: a change
+  // version against the absolute row would be comparing differences to totals.
+  const candidates = versions.filter(
+    (map) => map.mapVersion !== selected.mapVersion && areComparable(map, selected),
+  );
+  const previous = [...candidates]
     .reverse()
     .find(({ mapVersion }) => mapVersion < selected.mapVersion);
   if (previous) {
     return { before: previous, after: selected };
   }
-  const next = versions.find(({ mapVersion }) => mapVersion > selected.mapVersion)!;
-  return { before: selected, after: next };
+  const next = candidates.find(({ mapVersion }) => mapVersion > selected.mapVersion);
+  return next ? { before: selected, after: next } : undefined;
 };
 
 export const getVersionLabel = (map: types.Map): string =>
@@ -62,8 +68,11 @@ export const getVersionSourceLabel = (map: types.Map): string => {
   if (isEra5Map(map)) {
     return ERA5_LABEL;
   }
-  const model = map.mapVersion === MODEL_HIDDEN_MAP_VERSION ? undefined : map.dataset.model;
-  return [getVersionLabel(map), map.isLatest ? "latest" : undefined, model]
+  return [
+    getVersionLabel(map),
+    map.isLatest ? "latest" : undefined,
+    getVersionDescriptor(map.mapVersion),
+  ]
     .filter(Boolean)
     .join(" · ");
 };
@@ -74,6 +83,9 @@ export const getVersionSourceLabel = (map: types.Map): string => {
  */
 export const getComparisonSideLabel = (map: types.Map): string =>
   isEra5Map(map) ? ERA5_LABEL : getVersionLabel(map);
+
+export const getComparisonSideShortLabel = (map: types.Map): string =>
+  isEra5Map(map) ? ERA5_LABEL : `v${map.mapVersion}`;
 
 /**
  * The pair the side-by-side view opens on. Falls back to pairing the newest
@@ -91,7 +103,8 @@ export const getDefaultSwipePair = (
   if (versionPair) {
     return versionPair;
   }
-  const newest = versions[versions.length - 1];
+  // ERA5 is absolute, so it can only open against a side that renders absolute too.
+  const newest = [...versions].reverse().find((map) => canRenderAbsolute(map));
   return newest && era5Map ? { before: newest, after: era5Map } : undefined;
 };
 

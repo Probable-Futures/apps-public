@@ -9,11 +9,13 @@ import camelcase from "lodash.camelcase";
 import mapboxgl, { MapboxEvent, Map } from "mapbox-gl";
 
 import { useMenu } from "../Menu";
+import { defaultDegreesForChangeMaps } from "../../contexts/DataContext";
 import Popup from "../common/Popup";
 import { setQueryParam } from "../../utils";
 import useFeaturePopup from "../../utils/useFeaturePopup";
 import MapBuilderHeader from "../MapBuilderHeader";
 import MapBuilderControls from "../MapBuilderControls";
+import CoverageTable from "../CoverageTable";
 import { colors, size } from "../../consts";
 import {
   getMapBuilderMinZoom,
@@ -23,10 +25,13 @@ import {
 import { exportComponentAsPNG } from "../../utils/export";
 import { getDiffMapBinHexColors } from "../../consts/versionDiffMaps";
 import { ERA5_MAX_DEGREES, isEra5Map } from "../../consts/era5Maps";
+import { getAbsoluteMap, getAbsoluteRamp } from "../../consts/absoluteMaps";
 import { isLatestMapForSlug } from "../../utils/mapSelection";
-import { getComparisonSideLabel } from "../../utils/mapVersions";
+import { getMapValueMode, resolveChangeView } from "../../utils/mapValueMode";
+import { getComparisonSideShortLabel } from "../../utils/mapVersions";
 import useActiveDiffMap, { getActiveMapStyleId } from "../../utils/useActiveDiffMap";
 import useActiveEra5Map from "../../utils/useActiveEra5Map";
+import useActiveAbsoluteMap from "../../utils/useActiveAbsoluteMap";
 import { useTranslation } from "../../contexts/TranslationContext";
 import useGlobeLines, { LINE_LAYER_LABEL_PREFIX } from "../../utils/useGlobeLines";
 import VersionComparisonMapView, { VersionComparisonMapHandle } from "./VersionComparisonMapView";
@@ -161,11 +166,14 @@ const InteractiveMap = () => {
       setPrecipitationUnit,
       percentileValue,
       setPercentileValue,
-      setMidValueShown,
       comparisonMode,
       comparisonRestored,
       versionBefore,
       versionAfter,
+      showEra5,
+      showAbsolute,
+      showCoverage,
+      setShowCoverage,
     },
     mapStyle: {
       landColor,
@@ -193,6 +201,7 @@ const InteractiveMap = () => {
 
   const activeDiffMap = useActiveDiffMap();
   const activeEra5Map = useActiveEra5Map();
+  const activeAbsoluteMap = useActiveAbsoluteMap();
 
   /** True whenever an ERA5 map is on screen, on its own or as a comparison side. */
   const era5Active =
@@ -200,6 +209,28 @@ const InteractiveMap = () => {
     (comparisonMode === "swipe" && (isEra5Map(versionBefore) || isEra5Map(versionAfter)));
 
   const maxDegrees = era5Active ? ERA5_MAX_DEGREES : DEFAULT_MAX_DEGREES;
+
+  /**
+   * One resolver decides what is rendered and what the sidebar may offer, so the
+   * control and the styles can never disagree.
+   */
+  const changeView = resolveChangeView({
+    comparisonMode,
+    selectedDataset,
+    versionBefore,
+    versionAfter,
+    showEra5,
+    showAbsolute,
+  });
+
+  const showsAbsoluteValues = changeView.mode === "absolute";
+
+  /**
+   * Change values are differences from the 0.5°C baseline, so the baseline is not
+   * one of their levels. Anything absolute keeps it.
+   */
+  const showsChangeValues = !showsAbsoluteValues;
+  const minDegrees = showsChangeValues ? defaultDegreesForChangeMaps : undefined;
 
   // ERA5 tiles have no properties above 1°C, so a higher level would paint the
   // map blank rather than merely look wrong.
@@ -209,6 +240,13 @@ const InteractiveMap = () => {
       setQueryParam({ warmingScenario: ERA5_MAX_DEGREES });
     }
   }, [era5Active, degrees, setDegrees]);
+
+  useEffect(() => {
+    if (showsChangeValues && degrees < defaultDegreesForChangeMaps) {
+      setDegrees(defaultDegreesForChangeMaps);
+      setQueryParam({ warmingScenario: defaultDegreesForChangeMaps });
+    }
+  }, [showsChangeValues, degrees, setDegrees]);
 
   // These datasets ship a single value per cell, so the warmer/cooler year
   // attributes the paint expression would ask for do not exist on their tiles.
@@ -329,9 +367,8 @@ const InteractiveMap = () => {
           ? LATEST_MAP_VERSION
           : selectedDataset.mapVersion.toString(),
       });
-      setMidValueShown(selectedDataset.methodUsedForMid);
     }
-  }, [selectedDataset, setMidValueShown, datasets, filterByStatus]);
+  }, [selectedDataset, datasets, filterByStatus]);
 
   // The difference view swaps in the registry's diverging ramp, which keeps the
   // legend editor and the paint expression working on it exactly as they do on a
@@ -343,12 +380,21 @@ const InteractiveMap = () => {
         bins: activeDiffMap.stops,
       });
     } else if (selectedDataset) {
+      // A change map's own bins run either side of zero, so an absolute rendering
+      // has to borrow the ramp from the row that describes absolute values.
+      // Only a change row shown absolute needs to borrow a ramp; a row that is
+      // already absolute has bins of its own. With no ramp registered the change
+      // bins stand in, which paints flat — see `absoluteRamps`.
+      const absoluteRamp =
+        showsAbsoluteValues && getMapValueMode(selectedDataset) === "change"
+          ? getAbsoluteRamp(selectedDataset.dataset.id)
+          : undefined;
       setDynamicStyleVariables({
-        binHexColors: selectedDataset.binHexColors,
-        bins: selectedDataset.stops,
+        binHexColors: absoluteRamp?.binHexColors ?? selectedDataset.binHexColors,
+        bins: absoluteRamp?.stops ?? selectedDataset.stops,
       });
     }
-  }, [selectedDataset, activeDiffMap, setDynamicStyleVariables]);
+  }, [selectedDataset, activeDiffMap, showsAbsoluteValues, datasets, setDynamicStyleVariables]);
 
   const onMapClick = useCallback(
     (e: MapLayerMouseEvent) => {
@@ -374,24 +420,36 @@ const InteractiveMap = () => {
 
   const onMove = useCallback((evt: ViewStateChangeEvent) => setViewState(evt.viewState), []);
 
-  const getMapStyleLink = useCallback((dataset?: types.Map) => {
-    if (!dataset) {
-      return "";
-    }
-    const mapboxAccount =
-      window.pfInteractiveMap?.mapboxAccount || import.meta.env.VITE_MAPBOX_ACCOUNT;
-    return `mapbox://styles/${mapboxAccount}/${dataset.mapStyleId}`;
-  }, []);
-
-  const mapStyleLink = useMemo(() => {
-    const styleId = getActiveMapStyleId(selectedDataset, activeDiffMap, activeEra5Map);
+  const styleUrl = useCallback((styleId?: string) => {
     if (!styleId) {
       return "";
     }
     const mapboxAccount =
       window.pfInteractiveMap?.mapboxAccount || import.meta.env.VITE_MAPBOX_ACCOUNT;
     return `mapbox://styles/${mapboxAccount}/${styleId}`;
-  }, [activeDiffMap, activeEra5Map, selectedDataset]);
+  }, []);
+
+  /** One comparison side, swapped to its absolute rendering when the view is absolute. */
+  const getComparisonStyleLink = useCallback(
+    (side?: types.Map) => {
+      if (side && showsAbsoluteValues && getMapValueMode(side) === "change") {
+        const absolute = getAbsoluteMap(side.dataset.id, side.mapVersion);
+        if (absolute) {
+          return styleUrl(absolute.mapStyleId);
+        }
+      }
+      return styleUrl(side?.mapStyleId);
+    },
+    [styleUrl, showsAbsoluteValues],
+  );
+
+  const mapStyleLink = useMemo(
+    () =>
+      styleUrl(
+        getActiveMapStyleId(selectedDataset, activeDiffMap, activeEra5Map, activeAbsoluteMap),
+      ),
+    [activeDiffMap, activeEra5Map, activeAbsoluteMap, selectedDataset, styleUrl],
+  );
 
   useEffect(() => {
     setHasStyleError(false);
@@ -483,12 +541,20 @@ const InteractiveMap = () => {
     }
   }, []);
 
-  const era5Hint = era5Active
-    ? translate("slider.era5DegreesHint", "ERA5 only has data for 0.5°C and 1°C.")
-    : undefined;
+  const scenarioHints = [
+    showsChangeValues
+      ? translate(
+          "slider.changeMapBaselineHint",
+          "Change maps measure the difference from 0.5°C, so it is not a scenario.",
+        )
+      : undefined,
+    era5Active
+      ? translate("slider.era5DegreesHint", "ERA5 only has data for 0.5°C and 1°C.")
+      : undefined,
+  ].filter(Boolean);
 
-  /* Clears the scenario switcher, which grows by one line when the hint is shown. */
-  const searchTop = era5Hint ? "190px" : "158px";
+  /* Clears the scenario switcher, which grows by a line for each hint it shows. */
+  const searchTop = `${158 + scenarioHints.length * 32}px`;
 
   return (
     <Container isScreenshot={isScreenshot}>
@@ -511,10 +577,10 @@ const InteractiveMap = () => {
             ref={comparisonMapRef}
             datasetBefore={versionBefore!}
             datasetAfter={versionAfter!}
-            labelBefore={getComparisonSideLabel(versionBefore!)}
-            labelAfter={getComparisonSideLabel(versionAfter!)}
-            mapStyleUrlBefore={getMapStyleLink(versionBefore)}
-            mapStyleUrlAfter={getMapStyleLink(versionAfter)}
+            labelBefore={getComparisonSideShortLabel(versionBefore!)}
+            labelAfter={getComparisonSideShortLabel(versionAfter!)}
+            mapStyleUrlBefore={getComparisonStyleLink(versionBefore)}
+            mapStyleUrlAfter={getComparisonStyleLink(versionAfter)}
             mapboxAccessToken={
               window.pfInteractiveMap?.mapboxAccessToken || import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
             }
@@ -638,7 +704,8 @@ const InteractiveMap = () => {
               <components.Degrees
                 degrees={degrees}
                 maxDegrees={maxDegrees}
-                hint={era5Hint}
+                minDegrees={minDegrees}
+                hint={scenarioHints.join(" ") || undefined}
                 showAboutMapLink={false}
                 warmingScenarioDescs={{}}
                 showBaselineModal={false}
@@ -673,6 +740,15 @@ const InteractiveMap = () => {
           language={locale}
         />
       )}
+      <components.MapModal
+        isVisible={showCoverage}
+        size="lg"
+        title={translate("menu.data.coverage.title", "What's available")}
+        closeText={translate("close.text")}
+        onToggle={() => setShowCoverage(false)}
+      >
+        <CoverageTable datasets={datasets} />
+      </components.MapModal>
       <MapBuilderControls
         zoom={viewState.zoom ?? minZoom}
         minZoom={minZoom}
