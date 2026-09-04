@@ -597,6 +597,7 @@ const InteractiveMap = () => {
             tempUnit={tempUnit}
             precipitationUnit={precipitationUnit}
             datasetDescriptionResponse={datasetDescriptionResponse}
+            showsAbsoluteValues={showsAbsoluteValues}
             onMove={(next) => {
               setViewState((prev) => ({ ...prev, ...next }));
               const hash = `${next.zoom.toFixed(2)}/${next.latitude.toFixed(
@@ -658,6 +659,7 @@ const InteractiveMap = () => {
                     tempUnit={tempUnit}
                     datasetDescriptionResponse={datasetDescriptionResponse}
                     precipitationUnit={precipitationUnit}
+                    showsAbsoluteValues={showsAbsoluteValues}
                     isExperiment
                   />
                 )}

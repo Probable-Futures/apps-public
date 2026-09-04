@@ -64,8 +64,14 @@ describe("getMapCoverage", () => {
     ]);
     const precipitation = rows.find(({ datasetId }) => datasetId === 40601);
     const daysAbove = rows.find(({ datasetId }) => datasetId === 40104);
-    expect(precipitation).toMatchObject({ hasEra5: true, hasAbsolute: true });
-    expect(daysAbove).toMatchObject({ hasEra5: true, hasAbsolute: false });
+    expect(precipitation).toMatchObject({ hasEra5: true, absoluteVersions: [3, 4] });
+    expect(daysAbove).toMatchObject({ hasEra5: true, absoluteVersions: [] });
+  });
+
+  // 40607 has an absolute rendering for v3 only.
+  it("reports absolute renderings per version, not per dataset", () => {
+    const rows = getMapCoverage([makeMap({ datasetId: 40607, mapVersion: 3 })]);
+    expect(rows[0].absoluteVersions).toEqual([3]);
   });
 
   it("sorts by name so the table reads alphabetically", () => {

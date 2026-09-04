@@ -21,6 +21,11 @@ type Props = {
   mapPopoverText?: any;
   keyText?: any;
   isExperiment?: boolean;
+  /**
+   * True when a change map is being shown as its absolute values. The figures are
+   * then totals rather than differences from the baseline, so a leading + is wrong.
+   */
+  showsAbsoluteValues?: boolean;
   onReadMoreClick?: () => void;
   onBaselineClick?: () => void;
   precipitationUnit?: types.PrecipitationUnit;
@@ -219,6 +224,7 @@ const PopupContent = ({
   mapPopoverText,
   isExperiment,
   keyText,
+  showsAbsoluteValues,
 }: Props): JSX.Element => {
   const [showDetails, setShowDetails] = useState(degreesOfWarming === 0.5 ? true : false);
   const [showLearnWhy, setShowLearnWhy] = useState(false);
@@ -505,7 +511,9 @@ const PopupContent = ({
       ) : (
         <>
           {renderValues(
-            showBaselineDetails && (isExperiment ? dataset.mapVersion !== 5 : true),
+            !showsAbsoluteValues &&
+              showBaselineDetails &&
+              (isExperiment ? dataset.mapVersion !== 5 : true),
             selectedData.low,
             selectedData.mid,
             selectedData.high,

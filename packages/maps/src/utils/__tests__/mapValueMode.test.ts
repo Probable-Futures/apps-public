@@ -64,8 +64,10 @@ describe("canRenderAbsolute", () => {
     expect(canRenderAbsolute(makeMap({ mapVersion: 3 }))).toBe(true);
   });
 
+  // 40607 has an absolute rendering for v3 but not for v4.
   it("is false for a change version without one", () => {
-    expect(canRenderAbsolute(makeMap({ datasetId: 40613, mapVersion: 3 }))).toBe(false);
+    expect(canRenderAbsolute(makeMap({ datasetId: 40607, mapVersion: 4 }))).toBe(false);
+    expect(canRenderAbsolute(makeMap({ datasetId: 40607, mapVersion: 3 }))).toBe(true);
   });
 
   it("is true for anything already absolute", () => {
@@ -88,17 +90,17 @@ describe("areComparable", () => {
   });
 
   it("refuses ERA5 beside a change version with no absolute rendering", () => {
-    const changeOnly = makeMap({ datasetId: 40613, mapVersion: 3 });
+    const changeOnly = makeMap({ datasetId: 40607, mapVersion: 4 });
     const era5 = buildEra5Map(changeOnly, {
-      datasetId: 40613,
-      slug: "precipitation_1-in-100_year_storm",
+      datasetId: 40607,
+      slug: "dry_hot_days",
       mapStyleId: "era5-style",
     });
     expect(areComparable(era5, changeOnly)).toBe(false);
   });
 
   it("refuses a change version beside a normal absolute map", () => {
-    expect(areComparable(makeMap({ datasetId: 40613, mapVersion: 3 }), plain(3))).toBe(false);
+    expect(areComparable(makeMap({ datasetId: 40607, mapVersion: 4 }), plain(3))).toBe(false);
   });
 
   it("allows any two versions of a normal map", () => {
@@ -156,14 +158,14 @@ describe("resolveChangeView", () => {
     expect(view).toMatchObject({ canChange: true, canAbsolute: true, locked: false });
   });
 
-  // 40613 has change styles for both versions but no absolute rendering of either.
+  // 40607 has an absolute rendering for v3 only, so the pair cannot both go absolute.
   it("offers change only when one side has no absolute rendering", () => {
     const view = resolveChangeView({
       ...base,
       comparisonMode: "swipe",
-      selectedDataset: makeMap({ datasetId: 40613, mapVersion: 3 }),
-      versionBefore: makeMap({ datasetId: 40613, mapVersion: 3 }),
-      versionAfter: makeMap({ datasetId: 40613, mapVersion: 4 }),
+      selectedDataset: makeMap({ datasetId: 40607, mapVersion: 3 }),
+      versionBefore: makeMap({ datasetId: 40607, mapVersion: 3 }),
+      versionAfter: makeMap({ datasetId: 40607, mapVersion: 4 }),
     });
     expect(view).toMatchObject({ mode: "change", canAbsolute: false, locked: true });
   });

@@ -39,7 +39,7 @@ const Table = styled.table`
 
   th:not(:first-child),
   td:not(:first-child) {
-    width: 72px;
+    width: 96px;
     text-align: center;
     white-space: nowrap;
   }
@@ -79,6 +79,7 @@ const CoverageTable = ({ datasets }: Props): JSX.Element => {
 
   const yes = translate("menu.data.coverage.available", "available");
   const no = translate("menu.data.coverage.unavailable", "not available");
+  const absoluteLabel = translate("menu.data.changeViewOptions.absolute", "Absolute");
 
   const renderMark = (present: boolean) => (
     <Mark present={present} role="img" aria-label={present ? yes : no}>
@@ -96,11 +97,13 @@ const CoverageTable = ({ datasets }: Props): JSX.Element => {
               <th key={version} scope="col">{`v${version}`}</th>
             ))}
             <th scope="col">{translate("menu.data.coverage.era5", "ERA5")}</th>
-            <th scope="col">{translate("menu.data.changeViewOptions.absolute", "Absolute")}</th>
+            {REPORTED_VERSIONS.map((version) => (
+              <th key={`absolute-${version}`} scope="col">{`${absoluteLabel} v${version}`}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ datasetId, slug, name, versions, hasEra5, hasAbsolute }) => (
+          {rows.map(({ datasetId, slug, name, versions, hasEra5, absoluteVersions }) => (
             <tr key={datasetId}>
               <th scope="row">
                 {translate(`header.datasets.${camelcase(slug)}`, name)}
@@ -110,7 +113,11 @@ const CoverageTable = ({ datasets }: Props): JSX.Element => {
                 <td key={version}>{renderMark(versions.includes(version))}</td>
               ))}
               <td>{renderMark(hasEra5)}</td>
-              <td>{renderMark(hasAbsolute)}</td>
+              {REPORTED_VERSIONS.map((version) => (
+                <td key={`absolute-${version}`}>
+                  {renderMark(absoluteVersions.includes(version))}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>

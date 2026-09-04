@@ -13,7 +13,8 @@ export type MapCoverageRow = {
   /** Every published version, ascending. */
   versions: number[];
   hasEra5: boolean;
-  hasAbsolute: boolean;
+  /** Versions with a published absolute rendering, ascending. */
+  absoluteVersions: number[];
 };
 
 /**
@@ -47,7 +48,10 @@ export const getMapCoverage = (datasets: types.Map[]): MapCoverageRow[] => {
         name: named.name,
         versions: [...new Set(rows.map(({ mapVersion }) => mapVersion))].sort((a, b) => a - b),
         hasEra5: !!getEra5MapForDataset(datasetId),
-        hasAbsolute: absoluteMaps.some((entry) => entry.datasetId === datasetId),
+        absoluteVersions: absoluteMaps
+          .filter((entry) => entry.datasetId === datasetId)
+          .map(({ mapVersion }) => mapVersion)
+          .sort((a, b) => a - b),
       };
     })
     .sort((a, b) => a.name.localeCompare(b.name));

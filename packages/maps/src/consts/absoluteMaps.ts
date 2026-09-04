@@ -24,11 +24,17 @@ const absoluteMap = (datasetId: number, mapVersion: number, mapStyleId: string):
 
 export const absoluteMaps: AbsoluteMap[] = [
   absoluteMap(40601, 3, "cmtinyy5n00br01qtexnz1blu"),
-  absoluteMap(40614, 3, "cmtio50gy008x01s5fwswcxg8"),
-  absoluteMap(40616, 3, "cmtio9u2c00b501sgc1bx6sn7"),
   absoluteMap(40601, 4, "cmtiovs2g00bt01qtcqzkdgt6"),
+  absoluteMap(40607, 3, "cmtloon3o00ox01qt2a3mfk23"),
+  absoluteMap(40613, 3, "cmtlokbhg00ow01qtar2q12uv"),
+  absoluteMap(40613, 4, "cmtlofym800ov01qt2xer9gpm"),
+  absoluteMap(40614, 3, "cmtio50gy008x01s5fwswcxg8"),
   absoluteMap(40614, 4, "cmtip54yu00au01qu0u4k7c0c"),
+  absoluteMap(40616, 3, "cmtio9u2c00b501sgc1bx6sn7"),
   absoluteMap(40616, 4, "cmtiphoos00b701sg201h20v8"),
+  absoluteMap(40703, 3, "cmtlp1x1f00nq01saci2xagz6"),
+  absoluteMap(40703, 4, "cmtloxymw009b01qybzv30jlf"),
+  absoluteMap(40704, 3, "cmtlp5s3i009z01r2gi588fws"),
 ];
 
 export type AbsoluteRamp = {
@@ -52,10 +58,12 @@ const PRECIPITATION_SUM_RAMP: AbsoluteRamp = {
  * one, including those with no absolute style of their own but with ERA5.
  *
  * Still to come:
- *   40613 precipitation of the "1-in-100-year" storm — mm, but a single-day
- *         total, so a much smaller range than the sums below
- *   40614 snowy days   — days
- *   40607 dry hot days — days
+ *   40607 dry hot days                       — days
+ *   40613 "1-in-100-year" storm              — mm, but a single-day total, so a
+ *                                              much smaller range than the sums
+ *   40614 snowy days                         — days
+ *   40703 mean SPEI-12                       — z-score
+ *   40704 wildfire danger days               — days
  */
 export const absoluteRamps: Record<number, AbsoluteRamp> = {
   40601: PRECIPITATION_SUM_RAMP,

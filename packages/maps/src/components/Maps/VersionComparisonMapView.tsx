@@ -54,6 +54,8 @@ type Props = {
   tempUnit: types.TempUnit;
   precipitationUnit: types.PrecipitationUnit;
   datasetDescriptionResponse?: types.DatasetDescriptionResponse;
+  /** True when both sides are showing absolute values rather than differences. */
+  showsAbsoluteValues: boolean;
   onMove?: (viewState: { longitude: number; latitude: number; zoom: number }) => void;
 };
 
@@ -291,6 +293,7 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
       tempUnit,
       precipitationUnit,
       datasetDescriptionResponse,
+      showsAbsoluteValues,
       onMove,
     },
     ref,
@@ -427,6 +430,7 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
                 showInspector={showInspector}
                 datasetDescriptionResponse={datasetDescriptionResponse}
                 precipitationUnit={precipitationUnit}
+                showsAbsoluteValues={showsAbsoluteValues}
                 isExperiment
               />
             </PopupBody>
@@ -442,6 +446,7 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
         showInspector,
         precipitationUnit,
         datasetDescriptionResponse,
+        showsAbsoluteValues,
         closePopups,
       ],
     );

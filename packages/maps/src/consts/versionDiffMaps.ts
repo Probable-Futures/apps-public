@@ -69,6 +69,7 @@ export const versionDiffMaps: VersionDiffMap[] = [
   diffMap(40105, "days_above_35c", "days", "cmsxpxig0006j01qya4zo4eyx"),
   diffMap(40106, "days-above-38c", "days", "cmt02wt2i00cn01sd2inu3c8d"),
   diffMap(40107, "days-above-45c", "days", "cmt0367vu003201qxayfw2h09"),
+  diffMap(40110, "days-above-50c", "days", "cmtln2cyl009501qyha360w98"),
   diffMap(40201, "average-nighttime-temperature", "temperature", "cmt04k6wt000101sgejh5d5q3"),
   diffMap(40202, "frost_nights", "days", "", { unitLabel: "nights" }),
   diffMap(40203, "nights-above-20c", "days", "cmt04ti30000101shhved57po", {
@@ -84,6 +85,7 @@ export const versionDiffMaps: VersionDiffMap[] = [
   diffMap(40302, "days_above_28c_wet-bulb", "days", "cmszxw8lq00af01sa1chs7ogl"),
   diffMap(40303, "days-above-30c-wbmax", "days", "cmt05whxc000501qz3uuvd395"),
   diffMap(40304, "days-above-32c-wbmax", "days", "cmt0684aw000a01scaoedg1s7"),
+  diffMap(40305, "10_hottest_wet-bulb_days", "temperature", "cmtlla6gh009k01s41zxtb42o"),
   diffMap(
     40601,
     "change_in_total_annual_precipitation",
