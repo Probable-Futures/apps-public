@@ -13,13 +13,13 @@ import { colors } from "../../consts";
 import { ReactComponent as CaretRightIcon } from "../../assets/icons/caret-right.svg";
 import {
   COMPARE_MODE_QUERY_PARAM,
-  ComparisonMode,
   ERA5_QUERY_PARAM,
   mapBuilderProjectionNames,
   parseComparisonMode,
   VERSION_AFTER_QUERY_PARAM,
   VERSION_BEFORE_QUERY_PARAM,
 } from "../../consts/mapConsts";
+import { getDiffMode, getDiffRegistry, isDiffMode } from "../../consts/diffModes";
 import { getQueryParam, setQueryParam } from "../../utils";
 import { findMapForSlug, isChangeMap } from "../../utils/mapSelection";
 import {
@@ -31,20 +31,18 @@ import {
 import { useTranslation } from "../../contexts/TranslationContext";
 import useWPApi from "../../utils/useWPApi";
 import {
-  getAvailableDiffPairs,
   getDefaultDiffPair,
   getDefaultSwipePair,
   getVersionLabel,
   getVersionSourceLabel,
   getVersionsOfDataset,
 } from "../../utils/mapVersions";
+import useComparisonModes from "../../utils/useComparisonModes";
 import { getDiffPairLabel } from "../../consts/versionDiffMaps";
 import {
-  buildEra5Map,
   ERA5_LABEL,
   ERA5_MAX_DEGREES,
   ERA5_VERSION_QUERY_VALUE,
-  getEra5MapForDataset,
   isEra5Map,
 } from "../../consts/era5Maps";
 
@@ -358,22 +356,22 @@ export default function Data(): JSX.Element {
 
   const canCompareVersions = versionsOfSelectedDataset.length > 1;
 
-  const era5Entry = useMemo(
-    () => getEra5MapForDataset(selectedDataset?.dataset.id),
-    [selectedDataset],
-  );
-
-  const hasEra5 = !!era5Entry;
-
-  /**
-   * Memoized so an ERA5 comparison side is the same object across renders. The
-   * reconcile effect below settles by identity, and a fresh object each pass
-   * would make it loop forever.
-   */
-  const era5Map = useMemo(
-    () => (selectedDataset && era5Entry ? buildEra5Map(selectedDataset, era5Entry) : undefined),
-    [selectedDataset, era5Entry],
-  );
+  const {
+    era5Map,
+    hasEra5,
+    diffPairsByMode,
+    segments: comparisonSegments,
+    onComparisonModeChange,
+  } = useComparisonModes({
+    selectedDataset,
+    versionsOfSelectedDataset,
+    comparisonMode,
+    versionBefore,
+    versionAfter,
+    setComparisonMode,
+    setVersionBefore,
+    setVersionAfter,
+  });
 
   // ERA5 gives a dataset something to compare against even when it has a single
   // version, so the side-by-side gate is wider than the version-picker one.
@@ -398,13 +396,6 @@ export default function Data(): JSX.Element {
     [versionsOfSelectedDataset, hasEra5],
   );
 
-  const diffPairs = useMemo(
-    () => getAvailableDiffPairs(versionsOfSelectedDataset, selectedDataset?.dataset.id),
-    [versionsOfSelectedDataset, selectedDataset],
-  );
-
-  const canShowDiff = diffPairs.length > 0;
-
   useEffect(() => {
     if (!showFilters) {
       setFiltersSettled(false);
@@ -420,12 +411,14 @@ export default function Data(): JSX.Element {
 
   const activeDiffPair = useMemo(
     () =>
-      diffPairs.find(
-        ({ diffMap }) =>
-          diffMap.baseVersion === versionBefore?.mapVersion &&
-          diffMap.targetVersion === versionAfter?.mapVersion,
-      ),
-    [diffPairs, versionBefore, versionAfter],
+      isDiffMode(comparisonMode)
+        ? diffPairsByMode[comparisonMode].find(
+            ({ diffMap }) =>
+              diffMap.baseVersion === versionBefore?.mapVersion &&
+              diffMap.targetVersion === versionAfter?.mapVersion,
+          )
+        : undefined,
+    [comparisonMode, diffPairsByMode, versionBefore, versionAfter],
   );
 
   useEffect(() => {
@@ -433,12 +426,14 @@ export default function Data(): JSX.Element {
       return;
     }
 
-    if (comparisonMode === "diff") {
+    if (isDiffMode(comparisonMode)) {
       const pair = getDefaultDiffPair(
         versionsOfSelectedDataset,
         selectedDataset?.dataset.id,
         versionBefore,
         versionAfter,
+        getDiffRegistry(comparisonMode),
+        getDiffMode(comparisonMode)?.involvesEra5 ? era5Map : undefined,
       );
       if (!pair) {
         setComparisonMode("none");
@@ -528,15 +523,16 @@ export default function Data(): JSX.Element {
     // versions land together: the map reads them to pick the style it is created
     // with, and a style swapped in a render later is dropped by Mapbox while the
     // first one is still loading.
-    const pair =
-      mode === "diff"
-        ? getDefaultDiffPair(
-            versionsOfSelectedDataset,
-            selectedDataset?.dataset.id,
-            linked?.before,
-            linked?.after,
-          )
-        : linked ?? getDefaultSwipePair(versionsOfSelectedDataset, selectedDataset, era5Map);
+    const pair = isDiffMode(mode)
+      ? getDefaultDiffPair(
+          versionsOfSelectedDataset,
+          selectedDataset?.dataset.id,
+          linked?.before,
+          linked?.after,
+          getDiffRegistry(mode),
+          getDiffMode(mode)?.involvesEra5 ? era5Map : undefined,
+        )
+      : linked ?? getDefaultSwipePair(versionsOfSelectedDataset, selectedDataset, era5Map);
     if (!pair) {
       setQueryParam({ comparisonMode: "none" });
       return;
@@ -604,42 +600,6 @@ export default function Data(): JSX.Element {
     }
   }, [showEra5, hasEra5, comparisonMode, setShowEra5]);
 
-  const comparisonSegments: Segment<ComparisonMode>[] = [
-    { value: "none", label: translate("menu.data.comparisonModes.none", "Off") },
-    { value: "swipe", label: translate("menu.data.comparisonModes.swipe", "Side by side") },
-    {
-      value: "diff",
-      label: translate("menu.data.comparisonModes.diff", "Difference"),
-      disabled: !canShowDiff,
-      hint: canShowDiff
-        ? undefined
-        : translate(
-            "menu.data.noDiffMapHint",
-            "No difference map has been published for this dataset.",
-          ),
-    },
-  ];
-
-  const onComparisonModeChange = (mode: ComparisonMode) => {
-    if (mode === "none") {
-      setVersionBefore(undefined);
-      setVersionAfter(undefined);
-    } else if (mode === "diff") {
-      const pair = getDefaultDiffPair(
-        versionsOfSelectedDataset,
-        selectedDataset?.dataset.id,
-        versionBefore,
-        versionAfter,
-      );
-      if (!pair) {
-        return;
-      }
-      setVersionBefore(pair.before);
-      setVersionAfter(pair.after);
-    }
-    setComparisonMode(mode);
-  };
-
   /** Matches the option built by `buildVersionOptions`, so the dropdown shows a selection. */
   const versionOption = (map: types.Map) =>
     isEra5Map(map)
@@ -661,19 +621,24 @@ export default function Data(): JSX.Element {
   });
 
   // A difference map was built from the change values, which is not obvious from
-  // the locked control alone.
-  const changeViewHint =
-    comparisonMode === "diff"
+  // the locked control alone — except against ERA5, which has no change values
+  // of its own, so that pairing is fixed to absolute instead.
+  const changeViewHint = isDiffMode(comparisonMode)
+    ? getDiffMode(comparisonMode)?.involvesEra5
       ? translate(
+          "menu.data.changeViewDiffEra5Locked",
+          "ERA5 has no change rendering, so the view is fixed to absolute.",
+        )
+      : translate(
           "menu.data.changeViewDiffLocked",
           "Difference maps were built from the change values, so the view is fixed.",
         )
-      : changeView.canAbsolute
-      ? undefined
-      : translate(
-          "menu.data.changeViewHint",
-          "No absolute rendering has been published for every version shown.",
-        );
+    : changeView.canAbsolute
+    ? undefined
+    : translate(
+        "menu.data.changeViewHint",
+        "No absolute rendering has been published for every version shown.",
+      );
 
   const changeViewSegments: Segment<"change" | "absolute">[] = [
     {
@@ -707,7 +672,12 @@ export default function Data(): JSX.Element {
   };
 
   const onDiffPairChange = (option: { label: string; value: string | number }) => {
-    const pair = diffPairs.find(({ diffMap }) => diffMap.mapStyleId === option.value);
+    if (!isDiffMode(comparisonMode)) {
+      return;
+    }
+    const pair = diffPairsByMode[comparisonMode].find(
+      ({ diffMap }) => diffMap.mapStyleId === option.value,
+    );
     if (pair) {
       setVersionBefore(pair.before);
       setVersionAfter(pair.after);
@@ -880,6 +850,12 @@ export default function Data(): JSX.Element {
                 </li>
                 <li>
                   {translate(
+                    "menu.data.dataGuide.diffEra5",
+                    "The v3 − ERA5 difference measures the model against observed reanalysis, so it is always shown as absolute values.",
+                  )}
+                </li>
+                <li>
+                  {translate(
                     "menu.data.dataGuide.availability",
                     "Absolute versions are published per map and per version, so the option is not always there.",
                   )}
@@ -957,9 +933,9 @@ export default function Data(): JSX.Element {
               </Hint>
             </VersionFields>
           )}
-          {comparisonMode === "diff" && activeDiffPair && (
+          {isDiffMode(comparisonMode) && activeDiffPair && (
             <VersionFields>
-              {diffPairs.length > 1 && (
+              {diffPairsByMode[comparisonMode].length > 1 && (
                 <div>
                   <Title>{translate("menu.data.differencePair", "Versions compared")}</Title>
                   <Dropdown
@@ -967,7 +943,7 @@ export default function Data(): JSX.Element {
                       value: activeDiffPair.diffMap.mapStyleId,
                       label: getDiffPairLabel(activeDiffPair.diffMap),
                     }}
-                    options={diffPairs.map(({ diffMap }) => ({
+                    options={diffPairsByMode[comparisonMode].map(({ diffMap }) => ({
                       value: diffMap.mapStyleId,
                       label: getDiffPairLabel(diffMap),
                     }))}
@@ -976,10 +952,15 @@ export default function Data(): JSX.Element {
                 </div>
               )}
               <Hint>
-                {translate(
-                  "menu.data.differenceHint",
-                  "Red where the newer version is higher than the older one, blue where it is lower. Values are differences, so they are shown in the map's own unit and never converted.",
-                )}
+                {getDiffMode(comparisonMode)?.involvesEra5
+                  ? translate(
+                      "menu.data.differenceEra5Hint",
+                      "Red where the model is higher than the observed ERA5 reanalysis, blue where it is lower. Values are differences, so they are shown in the map's own unit and never converted.",
+                    )
+                  : translate(
+                      "menu.data.differenceHint",
+                      "Red where the newer version is higher than the older one, blue where it is lower. Values are differences, so they are shown in the map's own unit and never converted.",
+                    )}
               </Hint>
             </VersionFields>
           )}

@@ -33,11 +33,13 @@
       "comparisonModes": {
         "none": "Off",
         "swipe": "Side by side",
-        "diff": "Difference"
+        "diff": "Difference (v4 − v3)",
+        "diffEra5V3": "Difference (v3 − ERA5)"
       },
       "difference": "difference",
       "differencePair": "Versions compared",
       "differenceHint": "Red where the newer version is higher than the older one, blue where it is lower. Values are differences, so they are shown in the map's own unit and never converted.",
+      "differenceEra5Hint": "Red where the model is higher than the observed ERA5 reanalysis, blue where it is lower. Values are differences, so they are shown in the map's own unit and never converted.",
       "noDiffMapHint": "No difference map has been published for this dataset.",
       "diffMapUnavailable": "This map style could not be loaded from Mapbox. Check that the style id in the difference-map registry is still published.",
       "mapSource": "Map source",
@@ -59,15 +61,18 @@
         "compare": "Side by side needs both maps to be the same kind. Incompatible versions are hidden.",
         "era5Pairing": "A change map can pair with ERA5 only when it has an absolute version.",
         "diff": "Difference maps are built from the change values, so their view is fixed.",
+        "diffEra5": "The v3 − ERA5 difference measures the model against observed reanalysis, so it is always shown as absolute values.",
         "availability": "Absolute versions are published per map and per version, so the option is not always there.",
         "more": "Read more",
         "less": "Read less"
       },
       "changeViewDiffLocked": "Difference maps were built from the change values, so the view is fixed.",
+      "changeViewDiffEra5Locked": "ERA5 has no change rendering, so the view is fixed to absolute.",
       "coverage": {
         "title": "What's available",
         "link": "See what's available",
         "map": "Map",
+        "difference": "Diff",
         "era5": "ERA5",
         "available": "available",
         "unavailable": "not available"

@@ -12,8 +12,10 @@ import {
   getDiffMapForPair,
   getDiffMapsForDataset,
   getDiffPairLabel,
+  getDiffSideLabel,
   versionDiffMaps,
 } from "../../consts/versionDiffMaps";
+import { buildEra5Map, ERA5_LABEL, ERA5_MAP_VERSION } from "../../consts/era5Maps";
 import { getAvailableDiffPairs, getDefaultDiffPair } from "../mapVersions";
 import { formatDelta } from "../../components/Maps/DiffMapKey";
 
@@ -118,6 +120,33 @@ describe("getAvailableDiffPairs", () => {
       ),
     ).toEqual(["diff-v4-v3", "diff-v5-v4"]);
   });
+
+  describe("resolving an ERA5 side", () => {
+    const era5Registry = [
+      makeDiffMap({ baseVersion: ERA5_MAP_VERSION, targetVersion: 3, mapStyleId: "diff-v3-era5" }),
+    ];
+
+    it("resolves the base side to the caller's synthetic ERA5 map, not to `versions`", () => {
+      const versions = [makeMap(3)];
+      const era5Map = buildEra5Map(versions[0], {
+        datasetId: DATASET_ID,
+        slug: "days-above-32c",
+        mapStyleId: "era5-style",
+      });
+
+      const pairs = getAvailableDiffPairs(versions, DATASET_ID, era5Registry, era5Map);
+
+      expect(pairs).toHaveLength(1);
+      expect(pairs[0].before).toBe(era5Map);
+      expect(pairs[0].after).toBe(versions[0]);
+    });
+
+    it("drops the pair when the dataset has no ERA5 map to resolve the side to", () => {
+      const versions = [makeMap(3)];
+
+      expect(getAvailableDiffPairs(versions, DATASET_ID, era5Registry)).toEqual([]);
+    });
+  });
 });
 
 describe("getDefaultDiffPair", () => {
@@ -211,9 +240,25 @@ describe("the unit families", () => {
   });
 });
 
+describe("getDiffSideLabel", () => {
+  it("names a real version as v<N>", () => {
+    expect(getDiffSideLabel(3)).toBe("v3");
+  });
+
+  it("names the reserved ERA5 version by what it is, not by its number", () => {
+    expect(getDiffSideLabel(ERA5_MAP_VERSION)).toBe(ERA5_LABEL);
+  });
+});
+
 describe("getDiffPairLabel", () => {
   it("names the newer version first, matching the subtraction", () => {
     expect(getDiffPairLabel(makeDiffMap())).toBe("v4 − v3");
+  });
+
+  it("renders an ERA5 side by name rather than by its reserved version number", () => {
+    const era5Diff = makeDiffMap({ baseVersion: ERA5_MAP_VERSION, targetVersion: 3 });
+
+    expect(getDiffPairLabel(era5Diff)).toBe("v3 − ERA5");
   });
 });
 

@@ -22,6 +22,11 @@
         "other": "Autre"
       },
       "subCategory": "Sous-catégorie de carte",
+      "comparisonModes": {
+        "diff": "Différence (v4 − v3)",
+        "diffEra5V3": "Différence (v3 − ERA5)"
+      },
+      "differenceEra5Hint": "Rouge là où le modèle est plus élevé que la réanalyse observée ERA5, bleu là où il est plus bas. Les valeurs sont des écarts, donc elles sont exprimées dans l'unité propre à la carte et jamais converties.",
       "mapSource": "Source de la carte",
       "showMoreVersions": "Afficher plus",
       "showFewerVersions": "Afficher moins",
@@ -40,15 +45,18 @@
         "compare": "La comparaison exige deux cartes de même nature. Les versions incompatibles sont masquées.",
         "era5Pairing": "Une carte d'évolution ne peut être comparée à ERA5 que si elle a une version absolue.",
         "diff": "Les cartes de différence sont construites à partir des valeurs d'évolution ; leur vue est donc figée.",
+        "diffEra5": "La différence v3 − ERA5 compare le modèle à la réanalyse observée ; elle est donc toujours montrée en valeurs absolues.",
         "availability": "Les versions absolues sont publiées par carte et par version : l'option n'est pas toujours disponible.",
         "more": "En savoir plus",
         "less": "Réduire"
       },
       "changeViewDiffLocked": "Les cartes de différence ont été construites à partir des valeurs d'évolution ; la vue est donc figée.",
+      "changeViewDiffEra5Locked": "ERA5 n'a pas de rendu d'évolution ; la vue est donc figée sur les valeurs absolues.",
       "coverage": {
         "title": "Ce qui est disponible",
         "link": "Voir ce qui est disponible",
         "map": "Carte",
+        "difference": "Diff.",
         "era5": "ERA5",
         "available": "disponible",
         "unavailable": "non disponible"

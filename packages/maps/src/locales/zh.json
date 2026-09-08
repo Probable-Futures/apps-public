@@ -22,6 +22,11 @@
         "other": "其他"
       },
       "subCategory": "地图子类别",
+      "comparisonModes": {
+        "diff": "差值 (v4 − v3)",
+        "diffEra5V3": "差值 (v3 − ERA5)"
+      },
+      "differenceEra5Hint": "红色表示模型高于观测的 ERA5 再分析数据，蓝色表示更低。数值为差值，因此以地图自身的单位显示，不进行换算。",
       "mapSource": "地图来源",
       "showMoreVersions": "显示更多",
       "showFewerVersions": "显示更少",
@@ -40,15 +45,18 @@
         "compare": "并排比较要求两张地图类型相同，不兼容的版本会被隐藏。",
         "era5Pairing": "变化地图只有在具备绝对值版本时才能与 ERA5 并排比较。",
         "diff": "差值地图基于变化值构建，因此其视图是固定的。",
+        "diffEra5": "v3 − ERA5 差值将模型与观测再分析数据进行比较，因此始终以绝对值显示。",
         "availability": "绝对值版本按地图和版本分别发布，因此该选项并非始终可用。",
         "more": "了解更多",
         "less": "收起"
       },
       "changeViewDiffLocked": "差值地图基于变化值构建，因此视图是固定的。",
+      "changeViewDiffEra5Locked": "ERA5 没有变化视图，因此视图固定为绝对值。",
       "coverage": {
         "title": "可用数据",
         "link": "查看可用数据",
         "map": "地图",
+        "difference": "差值",
         "era5": "ERA5",
         "available": "可用",
         "unavailable": "不可用"

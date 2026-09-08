@@ -3,6 +3,7 @@ import { types } from "@probable-futures/lib";
 import { ComparisonMode } from "../consts/mapConsts";
 import { getAbsoluteMap } from "../consts/absoluteMaps";
 import { isEra5Map } from "../consts/era5Maps";
+import { getDiffMode, isDiffMode } from "../consts/diffModes";
 import { isChangeMap } from "./mapSelection";
 
 /**
@@ -85,7 +86,12 @@ export const resolveChangeView = ({
   let canChange: boolean;
   let canAbsolute: boolean;
 
-  if (comparisonMode === "diff") {
+  if (isDiffMode(comparisonMode) && getDiffMode(comparisonMode)?.involvesEra5) {
+    // ERA5 is absolute, and the other side is compared through its absolute
+    // rendering too, so there is no change view to offer.
+    canChange = false;
+    canAbsolute = true;
+  } else if (comparisonMode === "diff") {
     // A difference map was computed from the change rendering of each version, not
     // from their absolute ones, so the pairing behind it is fixed.
     const mode = getMapValueMode(selectedDataset);

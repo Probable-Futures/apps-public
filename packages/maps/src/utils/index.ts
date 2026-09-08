@@ -9,6 +9,7 @@ import {
   MAP_VERSION_QUERY_PARAM,
   SCENARIO_AFTER_QUERY_PARAM,
   SCENARIO_BEFORE_QUERY_PARAM,
+  serializeComparisonMode,
   VERSION_AFTER_QUERY_PARAM,
   VERSION_BEFORE_QUERY_PARAM,
   WARMING_SCENARIO_QUERY_PARAM,
@@ -82,7 +83,7 @@ export const setQueryParam = ({
     params.delete(VERSION_BEFORE_QUERY_PARAM);
     params.delete(VERSION_AFTER_QUERY_PARAM);
   } else if (comparisonMode !== undefined) {
-    params.set(COMPARE_MODE_QUERY_PARAM, comparisonMode);
+    params.set(COMPARE_MODE_QUERY_PARAM, serializeComparisonMode(comparisonMode));
     if (versionBefore !== undefined && versionAfter !== undefined) {
       params.set(VERSION_BEFORE_QUERY_PARAM, versionBefore.toString());
       params.set(VERSION_AFTER_QUERY_PARAM, versionAfter.toString());

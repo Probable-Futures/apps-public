@@ -1,5 +1,7 @@
 import { consts } from "@probable-futures/lib";
 
+import { DiffComparisonMode, getDiffMode, getDiffModeForQueryValue, isDiffMode } from "./diffModes";
+
 type IndexForMapType = {
   minBin: number;
   maxBin: number;
@@ -50,7 +52,7 @@ export const WARMING_SCENARIO_QUERY_PARAM = "scenario";
 export const SCENARIO_BEFORE_QUERY_PARAM = "scenario_before";
 export const SCENARIO_AFTER_QUERY_PARAM = "scenario_after";
 
-export type ComparisonMode = "none" | "swipe" | "diff";
+export type ComparisonMode = "none" | "swipe" | DiffComparisonMode;
 
 export const COMPARE_MODE_QUERY_PARAM = "compare";
 export const VERSION_BEFORE_QUERY_PARAM = "version_before";
@@ -58,8 +60,16 @@ export const VERSION_AFTER_QUERY_PARAM = "version_after";
 
 export const ERA5_QUERY_PARAM = "era5";
 
-export const parseComparisonMode = (value: string | null): ComparisonMode | undefined =>
-  value === "swipe" || value === "diff" ? value : undefined;
+export const parseComparisonMode = (value: string | null): ComparisonMode | undefined => {
+  if (value === "swipe") {
+    return value;
+  }
+  return value === null ? undefined : getDiffModeForQueryValue(value)?.mode;
+};
+
+/** The inverse of `parseComparisonMode` — what a mode writes into the `compare` param. */
+export const serializeComparisonMode = (mode: ComparisonMode): string =>
+  isDiffMode(mode) ? getDiffMode(mode)!.queryValue : mode;
 
 export const VOLUME_QUERY_PARAM = "volume"; // not used anymore, kept here in order to remove from the url if it exists.
 

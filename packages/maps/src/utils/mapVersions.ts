@@ -1,7 +1,7 @@
 import { types } from "@probable-futures/lib";
 
 import { getDiffMapsForDataset, versionDiffMaps, VersionDiffMap } from "../consts/versionDiffMaps";
-import { ERA5_LABEL, isEra5Map } from "../consts/era5Maps";
+import { ERA5_LABEL, ERA5_MAP_VERSION, isEra5Map } from "../consts/era5Maps";
 import { getVersionDescriptor } from "../consts/versionDescriptors";
 import { areComparable, canRenderAbsolute } from "./mapValueMode";
 
@@ -108,21 +108,33 @@ export const getDefaultSwipePair = (
   return newest && era5Map ? { before: newest, after: era5Map } : undefined;
 };
 
+export type DiffPair = { diffMap: VersionDiffMap; before: types.Map; after: types.Map };
+
+/**
+ * Resolves a pair's `baseVersion`/`targetVersion` to real map rows. Neither side
+ * can be found by scanning `versions` when it names the reserved ERA5 version —
+ * `versions` never has an ERA5 row — so that side is resolved to the caller's
+ * synthetic map instead, and the pair is dropped when there is none.
+ */
 export const getAvailableDiffPairs = (
   versions: types.Map[],
   datasetId?: number,
   registry: VersionDiffMap[] = versionDiffMaps,
-): { diffMap: VersionDiffMap; before: types.Map; after: types.Map }[] =>
-  getDiffMapsForDataset(datasetId, registry)
+  era5Map?: types.Map,
+): DiffPair[] => {
+  const resolveSide = (version: number) =>
+    version === ERA5_MAP_VERSION
+      ? era5Map
+      : versions.find(({ mapVersion }) => mapVersion === version);
+  return getDiffMapsForDataset(datasetId, registry)
     .map((diffMap) => {
-      const before = versions.find(({ mapVersion }) => mapVersion === diffMap.baseVersion);
-      const after = versions.find(({ mapVersion }) => mapVersion === diffMap.targetVersion);
+      const before = resolveSide(diffMap.baseVersion);
+      const after = resolveSide(diffMap.targetVersion);
       return before && after ? { diffMap, before, after } : undefined;
     })
-    .filter((pair): pair is { diffMap: VersionDiffMap; before: types.Map; after: types.Map } =>
-      Boolean(pair),
-    )
+    .filter((pair): pair is DiffPair => Boolean(pair))
     .sort((a, b) => a.diffMap.targetVersion - b.diffMap.targetVersion);
+};
 
 export const getDefaultDiffPair = (
   versions: types.Map[],
@@ -130,8 +142,9 @@ export const getDefaultDiffPair = (
   before?: types.Map,
   after?: types.Map,
   registry: VersionDiffMap[] = versionDiffMaps,
-) => {
-  const pairs = getAvailableDiffPairs(versions, datasetId, registry);
+  era5Map?: types.Map,
+): DiffPair | undefined => {
+  const pairs = getAvailableDiffPairs(versions, datasetId, registry, era5Map);
   const current = pairs.find(
     ({ diffMap }) =>
       diffMap.baseVersion === before?.mapVersion && diffMap.targetVersion === after?.mapVersion,

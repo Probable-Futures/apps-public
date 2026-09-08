@@ -5,6 +5,7 @@ import { types } from "@probable-futures/lib";
 import { colors } from "../consts";
 import { useTranslation } from "../contexts/TranslationContext";
 import { getMapCoverage } from "../utils/mapCoverage";
+import { diffModeDescriptors } from "../consts/diffModes";
 
 type Props = {
   datasets: types.Map[];
@@ -15,6 +16,7 @@ const REPORTED_VERSIONS = [3, 4];
 
 const Container = styled.div`
   padding: 16px 20px 20px;
+  overflow-x: auto;
 `;
 
 const Table = styled.table`
@@ -39,7 +41,7 @@ const Table = styled.table`
 
   th:not(:first-child),
   td:not(:first-child) {
-    width: 96px;
+    width: 88px;
     text-align: center;
     white-space: nowrap;
   }
@@ -80,6 +82,7 @@ const CoverageTable = ({ datasets }: Props): JSX.Element => {
   const yes = translate("menu.data.coverage.available", "available");
   const no = translate("menu.data.coverage.unavailable", "not available");
   const absoluteLabel = translate("menu.data.changeViewOptions.absolute", "Absolute");
+  const differenceLabel = translate("menu.data.coverage.difference", "Diff");
 
   const renderMark = (present: boolean) => (
     <Mark present={present} role="img" aria-label={present ? yes : no}>
@@ -100,10 +103,13 @@ const CoverageTable = ({ datasets }: Props): JSX.Element => {
             {REPORTED_VERSIONS.map((version) => (
               <th key={`absolute-${version}`} scope="col">{`${absoluteLabel} v${version}`}</th>
             ))}
+            {diffModeDescriptors.map(({ mode, pairLabel }) => (
+              <th key={mode} scope="col">{`${differenceLabel} ${pairLabel}`}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ datasetId, slug, name, versions, hasEra5, absoluteVersions }) => (
+          {rows.map(({ datasetId, slug, name, versions, hasEra5, absoluteVersions, diffModes }) => (
             <tr key={datasetId}>
               <th scope="row">
                 {translate(`header.datasets.${camelcase(slug)}`, name)}
@@ -117,6 +123,9 @@ const CoverageTable = ({ datasets }: Props): JSX.Element => {
                 <td key={`absolute-${version}`}>
                   {renderMark(absoluteVersions.includes(version))}
                 </td>
+              ))}
+              {diffModeDescriptors.map(({ mode }) => (
+                <td key={mode}>{renderMark(diffModes[mode])}</td>
               ))}
             </tr>
           ))}

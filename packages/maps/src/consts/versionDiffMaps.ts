@@ -1,3 +1,5 @@
+import { ERA5_LABEL, ERA5_MAP_VERSION } from "./era5Maps";
+
 export type VersionDiffMap = {
   datasetId: number;
   slug: string;
@@ -39,7 +41,12 @@ type DiffMapOptions = {
   unitLabel?: string;
 };
 
-const diffMap = (
+/**
+ * Builds one registry row. Exported so a sibling registry — `era5DiffMaps`, and
+ * whatever pairing comes after it — can reuse the same stops/unitLabel lookup
+ * rather than duplicating it.
+ */
+export const diffMap = (
   datasetId: number,
   slug: string,
   unitFamily: DiffUnitFamily,
@@ -121,8 +128,12 @@ export const getDiffMapForPair = (
 export const getDiffMapBinHexColors = (diffMap: VersionDiffMap): string[] =>
   diffMap.binHexColors ?? DEFAULT_DIFF_BIN_HEX_COLORS;
 
+/** A comparison side's label — the ERA5 proper noun, or the plain version number. */
+export const getDiffSideLabel = (version: number): string =>
+  version === ERA5_MAP_VERSION ? ERA5_LABEL : `v${version}`;
+
 export const getDiffPairLabel = ({ baseVersion, targetVersion }: VersionDiffMap): string =>
-  `v${targetVersion} − v${baseVersion}`;
+  `${getDiffSideLabel(targetVersion)} − ${getDiffSideLabel(baseVersion)}`;
 
 export const Z_SCORE_DECIMALS = 2;
 

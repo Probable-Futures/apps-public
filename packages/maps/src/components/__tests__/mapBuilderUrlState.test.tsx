@@ -9,7 +9,10 @@ import useActiveEra5Map from "../../utils/useActiveEra5Map";
 import { getComparisonSideLabel } from "../../utils/mapVersions";
 
 /** The fixture's 40303 has ERA5, but every shipped style id is still pending. */
-const { ERA5_STYLE_ID } = vi.hoisted(() => ({ ERA5_STYLE_ID: "era5-40303-style" }));
+const { ERA5_STYLE_ID, ERA5_DIFF_STYLE_ID } = vi.hoisted(() => ({
+  ERA5_STYLE_ID: "era5-40303-style",
+  ERA5_DIFF_STYLE_ID: "era5-diff-40303-style",
+}));
 
 vi.mock("../../consts/era5Maps", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../consts/era5Maps")>();
@@ -21,6 +24,26 @@ vi.mock("../../consts/era5Maps", async (importOriginal) => {
     era5Maps: registry,
     getEra5MapForDataset: (datasetId?: number, override = registry) =>
       actual.getEra5MapForDataset(datasetId, override),
+  };
+});
+
+/** One published entry, so the v3 − ERA5 mode has something to restore in tests. */
+vi.mock("../../consts/era5DiffMaps", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../consts/era5DiffMaps")>();
+  return {
+    ...actual,
+    era5V3DiffMaps: [
+      {
+        datasetId: 40303,
+        slug: "days_above_30c_wet-bulb",
+        baseVersion: 0,
+        targetVersion: 3,
+        mapStyleId: ERA5_DIFF_STYLE_ID,
+        unitFamily: "days",
+        stops: [-20, -8, -2, 2, 8, 20],
+        unitLabel: "days",
+      },
+    ],
   };
 });
 
@@ -246,5 +269,47 @@ describe("opening an ERA5 link", () => {
 
     expect(uniqueStyles().length).toBe(1);
     expect(stylesTheMapWasGiven.length).toBeLessThan(6);
+  });
+});
+
+describe("opening a v3 − ERA5 difference link", () => {
+  it("restores the mode from its own query value and gives the map the ERA5-diff style", async () => {
+    const state = await openLink(
+      "?selected_map=days_above_30c_wet-bulb&version=latest&view=mercator&scenario=1&compare=diff_era5_v3&version_before=era5&version_after=3",
+    );
+
+    expect(state.comparisonMode).toBe("diffEra5V3");
+    expect(state.after).toBe(3);
+    expect(uniqueStyles()).toEqual([ERA5_DIFF_STYLE_ID]);
+  });
+
+  it("defaults to the only pair when just the mode is linked", async () => {
+    const state = await openLink(
+      "?selected_map=days_above_30c_wet-bulb&version=latest&view=mercator&scenario=1&compare=diff_era5_v3",
+    );
+
+    expect(state.comparisonMode).toBe("diffEra5V3");
+    expect(state.after).toBe(3);
+    expect(uniqueStyles()).toEqual([ERA5_DIFF_STYLE_ID]);
+  });
+
+  it("clamps a linked warming level ERA5 has no data for", async () => {
+    await openLink(
+      "?selected_map=days_above_30c_wet-bulb&version=latest&view=mercator&scenario=3&compare=diff_era5_v3&version_before=era5&version_after=3",
+    );
+
+    await waitFor(() =>
+      expect(new URLSearchParams(window.location.search).get("scenario")).toBe("1"),
+    );
+  });
+
+  it("keeps the v4 − v3 mode restoring under the unchanged `diff` query value", async () => {
+    const state = await openLink(
+      "?selected_map=days_above_30c_wet-bulb&version=latest&status=draft&view=mercator&scenario=2&compare=diff&version_before=3&version_after=4",
+    );
+
+    expect(state.comparisonMode).toBe("diff");
+    expect(state.before).toBe(3);
+    expect(state.after).toBe(4);
   });
 });

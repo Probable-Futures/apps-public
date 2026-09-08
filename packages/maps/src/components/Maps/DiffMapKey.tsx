@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import { colors, size } from "../../consts";
-import { VersionDiffMap, getDiffPairLabel } from "../../consts/versionDiffMaps";
+import { VersionDiffMap, getDiffPairLabel, getDiffSideLabel } from "../../consts/versionDiffMaps";
 
 type Props = {
   diffMap: VersionDiffMap;
@@ -130,8 +130,8 @@ const DiffMapKey = ({ diffMap, title, stops, binHexColors }: Props): JSX.Element
           ))}
         </BinsContainer>
         <Direction>
-          <span>← lower in v{diffMap.targetVersion}</span>
-          <span>higher in v{diffMap.targetVersion} →</span>
+          <span>← lower in {getDiffSideLabel(diffMap.targetVersion)}</span>
+          <span>higher in {getDiffSideLabel(diffMap.targetVersion)} →</span>
         </Direction>
       </Content>
     </Container>

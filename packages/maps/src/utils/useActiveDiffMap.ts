@@ -5,6 +5,7 @@ import { useMenu } from "../components/Menu";
 import { getDiffMapForPair, VersionDiffMap } from "../consts/versionDiffMaps";
 import { Era5Map } from "../consts/era5Maps";
 import { AbsoluteMap } from "../consts/absoluteMaps";
+import { getDiffRegistry, isDiffMode } from "../consts/diffModes";
 
 export const getActiveMapStyleId = (
   selectedDataset?: types.Map,
@@ -24,11 +25,12 @@ export default function useActiveDiffMap(): VersionDiffMap | undefined {
 
   return useMemo(
     () =>
-      comparisonMode === "diff"
+      isDiffMode(comparisonMode)
         ? getDiffMapForPair(
             selectedDataset?.dataset.id,
             versionBefore?.mapVersion,
             versionAfter?.mapVersion,
+            getDiffRegistry(comparisonMode),
           )
         : undefined,
     [comparisonMode, selectedDataset, versionBefore, versionAfter],

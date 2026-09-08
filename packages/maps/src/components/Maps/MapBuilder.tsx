@@ -23,7 +23,8 @@ import {
   MAP_BUILDER_MAX_ZOOM,
 } from "../../consts/mapConsts";
 import { exportComponentAsPNG } from "../../utils/export";
-import { getDiffMapBinHexColors } from "../../consts/versionDiffMaps";
+import { getDiffMapBinHexColors, getDiffSideLabel } from "../../consts/versionDiffMaps";
+import { getDiffMode } from "../../consts/diffModes";
 import { ERA5_MAX_DEGREES, isEra5Map } from "../../consts/era5Maps";
 import { getAbsoluteMap, getAbsoluteRamp } from "../../consts/absoluteMaps";
 import { isLatestMapForSlug } from "../../utils/mapSelection";
@@ -206,7 +207,8 @@ const InteractiveMap = () => {
   /** True whenever an ERA5 map is on screen, on its own or as a comparison side. */
   const era5Active =
     !!activeEra5Map ||
-    (comparisonMode === "swipe" && (isEra5Map(versionBefore) || isEra5Map(versionAfter)));
+    (comparisonMode === "swipe" && (isEra5Map(versionBefore) || isEra5Map(versionAfter))) ||
+    !!getDiffMode(comparisonMode)?.involvesEra5;
 
   const maxDegrees = era5Active ? ERA5_MAX_DEGREES : DEFAULT_MAX_DEGREES;
 
@@ -504,7 +506,9 @@ const InteractiveMap = () => {
     // Let the screenshot-only styles paint before html-to-image reads the tree.
     await new Promise((resolve) => setTimeout(resolve, 250));
     const label = activeDiffMap
-      ? `difference ${activeDiffMap.baseVersion}-${activeDiffMap.targetVersion}`
+      ? `difference ${getDiffSideLabel(activeDiffMap.targetVersion)}-${getDiffSideLabel(
+          activeDiffMap.baseVersion,
+        )}`
       : `${utils.degreeToString(degrees)}°C`;
     try {
       await exportComponentAsPNG(

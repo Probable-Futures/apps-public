@@ -199,4 +199,21 @@ describe("resolveChangeView", () => {
     });
     expect(view).toMatchObject({ mode: "absolute", canChange: false, locked: true });
   });
+
+  // ERA5 has no change rendering, so the v3 − ERA5 difference is locked to
+  // absolute regardless of what the dataset itself is.
+  it("locks the v3 − ERA5 difference at absolute even for a change dataset", () => {
+    const view = resolveChangeView({
+      ...base,
+      comparisonMode: "diffEra5V3",
+      selectedDataset: makeMap({ mapVersion: 3 }),
+      showAbsolute: true,
+    });
+    expect(view).toMatchObject({
+      mode: "absolute",
+      canChange: false,
+      canAbsolute: true,
+      locked: true,
+    });
+  });
 });

@@ -2,6 +2,8 @@ import { types } from "@probable-futures/lib";
 
 import { absoluteMaps } from "../consts/absoluteMaps";
 import { getEra5MapForDataset } from "../consts/era5Maps";
+import { DiffComparisonMode, diffModeDescriptors } from "../consts/diffModes";
+import { getDiffMapsForDataset } from "../consts/versionDiffMaps";
 
 export const FIRST_CURRENT_DATASET_ID = 40000;
 
@@ -15,6 +17,8 @@ export type MapCoverageRow = {
   hasEra5: boolean;
   /** Versions with a published absolute rendering, ascending. */
   absoluteVersions: number[];
+  /** Whether each difference mode has a published style for this dataset. */
+  diffModes: Record<DiffComparisonMode, boolean>;
 };
 
 /**
@@ -52,6 +56,12 @@ export const getMapCoverage = (datasets: types.Map[]): MapCoverageRow[] => {
           .filter((entry) => entry.datasetId === datasetId)
           .map(({ mapVersion }) => mapVersion)
           .sort((a, b) => a - b),
+        diffModes: Object.fromEntries(
+          diffModeDescriptors.map(({ mode, registry }) => [
+            mode,
+            getDiffMapsForDataset(datasetId, registry).length > 0,
+          ]),
+        ) as Record<DiffComparisonMode, boolean>,
       };
     })
     .sort((a, b) => a.name.localeCompare(b.name));

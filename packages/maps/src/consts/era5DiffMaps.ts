@@ -1,0 +1,56 @@
+import { diffMap, DiffUnitFamily, VersionDiffMap } from "./versionDiffMaps";
+import { ERA5_MAP_VERSION } from "./era5Maps";
+
+/**
+ * The model-minus-observed difference: how far a dataset's v3 model run sits
+ * from what ERA5 actually observed. Red means v3 is higher than ERA5.
+ *
+ * One entry per dataset that has an ERA5 map, ordered by dataset id to match
+ * `era5Maps`. An empty style id means "published map pending" — the same
+ * convention as `versionDiffMaps` and `era5Maps` — so `getDiffMapsForDataset`
+ * hides a row until a real id is pasted in.
+ */
+const era5V3Diff = (
+  datasetId: number,
+  slug: string,
+  unitFamily: DiffUnitFamily,
+  mapStyleId: string,
+  unitLabel?: string,
+): VersionDiffMap =>
+  diffMap(datasetId, slug, unitFamily, mapStyleId, {
+    baseVersion: ERA5_MAP_VERSION,
+    targetVersion: 3,
+    unitLabel,
+  });
+
+export const era5V3DiffMaps: VersionDiffMap[] = [
+  era5V3Diff(40101, "average_temperature", "temperature", "cmtrt0qxu006o01siay947f0b"),
+  era5V3Diff(40102, "average_daytime_temperature", "temperature", "cmtrt73c800il01pm4lf9cvtz"),
+  era5V3Diff(40103, "10_hottest_days", "temperature", "cmtrtcswi005j01qtcha6h7nb"),
+  era5V3Diff(40104, "days_above_32c", "days", "cmtrtjuby00iy01r2dyiu42d3"),
+  era5V3Diff(40105, "days_above_35c", "days", "cmtrqk1v8005g01qtb649e54u"),
+  era5V3Diff(40106, "days_above_38c", "days", "cmtrtpq0f006q01sd1gyn8hjw"),
+  era5V3Diff(40107, "days_above_45c", "days", "cmtrtw7ij005k01qtcgu8e7v5"),
+  era5V3Diff(40201, "average_nighttime_temperature", "temperature", "cmtrv67xs006q01sigifk0wo9"),
+  era5V3Diff(40202, "frost_nights", "days", "", "nights"),
+  era5V3Diff(40203, "nights_above_20c", "days", "cmtrvc1gq006r01si70sp5a91", "nights"),
+  era5V3Diff(40204, "nights_above_25c", "days", "cmtrvhs29006s01si4h4s78qy", "nights"),
+  era5V3Diff(40205, "freezing_days", "days", "cmtrvnydn006t01si77l844oh"),
+  era5V3Diff(40206, "10_hottest_nights", "temperature", "cmtrvtrck006u01si97qn0p11"),
+  era5V3Diff(40207, "average_winter_temperature", "temperature", "cmtrvznz800hq01qy6u2y9mex"),
+  era5V3Diff(40301, "days_above_26c_wet-bulb", "days", "cmts1k9rh00ir01pmci1xfxxd"),
+  era5V3Diff(40302, "days_above_28c_wet-bulb", "days", "cmts1qdk800j301r24siz89pw"),
+  era5V3Diff(40303, "days_above_30c_wet-bulb", "days", "cmts1w5n7006t01sdevab0lxi"),
+  era5V3Diff(40304, "days_above_32c_wet-bulb", "days", "cmts21sxt00j401r2f6x36d61"),
+  era5V3Diff(40305, "10_hottest_wet-bulb_days", "temperature", "cmts27thg006z01si7g8n0exl"),
+  era5V3Diff(40601, "total_annual_precipitation", "millimeters", "cmts2je78007101sig5y22qnm"),
+  era5V3Diff(40607, "dry_hot_days", "days", ""),
+  era5V3Diff(
+    40613,
+    "precipitation_1-in-100_year_storm",
+    "millimeters",
+    "cmts2pocw00iu01pm7290cagr",
+  ),
+  era5V3Diff(40614, "snowy_days", "days", "cmts2xjco005r01qtcnpw6ext"),
+  era5V3Diff(40616, "wettest_90_days", "millimeters", "cmts33l4i007201si5su9c4fb"),
+];
