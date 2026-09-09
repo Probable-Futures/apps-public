@@ -30,6 +30,7 @@
       "mapSource": "地图来源",
       "showMoreVersions": "显示更多",
       "showFewerVersions": "显示更少",
+      "mapSourceDisabledHint": "比较激活时，地图来源由比较决定。",
       "changeView": "变化视图",
       "changeViewOptions": {
         "change": "变化",
@@ -46,15 +47,14 @@
         "era5Pairing": "变化地图只有在具备绝对值版本时才能与 ERA5 并排比较。",
         "diff": "差值地图基于变化值构建，因此其视图是固定的。",
         "diffEra5": "v3 − ERA5 差值将模型与观测再分析数据进行比较，因此始终以绝对值显示。",
-        "availability": "绝对值版本按地图和版本分别发布，因此该选项并非始终可用。",
-        "more": "了解更多",
-        "less": "收起"
+        "availability": "绝对值版本按地图和版本分别发布，因此该选项并非始终可用。"
       },
       "changeViewDiffLocked": "差值地图基于变化值构建，因此视图是固定的。",
       "changeViewDiffEra5Locked": "ERA5 没有变化视图，因此视图固定为绝对值。",
       "coverage": {
-        "title": "可用数据",
-        "link": "查看可用数据",
+        "title": "关于数据",
+        "link": "了解更多数据信息",
+        "tableTitle": "可用数据",
         "map": "地图",
         "difference": "差值",
         "era5": "ERA5",

@@ -45,6 +45,7 @@
       "mapSource": "Map source",
       "showMoreVersions": "Show more",
       "showFewerVersions": "Show fewer",
+      "mapSourceDisabledHint": "The comparison chooses the map source while one is active.",
       "era5MapUnavailable": "This ERA5 map style could not be loaded from Mapbox. Check that the style id in the ERA5 registry is still published.",
       "changeView": "Change view",
       "changeViewOptions": {
@@ -62,15 +63,14 @@
         "era5Pairing": "A change map can pair with ERA5 only when it has an absolute version.",
         "diff": "Difference maps are built from the change values, so their view is fixed.",
         "diffEra5": "The v3 − ERA5 difference measures the model against observed reanalysis, so it is always shown as absolute values.",
-        "availability": "Absolute versions are published per map and per version, so the option is not always there.",
-        "more": "Read more",
-        "less": "Read less"
+        "availability": "Absolute versions are published per map and per version, so the option is not always there."
       },
       "changeViewDiffLocked": "Difference maps were built from the change values, so the view is fixed.",
       "changeViewDiffEra5Locked": "ERA5 has no change rendering, so the view is fixed to absolute.",
       "coverage": {
-        "title": "What's available",
-        "link": "See what's available",
+        "title": "About the data",
+        "link": "Learn more about the data",
+        "tableTitle": "What's available",
         "map": "Map",
         "difference": "Diff",
         "era5": "ERA5",

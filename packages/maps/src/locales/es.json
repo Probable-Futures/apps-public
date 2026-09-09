@@ -30,6 +30,7 @@
       "mapSource": "Fuente del mapa",
       "showMoreVersions": "Mostrar más",
       "showFewerVersions": "Mostrar menos",
+      "mapSourceDisabledHint": "La comparación determina la fuente del mapa mientras está activa.",
       "changeView": "Vista de cambio",
       "changeViewOptions": {
         "change": "Cambio",
@@ -46,15 +47,14 @@
         "era5Pairing": "Un mapa de cambio solo puede compararse con ERA5 si tiene una versión absoluta.",
         "diff": "Los mapas de diferencia se construyen a partir de los valores de cambio, por lo que su vista es fija.",
         "diffEra5": "La diferencia v3 − ERA5 mide el modelo frente a la reanálisis observada, por lo que siempre se muestra en valores absolutos.",
-        "availability": "Las versiones absolutas se publican por mapa y por versión, así que la opción no siempre está.",
-        "more": "Leer más",
-        "less": "Leer menos"
+        "availability": "Las versiones absolutas se publican por mapa y por versión, así que la opción no siempre está."
       },
       "changeViewDiffLocked": "Los mapas de diferencia se construyeron a partir de los valores de cambio, por lo que la vista es fija.",
       "changeViewDiffEra5Locked": "ERA5 no tiene una representación de cambio, así que la vista queda fija en valores absolutos.",
       "coverage": {
-        "title": "Qué está disponible",
-        "link": "Ver qué está disponible",
+        "title": "Acerca de los datos",
+        "link": "Más información sobre los datos",
+        "tableTitle": "Qué está disponible",
         "map": "Mapa",
         "difference": "Dif.",
         "era5": "ERA5",

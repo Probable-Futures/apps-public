@@ -48,7 +48,6 @@ import {
 
 const FILTERS_CONTENT_ID = "map-builder-data-filters";
 const FILTERS_TRANSITION_MS = 300;
-const GUIDE_MORE_ID = "map-builder-data-guide-more";
 
 const RECESSED_BACKGROUND = "#e7e7e7";
 
@@ -160,24 +159,9 @@ const ActiveFilterCount = styled.span`
   letter-spacing: 0;
 `;
 
-/* Reference, not chrome: sized down and set apart so it does not compete with the
-   controls above it. */
-const GuideList = styled.ul`
-  margin: 0;
-  padding-left: 16px;
-  color: ${colors.lightGrey2};
-  font-size: 12px;
-  letter-spacing: 0;
-  line-height: 16px;
-
-  li + li {
-    margin-top: 6px;
-  }
-`;
-
 const InlineTextButton = styled.button`
   align-self: flex-start;
-  margin-top: 8px;
+  margin-top: 0;
   padding: 0;
   border: none;
   background: none;
@@ -253,7 +237,6 @@ export default function Data(): JSX.Element {
   const [showFilters, setShowFilters] = useState(false);
   const [filtersSettled, setFiltersSettled] = useState(false);
   const [showOlderVersions, setShowOlderVersions] = useState(false);
-  const [showFullGuide, setShowFullGuide] = useState(false);
 
   const setColorScheme = (binHexColors: any) => {
     setDynamicStyleVariables((previous) => ({ ...previous, binHexColors }));
@@ -802,98 +785,39 @@ export default function Data(): JSX.Element {
       </Section>
       {selectedDataset && (
         <Section showBorder={false}>
-          <Title>{translate("menu.data.dataGuide.title", "What this data is")}</Title>
-          <GuideList id={GUIDE_MORE_ID}>
-            <li>
-              {translate(
-                "menu.data.dataGuide.absolute",
-                "Absolute maps show a value. Every warming scenario applies, 0.5°C included.",
-              )}
-            </li>
-            <li>
-              {translate(
-                "menu.data.dataGuide.change",
-                "Change maps show the difference from 0.5°C, so they start at 1°C.",
-              )}
-            </li>
-            <li>
-              {translate(
-                "menu.data.dataGuide.changeView",
-                "Change view switches the same map between the difference and the actual values.",
-              )}
-            </li>
-            <li>
-              {translate(
-                "menu.data.dataGuide.era5",
-                "ERA5 is observed reanalysis. Always absolute, and only reaches 0.5°C and 1°C.",
-              )}
-            </li>
-            <li>
-              {translate(
-                "menu.data.dataGuide.compare",
-                "Side by side needs both maps to be the same kind. Incompatible versions are hidden.",
-              )}
-            </li>
-            {showFullGuide && (
-              <>
-                <li>
-                  {translate(
-                    "menu.data.dataGuide.era5Pairing",
-                    "A change map can pair with ERA5 only when it has an absolute version.",
-                  )}
-                </li>
-                <li>
-                  {translate(
-                    "menu.data.dataGuide.diff",
-                    "Difference maps are built from the change values, so their view is fixed.",
-                  )}
-                </li>
-                <li>
-                  {translate(
-                    "menu.data.dataGuide.diffEra5",
-                    "The v3 − ERA5 difference measures the model against observed reanalysis, so it is always shown as absolute values.",
-                  )}
-                </li>
-                <li>
-                  {translate(
-                    "menu.data.dataGuide.availability",
-                    "Absolute versions are published per map and per version, so the option is not always there.",
-                  )}
-                </li>
-              </>
-            )}
-          </GuideList>
-          <InlineTextButton
-            type="button"
-            aria-expanded={showFullGuide}
-            aria-controls={GUIDE_MORE_ID}
-            onClick={() => setShowFullGuide((shown) => !shown)}
-          >
-            {showFullGuide
-              ? translate("menu.data.dataGuide.less", "Read less")
-              : translate("menu.data.dataGuide.more", "Read more")}
-          </InlineTextButton>
           <InlineTextButton type="button" onClick={() => setShowCoverage(true)}>
-            {translate("menu.data.coverage.link", "See what's available")}
+            {translate("menu.data.coverage.link", "Learn more about the data")}
           </InlineTextButton>
         </Section>
       )}
-      {selectedDataset && comparisonMode === "none" && (canCompareVersions || hasEra5) && (
+      {selectedDataset && (canCompareVersions || hasEra5) && (
         <Section showBorder={false}>
           <Title>{translate("menu.data.mapSource", "Map source")}</Title>
           <SegmentedControl
             name={translate("menu.data.mapSource", "Map source")}
-            value={selectedSourceValue}
-            segments={mapSourceSegments}
-            onChange={onMapSourceChange}
+            value={comparisonMode === "none" ? selectedSourceValue : ""}
+            segments={
+              comparisonMode === "none"
+                ? mapSourceSegments
+                : mapSourceSegments.map((segment) => ({ ...segment, disabled: true }))
+            }
+            onChange={comparisonMode === "none" ? onMapSourceChange : () => {}}
             orientation="vertical"
           />
-          {olderVersions.length > 0 && !selectedIsOlderVersion && (
+          {comparisonMode === "none" && olderVersions.length > 0 && !selectedIsOlderVersion && (
             <InlineTextButton type="button" onClick={() => setShowOlderVersions((shown) => !shown)}>
               {olderVersionsVisible
                 ? translate("menu.data.showFewerVersions", "Show fewer")
                 : translate("menu.data.showMoreVersions", "Show more")}
             </InlineTextButton>
+          )}
+          {comparisonMode !== "none" && (
+            <Hint>
+              {translate(
+                "menu.data.mapSourceDisabledHint",
+                "The comparison chooses the map source while one is active.",
+              )}
+            </Hint>
           )}
         </Section>
       )}

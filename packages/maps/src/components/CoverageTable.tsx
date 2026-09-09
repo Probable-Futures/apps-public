@@ -19,6 +19,28 @@ const Container = styled.div`
   overflow-x: auto;
 `;
 
+const Heading = styled.h3`
+  margin: 0 0 8px;
+  color: ${colors.darkPurple};
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 20px;
+`;
+
+const GuideList = styled.ul`
+  margin: 0 0 24px;
+  padding-left: 18px;
+  color: ${colors.lightGrey2};
+  font-size: 13px;
+  letter-spacing: 0;
+  line-height: 19px;
+
+  li + li {
+    margin-top: 8px;
+  }
+`;
+
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
@@ -92,6 +114,64 @@ const CoverageTable = ({ datasets }: Props): JSX.Element => {
 
   return (
     <Container>
+      <Heading>{translate("menu.data.dataGuide.title", "What this data is")}</Heading>
+      <GuideList>
+        <li>
+          {translate(
+            "menu.data.dataGuide.absolute",
+            "Absolute maps show a value. Every warming scenario applies, 0.5°C included.",
+          )}
+        </li>
+        <li>
+          {translate(
+            "menu.data.dataGuide.change",
+            "Change maps show the difference from 0.5°C, so they start at 1°C.",
+          )}
+        </li>
+        <li>
+          {translate(
+            "menu.data.dataGuide.changeView",
+            "Change view switches the same map between the difference and the actual values.",
+          )}
+        </li>
+        <li>
+          {translate(
+            "menu.data.dataGuide.era5",
+            "ERA5 is observed reanalysis. Always absolute, and only reaches 0.5°C and 1°C.",
+          )}
+        </li>
+        <li>
+          {translate(
+            "menu.data.dataGuide.compare",
+            "Side by side needs both maps to be the same kind. Incompatible versions are hidden.",
+          )}
+        </li>
+        <li>
+          {translate(
+            "menu.data.dataGuide.era5Pairing",
+            "A change map can pair with ERA5 only when it has an absolute version.",
+          )}
+        </li>
+        <li>
+          {translate(
+            "menu.data.dataGuide.diff",
+            "Difference maps are built from the change values, so their view is fixed.",
+          )}
+        </li>
+        <li>
+          {translate(
+            "menu.data.dataGuide.diffEra5",
+            "The v3 − ERA5 difference measures the model against observed reanalysis, so it is always shown as absolute values.",
+          )}
+        </li>
+        <li>
+          {translate(
+            "menu.data.dataGuide.availability",
+            "Absolute versions are published per map and per version, so the option is not always there.",
+          )}
+        </li>
+      </GuideList>
+      <Heading>{translate("menu.data.coverage.tableTitle", "What's available")}</Heading>
       <Table>
         <thead>
           <tr>

@@ -30,6 +30,7 @@ import { getAbsoluteMap, getAbsoluteRamp } from "../../consts/absoluteMaps";
 import { isLatestMapForSlug } from "../../utils/mapSelection";
 import { getMapValueMode, resolveChangeView } from "../../utils/mapValueMode";
 import { getComparisonSideShortLabel } from "../../utils/mapVersions";
+import { subscribePopupRefresh } from "../../utils/popupRefresh";
 import useActiveDiffMap, { getActiveMapStyleId } from "../../utils/useActiveDiffMap";
 import useActiveEra5Map from "../../utils/useActiveEra5Map";
 import useActiveAbsoluteMap from "../../utils/useActiveAbsoluteMap";
@@ -347,12 +348,6 @@ const InteractiveMap = () => {
   }, [selectedDataset, mapProjection, removeGlobeLayers, drawGlobeLines]);
 
   useEffect(() => {
-    if (selectedDataset) {
-      setPopupVisible(false);
-    }
-  }, [selectedDataset, comparisonMode, setPopupVisible]);
-
-  useEffect(() => {
     if (mapProjection.name !== "mercator" && mapProjection.name !== "globe") {
       const zoom = viewState.zoom;
       if (zoom && zoom < 3) {
@@ -486,6 +481,32 @@ const InteractiveMap = () => {
     selectedDataset?.dataset.unit === "class" ? !!datasetDescriptionResponse?.climate_zones : true;
 
   const isComparing = !!(comparisonMode === "swipe" && versionBefore && versionAfter);
+
+  /**
+   * Rebuilds an open popup against the style now on screen rather than closing
+   * it. `mapStyleLink` changes for every switch that matters — dataset, diff
+   * pair, version, ERA5, absolute — and `isComparing` covers the return from the
+   * side-by-side view, where this map is unmounted.
+   */
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!popupVisible || !map) {
+      return;
+    }
+    const lngLat: [number, number] = [feature.longitude, feature.latitude];
+    return subscribePopupRefresh({
+      map,
+      lngLat,
+      onFeatures: (features) => setPopupFeature({ features, lngLat }),
+    });
+  }, [
+    mapStyleLink,
+    popupVisible,
+    feature.longitude,
+    feature.latitude,
+    isComparing,
+    setPopupFeature,
+  ]);
 
   const canRenderMap = !!selectedDataset && comparisonRestored;
 
@@ -749,7 +770,7 @@ const InteractiveMap = () => {
       <components.MapModal
         isVisible={showCoverage}
         size="lg"
-        title={translate("menu.data.coverage.title", "What's available")}
+        title={translate("menu.data.coverage.title", "About the data")}
         closeText={translate("close.text")}
         onToggle={() => setShowCoverage(false)}
       >
