@@ -24,7 +24,8 @@
       "subCategory": "Subcategoría de mapa",
       "comparisonModes": {
         "diff": "Diferencia (v4 − v3)",
-        "diffEra5V3": "Diferencia (v3 − ERA5)"
+        "diffEra5V3": "Diferencia (v3 − ERA5)",
+        "diffEra5V4": "Diferencia (v4 − ERA5)"
       },
       "differenceEra5Hint": "Rojo donde el modelo es más alto que la reanálisis observada ERA5, azul donde es más bajo. Los valores son diferencias, por lo que se muestran en la unidad propia del mapa y nunca se convierten.",
       "mapSource": "Fuente del mapa",

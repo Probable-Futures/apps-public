@@ -24,7 +24,8 @@
       "subCategory": "Sous-catégorie de carte",
       "comparisonModes": {
         "diff": "Différence (v4 − v3)",
-        "diffEra5V3": "Différence (v3 − ERA5)"
+        "diffEra5V3": "Différence (v3 − ERA5)",
+        "diffEra5V4": "Différence (v4 − ERA5)"
       },
       "differenceEra5Hint": "Rouge là où le modèle est plus élevé que la réanalyse observée ERA5, bleu là où il est plus bas. Les valeurs sont des écarts, donc elles sont exprimées dans l'unité propre à la carte et jamais converties.",
       "mapSource": "Source de la carte",

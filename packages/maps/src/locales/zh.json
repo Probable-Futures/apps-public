@@ -24,7 +24,8 @@
       "subCategory": "地图子类别",
       "comparisonModes": {
         "diff": "差值 (v4 − v3)",
-        "diffEra5V3": "差值 (v3 − ERA5)"
+        "diffEra5V3": "差值 (v3 − ERA5)",
+        "diffEra5V4": "差值 (v4 − ERA5)"
       },
       "differenceEra5Hint": "红色表示模型高于观测的 ERA5 再分析数据，蓝色表示更低。数值为差值，因此以地图自身的单位显示，不进行换算。",
       "mapSource": "地图来源",

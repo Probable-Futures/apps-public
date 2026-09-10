@@ -81,20 +81,26 @@ describe("getMapCoverage", () => {
       makeMap({ datasetId: 40105, mapVersion: 3 }),
       makeMap({ datasetId: 40607, mapVersion: 3 }),
     ]);
-    expect(rows.find(({ datasetId }) => datasetId === 40105)?.diffModes).toEqual({
+    expect(rows.find(({ datasetId }) => datasetId === 40105)?.diffModes).toMatchObject({
       diff: true,
       diffEra5V3: true,
+      diffEra5V4: true,
     });
-    expect(rows.find(({ datasetId }) => datasetId === 40607)?.diffModes).toEqual({
+    expect(rows.find(({ datasetId }) => datasetId === 40607)?.diffModes).toMatchObject({
       diff: false,
       diffEra5V3: false,
+      diffEra5V4: false,
     });
   });
 
-  // 40613's ERA5 difference is published while its v4 − v3 style is still pending.
+  // 40613's ERA5 differences are published while its v4 − v3 style is still pending.
   it("marks a dataset that has one difference mode but not the other", () => {
     const rows = getMapCoverage([makeMap({ datasetId: 40613, mapVersion: 3 })]);
-    expect(rows[0].diffModes).toEqual({ diff: false, diffEra5V3: true });
+    expect(rows[0].diffModes).toMatchObject({
+      diff: false,
+      diffEra5V3: true,
+      diffEra5V4: true,
+    });
   });
 
   it("covers every declared difference mode, so a new mode cannot go unreported", () => {

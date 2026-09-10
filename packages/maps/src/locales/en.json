@@ -34,7 +34,8 @@
         "none": "Off",
         "swipe": "Side by side",
         "diff": "Difference (v4 − v3)",
-        "diffEra5V3": "Difference (v3 − ERA5)"
+        "diffEra5V3": "Difference (v3 − ERA5)",
+        "diffEra5V4": "Difference (v4 − ERA5)"
       },
       "difference": "difference",
       "differencePair": "Versions compared",
