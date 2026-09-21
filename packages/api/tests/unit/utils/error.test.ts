@@ -2,14 +2,17 @@
  * UNIT TESTS — src/utils/error.ts
  *
  * No mocks needed. ApplicationError, collect(), and serialize() are pure
- * data transformations: in → out. trapFallthroughErrors uses Express types
- * but no I/O, so it's also unit-tested here with hand-rolled req/res stubs.
+ * data transformations: in → out. trapFallthroughErrors and statusFromError
+ * use Express types but no I/O, so they're also unit-tested here with
+ * hand-rolled req/res stubs.
  */
 import createHttpError from "http-errors";
+import { GENERIC_ERROR_MESSAGE } from "../../../src/utils/constants";
 import {
   ApplicationError,
   collect,
   serialize,
+  statusFromError,
   trapFallthroughErrors,
 } from "../../../src/utils/error";
 
@@ -85,32 +88,110 @@ describe("serialize()", () => {
   });
 });
 
+describe("statusFromError", () => {
+  it("reads status", () => {
+    expect(statusFromError({ status: 401 })).toBe(401);
+  });
+
+  it("reads statusCode", () => {
+    expect(statusFromError({ statusCode: 403 })).toBe(403);
+  });
+
+  it("coerces a numeric string", () => {
+    expect(statusFromError({ status: "404" })).toBe(404);
+  });
+
+  it("defaults a plain Error (no status fields) to 500", () => {
+    expect(statusFromError(new Error())).toBe(500);
+  });
+
+  it("falls back to 500 when the value is out of the 400-599 range", () => {
+    expect(statusFromError({ status: 200 })).toBe(500);
+  });
+
+  it("falls back to 500 for null/undefined", () => {
+    expect(statusFromError(null)).toBe(500);
+    expect(statusFromError(undefined)).toBe(500);
+  });
+});
+
 describe("trapFallthroughErrors", () => {
   // Bug surface: this is the last-ditch handler that runs when nothing else
   // caught the error. If it throws, the request hangs. So we want to be sure
-  // it always sends 500 + the sentry id, regardless of input.
-  function makeReqRes(sentry?: string) {
+  // it always ends the response, regardless of input.
+  function makeReqRes(sentry?: string, headersSent = false) {
     const res: any = {
       statusCode: 200,
       sentry,
+      headersSent,
       log: { error: jest.fn() },
+      setHeader: jest.fn(),
       end: jest.fn(),
     };
-    return { req: {} as any, res, next: jest.fn() };
+    const req: any = { log: { error: jest.fn() } };
+    return { req, res, next: jest.fn() };
   }
 
-  it("sets status 500 and writes the sentry id to the response", () => {
+  it("responds 500 with the generic message and a reference when a sentry id is attached", () => {
     const { req, res, next } = makeReqRes("sentry-abc-123");
     trapFallthroughErrors(new Error("boom"), req, res, next);
 
     expect(res.statusCode).toBe(500);
-    expect(res.end).toHaveBeenCalledWith("sentry-abc-123\n");
+    expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "application/json; charset=utf-8");
+    expect(res.log.error).toHaveBeenCalled();
+    expect(JSON.parse(res.end.mock.calls[0][0])).toEqual({
+      errors: [{ message: GENERIC_ERROR_MESSAGE }],
+      reference: "sentry-abc-123",
+    });
   });
 
-  it("falls back to 'undefined' if no sentry id is attached", () => {
+  it("omits the reference field when no sentry id is attached", () => {
     const { req, res, next } = makeReqRes(undefined);
     trapFallthroughErrors(new Error("boom"), req, res, next);
+
     expect(res.statusCode).toBe(500);
-    expect(res.end).toHaveBeenCalledWith("undefined\n");
+    expect(JSON.parse(res.end.mock.calls[0][0])).toEqual({
+      errors: [{ message: GENERIC_ERROR_MESSAGE }],
+    });
+  });
+
+  it("never leaks the real error message in a 5xx body", () => {
+    const { req, res, next } = makeReqRes(undefined);
+    trapFallthroughErrors(new Error("password=secret; SELECT * FROM users"), req, res, next);
+
+    const body = res.end.mock.calls[0][0];
+    expect(body).not.toContain("password");
+    expect(body).not.toContain("SELECT");
+  });
+
+  it("preserves the real message for a 4xx ApplicationError", () => {
+    const { req, res, next } = makeReqRes(undefined);
+    const err = new ApplicationError(400, "invalid payload");
+    trapFallthroughErrors(err, req, res, next);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "application/json; charset=utf-8");
+    expect(JSON.parse(res.end.mock.calls[0][0])).toEqual({
+      errors: [{ message: "invalid payload" }],
+    });
+  });
+
+  it("handles a plain (non-Error) object like express-jwt-authz's insufficient-scope error", () => {
+    const { req, res, next } = makeReqRes(undefined);
+    const err = { statusCode: 403, error: "Forbidden", message: "Insufficient scope" };
+    trapFallthroughErrors(err, req, res, next);
+
+    expect(res.statusCode).toBe(403);
+    expect(JSON.parse(res.end.mock.calls[0][0])).toEqual({
+      errors: [{ message: "Insufficient scope" }],
+    });
+  });
+
+  it("does not touch headers when headersSent is already true", () => {
+    const { req, res, next } = makeReqRes(undefined, true);
+    trapFallthroughErrors(new Error("boom"), req, res, next);
+
+    expect(res.setHeader).not.toHaveBeenCalled();
+    expect(res.end).toHaveBeenCalledWith();
   });
 });

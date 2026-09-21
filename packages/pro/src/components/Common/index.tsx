@@ -120,7 +120,11 @@ export const ModalTitle = styled.div`
   line-height: 32px;
 `;
 
-export const Button = styled.button`
+export const Button = styled.button.attrs(
+  ({ disabled, isDisabled }: ButtonProps & { disabled?: boolean }) => ({
+    disabled: disabled ?? isDisabled,
+  }),
+)`
   cursor: pointer;
   font-size: 16px;
   float: right;

@@ -12,6 +12,8 @@ export const apiRoutes = {
   data: "/data",
 };
 
+export const GENERIC_ERROR_MESSAGE = "An error occurred while processing your request.";
+
 export const rdsRootCA = path.join(
   __dirname,
   "..",

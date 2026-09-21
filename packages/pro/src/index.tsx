@@ -16,6 +16,7 @@ Sentry.init({
   integrations: [Sentry.browserTracingIntegration()],
   tracesSampleRate: 0.5,
   environment: DEPLOY_ENV,
+  ignoreErrors: ["Login required", "login_required"],
 });
 
 enableAutoPageviews();

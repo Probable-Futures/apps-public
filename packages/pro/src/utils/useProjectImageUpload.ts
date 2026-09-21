@@ -5,6 +5,7 @@ import Uppy, { Meta, UppyFile, UppyOptions } from "@uppy/core";
 import { useAuth0 } from "@auth0/auth0-react";
 import AwsS3 from "@uppy/aws-s3";
 import { EXPORT_IMG_RATIOS, RESOLUTIONS } from "@kepler.gl/constants";
+import * as Sentry from "@sentry/react";
 
 import { MAP_ID } from "../consts/MapConsts";
 import useProjectUpdate from "./useProjectUpdate";
@@ -17,7 +18,7 @@ const useProjectImageUpload = () => {
   const projectId = useAppSelector((state) => state.project.projectId);
   const keplerGl = useAppSelector((state) => state.keplerGl);
 
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, loginWithRedirect } = useAuth0();
   const uppy = useRef<Uppy>();
   const [uppyInitialized, setUppyInitialized] = useState(false);
   const [exportingImage, setExportingImage] = useState(false);
@@ -49,47 +50,64 @@ const useProjectImageUpload = () => {
   useEffect(() => {
     if (imageDataUri && projectId && exportingImage) {
       async function initUppy() {
-        const uppyOptions: UppyOptions<Record<string, unknown>, any> = {
-          id: "uppy-image-upload",
-          autoProceed: false,
-          allowMultipleUploads: false,
-          restrictions: {
-            maxFileSize: null,
-            minFileSize: null,
-            maxTotalFileSize: null,
-            maxNumberOfFiles: null,
-            minNumberOfFiles: null,
-            allowedFileTypes: null,
-            requiredMetaFields: [],
-          },
-        };
-        const companionUrl = `${env.PF_API}/upload`;
-        let token = "";
         try {
-          token = await getAccessTokenSilently();
-        } catch (e) {
-          throw e;
-        }
-
-        if (!uppy.current) {
-          uppy.current = new Uppy(uppyOptions).use(AwsS3, {
-            id: "pf-uppy-s3-multipart",
-            endpoint: companionUrl,
-            limit: 4,
-            shouldUseMultipart: true,
-            headers: {
-              Authorization: token ? `Bearer ${token}` : "",
+          const uppyOptions: UppyOptions<Record<string, unknown>, any> = {
+            id: "uppy-image-upload",
+            autoProceed: false,
+            allowMultipleUploads: false,
+            restrictions: {
+              maxFileSize: null,
+              minFileSize: null,
+              maxTotalFileSize: null,
+              maxNumberOfFiles: null,
+              minNumberOfFiles: null,
+              allowedFileTypes: null,
+              requiredMetaFields: [],
             },
-          });
-        }
-        if (uppy.current) {
-          const file = dataURItoBlob(imageDataUri);
-          uppy.current.addFile({ data: file, name: projectId, type: "image/png" });
-          uppy.current.setMeta({ source: "project-image-upload" });
-          uppy.current.upload();
+          };
+          const companionUrl = `${env.PF_API}/upload`;
+          let token = "";
+          try {
+            token = await getAccessTokenSilently();
+          } catch (e: any) {
+            if (e.error === "login_required" || e.error === "consent_required") {
+              loginWithRedirect({
+                appState: { returnTo: window.location.pathname + window.location.search },
+              });
+            }
+            throw e;
+          }
+
+          if (!uppy.current) {
+            uppy.current = new Uppy(uppyOptions).use(AwsS3, {
+              id: "pf-uppy-s3-multipart",
+              endpoint: companionUrl,
+              limit: 4,
+              shouldUseMultipart: true,
+              headers: {
+                Authorization: token ? `Bearer ${token}` : "",
+              },
+            });
+          }
+          if (uppy.current) {
+            const file = dataURItoBlob(imageDataUri);
+            uppy.current.addFile({ data: file, name: projectId, type: "image/png" });
+            uppy.current.setMeta({ source: "project-image-upload" });
+            // Not awaited: the upload-success listener is attached once
+            // uppyInitialized flips below, so this must not block on completion.
+            uppy.current.upload().catch((error) => {
+              dispatch(cleanupExportImage());
+              setExportingImage(false);
+              Sentry.captureException(error);
+            });
+            dispatch(cleanupExportImage());
+          }
+          setUppyInitialized(true);
+        } catch (error) {
           dispatch(cleanupExportImage());
+          setExportingImage(false);
+          Sentry.captureException(error);
         }
-        setUppyInitialized(true);
       }
       if (!uppy.current) {
         initUppy();
@@ -101,6 +119,7 @@ const useProjectImageUpload = () => {
     projectId,
     updateProject,
     getAccessTokenSilently,
+    loginWithRedirect,
     setExportingImage,
     exportingImage,
   ]);
@@ -124,17 +143,21 @@ const useProjectImageUpload = () => {
   );
 
   useEffect(() => {
-    if (uppyInitialized) {
-      uppy.current?.on("upload-success", onUploadSuccess);
-    }
-    return () => {
-      uppy.current?.off("upload-success", onUploadSuccess);
-    };
-  }, [onUploadSuccess, uppyInitialized]);
+    const uppyInstance = uppy.current;
+    if (!uppyInitialized || !uppyInstance) return;
 
-  uppy.current?.on("error", (error) => {
-    dispatch(cleanupExportImage());
-  });
+    const handleError = () => {
+      dispatch(cleanupExportImage());
+    };
+
+    uppyInstance.on("upload-success", onUploadSuccess);
+    uppyInstance.on("error", handleError);
+
+    return () => {
+      uppyInstance.off("upload-success", onUploadSuccess);
+      uppyInstance.off("error", handleError);
+    };
+  }, [onUploadSuccess, uppyInitialized, dispatch]);
 
   return { exportImage, exportingImage };
 };

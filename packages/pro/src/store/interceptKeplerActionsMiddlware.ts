@@ -24,7 +24,7 @@ export default function interceptKeplerActionsMiddlware({ getState, dispatch }: 
     if (action.type === "@@kepler.gl/LAYER_CLICK") {
       dispatch({
         type: UPDATE_CLICKED_MAP_INFO,
-        payload: { clickedMapInfo: action.payload.info },
+        payload: { clickedMapInfo: action.payload?.info },
       });
     }
 

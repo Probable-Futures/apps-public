@@ -327,7 +327,7 @@ export const exportMapToHTML = (options: ExportMapProps, version = "3.2.0") => {
             function interceptKeplerActionsMiddlware({ getState, dispatch }) {
               return (next) => (action) => {
                 let returnValue = next(action);
-                if (action.type === "@@kepler.gl/LAYER_CLICK" && !getState()?.project?.shouldIgnoreLayerClick) dispatch({type: UPDATE_CLICKED_MAP_INFO,payload: { clickedMapInfo: action.payload.info }});
+                if (action.type === "@@kepler.gl/LAYER_CLICK" && !getState()?.project?.shouldIgnoreLayerClick) dispatch({type: UPDATE_CLICKED_MAP_INFO,payload: { clickedMapInfo: action.payload?.info }});
                 return returnValue;
               };
             }

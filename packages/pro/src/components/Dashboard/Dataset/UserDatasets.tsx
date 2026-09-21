@@ -5,6 +5,7 @@ import Modal from "react-modal";
 import Uppy from "@uppy/core";
 import { types } from "@probable-futures/lib";
 import { useOutletContext } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 
 import {
   DELETE_PF_PARTNER_DATASET,
@@ -23,6 +24,7 @@ import {
 import { itemsPerPage } from "../../../consts/dashboardConsts";
 import { modalStyle } from "../../../shared/styles/styles";
 import DashboardTitle from "../../Common/DashboardTitle";
+import ErrorMessage from "../../Common/ErrorMessage";
 import { GqlResponse, PageInfo } from "../../../shared/types";
 import Item from "./Item";
 
@@ -79,9 +81,11 @@ const UserDatasets = () => {
   });
   const [uploadDatasetModalOpen, setUploadDatasetModalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [offset, setOffset] = useState<number>(0);
 
   const uppyRef = useRef<Uppy>();
+  const isUploadingRef = useRef(false);
 
   const onPageChange = useCallback(
     (offset: number) => {
@@ -123,18 +127,22 @@ const UserDatasets = () => {
 
   const uploadFiles = useCallback(async () => {
     const uppyInstance = uppyRef.current;
-    if (!uppyInstance || uppyInstance.getFiles().length === 0 || isUploading) {
+    if (!uppyInstance || uppyInstance.getFiles().length === 0 || isUploadingRef.current) {
       return;
     }
+    isUploadingRef.current = true;
+    setUploadError("");
     try {
       setIsUploading(true);
       await uppyInstance.upload();
     } catch (error) {
-      console.error(error);
+      setUploadError("Upload failed. Please try again.");
+      Sentry.captureException(error);
     } finally {
       setIsUploading(false);
+      isUploadingRef.current = false;
     }
-  }, [isUploading]);
+  }, []);
 
   useEffect(() => {
     if (loadingDatasets) {
@@ -192,6 +200,7 @@ const UserDatasets = () => {
                 <UploadFiles setUppyRef={setUppyRef} onUploadFinish={onUploadFinish} />
               </Suspense>
             </ModalContent>
+            {uploadError && <ErrorMessage text={uploadError} />}
             <Button onClick={uploadFiles} isDisabled={isUploading}>
               Upload File
             </Button>

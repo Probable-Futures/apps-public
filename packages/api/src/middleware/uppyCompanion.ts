@@ -18,7 +18,7 @@ import {
   UPPY_COMPANION_GOOGLE_DRIVE_SECRET,
 } from "../utils/env";
 import { apiRoutes } from "../utils/constants";
-import { sendSlackNotification } from "../services/slack-notfier";
+import { notifySlack } from "../utils/slack";
 
 const rootUrl = new URL(ROOT_URL);
 const host = rootUrl.host;
@@ -92,7 +92,7 @@ export default (app: Express, httpServer: Server) => {
       } else if (action === "error") {
         emitter.off(token, onUploadEvent); // avoid listener leak
         console.error("Upload failed", payload);
-        sendSlackNotification(`File upload failed: ${payload?.toString()}}`);
+        void notifySlack(`File upload failed: ${payload?.toString()}}`);
       }
     }
     emitter.on(token, onUploadEvent);

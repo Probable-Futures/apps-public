@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
+import * as Sentry from "@sentry/react";
 
 import {
   CREATE_PARTNER_DATASET,
@@ -29,6 +30,7 @@ const useUploadProcess = ({ onUploadFinish, geodataType, process }: Props) => {
   const [createPartnerDatasetUpload, { data: partnerDatasetUpload }] =
     useMutation<CreatePartnerDatasetUploadResponse>(CREATE_PARTNER_DATASET_UPLOAD);
   const [existingUploadDataNodeId, setExistingUploadDataNodeId] = useState("");
+  const [uploadProcessError, setUploadProcessError] = useState("");
 
   const dispatch = useAppDispatch();
 
@@ -64,19 +66,34 @@ const useUploadProcess = ({ onUploadFinish, geodataType, process }: Props) => {
         });
       }
     },
-    onError: () => stopPolling(),
+    onError: (error) => {
+      stopPolling();
+      setUploadProcessError("Upload processing failed. Please try again.");
+      dispatch({
+        type: SET_DATASET_ENRICHMENT,
+        payload: {
+          datasetEnrichment: { enrichmentProgress: 0, processingStatus: "failed" },
+        },
+      });
+      Sentry.captureException(error);
+    },
   });
 
   const startUploadProcess = useCallback(
-    (uploadUrl: string, partnerDatasetId: string, enrich: boolean) => {
-      createPartnerDatasetUpload({
-        variables: {
-          s3Url: urlDecode(uploadUrl),
-          partnerDatasetId: partnerDatasetId,
-          geodataType: geodataType,
-          enrich,
-        },
-      });
+    async (uploadUrl: string, partnerDatasetId: string, enrich: boolean) => {
+      try {
+        await createPartnerDatasetUpload({
+          variables: {
+            s3Url: urlDecode(uploadUrl),
+            partnerDatasetId: partnerDatasetId,
+            geodataType: geodataType,
+            enrich,
+          },
+        });
+      } catch (error) {
+        setUploadProcessError("Upload processing failed. Please try again.");
+        Sentry.captureException(error);
+      }
     },
     [createPartnerDatasetUpload, geodataType],
   );
@@ -111,7 +128,12 @@ const useUploadProcess = ({ onUploadFinish, geodataType, process }: Props) => {
     }
   }, [partnerDatasetUpload, partnerDataset, process, dispatch, onUploadFinish, startPolling]);
 
-  return { createPartnerDataset, startUploadProcess, triggerPollingOnExistingNode };
+  return {
+    createPartnerDataset,
+    startUploadProcess,
+    triggerPollingOnExistingNode,
+    uploadProcessError,
+  };
 };
 
 export default useUploadProcess;

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Uppy, { UppyFile, UppyOptions, Meta } from "@uppy/core";
 import { Dashboard } from "@uppy/react";
+import * as Sentry from "@sentry/react";
 
 import "@uppy/core/css/style.css";
 import "@uppy/progress-bar/dist/style.css";
@@ -275,7 +276,7 @@ const UploadFiles = ({
     },
     [onUploadFinish],
   );
-  const { createPartnerDataset, startUploadProcess } = useUploadProcess({
+  const { createPartnerDataset, startUploadProcess, uploadProcessError } = useUploadProcess({
     onUploadFinish: uploadFinish,
     geodataType,
     process,
@@ -299,7 +300,7 @@ const UploadFiles = ({
         },
       });
       if (partnerDataset.data && response?.uploadURL) {
-        startUploadProcess(
+        await startUploadProcess(
           response.uploadURL,
           partnerDataset.data.createPartnerDataset.pfPartnerDataset.id,
           process,
@@ -387,41 +388,59 @@ const UploadFiles = ({
     };
   }, [uppyInitialized]);
 
+  useEffect(() => {
+    const uppyInstance = uppy.current;
+    if (!uppyInitialized || !uppyInstance) return;
+
+    const handleError = (error: any) => {
+      setErrorMessage(error.message);
+      if (onUploadError) {
+        onUploadError();
+      }
+    };
+
+    const handleUploadError = (error: any) => {
+      setErrorMessage(error?.message || "Upload failed. Please try again.");
+      Sentry.captureException(error);
+      if (onUploadError) {
+        onUploadError();
+      }
+    };
+
+    const handleFileAdded = (file: UppyFile<Meta, Record<string, never>>) => {
+      const filesCount = uppyInstance.getFiles().length;
+      setShowUploadIcon(filesCount === 0); // hide icon and text when new files are added
+      setErrorMessage("");
+      if (onFileAdded) {
+        onFileAdded(file);
+      }
+    };
+
+    const handleFileRemoved = (file: UppyFile<Meta, Record<string, never>>) => {
+      const filesCount = uppyInstance.getFiles().length;
+      setShowUploadIcon(filesCount === 0); // hide icon and text when new files are added
+      setErrorMessage("");
+      if (onFileRemoved) {
+        onFileRemoved(file);
+      }
+    };
+
+    uppyInstance.on("error", handleError);
+    uppyInstance.on("upload-error", handleUploadError);
+    uppyInstance.on("file-added", handleFileAdded);
+    uppyInstance.on("file-removed", handleFileRemoved);
+
+    return () => {
+      uppyInstance.off("error", handleError);
+      uppyInstance.off("upload-error", handleUploadError);
+      uppyInstance.off("file-added", handleFileAdded);
+      uppyInstance.off("file-removed", handleFileRemoved);
+    };
+  }, [uppyInitialized, onUploadError, onFileAdded, onFileRemoved]);
+
   if (!uppy.current || !uppyInitialized) {
     return null;
   }
-
-  uppy.current.on("error", (error) => {
-    setErrorMessage(error.message);
-    if (onUploadError) {
-      onUploadError();
-    }
-  });
-
-  uppy.current.on("upload-error", (error) => {
-    console.error(error);
-    if (onUploadError) {
-      onUploadError();
-    }
-  });
-
-  uppy.current.on("file-added", (file) => {
-    const filesCount = uppy.current?.getFiles().length;
-    setShowUploadIcon(filesCount === 0); // hide icon and text when new files are added
-    setErrorMessage("");
-    if (onFileAdded) {
-      onFileAdded(file);
-    }
-  });
-
-  uppy.current.on("file-removed", (file) => {
-    const filesCount = uppy.current?.getFiles().length;
-    setShowUploadIcon(filesCount === 0); // hide icon and text when new files are added
-    setErrorMessage("");
-    if (onFileRemoved) {
-      onFileRemoved(file);
-    }
-  });
 
   return (
     <Container isEditing={isEditing}>
@@ -437,7 +456,9 @@ const UploadFiles = ({
           hideUploadButton
         />
       </div>
-      {errorMessage && <ErrorMessage text={errorMessage} />}
+      {(errorMessage || uploadProcessError) && (
+        <ErrorMessage text={errorMessage || uploadProcessError} />
+      )}
     </Container>
   );
 };

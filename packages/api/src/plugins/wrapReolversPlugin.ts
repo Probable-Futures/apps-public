@@ -1,6 +1,6 @@
 import { makeWrapResolversPlugin } from "graphile-utils";
 
-import { sendSlackNotification } from "../services/slack-notfier";
+import { notifySlack } from "../utils/slack";
 import { createAudit } from "../services/audit";
 import { isProd } from "../utils/env";
 import mbxGeocode from "../services/geocode/geocode";
@@ -64,11 +64,7 @@ export const WrapReolversPlugin = makeWrapResolversPlugin({
   },
 });
 
-const sendRateLimitWarning = async (rateLimitThreshold: number, userSub: string) => {
+const sendRateLimitWarning = (rateLimitThreshold: number, userSub: string) => {
   const message = `Warning: Too many requests sent by ${userSub}. RateLimit threshold = ${rateLimitThreshold}`;
-  try {
-    sendSlackNotification(message);
-  } catch (e) {
-    console.error(e);
-  }
+  void notifySlack(message);
 };

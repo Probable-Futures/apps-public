@@ -3,6 +3,7 @@ import { useQuery, useMutation, useApolloClient } from "@apollo/client";
 import styled from "styled-components";
 import Modal from "react-modal";
 import Uppy, { Meta, UppyFile } from "@uppy/core";
+import * as Sentry from "@sentry/react";
 
 import { Button, ModalClose, ModalHeader, ModalTitle, StyledCloseIcon } from "../../Common";
 import CloseIcon from "../../../assets/icons/dashboard/close.svg";
@@ -125,6 +126,7 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
     originalFile?: string;
   }>();
   const [fileValidationError, setFileValidationError] = useState("");
+  const [uploadError, setUploadError] = useState("");
   const [geodataType, setGeodataType] = useState<Geodata>();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
@@ -134,6 +136,7 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
   const [isUploadInProgress, setIsUploadInProgress] = useState(false);
   const [uppyInstance, setUppyInstance] = useState<Uppy>();
   const uppyRef = useRef<Uppy>();
+  const isSubmittingRef = useRef(false);
   const projectId = useAppSelector((state) => state.project.projectId);
   const mapConfig = useAppSelector((state) => state.project.mapConfig);
   const imageUrl = useAppSelector((state) => state.project.imageUrl);
@@ -220,11 +223,13 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
     const filesCount = uppyRef.current?.getFiles().length;
     setUppyFilesCount(filesCount || 0);
     setFileValidationError("");
+    setUploadError("");
   }, []);
 
-  const onUploadError = () => {
+  const onUploadError = useCallback(() => {
     setIsLoading(false);
-  };
+    setUploadError("Upload failed. Please try again.");
+  }, []);
 
   const setUppyRef = (uppy: Uppy) => {
     uppyRef.current = uppy;
@@ -327,43 +332,55 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
         e.preventDefault();
         e.stopPropagation();
       }
-      if (formSubmitted) {
+      if (isSubmittingRef.current || isUploadInProgress) {
         return;
       }
+      isSubmittingRef.current = true;
+      setUploadError("");
       setFormSubmitted(true);
 
-      const uppyFiles = uppyRef.current?.getFiles();
-      if (uppyRef.current && uppyFiles && uppyFiles.length > 0) {
-        if (
-          geodataType ||
-          uppyFiles[0].extension === "json" ||
-          uppyFiles[0].extension === "geojson"
-        ) {
-          setFileValidationError("");
-          await createPartnerProject();
-          if (uppyFiles.some((f) => f.isPaused && f.progress?.uploadStarted)) {
-            uppyRef.current?.resumeAll();
-          } else {
-            uppyRef.current?.upload();
-          }
+      try {
+        const uppyFiles = uppyRef.current?.getFiles();
+        if (uppyRef.current && uppyFiles && uppyFiles.length > 0) {
           if (
-            geodataType === "cityCountry" ||
-            geodataType === "fullAddress" ||
-            geodataType === "addressOnly"
+            geodataType ||
+            uppyFiles[0].extension === "json" ||
+            uppyFiles[0].extension === "geojson"
           ) {
-            setIsLoading(true);
+            setFileValidationError("");
+            await createPartnerProject();
+            if (
+              geodataType === "cityCountry" ||
+              geodataType === "fullAddress" ||
+              geodataType === "addressOnly"
+            ) {
+              setIsLoading(true);
+            }
+            if (uppyFiles.some((f) => f.isPaused && f.progress?.uploadStarted)) {
+              uppyRef.current?.resumeAll();
+            } else {
+              try {
+                await uppyRef.current?.upload();
+              } catch (error) {
+                setUploadError("Upload failed. Please try again.");
+                setIsLoading(false);
+                Sentry.captureException(error);
+              }
+            }
+          } else {
+            setFileValidationError("Invalid column names");
+            setFormSubmitted(false);
           }
-        } else {
-          setFileValidationError("Invalid column names");
-          setFormSubmitted(false);
+        } else if (selectedPartnerDataset?.partnerDatasetId) {
+          const data = await createPartnerProject();
+          if (selectedPartnerDataset.uploadId && data) {
+            getDatasetUpload(selectedPartnerDataset.uploadId, data.id);
+          } else {
+            setFormSubmitted(false);
+          }
         }
-      } else if (selectedPartnerDataset?.partnerDatasetId) {
-        const data = await createPartnerProject();
-        if (selectedPartnerDataset.uploadId && data) {
-          getDatasetUpload(selectedPartnerDataset.uploadId, data.id);
-        } else {
-          setFormSubmitted(false);
-        }
+      } finally {
+        isSubmittingRef.current = false;
       }
     },
     [
@@ -372,7 +389,7 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
       selectedPartnerDataset?.uploadId,
       createPartnerProject,
       getDatasetUpload,
-      formSubmitted,
+      isUploadInProgress,
     ],
   );
 
@@ -483,6 +500,7 @@ const MergeData = ({ createProject, onDatasetUploadFinish }: Props): JSX.Element
             {fileValidationError && uppyFilesCount !== 0 && (
               <ErrorMessage text={fileValidationError} />
             )}
+            {uploadError && <ErrorMessage text={uploadError} />}
             <Button type="submit" name="upload" isDisabled={isImportDisabled}>
               Import Dataset
             </Button>

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import * as Sentry from "@sentry/react";
 
 import { useMapData } from "../contexts/DataContext";
 import { useUIState } from "../contexts/UIStateContext";
@@ -35,33 +36,53 @@ export default function useWPApi() {
   };
 
   useEffect(() => {
+    if (!import.meta.env.VITE_WP_API) {
+      return;
+    }
+
+    let cancelled = false;
+
     async function fetchMapSettings() {
-      const response = await fetch(`${baseUrl}acf/v3/options/map-settings`, {
-        headers,
-      });
+      try {
+        const response = await fetch(`${baseUrl}acf/v3/options/map-settings`, {
+          headers,
+        });
+        if (!response.ok || cancelled) {
+          return;
+        }
 
-      const body = await response.json();
-      if (body.acf) {
-        const warmingScenarioDescs = filterObjectBy(body.acf, "description_");
-        setDescription9010(body.acf["9010_description"]);
-        setDescription955(body.acf["955_description"]);
-        setWarmingScenarioDescs(warmingScenarioDescs);
+        const body = await response.json();
+        if (cancelled) {
+          return;
+        }
+        if (body.acf) {
+          const warmingScenarioDescs = filterObjectBy(body.acf, "description_");
+          setDescription9010(body.acf["9010_description"]);
+          setDescription955(body.acf["955_description"]);
+          setWarmingScenarioDescs(warmingScenarioDescs);
 
-        const aboutMapResources: AboutMapResources = {
-          explore_heading: body.acf.explore_heading,
-          explore_subheading: body.acf.explore_subheading,
-          related_heading: body.acf.related_heading,
-          related_subheading: body.acf.related_subheading,
-          resources: body.acf.resources,
-          data_resources: body.acf.data_resources,
-          warming_scenario_description: body.acf.warming_scenario_description,
-        };
-        setAboutMapResources?.(aboutMapResources);
+          const aboutMapResources: AboutMapResources = {
+            explore_heading: body.acf.explore_heading,
+            explore_subheading: body.acf.explore_subheading,
+            related_heading: body.acf.related_heading,
+            related_subheading: body.acf.related_subheading,
+            resources: body.acf.resources,
+            data_resources: body.acf.data_resources,
+            warming_scenario_description: body.acf.warming_scenario_description,
+          };
+          setAboutMapResources?.(aboutMapResources);
+        }
+      } catch (error) {
+        Sentry.captureException(error);
       }
     }
     if (Object.keys(warmingScenarioDescs).length === 0) {
       fetchMapSettings();
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [
     setWarmingScenarioDescs,
     setDescription9010,
@@ -71,21 +92,41 @@ export default function useWPApi() {
   ]);
 
   useEffect(() => {
-    async function fetchMapDescription() {
-      const response = await fetch(
-        `${baseUrl}wp/v2/maps?dataset_id=${selectedClimateData?.dataset.id}&map_version=${selectedClimateData?.mapVersion}&_fields=acf`,
-        {
-          headers,
-        },
-      );
+    if (!import.meta.env.VITE_WP_API) {
+      return;
+    }
 
-      const body = await response.json();
-      if (body[0] && body[0].acf) {
-        setWpDatasetDescriptionResponse(body[0].acf as DatasetDescriptionResponse);
+    let cancelled = false;
+
+    async function fetchMapDescription() {
+      try {
+        const response = await fetch(
+          `${baseUrl}wp/v2/maps?dataset_id=${selectedClimateData?.dataset.id}&map_version=${selectedClimateData?.mapVersion}&_fields=acf`,
+          {
+            headers,
+          },
+        );
+        if (!response.ok || cancelled) {
+          return;
+        }
+
+        const body = await response.json();
+        if (cancelled) {
+          return;
+        }
+        if (body[0] && body[0].acf) {
+          setWpDatasetDescriptionResponse(body[0].acf as DatasetDescriptionResponse);
+        }
+      } catch (error) {
+        Sentry.captureException(error);
       }
     }
     if (selectedClimateData) {
       fetchMapDescription();
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [selectedClimateData, setSelectedClimateData, setWpDatasetDescriptionResponse]);
 }
