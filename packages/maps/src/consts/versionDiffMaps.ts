@@ -105,6 +105,7 @@ export const versionDiffMaps: VersionDiffMap[] = [
   diffMap(40701, "likelihood_of_year-plus_extreme_drought", "percent", "cmt06ia7j000f01sg5dlafrsa"),
   diffMap(40702, "probability-of-drought", "percent", "cmszywa1300aj01sa7y2v8s50"),
   diffMap(40703, "change_in_water_balance", "zScore", "cmt9xtrqx00gw01qzdyyqcony"),
+  diffMap(40704, "change_in_wildfire_danger_days", "days", "cmtvgfzp4006z01s7afuh5sbr"),
 ];
 
 export const getDiffMapsForDataset = (
