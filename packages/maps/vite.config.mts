@@ -75,6 +75,10 @@ function svgPlugin(): Plugin {
 /**
  * Generates a CRA-compatible asset-manifest.json so the WordPress plugin
  * can discover and enqueue the built JS/CSS files via `entrypoints`.
+ *
+ * `entrypoints` matches what Vite links from index.html: the entry chunk plus the
+ * CSS of the entry and its static imports. The entry loads every other chunk at
+ * runtime, and Vite injects the CSS of dynamically imported chunks itself.
  */
 function assetManifestPlugin(): Plugin {
   return {
@@ -85,32 +89,34 @@ function assetManifestPlugin(): Plugin {
       const outDir = options.dir || path.resolve(import.meta.dirname, "build");
       const base = (this as any).environment?.config?.base ?? "/";
 
+      const entry = Object.values(bundle).find((chunk) => chunk.type === "chunk" && chunk.isEntry);
+      const entryCss = new Set<string>();
+      const visited = new Set<string>();
+      // Same order as index.html: CSS of static imports before the importing chunk's own.
+      const collectCss = (chunk: any) => {
+        if (visited.has(chunk.fileName)) return;
+        visited.add(chunk.fileName);
+        for (const file of chunk.imports) {
+          if (bundle[file]?.type === "chunk") collectCss(bundle[file]);
+        }
+        chunk.viteMetadata.importedCss.forEach((file: string) => entryCss.add(file));
+      };
+      collectCss(entry);
+
+      const ownCss = new Set<string>(entry.viteMetadata.importedCss);
       const files: Record<string, string> = {};
-      const entrypoints: string[] = [];
-
-      for (const [fileName, chunk] of Object.entries(bundle)) {
-        const assetPath = base + fileName;
-
-        if (chunk.type === "chunk") {
-          if ((chunk as any).isEntry) {
-            files["main.js"] = assetPath;
-            entrypoints.push(fileName);
-          } else {
-            files[fileName] = assetPath;
-          }
+      for (const fileName of Object.keys(bundle)) {
+        if (fileName === entry.fileName) {
+          files["main.js"] = base + fileName;
+        } else if (ownCss.has(fileName)) {
+          files["main.css"] = base + fileName;
         } else {
-          // asset (css, images, etc.)
-          if (fileName.endsWith(".css")) {
-            files["main.css"] = assetPath;
-            // CSS entrypoints come before JS
-            entrypoints.unshift(fileName);
-          } else {
-            files[fileName] = assetPath;
-          }
+          files[fileName] = base + fileName;
         }
       }
 
-      const manifest = { files, entrypoints };
+      // CSS entrypoints come before JS
+      const manifest = { files, entrypoints: [...entryCss, entry.fileName] };
       fs.writeFileSync(path.join(outDir, "asset-manifest.json"), JSON.stringify(manifest, null, 2));
     },
   };
@@ -155,10 +161,9 @@ export default defineConfig({
     outDir: "build",
     rollupOptions: {
       output: {
-        // Output IIFE format so WP can load via regular <script> tags (no "export")
-        format: "iife",
-        // Single entry bundle — no code-splitting (WP can't handle dynamic imports)
-        inlineDynamicImports: true,
+        // ES modules so dynamic imports (e.g. each locale) become separate chunks. The WP
+        // plugin loads the entry with type="module".
+        format: "es",
         // CRA-style naming convention
         entryFileNames: "static/js/[name].[hash].js",
         chunkFileNames: "static/js/[name].[hash].js",

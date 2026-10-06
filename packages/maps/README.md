@@ -9,6 +9,8 @@ Then open [https://local.probablefutures.org/maps](https://local.probablefutures
 
 ## Updating the App in WordPress Site
 
-To update the interactive map in WP, first, you need to generate a special type of build by running `yarn build:wp` at the project directory or `yarn workspace @probable-futures/maps build:wp` at the root directory. Then copy the generated `build` folder and replace the one inside [website-wp repository](https://github.com/Probable-Futures/website-wp/tree/dev/wordpress/wp-content/plugins/pf-interactive-map/app).
+To update the interactive map in WP, first, you need to generate a special type of build by running `yarn build:wp` at the project directory or `yarn workspace @probable-futures/maps build:wp` at the root directory. Then delete the `build` folder inside [website-wp repository](https://github.com/Probable-Futures/website-wp/tree/dev/wordpress/wp-content/plugins/pf-interactive-map/app) and copy the generated `build` folder in its place, so chunks from the previous build don't pile up.
+
+The build is split into ES module chunks under `static/js/`, including one per locale. The pf-interactive-map plugin enqueues only the `entrypoints` from `asset-manifest.json`, loading the JS entry with `type="module"` (WordPress 6.5+), and the entry fetches the other chunks when it needs them. Commit every file in the new `build` folder.
 
 NOTE: you can also find the build files for WP as part of the GitHub release. Look for `maps_build_for_wp.zip` file under `Assets`.
