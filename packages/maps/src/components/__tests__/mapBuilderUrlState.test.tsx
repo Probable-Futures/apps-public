@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 
 import maps from "./mapBuilderUrlState.fixture.json";
 
@@ -79,6 +79,8 @@ const V4_DRAFT_STYLE_ID = "cmsyinukc007p01qy7kgpbmb2";
 
 const stylesTheMapWasGiven: string[] = [];
 
+let menuData: ReturnType<typeof useMenu>["data"];
+
 /**
  * Mirrors the gate and the style choice `MapBuilder` makes, so the recorded
  * history is every style Mapbox would have been asked to render — the plain
@@ -86,9 +88,9 @@ const stylesTheMapWasGiven: string[] = [];
  * and the later switch is dropped while the first style is still loading.
  */
 const MapProbe = () => {
-  const {
-    data: { selectedDataset, comparisonMode, comparisonRestored, versionBefore, versionAfter },
-  } = useMenu();
+  const { data } = useMenu();
+  menuData = data;
+  const { selectedDataset, comparisonMode, comparisonRestored, versionBefore, versionAfter } = data;
   const activeDiffMap = useActiveDiffMap();
   const activeEra5Map = useActiveEra5Map();
   const styleId = getActiveMapStyleId(selectedDataset, activeDiffMap, activeEra5Map);
@@ -103,6 +105,7 @@ const MapProbe = () => {
       {JSON.stringify({
         mounted,
         styleId: mounted ? styleId : undefined,
+        map: selectedDataset?.slug,
         selected: selectedDataset && `v${selectedDataset.mapVersion} ${selectedDataset.status}`,
         comparisonMode,
         before: versionBefore?.mapVersion,
@@ -122,6 +125,15 @@ const openLink = async (search: string) => {
     </MenuProvider>,
   );
   await waitFor(() => expect(screen.getByTestId("probe").textContent).toContain('"mounted":true'));
+  return JSON.parse(screen.getByTestId("probe").textContent!);
+};
+
+/** Selects what the map dropdown would: the latest published row of `slug`. */
+const switchToMap = async (slug: string) => {
+  const target = menuData.datasets.find(
+    (map) => map.slug === slug && map.isLatest && map.status === "published",
+  );
+  await act(async () => menuData.setSelectedDataset(target));
   return JSON.parse(screen.getByTestId("probe").textContent!);
 };
 
@@ -163,6 +175,17 @@ describe("opening a map builder link", () => {
     expect(state.before).toBe(3);
     expect(state.after).toBe(4);
     expect(uniqueStyles()).toEqual([DIFF_STYLE_ID]);
+  });
+
+  it("opens a side-by-side link without versions on the selected version and the one after it", async () => {
+    const state = await openLink(
+      "?selected_map=days_above_30c_wet-bulb&version=latest&view=mercator&scenario=2&compare=swipe",
+    );
+
+    expect(state.comparisonMode).toBe("swipe");
+    expect(state.selected).toBe("v3 published");
+    expect(state.before).toBe(3);
+    expect(state.after).toBe(4);
   });
 
   it("renders the plain style for a link without a comparison", async () => {
@@ -269,6 +292,41 @@ describe("opening an ERA5 link", () => {
 
     expect(uniqueStyles().length).toBe(1);
     expect(stylesTheMapWasGiven.length).toBeLessThan(6);
+  });
+});
+
+describe("switching maps during a side-by-side comparison", () => {
+  it("keeps the versions picked for the last map", async () => {
+    await openLink(
+      "?selected_map=days_above_30c_wet-bulb&version=latest&view=mercator&scenario=2&compare=swipe&version_before=1&version_after=4",
+    );
+    const state = await switchToMap("average_temperature");
+
+    expect(state.map).toBe("average_temperature");
+    expect(state.comparisonMode).toBe("swipe");
+    expect(state.before).toBe(1);
+    expect(state.after).toBe(4);
+  });
+
+  // 40101 has no ERA5 in the test registry.
+  it("falls back only the side the new map has no match for", async () => {
+    await openLink(
+      "?selected_map=days_above_30c_wet-bulb&version=latest&view=mercator&scenario=1&compare=swipe&version_before=2&version_after=era5",
+    );
+    const state = await switchToMap("average_temperature");
+
+    expect(state.before).toBe(2);
+    expect(state.after).toBe(4);
+  });
+
+  it("falls back to the default pair rather than show one version on both sides", async () => {
+    await openLink(
+      "?selected_map=days_above_30c_wet-bulb&version=latest&view=mercator&scenario=1&compare=swipe&version_before=4&version_after=era5",
+    );
+    const state = await switchToMap("average_temperature");
+
+    expect(state.before).toBe(3);
+    expect(state.after).toBe(4);
   });
 });
 

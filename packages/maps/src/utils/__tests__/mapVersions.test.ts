@@ -108,13 +108,21 @@ describe("getDefaultVersionPair", () => {
     expect(getDefaultVersionPair(versions, undefined)).toBeUndefined();
   });
 
-  it("pairs the previous version on the left with the selected version on the right", () => {
+  it("pairs the selected version on the left with the version after it on the right", () => {
+    const v2 = makeMap({ mapVersion: 2 });
+    const v3 = makeMap({ mapVersion: 3 });
+    const v4 = makeMap({ mapVersion: 4, status: "draft" });
+
+    expect(getDefaultVersionPair([v2, v3, v4], v3)).toEqual({ before: v3, after: v4 });
+    expect(getDefaultVersionPair([v2, v3, v4], v2)).toEqual({ before: v2, after: v3 });
+  });
+
+  it("pairs the previous version on the left when the newest version is selected", () => {
     const v3 = makeMap({ mapVersion: 3 });
     const v4 = makeMap({ mapVersion: 4 });
     const v5 = makeMap({ mapVersion: 5 });
 
     expect(getDefaultVersionPair([v3, v4, v5], v5)).toEqual({ before: v4, after: v5 });
-    expect(getDefaultVersionPair([v3, v4, v5], v4)).toEqual({ before: v3, after: v4 });
   });
 
   it("keeps the older version on the left when the oldest version is selected", () => {

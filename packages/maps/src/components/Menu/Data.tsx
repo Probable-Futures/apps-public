@@ -440,22 +440,27 @@ export default function Data(): JSX.Element {
       setVersionAfter(undefined);
       return;
     }
-    // An ERA5 side has no row to re-find, so it resolves to the memoized
-    // synthetic map instead — which also drops it if the new dataset has no
-    // ERA5, falling the side back onto `pair`.
+    // Sides are re-found by version number, so switching to another map keeps the
+    // versions picked for the last one wherever the new dataset has them. An ERA5
+    // side has no row to re-find, so it resolves to the memoized synthetic map
+    // instead — which also drops it if the new dataset has no ERA5, falling the
+    // side back onto `pair`.
     const resolve = (map?: types.Map) => {
       if (isEra5Map(map)) {
         return era5Map;
       }
-      return map && map.dataset.id === selectedDataset?.dataset.id
-        ? versionsOfSelectedDataset.find(({ mapVersion }) => mapVersion === map.mapVersion)
-        : undefined;
+      return (
+        map && versionsOfSelectedDataset.find(({ mapVersion }) => mapVersion === map.mapVersion)
+      );
     };
     const resolvedBefore = resolve(versionBefore) ?? pair.before;
     const resolvedAfter = resolve(versionAfter) ?? pair.after;
-    const [nextBefore, nextAfter] = areComparable(resolvedBefore, resolvedAfter)
-      ? [resolvedBefore, resolvedAfter]
-      : [pair.before, pair.after];
+    // A side that fell back onto `pair` can land on the version the other side kept.
+    const [nextBefore, nextAfter] =
+      resolvedBefore.mapVersion !== resolvedAfter.mapVersion &&
+      areComparable(resolvedBefore, resolvedAfter)
+        ? [resolvedBefore, resolvedAfter]
+        : [pair.before, pair.after];
     if (nextBefore !== versionBefore) {
       setVersionBefore(nextBefore);
     }

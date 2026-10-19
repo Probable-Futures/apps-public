@@ -34,7 +34,10 @@ export const getVersionsOfDataset = (
 
 /**
  * Pairs the selected version with a neighbour, older side always on the left so
- * the divider labels read chronologically. Expects `versions` ascending.
+ * the divider labels read chronologically. The newer neighbour wins: the selected
+ * version is usually the latest published one, and the version worth comparing it
+ * against is the draft that follows it, not the one it replaced. Expects
+ * `versions` ascending.
  */
 export const getDefaultVersionPair = (
   versions: types.Map[],
@@ -51,14 +54,14 @@ export const getDefaultVersionPair = (
   const candidates = versions.filter(
     (map) => map.mapVersion !== selected.mapVersion && areComparable(map, selected),
   );
+  const next = candidates.find(({ mapVersion }) => mapVersion > selected.mapVersion);
+  if (next) {
+    return { before: selected, after: next };
+  }
   const previous = [...candidates]
     .reverse()
     .find(({ mapVersion }) => mapVersion < selected.mapVersion);
-  if (previous) {
-    return { before: previous, after: selected };
-  }
-  const next = candidates.find(({ mapVersion }) => mapVersion > selected.mapVersion);
-  return next ? { before: selected, after: next } : undefined;
+  return previous ? { before: previous, after: selected } : undefined;
 };
 
 export const getVersionLabel = (map: types.Map): string =>
