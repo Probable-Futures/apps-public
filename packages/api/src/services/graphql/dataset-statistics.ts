@@ -42,7 +42,12 @@ export const includeClimateZoneName = async (
   pgClient: any,
 ) => {
   if (statisticsResponse?.data) {
-    const climateZoneLabels = await getClimateZonesLabels(pgClient);
+    // The bin labels are only read for climate zones rows, so the query runs
+    // only when the response contains one.
+    const hasClimateZones = statisticsResponse.data.some(
+      (statistics) => statistics["@datasetStatisticsResponses"]?.datasetId === 40901,
+    );
+    const climateZoneLabels = hasClimateZones ? await getClimateZonesLabels(pgClient) : null;
     const binLabels = climateZoneLabels?.rows[0]?.bin_labels as string[];
     statisticsResponse.data.map((statistics) => {
       const statisticsData = statistics["@datasetStatisticsResponses"];

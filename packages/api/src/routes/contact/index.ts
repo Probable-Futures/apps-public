@@ -62,11 +62,15 @@ const handleCreateContact = async (req: Request, res: Response) => {
       : "";
     const serializedError = errorUtils.serialize(error);
     const status = "status" in error && typeof error.status === "number" ? error.status : 500;
-    await slackUtils.sendErrorToSlack(
-      serializedError || "An unexpected error occurred.",
-      errorPrefix,
-      relevantData,
-    );
+    // Signup forms always send a `data` object; a body without one is a
+    // scanner probing the endpoint and gets its 400 without an alert.
+    if (req?.body?.data) {
+      await slackUtils.sendErrorToSlack(
+        serializedError || "An unexpected error occurred.",
+        errorPrefix,
+        relevantData,
+      );
+    }
     res.status(status).send(serializedError);
   }
 };

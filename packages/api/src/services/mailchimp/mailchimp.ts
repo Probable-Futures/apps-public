@@ -1,12 +1,12 @@
 import { mapKeys, snakeCase, omit } from "lodash";
 import { Response } from "node-fetch";
-import md5 from "md5";
 
 import { error } from "../../utils";
 import { NewContact, Status } from "./mailchimp.types";
 import { sendRequest } from "./request";
 import { config } from "./config";
 import { attachTagToMemeber } from "./tags";
+import { subscriberHash } from "./member";
 
 export async function createContact(
   newContact: NewContact,
@@ -14,7 +14,7 @@ export async function createContact(
   let response: Response | undefined;
   try {
     response = await sendRequest(
-      `/lists/${config.contactListId}/members/${md5(newContact.emailAddress)}`,
+      `/lists/${config.contactListId}/members/${subscriberHash(newContact.emailAddress)}`,
       {
         method: "PUT",
         body: JSON.stringify(mapKeys(omit(newContact, ["tags"]), (_, key) => snakeCase(key))),
@@ -26,7 +26,7 @@ export async function createContact(
   } catch (e) {
     if ((e as error.ApplicationError).name === "Member In Compliance State") {
       response = await sendRequest(
-        `/lists/${config.contactListId}/members/${md5(newContact.emailAddress)}`,
+        `/lists/${config.contactListId}/members/${subscriberHash(newContact.emailAddress)}`,
         {
           method: "PUT",
           body: JSON.stringify(

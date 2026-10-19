@@ -25,6 +25,7 @@ import { getMapBuilderMinZoom, MAP_BUILDER_MAX_ZOOM } from "../../consts/mapCons
 import { isEra5Map } from "../../consts/era5Maps";
 import { getDataByKey } from "../../utils";
 import { getComparisonSideShortLabel } from "../../utils/mapVersions";
+import { onSettledMoveEnd } from "../../utils/settledMoveEnd";
 import useGlobeLines, { LINE_LAYER_LABEL_PREFIX } from "../../utils/useGlobeLines";
 
 const COMPARE_POPUP_CLASS = "pf-version-compare-popup";
@@ -490,23 +491,14 @@ const VersionComparisonMapView = forwardRef<VersionComparisonMapHandle, Props>(
       compareInstanceRef.current = new Compare(beforeMap, afterMap, compareContainerRef.current);
       setMaps({ before: beforeMap, after: afterMap });
 
-      const handleMoveEnd = (ev: mapboxgl.MapboxEvent) => {
-        const map = ev.target;
-        const center = map.getCenter();
-        onMoveRef.current?.({
-          longitude: center.lng,
-          latitude: center.lat,
-          zoom: map.getZoom(),
-        });
-      };
-      beforeMap.on("moveend", handleMoveEnd);
-      afterMap.on("moveend", handleMoveEnd);
+      const stopMoveEndListener = onSettledMoveEnd([beforeMap, afterMap], (next) =>
+        onMoveRef.current?.(next),
+      );
 
       return () => {
         closePopups();
         setMaps(null);
-        beforeMap.off("moveend", handleMoveEnd);
-        afterMap.off("moveend", handleMoveEnd);
+        stopMoveEndListener();
         compareInstanceRef.current?.remove?.();
         compareInstanceRef.current = null;
         beforeMap.remove();

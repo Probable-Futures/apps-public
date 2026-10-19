@@ -64,6 +64,12 @@ describe("createContact() — happy path", () => {
     expect(opts).toMatchObject({ method: "PUT" });
   });
 
+  it("keys the member by the lowercased email, so a mixed-case address updates the existing member", async () => {
+    await createContact({ ...newContact, emailAddress: "Ada@Example.COM" });
+    const [path] = sendRequest.mock.calls[0];
+    expect(path).toContain(`/members/${md5("ada@example.com")}`);
+  });
+
   it("snake-cases keys in the request body and omits `tags` from the member PUT", async () => {
     await createContact({ ...newContact, tags: [{ name: "Donor", status: "active" }] });
 

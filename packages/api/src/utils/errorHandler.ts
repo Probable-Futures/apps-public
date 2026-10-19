@@ -105,6 +105,20 @@ export const ERROR_MESSAGE_OVERRIDES: { [code: string]: typeof pluck } = {
 
 const EXPECTED_PG_ERROR_CODES = new Set(Object.keys(ERROR_MESSAGE_OVERRIDES));
 
+// Raised (as P0001) by pf_public.get_dataset_statistics when the caller sends
+// a longitude outside -180..180 or a latitude outside -90..90.
+const EXPECTED_RAISED_MESSAGES = new Set(["Invalid longitude param.", "Invalid latitude param."]);
+
+function isExpectedPgError(code: string | null, originalError: Error): boolean {
+  if (!code) {
+    return false;
+  }
+  return (
+    EXPECTED_PG_ERROR_CODES.has(code) ||
+    (code === "P0001" && EXPECTED_RAISED_MESSAGES.has(originalError.message))
+  );
+}
+
 /**
  * Builds a low-cardinality Sentry tag from a GraphQL error path, e.g.
  * `allProjects.nodes.3.name` -> `allProjects.nodes.name`. Numeric list
@@ -137,7 +151,7 @@ function reportGraphQLError(
     return;
   }
 
-  if (code && EXPECTED_PG_ERROR_CODES.has(code)) {
+  if (isExpectedPgError(code, originalError)) {
     req.log?.warn(
       { err: originalError, pgCode: code, graphqlPath: pathTag },
       "Expected GraphQL error",

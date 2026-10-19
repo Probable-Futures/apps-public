@@ -12,16 +12,7 @@ jobs:
           token: ${{ secrets.FINE_GRAINED_PAT }}
 
       - name: Free disk space
-        run: |
-          sudo swapoff -a
-          sudo rm -f /swapfile
-          sudo apt clean
-          if [ -n "$(docker image ls -aq)" ]; then
-            docker rmi $(docker image ls -aq)
-          else
-            echo "No Docker images to remove."
-          fi
-          df -h
+        uses: ./.github/actions/free-disk-space
 
       - name: Get changed files
         id: changedFiles

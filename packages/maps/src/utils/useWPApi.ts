@@ -10,6 +10,26 @@ export const headers: Record<string, string> = import.meta.env.VITE_WP_AUTH
   ? { Authorization: `Basic ${import.meta.env.VITE_WP_AUTH}` }
   : {};
 
+/**
+ * GETs a WordPress REST endpoint and resolves with the parsed JSON body, or with
+ * `undefined` when the request fails, the response is not 2xx, or the body is not
+ * JSON (empty bodies served to crawlers, proxy block pages). The map settings and
+ * map descriptions are supplementary content, so the map keeps rendering without them.
+ */
+export async function fetchWPJson<T>(url: string): Promise<T | undefined> {
+  try {
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      console.warn(`WordPress API request failed with status ${response.status}: ${url}`);
+      return undefined;
+    }
+    return (await response.json()) as T;
+  } catch (error) {
+    console.warn(`WordPress API request failed: ${url}`, error);
+    return undefined;
+  }
+}
+
 type Props = {
   selectedDataset?: types.Map;
   setSelectedDataset: (arg: any) => void;
@@ -57,12 +77,10 @@ export default function useWPApi({
 
   useEffect(() => {
     async function fetchMapSettings() {
-      const response = await fetch(`${urlWithLocale}acf/v3/options/map-settings`, {
-        headers,
-      });
-
-      const body = await response.json();
-      if (body.acf) {
+      const body = await fetchWPJson<{ acf?: Record<string, any> }>(
+        `${urlWithLocale}acf/v3/options/map-settings`,
+      );
+      if (body?.acf) {
         const warmingScenarioDescs = filterObjectBy(body.acf, "description_");
         const tourSteps = filterObjectBy(body.acf, "tour_part_");
         setWarmingScenarioDescs?.(warmingScenarioDescs);
@@ -95,15 +113,10 @@ export default function useWPApi({
 
   useEffect(() => {
     async function fetchMapDescription() {
-      const response = await fetch(
+      const body = await fetchWPJson<{ acf?: unknown }[]>(
         `${urlWithLocale}wp/v2/maps?dataset_id=${selectedDataset?.dataset.id}&map_version=${selectedDataset?.mapVersion}&_fields=acf`,
-        {
-          headers,
-        },
       );
-
-      const body = await response.json();
-      if (body[0] && body[0].acf) {
+      if (body?.[0]?.acf) {
         setWpDatasetDescriptionResponse(body[0].acf as types.DatasetDescriptionResponse);
       }
     }

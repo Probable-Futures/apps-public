@@ -14,6 +14,7 @@ import { purpleFilter } from "@probable-futures/components-lib/src/styles/common
 import { useTranslation } from "../../contexts/TranslationContext";
 import { colors } from "../../consts";
 import { getDataByKey } from "../../utils/";
+import { onSettledMoveEnd } from "../../utils/settledMoveEnd";
 
 const COMPARE_POPUP_CLASS = "pf-compare-popup";
 
@@ -452,22 +453,13 @@ const ComparisonMapView = forwardRef<ComparisonMapHandle, Props>(
       afterMapRef.current = afterMap;
       compareInstanceRef.current = new Compare(beforeMap, afterMap, compareContainerRef.current);
 
-      const handleMoveEnd = (ev: mapboxgl.MapboxEvent) => {
-        const map = ev.target;
-        const center = map.getCenter();
-        onMoveRef.current?.({
-          longitude: center.lng,
-          latitude: center.lat,
-          zoom: map.getZoom(),
-        });
-      };
-      beforeMap.on("moveend", handleMoveEnd);
-      afterMap.on("moveend", handleMoveEnd);
+      const stopMoveEndListener = onSettledMoveEnd([beforeMap, afterMap], (next) =>
+        onMoveRef.current?.(next),
+      );
 
       return () => {
         closePopups();
-        beforeMap.off("moveend", handleMoveEnd);
-        afterMap.off("moveend", handleMoveEnd);
+        stopMoveEndListener();
         compareInstanceRef.current?.remove?.();
         compareInstanceRef.current = null;
         beforeMap.remove();

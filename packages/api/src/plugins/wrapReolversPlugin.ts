@@ -34,7 +34,7 @@ export const WrapReolversPlugin = makeWrapResolversPlugin({
             context,
             _resolveInfo,
           );
-          const finaleResult = includeClimateZoneName(result, pgClient);
+          const finaleResult = await includeClimateZoneName(result, pgClient);
           await createAudit(
             pgClient,
             "dataset_statistics",

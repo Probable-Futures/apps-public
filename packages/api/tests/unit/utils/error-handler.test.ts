@@ -143,6 +143,33 @@ describe("handleGraphQLErrors - reporting to Sentry", () => {
     expect(formatted.extensions.exception.code).toBe("NUNIQ");
   });
 
+  it("does not capture an out-of-range coordinate raised by get_dataset_statistics", () => {
+    const longitude = makePgError("P0001");
+    longitude.message = "Invalid longitude param.";
+    const latitude = makePgError("P0001");
+    latitude.message = "Invalid latitude param.";
+    const req = makeReq();
+
+    handleGraphQLErrors(
+      [makeError({ originalError: longitude }), makeError({ originalError: latitude })],
+      req,
+      makeRes(),
+    );
+
+    expect(mockCaptureException).not.toHaveBeenCalled();
+    expect(mockAddBreadcrumb).toHaveBeenCalledTimes(2);
+    expect(req.log.warn).toHaveBeenCalledTimes(2);
+  });
+
+  it("still captures other P0001 exceptions raised by database functions", () => {
+    const originalError = makePgError("P0001");
+    originalError.message = "dataset 1 not found";
+
+    handleGraphQLErrors([makeError({ originalError })], makeReq(), makeRes());
+
+    expect(mockCaptureException).toHaveBeenCalledWith(originalError);
+  });
+
   it("calls withScope once per error in a batch, each with its own graphql_path tag", () => {
     const errorA = makeError({
       path: ["projectA", "name"],

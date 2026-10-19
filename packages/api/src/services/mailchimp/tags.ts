@@ -1,11 +1,10 @@
-import md5 from "md5";
-
 import { TagsResponse, Tag } from "./mailchimp.types";
 import { sendRequest } from "./request";
 import { config } from "./config";
+import { subscriberHash } from "./member";
 
 export async function attachTagToMemeber(emailAddress: string, tagsPayload: { tags: Tag[] }) {
-  await sendRequest(`/lists/${config.contactListId}/members/${md5(emailAddress)}/tags`, {
+  await sendRequest(`/lists/${config.contactListId}/members/${subscriberHash(emailAddress)}/tags`, {
     method: "POST",
     body: JSON.stringify(tagsPayload),
   });

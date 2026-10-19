@@ -70,7 +70,7 @@ const useGeocoder = (props: GeocoderProps) => {
           setIsLoading(false);
           setShowNoResultsMessage(true);
           onSearchCompleted?.(query, 0);
-          throw e;
+          return [];
         }
       }
       setSuggestionList([]);
