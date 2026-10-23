@@ -185,7 +185,7 @@ const AdjustViewMenuListItem = styled.li<{ disabled?: boolean; selected?: boolea
   }
 `;
 
-const AdjustViewMenuTitle = styled.div`
+const AdjustViewMenuTitle = styled.li`
   color: ${colors.lightGrey2};
   font-family: LinearSans;
   font-size: 9px;

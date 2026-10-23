@@ -114,7 +114,7 @@ const ModalBody = styled.div`
   }
 `;
 
-const Title = styled.h1`
+const Title = styled.h2`
   font-size: 14px;
   font-weight: 600;
   line-height: 18px;

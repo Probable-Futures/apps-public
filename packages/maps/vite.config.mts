@@ -79,6 +79,12 @@ function svgPlugin(): Plugin {
  * `entrypoints` matches what Vite links from index.html: the entry chunk plus the
  * CSS of the entry and its static imports. The entry loads every other chunk at
  * runtime, and Vite injects the CSS of dynamically imported chunks itself.
+ *
+ * Shared chunks the entry imports statically (e.g. the bundler runtime once some code is
+ * lazy loaded) come before the entry, so WordPress requests them alongside it, as
+ * index.html's modulepreload links do. Only chunks without imports of their own are
+ * listed: their module scripts run first, and one that imported the entry would run the
+ * entry before itself.
  */
 function assetManifestPlugin(): Plugin {
   return {
@@ -115,8 +121,12 @@ function assetManifestPlugin(): Plugin {
         }
       }
 
+      const sharedChunks = entry.imports.filter(
+        (file: string) => bundle[file]?.type === "chunk" && bundle[file].imports.length === 0,
+      );
+
       // CSS entrypoints come before JS
-      const manifest = { files, entrypoints: [...entryCss, entry.fileName] };
+      const manifest = { files, entrypoints: [...entryCss, ...sharedChunks, entry.fileName] };
       fs.writeFileSync(path.join(outDir, "asset-manifest.json"), JSON.stringify(manifest, null, 2));
     },
   };
@@ -128,6 +138,10 @@ export default defineConfig({
     alias: {
       src: path.resolve(import.meta.dirname, "src"),
     },
+    // Resolve every mapbox-gl import (react-map-gl, probable-futures-maps) to this package's copy,
+    // so the bundle carries one mapbox-gl instead of adding probable-futures-maps' own 2.x copy
+    // and the 1.x copy at the repo root.
+    dedupe: ["mapbox-gl"],
   },
   server: {
     port: 3000,

@@ -1,5 +1,4 @@
 import React from "react";
-import mapboxgl from "mapbox-gl";
 import * as Sentry from "@sentry/react";
 import { Integrations } from "@sentry/tracing";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -8,12 +7,6 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import GlobalStyles from "./globalStyles";
-import "./fonts.css";
-
-// https://github.com/mapbox/mapbox-gl-js/issues/10173
-import MapboxWorker from "mapbox-gl/dist/mapbox-gl-csp-worker?worker";
-// @ts-ignore
-mapboxgl.workerClass = MapboxWorker;
 
 Sentry.init({
   enabled: process.env.NODE_ENV === "production" && !window.pfInteractiveMap,
@@ -22,6 +15,11 @@ Sentry.init({
   tracesSampleRate: 0.5,
   environment: import.meta.env.VITE_DEPLOY_ENV,
 });
+
+// On WordPress the theme stylesheet declares these font families, with font-display: swap.
+if (!window.pfInteractiveMap) {
+  import("./fonts.css");
+}
 
 const { appSelector = "#root" } = window.pfInteractiveMap || {};
 

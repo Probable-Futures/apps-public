@@ -64,6 +64,9 @@ export default (app: Express) => {
         "uppy-auth-token",
       ],
       exposedHeaders: ["X-GraphQL-Event-Stream", "Access-Control-Allow-Headers"],
+      // Lets browsers cache the preflight response for up to 2 hours (Chrome's cap), so later
+      // requests from the same site in that window skip the OPTIONS round trip.
+      maxAge: 7200,
     });
   };
 

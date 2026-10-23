@@ -115,7 +115,7 @@ const Header = styled.div`
   }
 `;
 
-const HeaderTitle = styled.dl`
+const HeaderTitle = styled.h2`
   display: flex;
   letter-spacing: 0;
   margin: 0;

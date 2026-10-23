@@ -15,6 +15,7 @@ import { useTranslation } from "../../contexts/TranslationContext";
 import { colors } from "../../consts";
 import { getDataByKey } from "../../utils/";
 import { onSettledMoveEnd } from "../../utils/settledMoveEnd";
+import { removeAttributionListRole } from "../../utils/mapAttribution";
 
 const COMPARE_POPUP_CLASS = "pf-compare-popup";
 
@@ -449,6 +450,8 @@ const ComparisonMapView = forwardRef<ComparisonMapHandle, Props>(
         preserveDrawingBuffer: true,
         projection: mapProjection,
       });
+      removeAttributionListRole(beforeMap);
+      removeAttributionListRole(afterMap);
       beforeMapRef.current = beforeMap;
       afterMapRef.current = afterMap;
       compareInstanceRef.current = new Compare(beforeMap, afterMap, compareContainerRef.current);

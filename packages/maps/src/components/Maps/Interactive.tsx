@@ -1,9 +1,17 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  lazy,
+  Suspense,
+  forwardRef,
+} from "react";
 import MapGL, { MapLayerMouseEvent, MapRef, ViewState, ViewStateChangeEvent } from "react-map-gl";
 import { useMediaQuery } from "react-responsive";
 import styled from "styled-components";
 import { MapboxEvent, Map as MapBoxMap, MapSourceDataEvent } from "mapbox-gl";
-import qrCode from "qrcode";
 import debounce from "lodash.debounce";
 import camelcase from "lodash.camelcase";
 import mapboxgl from "mapbox-gl";
@@ -25,18 +33,29 @@ import { useTranslation } from "../../contexts/TranslationContext";
 import DownloadMapModal from "../DownloadMapModal";
 import useGlobeLines from "../../utils/useGlobeLines";
 import { degreeToString } from "@probable-futures/lib/src/utils";
-import { generateEmbedMap } from "@probable-futures/probable-futures-maps/src";
 import { consts, utils } from "@probable-futures/lib";
 import { components, contexts } from "@probable-futures/components-lib";
 import { Feature } from "@probable-futures/components-lib/src/hooks/useGeocoder";
 import useClimateZoneHighlighter from "../../utils/useClimateZoneHighlighter";
 import WarmingScenarioSelection from "../WarmingScenarioSelection";
-import ComparisonMapView, { ComparisonMapHandle } from "./ComparisonMapView";
+import type ComparisonMapViewComponent from "./ComparisonMapView";
+import type { ComparisonMapHandle } from "./ComparisonMapView";
 import Popup from "../common/Popup";
 import { useDatasetChangeHandler } from "../../utils/useDatasetChangeHandler";
+import { removeAttributionListRole } from "../../utils/mapAttribution";
 import { trackMixpanelEvent, trackMapClicked, AnalyticsEvent } from "../../utils/mixpanelAnalytics";
 import MapboxClient from "@mapbox/mapbox-sdk/lib/client";
 import mbxGeocoder from "@mapbox/mapbox-sdk/services/geocoding";
+
+// Loaded on first use: comparison mode, the QR code and the embeddable map download.
+// A failed chunk download renders no comparison map instead of unmounting the app.
+const NoComparisonMap = forwardRef<ComparisonMapHandle>(() => null);
+const ComparisonMapView = lazy<typeof ComparisonMapViewComponent>(() =>
+  import("./ComparisonMapView").catch((error) => {
+    console.error(error);
+    return { default: NoComparisonMap };
+  }),
+);
 
 type MapStyles = {
   stops?: number[];
@@ -413,7 +432,10 @@ const InteractiveMap = () => {
       return;
     }
 
-    const template = await generateEmbedMap({
+    const { exportMapAsHTML } = await import(
+      "@probable-futures/probable-futures-maps/src/exportMap"
+    );
+    const template = await exportMapAsHTML({
       dataset: selectedDataset,
       mapboxAccessToken: import.meta.env.VITE_EMBEDDABLE_MAPS_MAPBOX_ACCESS_TOKEN,
       tempUnit,
@@ -441,7 +463,10 @@ const InteractiveMap = () => {
     if (!selectedDataset || !datasetDescriptionResponse) {
       return;
     }
-    const template = await generateEmbedMap({
+    const { exportMapAsHTML } = await import(
+      "@probable-futures/probable-futures-maps/src/exportMap"
+    );
+    const template = await exportMapAsHTML({
       dataset: selectedDataset,
       mapboxAccessToken: import.meta.env.VITE_EMBEDDABLE_MAPS_MAPBOX_ACCESS_TOKEN,
       tempUnit,
@@ -658,6 +683,7 @@ const InteractiveMap = () => {
 
   const generateQRCodeDataURL = async (url: string): Promise<string> => {
     try {
+      const { default: qrCode } = await import("qrcode");
       const canvas = await qrCode.toCanvas(url, { width: 400 });
       const pngDataUrl = canvas.toDataURL("image/png");
       return pngDataUrl;
@@ -734,6 +760,7 @@ const InteractiveMap = () => {
 
   const onLoad = useCallback(
     (e: MapboxEvent) => {
+      removeAttributionListRole(e.target);
       if (e.target.isStyleLoaded()) {
         updateMapStyles(e.target, degrees, false);
       }
@@ -865,42 +892,50 @@ const InteractiveMap = () => {
             )}
           </MapKeyContainer>
           {selectedDataset && isComparisonMapActive && (
-            <ComparisonMapView
-              ref={comparisonMapRef}
-              selectedDataset={selectedDataset}
-              scenarioBefore={comparisonScenarioBefore}
-              scenarioAfter={comparisonScenarioAfter}
-              mapboxAccessToken={mapboxAccessToken}
-              mapStyleUrl={mapStyleLink}
-              showCountryBorders={showCountryBorders}
-              locale={locale}
-              height={mapHeight}
-              viewState={viewState}
-              tempUnit={tempUnit}
-              precipitationUnit={precipitationUnit}
-              datasetDescriptionResponse={datasetDescriptionResponse}
-              mapProjection={mapProjection}
-              percentileValue={percentileValue}
-              activeClimateZoneLayers={activeClimateZoneLayers}
-              climateZoneBinHexColors={climateZoneBinHexColors}
-              onMove={(next) => {
-                setViewState((prev) => ({ ...prev, ...next }));
-                const hash = `${next.zoom.toFixed(2)}/${next.latitude.toFixed(
-                  6,
-                )}/${next.longitude.toFixed(6)}`;
-                window.history.replaceState(
-                  null,
-                  "",
-                  `${window.location.pathname}${window.location.search}#${hash}`,
-                );
-              }}
-              onReadMoreClick={() => {
-                setShowDescriptionModal((show: boolean) => !show);
-                trackMixpanelEvent(AnalyticsEvent.MAP_DESCRIPTION_VIEWED, {
-                  map_name: selectedDataset?.name,
-                });
-              }}
-            />
+            <Suspense
+              fallback={
+                <div style={{ height: mapHeight }}>
+                  <components.Loader show />
+                </div>
+              }
+            >
+              <ComparisonMapView
+                ref={comparisonMapRef}
+                selectedDataset={selectedDataset}
+                scenarioBefore={comparisonScenarioBefore}
+                scenarioAfter={comparisonScenarioAfter}
+                mapboxAccessToken={mapboxAccessToken}
+                mapStyleUrl={mapStyleLink}
+                showCountryBorders={showCountryBorders}
+                locale={locale}
+                height={mapHeight}
+                viewState={viewState}
+                tempUnit={tempUnit}
+                precipitationUnit={precipitationUnit}
+                datasetDescriptionResponse={datasetDescriptionResponse}
+                mapProjection={mapProjection}
+                percentileValue={percentileValue}
+                activeClimateZoneLayers={activeClimateZoneLayers}
+                climateZoneBinHexColors={climateZoneBinHexColors}
+                onMove={(next) => {
+                  setViewState((prev) => ({ ...prev, ...next }));
+                  const hash = `${next.zoom.toFixed(2)}/${next.latitude.toFixed(
+                    6,
+                  )}/${next.longitude.toFixed(6)}`;
+                  window.history.replaceState(
+                    null,
+                    "",
+                    `${window.location.pathname}${window.location.search}#${hash}`,
+                  );
+                }}
+                onReadMoreClick={() => {
+                  setShowDescriptionModal((show: boolean) => !show);
+                  trackMixpanelEvent(AnalyticsEvent.MAP_DESCRIPTION_VIEWED, {
+                    map_name: selectedDataset?.name,
+                  });
+                }}
+              />
+            </Suspense>
           )}
           {selectedDataset && !isComparisonMapActive && (
             <MapGL
