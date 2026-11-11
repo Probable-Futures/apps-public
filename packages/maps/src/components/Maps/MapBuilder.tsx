@@ -523,6 +523,9 @@ const InteractiveMap = () => {
   };
 
   const takeScreenshot = async () => {
+    if (isScreenshot) {
+      return;
+    }
     setIsScreenshot(true);
     // Let the screenshot-only styles paint before html-to-image reads the tree.
     await new Promise((resolve) => setTimeout(resolve, 250));

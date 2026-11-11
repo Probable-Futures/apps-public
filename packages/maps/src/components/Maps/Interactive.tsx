@@ -656,15 +656,14 @@ const InteractiveMap = () => {
   };
 
   const takeScreenshot = async () => {
-    // Wait a little bit to make sure the dataset selector dropdown has fully closed in case it was open
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    if (isScreenshot) {
+      return;
+    }
     setIsScreenshot(true);
-    exportComponentAsPNG(
-      mapContainerRef,
-      `Probable Futures map - ${selectedDataset?.name} at ${utils.degreeToString(degrees)}°C`,
-    );
-    // Wait 1s for export to finish
-    setTimeout(() => setIsScreenshot(false), 1000);
+    // Let the dataset selector dropdown close and the screenshot-only styles paint before
+    // html-to-image reads the tree.
+    await new Promise((resolve) => setTimeout(resolve, 250));
+
     trackEvent("Map screenshot", {
       props: {
         map: `${selectedDataset?.name}`,
@@ -679,6 +678,15 @@ const InteractiveMap = () => {
       zoom: viewState?.zoom,
       coordinates: `${viewState.latitude},${viewState.longitude}`,
     });
+
+    try {
+      await exportComponentAsPNG(
+        mapContainerRef,
+        `Probable Futures map - ${selectedDataset?.name} at ${utils.degreeToString(degrees)}°C`,
+      );
+    } finally {
+      setIsScreenshot(false);
+    }
   };
 
   const generateQRCodeDataURL = async (url: string): Promise<string> => {
