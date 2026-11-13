@@ -65,12 +65,23 @@ export const findMapForParams = (
 export const isLatestMapForSlug = (maps: types.Map[], map: types.Map, status?: string): boolean =>
   findMapForSlug(maps, { slug: map.slug, status }) === map;
 
+/**
+ * The default is the newest map of the first dataset in the list. The public map requests maps in
+ * their editorial order, so it opens on the dataset the editors put first.
+ */
 export const findDefaultMap = (maps: types.Map[], status?: string): types.Map | undefined => {
   const preference = statusPreference(status);
+  const datasetPosition = new Map<number, number>();
+  maps.forEach(({ dataset }, index) => {
+    if (!datasetPosition.has(dataset.id)) {
+      datasetPosition.set(dataset.id, index);
+    }
+  });
+  const positionOf = ({ dataset }: types.Map) => datasetPosition.get(dataset.id) ?? 0;
   return [...maps].sort(
     (a, b) =>
       statusRank(preference, a) - statusRank(preference, b) ||
-      a.dataset.id - b.dataset.id ||
+      positionOf(a) - positionOf(b) ||
       Number(b.isLatest) - Number(a.isLatest) ||
       b.mapVersion - a.mapVersion,
   )[0];

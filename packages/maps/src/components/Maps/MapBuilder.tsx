@@ -22,7 +22,7 @@ import {
   LATEST_MAP_VERSION,
   MAP_BUILDER_MAX_ZOOM,
 } from "../../consts/mapConsts";
-import { exportComponentAsPNG } from "../../utils/export";
+import { exportComponentAsPNG, preloadScreenshot } from "../../utils/export";
 import { getDiffMapBinHexColors, getDiffSideLabel } from "../../consts/versionDiffMaps";
 import { getDiffMode } from "../../consts/diffModes";
 import { ERA5_MAX_DEGREES, isEra5Map } from "../../consts/era5Maps";
@@ -527,7 +527,8 @@ const InteractiveMap = () => {
       return;
     }
     setIsScreenshot(true);
-    // Let the screenshot-only styles paint before html-to-image reads the tree.
+    preloadScreenshot();
+    // Let the screenshot-only styles paint before the tree is captured.
     await new Promise((resolve) => setTimeout(resolve, 250));
     const label = activeDiffMap
       ? `difference ${getDiffSideLabel(activeDiffMap.targetVersion)}-${getDiffSideLabel(

@@ -1,9 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { createRef } from "react";
-import { downloadFile, exportComponentAsPNG } from "../export";
+import { createContext, destroyContext, domToCanvas } from "modern-screenshot";
+import { downloadFile, exportComponentAsPNG, preloadScreenshot } from "../export";
 
-vi.mock("html-to-image", () => ({
-  toCanvas: vi.fn(),
+vi.mock("modern-screenshot", () => ({
+  createContext: vi.fn(),
+  destroyContext: vi.fn(),
+  domToCanvas: vi.fn(),
 }));
 
 afterEach(() => {
@@ -77,9 +80,22 @@ describe("exportComponentAsPNG", () => {
   const exportRoot = (root: HTMLElement) =>
     exportComponentAsPNG({ current: root } as React.RefObject<HTMLElement>, "map.png");
 
-  beforeEach(async () => {
-    const { toCanvas } = await import("html-to-image");
-    vi.mocked(toCanvas)
+  // The options the most recent context was created with.
+  const contextOptions = () =>
+    vi.mocked(createContext).mock.calls.at(-1)?.[1] as {
+      filter: (node: Node) => boolean;
+      fetchFn: (url: string) => Promise<string | false>;
+      onCloneEachNode: (cloned: Node) => void;
+      features: Record<string, boolean>;
+      autoDestruct: boolean;
+    };
+
+  beforeEach(() => {
+    vi.mocked(createContext)
+      .mockReset()
+      .mockImplementation(async (node) => ({ node } as never));
+    vi.mocked(destroyContext).mockReset();
+    vi.mocked(domToCanvas)
       .mockReset()
       .mockResolvedValue(overlay as unknown as HTMLCanvasElement);
     Object.values(ctx).forEach((fn) => fn.mockClear());
@@ -90,25 +106,218 @@ describe("exportComponentAsPNG", () => {
     clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
   });
 
-  it("returns early when ref.current is null", async () => {
-    const { toCanvas } = await import("html-to-image");
-    const ref = createRef<HTMLElement>();
-    await exportComponentAsPNG(ref, "map.png");
-    expect(toCanvas).not.toHaveBeenCalled();
+  it("preloads the library without capturing anything", async () => {
+    expect(() => preloadScreenshot()).not.toThrow();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(createContext).not.toHaveBeenCalled();
+    expect(domToCanvas).not.toHaveBeenCalled();
   });
 
-  it("renders the overlay and triggers a download when ref is set", async () => {
-    const { toCanvas } = await import("html-to-image");
+  it("returns early when ref.current is null", async () => {
+    const ref = createRef<HTMLElement>();
+    await exportComponentAsPNG(ref, "map.png");
+    expect(domToCanvas).not.toHaveBeenCalled();
+    expect(clickSpy).not.toHaveBeenCalled();
+  });
+
+  it("renders the overlay at the root's size and pixel ratio and triggers a download", async () => {
+    vi.spyOn(window, "devicePixelRatio", "get").mockReturnValue(2);
     const root = renderRoot();
 
     await exportRoot(root);
 
-    expect(toCanvas).toHaveBeenCalledWith(root, expect.objectContaining({ cacheBust: true }));
+    expect(createContext).toHaveBeenCalledWith(
+      root,
+      expect.objectContaining({ autoDestruct: false }),
+    );
+    expect(domToCanvas).toHaveBeenCalledWith(
+      expect.objectContaining({ node: root, width: 100, height: 50, scale: 2 }),
+    );
     expect(clickSpy).toHaveBeenCalled();
   });
 
-  it("excludes map canvases from html-to-image and draws them directly", async () => {
-    const { toCanvas } = await import("html-to-image");
+  describe("redrawing", () => {
+    const styled = (style: Partial<CSSStyleDeclaration>, src?: string) => {
+      const el = document.createElement(src ? "img" : "div");
+      Object.assign(el.style, style);
+      if (src) {
+        el.setAttribute("src", src);
+      }
+      return el;
+    };
+    const text = styled({ fontFamily: "LinearSans", fontWeight: "400" });
+    const boldText = styled({ fontFamily: "LinearSans", fontWeight: "700" });
+    const logo = styled({ backgroundImage: 'url("logo.svg")' });
+    const arrow = styled({ backgroundImage: 'url("arrow.svg")' });
+    const photo = styled({}, "photo.png");
+
+    // Each capture passes these clones through the cloning hook and records whether it redraws.
+    let clones: Node[] = [];
+    let redrawn: boolean[] = [];
+    beforeEach(() => {
+      clones = [];
+      redrawn = [];
+      vi.mocked(domToCanvas).mockImplementation(async () => {
+        const { onCloneEachNode, features } = contextOptions();
+        clones.forEach(onCloneEachNode);
+        redrawn.push(features.fixSvgXmlDecode);
+        return overlay as unknown as HTMLCanvasElement;
+      });
+    });
+
+    const captureWith = async (root: HTMLElement, ...nodes: Node[]) => {
+      clones = [root, ...nodes];
+      await exportRoot(root);
+    };
+
+    it("redraws only captures that draw a font or image no earlier capture drew", async () => {
+      const root = renderRoot();
+
+      await captureWith(root, text, logo, document.createTextNode("text"));
+      await captureWith(root, text, logo);
+      await captureWith(root, text, logo, arrow);
+      await captureWith(root, text, logo, arrow);
+      await captureWith(root, text, boldText, logo);
+      await captureWith(root, text, logo, photo);
+      await captureWith(root, text, boldText, logo, arrow, photo);
+
+      expect(redrawn).toEqual([true, false, true, false, true, true, false]);
+    });
+
+    it("redraws again after a failed capture", async () => {
+      vi.mocked(domToCanvas).mockImplementationOnce(async () => {
+        clones.forEach(contextOptions().onCloneEachNode);
+        redrawn.push(contextOptions().features.fixSvgXmlDecode);
+        throw new Error("decode failed");
+      });
+      const root = renderRoot();
+
+      await expect(captureWith(root, text, logo)).rejects.toThrow("decode failed");
+      await captureWith(root, text, logo);
+
+      expect(redrawn).toEqual([true, true]);
+    });
+
+    it("redraws again with a new root", async () => {
+      await captureWith(renderRoot(), text, logo);
+      await captureWith(renderRoot(), text, logo);
+
+      expect(redrawn).toEqual([true, true]);
+    });
+
+    it("limits the redraws to three, 50 ms apart", async () => {
+      const root = renderRoot();
+      await captureWith(root, text);
+      const context = (await vi.mocked(createContext).mock.results.at(-1)?.value) as {
+        drawImageCount: number;
+      };
+      const { onCreateForeignObjectSvg, drawImageInterval } = contextOptions() as unknown as {
+        onCreateForeignObjectSvg: () => void;
+        drawImageInterval: number;
+      };
+
+      const counts = [12, 3, 1, 0].map((count) => {
+        context.drawImageCount = count;
+        onCreateForeignObjectSvg();
+        return context.drawImageCount;
+      });
+
+      expect(counts).toEqual([3, 3, 1, 0]);
+      expect(drawImageInterval).toBe(50);
+    });
+
+    it("doesn't copy scrollbar styles", async () => {
+      await captureWith(renderRoot(), text);
+
+      expect(contextOptions().features.copyScrollbar).toBe(false);
+    });
+  });
+
+  it("reuses the context for the same root and refreshes its size", async () => {
+    const root = renderRoot();
+    await exportRoot(root);
+    vi.mocked(createContext).mockClear();
+    vi.mocked(destroyContext).mockClear();
+    setRect(root, 0, 0, 120, 60);
+
+    await exportRoot(root);
+
+    expect(createContext).not.toHaveBeenCalled();
+    expect(destroyContext).not.toHaveBeenCalled();
+    expect(domToCanvas).toHaveBeenLastCalledWith(
+      expect.objectContaining({ node: root, width: 120, height: 60 }),
+    );
+  });
+
+  it("replaces the context when the root changes", async () => {
+    await exportRoot(renderRoot());
+    const previous = await vi.mocked(createContext).mock.results.at(-1)?.value;
+    const root = renderRoot();
+
+    await exportRoot(root);
+
+    expect(destroyContext).toHaveBeenCalledWith(previous);
+    expect(createContext).toHaveBeenLastCalledWith(root, expect.anything());
+  });
+
+  it("leaves fragment references in data URIs alone instead of fetching them", async () => {
+    await exportRoot(renderRoot());
+
+    const { fetchFn } = contextOptions();
+    await expect(fetchFn("https://probablefutures.org/maps/%23clip")).resolves.toBe("%23clip");
+    await expect(fetchFn("https://probablefutures.org/maps/logo.svg")).resolves.toBe(false);
+    await expect(fetchFn("https://probablefutures.org/img/%23logo.png")).resolves.toBe(false);
+  });
+
+  it("draws scroll containers without scrollbars", async () => {
+    await exportRoot(renderRoot());
+    const { onCloneEachNode } = contextOptions();
+    const scrolling = document.createElement("div");
+    scrolling.style.overflowX = "auto";
+    scrolling.style.overflowY = "scroll";
+    const clipped = document.createElement("div");
+    clipped.style.overflowX = "visible";
+    clipped.style.overflowY = "hidden";
+
+    onCloneEachNode(scrolling);
+    onCloneEachNode(clipped);
+    onCloneEachNode(document.createTextNode("text"));
+
+    expect([scrolling.style.overflowX, scrolling.style.overflowY]).toEqual(["hidden", "hidden"]);
+    expect([clipped.style.overflowX, clipped.style.overflowY]).toEqual(["visible", "hidden"]);
+  });
+
+  it("runs one capture at a time", async () => {
+    let finishFirst: (canvas: HTMLCanvasElement) => void = () => {};
+    vi.mocked(domToCanvas).mockImplementationOnce(
+      () => new Promise((resolve) => (finishFirst = resolve)),
+    );
+    const root = renderRoot();
+
+    const first = exportRoot(root);
+    const second = exportRoot(root);
+    await vi.waitFor(() => expect(domToCanvas).toHaveBeenCalledTimes(1));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(domToCanvas).toHaveBeenCalledTimes(1);
+
+    finishFirst(overlay as unknown as HTMLCanvasElement);
+    await Promise.all([first, second]);
+    expect(domToCanvas).toHaveBeenCalledTimes(2);
+    expect(clickSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps capturing after a failed capture", async () => {
+    vi.mocked(domToCanvas).mockRejectedValueOnce(new Error("decode failed"));
+    const root = renderRoot();
+
+    await expect(exportRoot(root)).rejects.toThrow("decode failed");
+    await exportRoot(root);
+
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("excludes map canvases from modern-screenshot and draws them directly", async () => {
     const root = renderRoot();
     const mapCanvas = addMapCanvas(root, 10, 5, 40, 20);
     const otherCanvas = document.createElement("canvas");
@@ -116,9 +325,7 @@ describe("exportComponentAsPNG", () => {
 
     await exportRoot(root);
 
-    const { filter } = vi.mocked(toCanvas).mock.calls[0][1] as {
-      filter: (n: HTMLElement) => boolean;
-    };
+    const { filter } = contextOptions();
     expect(filter(mapCanvas)).toBe(false);
     expect(filter(otherCanvas)).toBe(true);
     expect(filter(root)).toBe(true);
@@ -126,6 +333,19 @@ describe("exportComponentAsPNG", () => {
     expect(ctx.drawImage).toHaveBeenNthCalledWith(1, mapCanvas, 20, 10, 80, 40);
     expect(ctx.drawImage).toHaveBeenNthCalledWith(2, overlay, 0, 0);
     expect(ctx.drawImage).toHaveBeenCalledTimes(2);
+  });
+
+  it("scales map canvases to the width the overlay was rendered at", async () => {
+    const root = renderRoot();
+    const mapCanvas = addMapCanvas(root, 10, 5, 40, 20);
+    vi.mocked(domToCanvas).mockImplementationOnce(async () => {
+      setRect(root, 0, 0, 50, 25);
+      return overlay as unknown as HTMLCanvasElement;
+    });
+
+    await exportRoot(root);
+
+    expect(ctx.drawImage).toHaveBeenNthCalledWith(1, mapCanvas, 20, 10, 80, 40);
   });
 
   it("clips a map canvas to its ancestor's CSS clip rect", async () => {

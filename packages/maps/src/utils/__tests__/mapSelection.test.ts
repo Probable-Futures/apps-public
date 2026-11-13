@@ -162,4 +162,27 @@ describe("findDefaultMap", () => {
 
     expect(findDefaultMap([legacyArchive, other])).toBe(other);
   });
+
+  it("opens on the first dataset in the list's order rather than the lowest dataset id", () => {
+    const averageTemperature = makeMap({
+      datasetId: 40101,
+      slug: "average_temperature",
+      mapVersion: 3,
+      isLatest: true,
+    });
+
+    expect(findDefaultMap([v3, v1, v2, averageTemperature])).toBe(v3);
+    expect(findDefaultMap([averageTemperature, v1, v2, v3])).toBe(averageTemperature);
+  });
+
+  it("picks the newest version of the first dataset whatever order its versions come in", () => {
+    const daysAbove35 = makeMap({
+      datasetId: 40105,
+      slug: "days_above_35c",
+      mapVersion: 3,
+      isLatest: true,
+    });
+
+    expect(findDefaultMap([v1, v2, v3, daysAbove35])).toBe(v3);
+  });
 });

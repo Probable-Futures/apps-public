@@ -26,7 +26,7 @@ import useWPApi from "../../utils/useWPApi";
 import useFeaturePopup from "../../utils/useFeaturePopup";
 import { useWindowHeight } from "../../utils/useWindowHeight";
 import { trackEvent } from "../../utils/analytics";
-import { downloadFile, exportComponentAsPNG } from "../../utils/export";
+import { downloadFile, exportComponentAsPNG, preloadScreenshot } from "../../utils/export";
 import { size, colors } from "../../consts";
 import SearchPopup from "../common/SearchPopup";
 import { useTranslation } from "../../contexts/TranslationContext";
@@ -660,8 +660,9 @@ const InteractiveMap = () => {
       return;
     }
     setIsScreenshot(true);
-    // Let the dataset selector dropdown close and the screenshot-only styles paint before
-    // html-to-image reads the tree.
+    preloadScreenshot();
+    // Let the dataset selector dropdown close and the screenshot-only styles paint before the
+    // tree is captured.
     await new Promise((resolve) => setTimeout(resolve, 250));
 
     trackEvent("Map screenshot", {
